@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.5.0`**
+**Current version: `v0.6.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `cf8bb3045f3e82fc99ca2cfb8c7ddd6d511a206fc06072fcedefb68c3addac5c` |
-| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `4ba55a7135d43a22b3388e3a70299191260bb86a81cec455dfe912cb1096569e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `e9b5a4199b9aee7ca2b5cde56c1cfa9305001902f99ba77038f709158e8a1f23` |
+| `x3-linux-amd64` | linux/amd64 | 11.9 MB | `5244c38124de1352923abec45bffb1b1a48cec30c8e0db8cf914ca46f6d16e06` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -726,10 +726,10 @@ turns those sentences into rules the engine checks. The rules live in `x3.json`,
 the verifier lives in the engine: neither do the rules enter the engine, nor do
 the project's names enter a verifier.
 
-**One rule kind is built:** `deps`, with two of its three matchers —
-`match: "import"` reads the import graph, `match: "literal"` reads names the
-compiler never sees. The other eight kinds and the `symbol` matcher are
-specified in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
+**One rule kind is built, with all three of its matchers:** `import` reads the
+import graph, `literal` reads names the compiler never sees, `symbol` reads what
+the code actually uses. The other eight kinds are specified in
+[ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
 and says so — a planned kind that passed silently would be worse than no rule at
 all.
 
@@ -882,17 +882,52 @@ An exemption above a declaration now covers **every line of that declaration**,
 not just its first: a literal violation sits inside a function body, and an
 exemption that only covered the signature would silence nothing.
 
+### The `symbol` matcher — capabilities, not layers
+
+An import ban answers "may this component know that one". It cannot answer "may
+this component encrypt, open an outbound request, or retry" — a capability is
+usually one call inside a package everybody imports.
+
+```json
+{ "name": "modules-carry-no-mechanism",
+  "kind": "deps", "match": "symbol",
+  "from": "modules",
+  "deny": ["crypto/**", "net/http.NewRequest", "**/*.Retry"] }
+```
+
+**`deny` holds path patterns here, not component names.** The packages carrying
+a forbidden capability are usually not the project's own components, so nothing
+is checked against the component list — and a rule that reads no file is still
+`empty_scope`.
+
+Two things are read from every file in `from`:
+
+| Read | Written as | Caught by |
+|---|---|---|
+| each import path | `crypto/sha256` | `crypto/**` |
+| each `qualifier.Name` selector | `crypto/sha256.Sum256`, `client.Retry` | `crypto/**`, `**/*.Retry` |
+
+An import alias is resolved to its full path, so `http.NewRequest` is read as
+`net/http.NewRequest` whatever the file calls the package. A qualifier that is
+not an import — a variable, a receiver — is kept as written, which is what makes
+`**/*.Retry` find retry logic whose package cannot be known.
+
+Both are needed. Catching only the import lets a file take a package it already
+has and call the forbidden function; catching only the call lets a package be
+taken and aliased out of sight.
+
 ### Fields a rule has
 
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | yes | unique in the file; what the report and the stderr lines call this rule |
 | `kind` | yes | `deps` today; the other eight stop the run |
-| `match` | yes | `import` or `literal`; `symbol` stops the run |
+| `match` | yes | `import`, `literal` or `symbol` |
 | `from` + `deny` | import | the outward question |
 | `to` + `allowFrom` | import | the inward question |
 | `pattern` + `owner` | literal | only the owner may spell this name |
 | `pattern` + `from` | literal | this component may not spell it |
+| `from` + `deny` | symbol | this component may not use these names |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
@@ -1017,6 +1052,8 @@ kinds that do not exist yet.
 | `testdata/red` with `arch-red.json` | `1` — one planted violation, one finding |
 | `testdata/literal-green` with its configuration | `0` — the owner spelling its own name is not a violation |
 | `testdata/literal-red` with its configuration | `1` — three findings, one of them from a `.sql` file |
+| `testdata/symbol-green` with its configuration | `0` |
+| `testdata/symbol-red` with its configuration | `1` — four findings: an import path, two calls through it, and a retry |
 | this repository with its own `x3.json` | `0` |
 | the same three rules split across three files | `1` — the parts carry the rules |
 
@@ -1873,10 +1910,15 @@ sales page.
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
 - **`arch` reads dependencies and nothing else yet.** One of nine rule kinds is
-  built. A capability written where it does not belong — cryptography, an
-  outbound request, retry logic — needs `deps:symbol`, which is specified and
-  does not exist. The `import` matcher still reads Go only, so pointing its
-  `sources` at a text glob leaves it with nothing to read.
+  built, and the other eight — value flow, serialization surface, vocabulary,
+  containment, pairing, consistency, duplication, required markers — are
+  specified and do not exist. The `import` and `symbol` matchers read Go only,
+  so pointing their `sources` at a text glob leaves them with nothing to read.
+- **`symbol` reads names, not types.** It sees `client.Retry` without knowing
+  what `client` is, so a forbidden call reached through an interface, a function
+  value or a wrapper is invisible to it, and two different types with the same
+  method name are the same name to it. Type resolution would need the whole
+  program; this reads one file at a time.
 - **A text file cannot carry an exemption.** `//x3:allow:arch:` is a Go comment.
   A `literal` finding in SQL or JSON is answered by fixing it, by `alsoAllow`,
   or by narrowing `sources` — not by silencing that one line.
@@ -1970,4 +2012,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.5.0 capabilities=aa2a1bc06e59264429f6c0b2171ad2957740cf90c3339c26babdd72e294b234e template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
+<!-- x3-dist version=v0.6.0 capabilities=c935d246e3766d18ff1f3809f67b04760d5c2f6c2087170304b5d950bd96184e template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
