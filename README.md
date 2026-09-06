@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.13.0`**
+**Current version: `v0.14.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `94c62c78270989adc1664af85ae87db3c946a9fefbadc136d70697d490b2e30c` |
-| `x3-linux-amd64` | linux/amd64 | 12.1 MB | `4a2c75c8bf82c73ec913aedbb20b2be71997b052cde027a6d668068024b28ad6` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `b1f05d46581d9b91e31b5555cecc252c97aa03af9b3a09cfab6272dc3876d27f` |
+| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `79f5fad7a15956f146729480c300a2e7844f8b3e4d5b2e7f8c60373147fe04df` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -73,6 +73,7 @@ x3 scan  ./internal/...         # directives in the source
 x3 lang  -config x3.json .      # one language outside comments
 x3 arch  -config x3.json .      # which component may import which
 x3 freeze -config x3.json .     # frozen lists that only shrink
+x3 docs  -config x3.json .      # changes that must not travel alone
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -84,7 +85,8 @@ returned instead.
 
 Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
-section for the frozen baselines, the `live`
+section for the frozen baselines, the `docs` section for coupled changes,
+the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -113,6 +115,7 @@ and not in this file, it does not exist yet.
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
+- [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -149,6 +152,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
 | **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; one of the nine specified rule kinds (`deps` with `match: "import"`) has a verifier |
 | **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink and refuses to record growth |
+| **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -1370,6 +1374,78 @@ quiet pass.
 The third row is the one that matters. Without it, a `-update` that quietly
 accepted growth would look exactly like a working gate.
 
+## `x3 docs`
+
+Some changes must not travel alone: code without its documentation, a migration
+without its release note, a public surface without its changelog line. The rule
+is the project's, the question is general — *if you touched here, you touch
+there too.*
+
+```
+x3 docs [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [dir]
+```
+
+Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
+
+```json
+{
+  "docs": {
+    "rules": [
+      { "name": "code-changes-carry-documentation",
+        "when": ["internal/**", "cmd/**"],
+        "then": ["docs/**"] }
+    ]
+  }
+}
+```
+
+That is this repository's own section. Its own gate runs this command against
+itself on every `check.ps1`.
+
+### What counts as changed
+
+| `-scope` | Reads |
+|---|---|
+| `auto` (default) | the working tree when it is dirty, the last commit when it is clean |
+| `working` | `git status`, including untracked files; a rename counts as its new name |
+| `head` | the files in `HEAD`, with the commit body as the place a reason may live |
+
+The default is not a convenience. Checking the last commit while the tree is
+dirty would count documentation that has not been written yet — the easiest way
+there is to blind this gate.
+
+**A directory that is not a repository is red**, not green: a gate that cannot
+read what changed cannot say anything about it.
+
+### Exemption, with a reason
+
+A rule may be skipped by writing its `exempt` marker — `docs: none` unless the
+rule says otherwise — followed by an actual reason:
+
+```
+docs: none - wording of one stderr line; the capabilities document does not quote it
+```
+
+In `head` scope the marker lives in the commit body, where it stays readable
+afterwards. In `working` scope it is passed with `-reason`, for the run before
+the commit exists.
+
+**The marker alone is red.** `exemption_without_reason` is a separate code from
+the missing change itself, because an exemption nobody had to justify becomes
+the only path within a month.
+
+### The control experiment
+
+`check.ps1`, step `docs gate`, runs the binary twice: this repository with its
+own configuration (`0`), and a rule whose counterpart directory does not exist
+(`1`). Without the second run, a gate that silently matched everything would
+look exactly like a gate that passes.
+
+The Go tests carry the rest: a code-only commit is red and a code-and-docs
+commit is green, a marker without a reason is red and the same marker with one
+is green, a dirty tree is read instead of the commit under it, and a directory
+with no repository is red.
+
 ## `x3 guard`
 
 ```
@@ -2299,38 +2375,20 @@ sales page.
 
 ## The documentation gate
 
-This file is enforced. `check.ps1` runs a `docs gate` step:
+This repository holds itself to the rule it ships: a change under `internal/` or
+`cmd/` must carry a change under `docs/` in the same diff. The gate is
+[`x3 docs`](#x3-docs) reading the `docs` section of this repository's own
+`x3.json` — the same command any project would run.
 
-> If the diff under review touches anything under `internal/` or `cmd/`, it must
-> also touch something under `docs/`. Otherwise the gate is **red**.
-
-The diff under review is:
-
-- the **uncommitted changes** — staged, unstaged and untracked — when the
-  working tree is dirty. This is the pre-commit case.
-- otherwise the **HEAD commit**. This is the after-commit and CI case.
-
-**Justified exemption.** A code change that genuinely needs no documentation
-update is committed with a reason in the commit body:
+A reasoned skip is written in the commit body:
 
 ```
-docs: none — <reason>
+docs: none - <why the reader loses nothing>
 ```
 
-`docs: yok — <neden>` is accepted as well. The reason is required: the line must
-carry actual words, not just the marker. The gate reads the body of the commit
-under review, so an exemption is a permanent, reviewable part of the history
-rather than a flag someone passed once.
-
-For a pre-commit run, where no commit body exists yet, the same exemption can be
-given for that one run through the `X3_DOCS_NONE` environment variable — its
-value is the reason, and the gate prints it, so an exemption is never silent.
-
-**The gate itself was control-tested**, as every verifier here must be: a
-capability file was edited with no documentation change and the gate went
-red; the edit was reverted and the gate went silent. A gate whose red has never
-been seen is not a gate.
+For the run before the commit exists, pass the same line with `-reason`. The
+marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.13.0 capabilities=8b5cdd609886b46c3005cc0b53f2bac094a026f7f17328aed60166476750770f template=5a34be1cfa922b76b03c1ac0c6a9dd24c71415b71280ae9c1ec9868e33c0a8c6 -->
+<!-- x3-dist version=v0.14.0 capabilities=7871aae0246c7c4fca7bb8da381a2785f132a73d8cd1254fa02efd4786023869 template=be0b78bfcf32821b9c5e15e42581405c751f229bd887a9177572c1acce744430 -->
