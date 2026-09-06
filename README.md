@@ -13,14 +13,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.1.0`**
+**Current version: `v0.2.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12 MB | `98e529bbfa5238a6b698e8011b5e0bbb5c799bcea6f5c0751b13129f472e0939` |
-| `x3-linux-amd64` | linux/amd64 | 11.7 MB | `da6e52aaa08c54900c13803a93e437b36c866ff64a4a4a8dfac9ce02021e2405` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.1 MB | `3a28f8615e49c94f8b2e15288b9667e26a9920618910d47fcc1eebce275c97f5` |
+| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `f573b95691716c190c67f46fbf63cdfcc4cfd269888ce8c2841ae93f899dae9d` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -71,6 +71,8 @@ passes because its tool was missing is worse than no gate at all.
 x3 scan  ./internal/...         # directives in the source
 x3 lang  -config x3.json .      # one language outside comments
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
+x3 guard:effective -config x3.json          # the setting on paper vs in force
+x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
 ```
 
 Exit codes are the same for every command: **0** green, **1** red, **2** usage
@@ -78,8 +80,10 @@ or I/O error. When `guard` launches the command, the command's own exit code is
 returned instead.
 
 Project configuration lives in one file, `x3.json`: the `language` section for
-the language gate, the `live` section for the guards. Both are documented below,
-with the schema and a worked example.
+the language gate, the `live` section for the guards, the `effective` section for
+the recorded-versus-in-force comparisons, the `testdb` section for run-lifetime
+databases. All of them are documented below, with the schema and a worked
+example.
 
 ---
 
@@ -105,6 +109,10 @@ and not in this file, it does not exist yet.
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
 - [The guard report](#the-guard-report)
+- [`x3 guard:effective`](#x3-guardeffective) — compare a setting as recorded with the same setting as it is actually in force
+- [Effective checks in `x3.json`](#effective-checks-in-x3json) — the recorded side, the effective sides, mapping and retries
+- [The effective report](#the-effective-report)
+- [`x3 testdb`](#x3-testdb) — run-lifetime test databases: clone, migrate, drop, collect the leftovers
 - [Pilot: a real `x3.json`](#pilot-a-real-x3json)
 - [Releases and reproducible builds](#releases-and-reproducible-builds)
 - [Using x3 from another project](#using-x3-from-another-project)
@@ -129,6 +137,8 @@ Alongside them, one capability that is not part of that four-component picture:
 |---|---|
 | **Live guards** (`internal/live`) | **implemented** — `sql`, `http` and `exec` checks declared in `x3.json`, a `warn`/`block` policy each, and the `x3 guard` command that launches a command only when they allow it |
 | **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
+| **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
+| **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
 answers three questions about every `//x3:` line it finds:
@@ -958,6 +968,224 @@ registered by the test, and `TestHTTPGuard` runs the real HTTP path against an
 `httptest` server — each green, then each turned red by changing only the
 expectation.
 
+## `x3 guard:effective`
+
+```
+x3 guard:effective [-config <file>] [-out <file>] [-stamp]
+```
+
+A setting has two lives. One is the **record**: a row in a table, a field in a
+remote configuration endpoint — the value somebody wrote down. The other is what
+is **in force**: the value the running process actually loaded, and the value the
+provider it talks to actually applies. The two drift apart quietly — a process
+that was never reloaded, a remote setting edited by hand, a half-applied
+migration — and nothing in the system complains, because every side is
+internally consistent. This command reads the same setting from all of those
+places at once and turns the disagreement red.
+
+| Part | Meaning |
+|---|---|
+| `-config <file>` | configuration file holding the checks; defaults to `x3.json` |
+| `-out <file>` | write the JSON report here; **stdout when empty** |
+| `-stamp` | put a wall-clock start time in the report (off by default) |
+| (always) | every divergent check, with what each source said, goes to **stderr** |
+
+Unlike `x3 guard` this command launches nothing, so stdout is free for the
+report — the same arrangement as `x3 scan` and `x3 lang`.
+
+### The decision rule
+
+| Checks | Exit | What it means |
+|---|---|---|
+| every source agrees | `0` | the setting on paper is the setting in force |
+| divergent, all `policy: warn` | `0` | printed as `WARN`, the run is not stopped |
+| at least one divergent `policy: block` | `1` | the record and the world disagree |
+| a source could not be read at all | as above | **red** — an unknown answer is not an answer |
+
+A check that could not read one of its sources is `error`, not a silent pass: if
+the process endpoint is down, nobody can say whether it is running the recorded
+model. That is the same fail-closed switch the live guards use.
+
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | every `block` check agreed (a `warn` divergence still exits `0`) |
+| `1` | at least one `block` check found a divergence or could not read a source |
+| `2` | the configuration could not be read or validated, or the report could not be written |
+
+## Effective checks in `x3.json`
+
+Like the live guards, checks are **declared, not coded**, and they are built out
+of the same three general source kinds — `sql`, `http`, `exec`. What changes is
+the *role* a source plays: one is the record, the rest are the world.
+
+```json
+{
+  "effective": {
+    "checks": [
+      {
+        "name": "assistant-model",
+        "policy": "block",
+        "attempts": 3,
+        "retryDelayMs": 500,
+        "recorded": {
+          "label": "database",
+          "kind": "sql",
+          "dsnEnv": "APP_DSN",
+          "query": "select model from settings where id = 1"
+        },
+        "effective": [
+          {
+            "label": "process",
+            "kind": "http",
+            "url": "${APP_BASE}/internal/settings",
+            "status": 200,
+            "jsonPath": "/model"
+          },
+          {
+            "label": "provider",
+            "kind": "http",
+            "urlEnv": "PROVIDER_SETTINGS_URL",
+            "status": 200,
+            "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
+            "jsonPath": "/model",
+            "map": { "engine-2-2026-01-31": "engine-2" }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The `effective` section is read only by this command; `live`, `language` and
+`dist` are untouched next to it. Validation is **strict and up-front**, with the
+same fail-closed rules the `live` section has: an unknown key, a key belonging to
+another kind, an unknown kind, a duplicate name, an empty check list, a check
+with no `recorded` side or an empty `effective` list all stop the run before a
+single source is read.
+
+### Fields a check has
+
+| Field | Required | Meaning |
+|---|---|---|
+| `name` | yes | unique within the file |
+| `policy` | no | `warn` or `block`; **defaults to `block`** |
+| `attempts` | no | how many times the comparison is retried while it disagrees; defaults to `1` |
+| `retryDelayMs` | no | wait between attempts; defaults to `250`. Only used when `attempts` is more than one |
+| `recorded` | yes | one reading: the setting as it was written down |
+| `effective` | yes | one or more readings: the setting as it is in force. All of them must equal `recorded` |
+
+**Retries exist because the world lags the record.** A process reloads its
+configuration a moment after the row changes; a provider propagates a change
+through a cache. One attempt is the default precisely so that a retry is a
+deliberate statement about how long the lag may be — never a way to wait out a
+red.
+
+### Fields a reading has
+
+A reading is a `sql`, `http` or `exec` source — every field documented under
+[Live guards in `x3.json`](#live-guards-in-x3json) applies unchanged, including
+`timeoutMs`, `${ENV}` placeholders in `url`, `headerEnv` and `jsonPath`. Two
+fields are added, and two are **not allowed**:
+
+| Field | Meaning |
+|---|---|
+| `label` | the name this source carries in the report; defaults to `recorded` and `effective[0]`, `effective[1]`, … |
+| `map` | value mapping applied before the comparison. A value the map does not mention is compared as it came |
+| ~~`equals`~~ / ~~`contains`~~ | **rejected here.** A reading has no expectation of its own; its expectation is the other readings |
+
+`map` is what makes two spellings of the same setting comparable: a provider that
+answers `engine-2-2026-01-31` and a database row that says `engine-2` are the
+same setting, and writing that down once is honest. A value the map does not
+cover is *not* an error — it goes into the comparison unchanged, so an
+incomplete mapping produces an explainable red, never a false green. The report
+keeps the raw value next to the mapped one, so nobody has to guess what the
+source actually said.
+
+## The effective report
+
+```json
+{
+  "version": 1,
+  "config": "internal/live/testdata/effective-block-red.json",
+  "checks": [
+    {
+      "name": "platform",
+      "policy": "block",
+      "status": "fail",
+      "attempts": 1,
+      "recorded": { "label": "record", "kind": "exec", "value": "windows" },
+      "effective": [
+        { "label": "world", "kind": "exec", "value": "amd64" }
+      ],
+      "detail": "record says \"windows\", but world says \"amd64\""
+    }
+  ],
+  "summary": { "pass": 0, "warned": 0, "blocked": 1 }
+}
+```
+
+| Field | Notes |
+|---|---|
+| `checks[].status` | `pass`, `fail` (the sources disagreed) or `error` (a source could not be read). Both non-`pass` values are red |
+| `checks[].attempts` | how many attempts the answer actually needed; a `2` here says the world was late, not wrong |
+| `recorded` / `effective[]` | `label`, `kind`, the compared `value`, the `raw` value when a mapping changed it, and `error` when that source could not be read. Secrets are already redacted |
+| `detail` | the difference, source by source: `record says "windows", but world says "amd64"` |
+| `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`); `blocked` above zero is exit `1` |
+| `startedAt` | present **only** with `-stamp`, the same determinism rule as the guard report |
+
+Secrets follow the same law as the guards: credentials and addresses are named
+by environment variable only, and their values are stripped out of every
+observed value and every error message before anything is written.
+`TestEffectiveSecretNeverLeaves` holds that line for this report specifically —
+it points a reading at an address that only exists in the environment, lets the
+transport error quote it, and asserts the address is nowhere in the marshalled
+result.
+
+### The control samples
+
+Three configurations in `internal/live/testdata/` differ **only** in the
+effective side of one comparison — the recorded side and the policy are the
+knobs, the sources are the same two commands:
+
+| Sample | Comparison | Expected |
+|---|---|---|
+| `effective-green.json` | both sides read `go env GOOS` | exit `0` |
+| `effective-block-red.json` | the world side reads `go env GOARCH`, `policy: block` | exit `1` |
+| `effective-warn-red.json` | the same divergence under `policy: warn` | exit `0`, `WARN` on stderr |
+
+`check.ps1` runs all three as the `effective control experiment` step:
+
+```
+== effective control experiment
+  green:     exit=0 (want 0)
+  block-red: exit=1 (want 1)
+  warn-red:  exit=0 (want 0)
+```
+
+And the stderr of the blocked run names every source, not just the verdict:
+
+```
+BLOCK platform: record says "windows", but world says "amd64"
+	record (exec): "windows"
+	world (exec): "amd64"
+x3 guard:effective: 1 check(s) - 0 pass, 0 warn, 1 block
+```
+
+**Mapping and retries are control-tested in `internal/live/effective_test.go`**,
+because both need answers the gate cannot arrange with a shell command:
+
+- `TestEffectiveMapping` — the same two sources, one answering `engine-2` and the
+  other `engine-2-2026-01-31`. Without `map` the check is **red**; with `map` it
+  is **green**. A mapping whose removal changes nothing is doing nothing.
+- `TestEffectiveRetry` — a server that answers with the stale value once and the
+  fresh value afterwards. `attempts: 1` is **red**, `attempts: 2` is **green**,
+  and the report says it took two.
+- `TestEffectiveUnreadableSourceIsRed` — one source pointed at an address nobody
+  answers; the check is `error`, not a pass.
+
 ## `x3 version`
 
 ```
@@ -974,6 +1202,141 @@ One line, nothing else, so a gate can compare it with the version it pinned
 without parsing anything. A binary that was not produced by a release run has
 no tag to embed and prints `unreleased`; an untagged binary is not a published
 one, and a gate that pins versions should treat it as red.
+
+## `x3 testdb`
+
+```
+x3 testdb create [-config <file>]
+x3 testdb drop   [-config <file>] (-name <database> | -stale)
+x3 testdb list   [-config <file>] [-stale]
+x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
+```
+
+Tests that share one database serialise on it, and tests that build their own
+schema pay for the migrations every time. `x3 testdb` gives a run its own
+PostgreSQL database, cheaply: it **clones a prepared template** instead of
+replaying the migrations, hands the command a DSN through the environment, and
+drops the database when the command is done.
+
+| Subcommand | What it does |
+|---|---|
+| `create` | makes a database and prints its **DSN on stdout**, one line and nothing else, so a shell can capture it |
+| `drop -name <db>` | drops one database. The name must be one x3 created — see below |
+| `drop -stale` | drops every leftover older than `maxAgeMinutes` |
+| `list` / `list -stale` | prints `name` and age, one per line, for the databases x3 created |
+| `run -- <command>` | creates, runs, drops. The command's exit code is returned verbatim |
+
+`run` is the shape most projects want: one process, a fresh database, automatic
+cleanup even when the command fails. `-keep` leaves the database behind for
+inspection, which is exactly what `drop -stale` later collects.
+
+### Two invariants
+
+**Speed.** A database per test package is only worth having if creating one costs
+milliseconds, so the intended setup is a template database that already carries
+the schema, cloned with `CREATE DATABASE … TEMPLATE …`. Measured on PostgreSQL
+18.2 over a loopback connection, averaged over five runs of a 40-table,
+40-index schema: **238–263 ms** to clone the template against **275–292 ms** to
+create an empty database and replay the same DDL. End to end — process launch,
+connection, `CREATE DATABASE` — `x3 testdb create` took **409 ms**. The gap
+widens with the schema: cloning is one directory copy whatever the migration
+count, while replaying grows with it.
+
+**Safety.** Every name this command touches has to be one x3 made. Two rules,
+both checked before a single byte reaches the server:
+
+1. the name matches `^[a-z_][a-z0-9_]{0,62}$` — `CREATE DATABASE` takes no bound
+   parameters, so the name is text inside a statement, and this pattern is the
+   injection gate, not a style rule;
+2. the name carries the configured `prefix` **and** the creation stamp x3 writes
+   into it.
+
+A name that fails either rule exits **1** — the gate refused it — while a name
+that passes and then cannot be reached exits **2**. That difference is what makes
+the gate observable from outside, and `check.ps1` measures exactly it.
+
+### `testdb` in `x3.json`
+
+```json
+{
+  "testdb": {
+    "adminDsnEnv": "APP_ADMIN_DSN",
+    "template": "app_test_template",
+    "prefix": "apptest_",
+    "dsnEnv": "APP_TEST_DSN",
+    "maxAgeMinutes": 120,
+    "migrate": { "command": "./migrate", "args": ["up"], "timeoutMs": 60000 }
+  }
+}
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `adminDsnEnv` | yes | **name** of the environment variable holding the maintenance DSN. Point it at a maintenance database (`postgres`), never at the template: a template with an open connection cannot be cloned |
+| `driver` | no | `database/sql` driver name; defaults to `pgx` |
+| `prefix` | no | name prefix, defaults to `x3test_`. It is also the **authority boundary**: nothing outside it is listed or dropped, so an empty prefix is rejected |
+| `template` | no | template database to clone. Without it an empty database is created and the migration hook does the work |
+| `dsnEnv` | no | name of the variable the new DSN is exported as, for the hook and for `run`; defaults to `X3_TESTDB_DSN` |
+| `maxAgeMinutes` | no | age past which a leftover counts as stale; defaults to `120` |
+| `migrate` | no | `command`, `args`, `timeoutMs`. Run after creation with the DSN in the environment |
+
+The DSN handed to the command is the maintenance DSN with **only the database
+name changed**, so credentials and connection options carry over. Both PostgreSQL
+spellings are understood — the URL form (`postgres://…`) and unquoted
+`key=value` pairs.
+
+**The creation time is in the name.** PostgreSQL does not record when a database
+was created, so x3 encodes the moment into the name it generates
+(`<prefix><base36 seconds>_<random>`). That is what lets `list -stale` and
+`drop -stale` work on any server with no extra table and no privileges beyond
+creating databases — and it is also why a database x3 did not name has no age
+and is therefore never touched.
+
+**If the migration hook fails, the database is dropped.** A half-built schema is
+worse than none: the run would fail somewhere further along and blame the wrong
+thing.
+
+### Secrets and errors
+
+The maintenance DSN is named by environment variable only, and its value —
+together with the password inside it — is stripped out of every error message
+before it is printed; drivers routinely quote the connection string they failed
+on. `TestAdminSecretNeverLeaves` holds that line. The DSN of the *created*
+database is deliberately printed by `create`, because that is the whole point of
+the subcommand; under `run` it is never printed, only passed through the
+environment. What the launched command itself prints is its own business.
+
+### The control experiment
+
+The gate must run without a database, so the sample that runs in `check.ps1` is
+the safety gate, proven in both directions with the server deliberately
+unreachable:
+
+```
+== testdb control experiment
+  foreign name refused at the gate: exit=1 (want 1)
+  own name reached the server:      exit=2 (want 2)
+```
+
+A gate that refused *every* name would also exit `1` on the first line; the
+second line is what rules that out.
+
+The rest is control-tested in `internal/testdb/testdb_test.go` against a fake
+`database/sql` driver that records the statements it is given — because for
+these invariants it is not enough that a call returned an error, it has to be
+seen that **nothing reached the server**:
+
+- `TestDropRefusesForeignNames` — our own generated name produces a
+  `DROP DATABASE`; `postgres`, `production`, a name with a semicolon in it and
+  four other shapes produce **no statement at all**.
+- `TestCreateClonesTheTemplate` — with `template` configured the statement
+  carries `TEMPLATE`, without it the statement does not.
+- `TestListIgnoresForeignNames` — a catalogue holding two x3 names and two
+  hand-made ones yields two databases, and the ages come out of the names.
+- `TestMigrationFailureDropsTheDatabase` — a hook that exits non-zero leaves no
+  database behind.
+- `TestRunDropsAfterTheCommand` — the drop happens after the command, and
+  `-keep` suppresses it.
 
 ## Pilot: a real `x3.json`
 
@@ -1157,6 +1520,30 @@ sales page.
   driver and an `httptest` server. Neither has ever been seen red against real
   infrastructure inside `check.ps1`, because the gate must run without a
   database or a network.
+- **Effective checks compare strings too**, through the same `equals` machinery
+  in reverse: two sources agree when their mapped values are byte-identical. A
+  value that differs only in case, in whitespace inside the text, or in numeric
+  formatting (`1` against `1.0`) needs a `map` entry, and a setting that is a
+  list or an object cannot be compared at all — only the single value a
+  `jsonPath` or a query cell yields.
+- **`map` is a lookup table, not a rule.** Every spelling a source may answer has
+  to be written down; there is no pattern, prefix or version-range form, so a
+  provider that appends a fresh date to its identifier needs a new entry each
+  time. The failure mode is a red that names both spellings, which is the safe
+  direction.
+- **`x3 testdb` speaks PostgreSQL only.** `CREATE DATABASE … TEMPLATE`,
+  `DROP DATABASE … WITH (FORCE)` (PostgreSQL 13 and later) and `pg_database` are
+  written into the commands, so another engine needs another implementation, not
+  another `driver` value.
+- **Nothing prevents two runs from sharing a template.** The template is read
+  concurrently, which PostgreSQL allows, but a template being *rebuilt* while a
+  clone starts is a race x3 does not arbitrate.
+- **`testdb` keeps no record of its own.** Its whole memory is the name it
+  generates, so a run killed between `CREATE` and the drop leaves a database
+  that only `drop -stale` will notice, and only after `maxAgeMinutes`.
+- **Effective checks never remember.** Each run compares the present answers;
+  nothing is stored, so "this drifted three hours ago" is not a question the
+  command can answer.
 - **Guard expectations are string comparisons.** `equals` and `contains`, and
   nothing else: no regular expressions, no numeric or version ordering, so
   "schema at least 0117" cannot be written today — only "schema is 0117".
@@ -1204,4 +1591,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.1.0 capabilities=e5cdf852c68bfe9a82fb08e321f7a475d52ccfb41fbf92cf8dd722a7fa79de07 template=81c251aa05f727b953d1be13977062617eaf3acaf4f374ad87eb6ccd874950a8 -->
+<!-- x3-dist version=v0.2.0 capabilities=c8d9e19da0201b2ed376ba422de8f96893b07291d1ed1052c0e1902bf2f12b4a template=3c1a35fcfe8c57d3ec8b391b731f427bdfaf95a6e192d0dfad985064c5a23838 -->
