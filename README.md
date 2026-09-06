@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.19.0`**
+**Current version: `v0.20.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13 MB | `65b73e28706861281eb8c4cde80915852c98f5d31a74d4c1bbe25a5c66f0c270` |
-| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `5e98675db58ef4cee38e49f77d26ba02aa7feec613c44781eef8fc32760ee88c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `cecb8d1506798c3b54c9a6a292fcf0bc10fe8e85effdf0a7a992f4c98b869758` |
+| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `ce9ac9f2e3b5d9e7fad6b304cd9044fa669456cd1a80d98cc54ac99e1a9c58d4` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -92,7 +92,8 @@ the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `docs` section for coupled changes,
 the `secrets` section for the leak scan,
 the `boxes` section for the open-work list, the `record` section for
-what a recording must hide, the `replay` section for what may differ, the `live`
+what a recording must hide, the `replay` section for what may differ,
+the `cache` section for where a run may remember what it measured, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -134,7 +135,7 @@ and not in this file, it does not exist yet.
 - [Effective checks in `x3.json`](#effective-checks-in-x3json) — the recorded side, the effective sides, mapping and retries
 - [The effective report](#the-effective-report)
 - [`x3 testdb`](#x3-testdb) — run-lifetime test databases: clone, migrate, drop, collect the leftovers
-- [Speed](#speed) — every core, same bytes
+- [Speed](#speed) — every core, same bytes, and the content-keyed cache
 - [Splitting the configuration](#splitting-the-configuration) — one file, or many parts the root declares
 - [Pilot: a real `x3.json`](#pilot-a-real-x3json)
 - [Releases and reproducible builds](#releases-and-reproducible-builds)
@@ -167,6 +168,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
 | **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
 | **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
+| **Incremental cache** (`internal/cache`) | **implemented** — a run remembers what it measured, keyed on engine version, configuration fingerprint and file content; declared per project, off when it is not declared |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -2525,10 +2527,46 @@ The same run produced the same bytes before and after the change, which is the
 part worth checking: a parallel walk that reordered its findings would turn
 every later comparison into noise.
 
-**There is no cache.** Nothing is remembered between runs; the numbers above are
-a full scan every time. An incremental cache keyed on file content is a separate
-capability and does not exist yet — when it does, this section says so and gives
-its own measurement.
+### The incremental cache
+
+Since v0.20.0 a run can remember what it measured. The cache is keyed on the
+**content** of each file, so a file that did not change is not measured again —
+and one that did is measured whatever the cache says.
+
+```json
+{ "cache": { "dir": ".x3cache" } }
+```
+
+A directory, not a file: the file name comes from the command, because two
+commands sharing one file would each delete the other's entries on every run.
+Nothing is written unless the section is there — a tool does not leave files on
+disk uninvited — and the directory belongs in `.gitignore`, since a cache is
+something a machine can rebuild. `x3 scan`, `x3 lang` and `x3 secrets` read it;
+`-cache <file>` points one run somewhere else, and `-no-cache` measures
+everything again.
+
+An entry is used only when three things match: the **engine version**, a
+**fingerprint of the whole configuration**, and the file's **content hash**. Any
+of them changing empties the cache. Guessing which configuration section affects
+which checker would be cheaper and would eventually be wrong; measuring again is
+never wrong.
+
+Measured on the same 1174-file application, second run against the first:
+
+| Command | Full scan | Cached | Cache size |
+|---|---|---|---|
+| `x3 secrets` (2040 files) | 0.34 s | **0.12 s** | 0.5 MB |
+| `x3 scan` (1174 Go files) | 0.13 s | **0.09 s** | 145 KB |
+| `x3 lang` (1174 Go files) | 0.17 s | 0.18 s | 5.8 MB |
+
+`lang` is the honest row: on that application the language gate is red on
+thousands of lines, and reading 5.8 MB of stored findings costs as much as
+parsing the files again. **The cache pays off when a checker's output is much
+smaller than its input** — which is why it is declared per project rather than
+switched on for everybody.
+
+Every one of those runs produced a report byte-identical to the uncached one.
+That is the property the cache is worth having only if it holds.
 
 ## Splitting the configuration
 
@@ -2740,6 +2778,11 @@ red on a deliberately broken input.
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
+- **The cache is per file, not per project.** A checker whose answer depends on
+  more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not
+  use it, and a change in one file still costs a full pass for those. `lang`
+  can be slower with the cache than without it on a project where it finds
+  thousands of findings; the Speed section gives the numbers.
 - **Replay is single-threaded and stateless.** Requests go out one at a time in
   the recorded order, and nothing carries a session from one to the next: a
   login whose token the following requests need cannot be replayed yet.
@@ -2868,4 +2911,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.19.0 capabilities=c0a85dc16da3c67cb16e46b07ea540b6ede5cd97deb303941731b58fa3f6e4a3 template=67b0db5164038d61ef4399d26459cbdd0353b39b5082c9d0edd7312f59ee7252 -->
+<!-- x3-dist version=v0.20.0 capabilities=1e9ea9a9e617a2ea0acc9d043df8826e5e06f6c496f7abea09f7ca9ec8a5614d template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
