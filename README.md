@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.26.0`**
+**Current version: `v0.27.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `10ce5180b5c325cfebea64efafc72a752f0761275b9ebcb8e7dffdb9681078c2` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `67a4bf301371130ba0ba9a8913740903ce5c6ead7bc6b63e998342834ab2fc82` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `58bafbaef976f4079a3c292a1d81728bcfe8ef74adf563d184ee76ee473a3dd4` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `c896dbec3f0430411351701df30017dedd863cab4aeee354176526313ad0c755` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -2134,6 +2134,34 @@ Paths are the ones `record.redact` uses — `req`/`res`, then `headers`, `query`
 or `body`, then into the body, where `*` matches one segment (an array element
 or a field name).
 
+### Carrying a session
+
+Recording masks credentials, so a suite behind a login cannot simply be sent
+again: the `Authorization` header on file says `<redacted:credential-header>`,
+and sending that back would come home as `401`. The way out is not to unmask the
+recording - it is to take a **fresh** value from the run itself:
+
+```json
+{ "replay": { "carry": [
+    { "from": "res.body.token",
+      "into": "req.headers.Authorization",
+      "as":   "Bearer {value}" } ] } }
+```
+
+Every answer is read for `from`; whatever it yields is poured into `into` on the
+requests that follow, through the `as` template. The login in the recording
+issues a new token on replay, and the requests after it carry that one. A value
+may also come from the environment - `"from": "env:X3_TOKEN"` - for a credential
+no answer contains.
+
+A value is carried **into a request only**: writing into a response would mean
+editing the thing being compared. The template must have a `{value}` in it, and
+a `from` that is neither a path nor `env:` is a configuration error.
+
+If the field is not in the recorded request at all, it is added. That is the
+common case: the header was masked away, and what replaces it is not the old
+value but a live one.
+
 ### What a recording cannot send back
 
 A masked value is not sent to the application. `<redacted:credential-header>` as
@@ -3073,9 +3101,10 @@ sales page.
   use it, and a change in one file still costs a full pass for those. `lang`
   can be slower with the cache than without it on a project where it finds
   thousands of findings; the Speed section gives the numbers.
-- **Replay is single-threaded and stateless.** Requests go out one at a time in
-  the recorded order, and nothing carries a session from one to the next: a
-  login whose token the following requests need cannot be replayed yet.
+- **Replay is single-threaded.** Requests go out one at a time in the recorded
+  order. A recording of a hundred interactions replays in a hundred round
+  trips, and a suite that needs a database of its own has to be given one by
+  hand - `testdb` pairing is a box, not a feature.
 - **A masked value cannot be sent back.** Recording redacts credentials, so
   replaying an authenticated suite sends the requests without them. The count
   is printed, but the run behind an authorisation wall is not the run that was
@@ -3213,4 +3242,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.26.0 capabilities=875982d1c69a5cd9bb85abbe26ff74065c7caf133842137ad5c4524a09f7a8a0 template=00eda2142087c5074ec83700c145d740bbc833e7f8d463eb4774fd3a44e509d4 -->
+<!-- x3-dist version=v0.27.0 capabilities=96ca384678381825d52405c49e21fb954d27b31d91e3dbdb4ec416904b542647 template=00eda2142087c5074ec83700c145d740bbc833e7f8d463eb4774fd3a44e509d4 -->
