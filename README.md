@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.4.0`**
+**Current version: `v0.5.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.1 MB | `d74fcd61b3568bf1b36c1617dd053df37bca63d90b90bdd6916bf22c558e06d0` |
-| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `b420cc0a96d95f446d159981885ee4fd1056fc26eb61d24ee8e45aa50a2a0dbf` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `cf8bb3045f3e82fc99ca2cfb8c7ddd6d511a206fc06072fcedefb68c3addac5c` |
+| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `4ba55a7135d43a22b3388e3a70299191260bb86a81cec455dfe912cb1096569e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -726,9 +726,10 @@ turns those sentences into rules the engine checks. The rules live in `x3.json`,
 the verifier lives in the engine: neither do the rules enter the engine, nor do
 the project's names enter a verifier.
 
-**One rule kind is built:** `deps` with `match: "import"`. The other eight kinds
-and the other two matchers are specified in [ROADMAP-ARCH.md](ROADMAP-ARCH.md)
-and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
+**One rule kind is built:** `deps`, with two of its three matchers —
+`match: "import"` reads the import graph, `match: "literal"` reads names the
+compiler never sees. The other eight kinds and the `symbol` matcher are
+specified in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
 and says so — a planned kind that passed silently would be worse than no rule at
 all.
 
@@ -824,18 +825,77 @@ In the inward form, the component's **own** files are always inside: an import
 within a component is not access from outside. A file in no declared component
 is outside, and named that way in the message.
 
+### The `literal` matcher — names the compiler never sees
+
+An import ban cannot catch a table, a queue or a bucket. The name is a string,
+the code compiles, and the day its owner is removed the failure arrives at run
+time. `match: "literal"` reads **string constants** in Go and **whole lines** in
+every other configured file, so a name spelled in SQL, JSON or JavaScript is as
+visible as one spelled in Go.
+
+Two forms, and writing both is refused:
+
+```json
+{ "name": "resource-names-belong-to-their-owner",
+  "kind": "deps", "match": "literal",
+  "sources": ["**/*.go", "**/migrations/*.sql"],
+  "pattern": "db_(?P<owner>[a-z0-9]+)_[a-z0-9_]+",
+  "owner": "modules/${owner}",
+  "alsoAllow": ["entry"] }
+```
+
+**Ownership** — `pattern` + `owner`. The owner is derived from the name itself:
+the capture group named in `owner` says which instance of the component the name
+belongs to, and only that instance (plus anything in `alsoAllow`) may spell it.
+There is no hand-kept ownership list, because a list goes stale and then the
+gate lies. `owner` may also be a bare component name, `"core"`, when the
+component has no instances.
+
+```json
+{ "name": "the-core-names-no-queue",
+  "kind": "deps", "match": "literal",
+  "from": "core", "pattern": "queue_[a-z0-9_]+" }
+```
+
+**Prohibition** — `from` + `pattern`. This component may not spell a name
+matching the pattern, whoever owns it.
+
+| Field | Form | Meaning |
+|---|---|---|
+| `pattern` | both | a Go regular expression, compiled when the configuration loads |
+| `owner` | ownership | `<component>` or `<component>/${<capture>}` |
+| `alsoAllow` | ownership | components that may spell any owner's name |
+| `from` | prohibition | the component that may not spell it |
+
+Two boundaries:
+
+- **Comments are not read.** Explaining why a rule exists requires naming the
+  thing; what is forbidden is the *code* knowing it. In Go that is exact — the
+  matcher reads string literals from the AST, not the file's text. In other
+  files there is no syntax to lean on, so every line is read.
+- **Exemptions cover Go only.** `//x3:allow:arch:` binds a declaration, an
+  import or a file, and a `.sql` file has nowhere to write one. A finding in a
+  text file is answered by fixing it, by naming the component in `alsoAllow`, or
+  by narrowing `sources`.
+
+An exemption above a declaration now covers **every line of that declaration**,
+not just its first: a literal violation sits inside a function body, and an
+exemption that only covered the signature would silence nothing.
+
 ### Fields a rule has
 
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | yes | unique in the file; what the report and the stderr lines call this rule |
 | `kind` | yes | `deps` today; the other eight stop the run |
-| `match` | yes | `import` today; `literal` and `symbol` stop the run |
-| `from` + `deny` | one form | the outward question |
-| `to` + `allowFrom` | one form | the inward question |
+| `match` | yes | `import` or `literal`; `symbol` stops the run |
+| `from` + `deny` | import | the outward question |
+| `to` + `allowFrom` | import | the inward question |
+| `pattern` + `owner` | literal | only the owner may spell this name |
+| `pattern` + `from` | literal | this component may not spell it |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
-| `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]` |
+| `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
 
 Configuration is validated **strictly and up front**, as `live` already is: an
 unknown key, a key belonging to another kind, a missing required key, a
@@ -939,7 +999,8 @@ The `code` field is the stable part; the `message` text may be reworded.
 
 | Code | Raised by | Meaning |
 |---|---|---|
-| `forbidden_dependency` | `deps` | a forbidden import edge was found |
+| `forbidden_dependency` | `deps` | a forbidden import edge, or a component spelling a name it may not |
+| `foreign_resource` | `deps:literal` | a component spelled a name another component owns |
 | `empty_scope` | every rule | a component the rule names matched no file it reads |
 | `dead_exemption` | exemptions | an `allow:arch` that no violation needed, or one that binds to no import |
 
@@ -954,7 +1015,10 @@ kinds that do not exist yet.
 |---|---|
 | `testdata/green` with `arch-green.json` | `0` |
 | `testdata/red` with `arch-red.json` | `1` — one planted violation, one finding |
+| `testdata/literal-green` with its configuration | `0` — the owner spelling its own name is not a violation |
+| `testdata/literal-red` with its configuration | `1` — three findings, one of them from a `.sql` file |
 | this repository with its own `x3.json` | `0` |
+| the same three rules split across three files | `1` — the parts carry the rules |
 
 The Go tests carry the rest of the table: `warn` counts but does not stop the
 run, an exemption silences and is listed, a dead exemption is red, an empty
@@ -1808,12 +1872,14 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
-- **`arch` reads the import graph and nothing else yet.** One of nine rule kinds
-  is built. Ownership violations the compiler never sees — a table, a queue or a
-  bucket named in a string — need `deps:literal`, and a capability written where
-  it does not belong needs `deps:symbol`; both are specified and neither exists.
-  Until then a rule's `sources` set may name any glob, but only `.go` files are
-  ever read, so a text-only pattern turns the rule red as `empty_scope`.
+- **`arch` reads dependencies and nothing else yet.** One of nine rule kinds is
+  built. A capability written where it does not belong — cryptography, an
+  outbound request, retry logic — needs `deps:symbol`, which is specified and
+  does not exist. The `import` matcher still reads Go only, so pointing its
+  `sources` at a text glob leaves it with nothing to read.
+- **A text file cannot carry an exemption.** `//x3:allow:arch:` is a Go comment.
+  A `literal` finding in SQL or JSON is answered by fixing it, by `alsoAllow`,
+  or by narrowing `sources` — not by silencing that one line.
 - **The inward form does not see a component's inside.** `to` + `allowFrom`
   answers "who reaches in from outside", so one checker importing another
   checker inside the same component passes. Splitting them into instances needs
@@ -1904,4 +1970,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.4.0 capabilities=e2c15ca996139f5397371aa352a8dafc63da53a1593e4f5dc6e595698da07bd9 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
+<!-- x3-dist version=v0.5.0 capabilities=aa2a1bc06e59264429f6c0b2171ad2957740cf90c3339c26babdd72e294b234e template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
