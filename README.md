@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.15.0`**
+**Current version: `v0.16.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `e608ff62ee4724f19c5e059529852ba02503c10f4285100d088437ceffb53c3c` |
-| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `441e34a9ee1f4b4ec4a163f0c377e88420a5f07e155f1c49948386e597da36bc` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `a5ed5b5e3abd0cd1a3970cfd25a02defc5621b35256e9d3ba67cf94a8ff2b900` |
+| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `f83685cd9da5849b89f41ddd4e482846700ef34ce15e477b843a2b46bb3b1a8c` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -75,6 +75,7 @@ x3 arch  -config x3.json .      # which component may import which
 x3 freeze -config x3.json .     # frozen lists that only shrink
 x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
+x3 boxes -config x3.json .      # open work, measured against its criteria
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -87,7 +88,8 @@ returned instead.
 Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `docs` section for coupled changes,
-the `secrets` section for the leak scan, the `live`
+the `secrets` section for the leak scan,
+the `boxes` section for the open-work list, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -118,6 +120,7 @@ and not in this file, it does not exist yet.
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
+- [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -156,6 +159,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink and refuses to record growth |
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
+| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -1546,6 +1550,77 @@ would also exit `1`. The clean and exempted rows are what separate a gate from
 a noise generator. The repository's own run is green because three test fixtures
 carry reasoned exemptions — which is the feature being used, not worked around.
 
+## `x3 boxes`
+
+An open-work list is a document, and documents drift: work finishes and the box
+stays open, or a box is closed by somebody who meant to finish it. This makes
+the list **machine-readable** — each box carries the criteria that would prove
+it done — and asks both questions.
+
+```
+x3 boxes [-config <file>] [-out <file>] [dir]
+```
+
+Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
+
+```json
+{ "boxes": { "file": "docs/OPEN-WORK.json" } }
+```
+
+The list lives in its own file — it changes weekly, while the configuration
+changes yearly:
+
+```json
+{
+  "boxes": [
+    { "id": "arch-containment",
+      "title": "the containment rule kind, the last of the nine",
+      "state": "open",
+      "done": [
+        { "when": "file", "path": "internal/arch/containment.go" },
+        { "when": "pattern", "sources": ["docs/CAPABILITIES.md"], "match": "### `containment`" }
+      ] }
+  ]
+}
+```
+
+That is this repository's own list, and `check.ps1` runs this command against
+it.
+
+### Both directions, or neither
+
+| State | Criteria | Result |
+|---|---|---|
+| `open` | all met | **red** — `box_finished`: the work is done, the list is stale |
+| `done` | any unmet | **red** — `box_unproven`, each unmet criterion named |
+| `open` | some unmet | green |
+| `done` | all met | green |
+
+Asking only the second question lets a list fill up with finished work. Asking
+only the first leaves closing without proof free. The value is in asking both.
+
+### The three criteria
+
+| `when` | Holds when |
+|---|---|
+| `file` | `path` exists |
+| `pattern` | `match` is found in any file under `sources` |
+| `absent` | `match` is found **nowhere** under `sources` |
+
+`absent` is the one that makes deletion provable: "the old call site is gone"
+is exactly the sentence that becomes true when that work finishes, and nothing
+else in the engine can state it.
+
+A list with no boxes is `empty_scope`. A list that says nothing does not say
+everything is finished.
+
+### The control experiment
+
+`check.ps1`, step `boxes control experiment`, runs the binary four times against
+one tree: a list that matches it (`0`), a list that leaves finished work open
+(`1`), a list that closes unfinished work (`1`), and this repository's own list
+(`0`).
+
 ## `x3 guard`
 
 ```
@@ -2425,6 +2500,10 @@ sales page.
   a single star in the pattern, which a list of fixed directories cannot have;
   until the pattern language grows, that rule is written as one `deny` rule per
   component or not at all.
+- **`boxes` measures evidence, not completion.** A criterion is a file or a
+  pattern, so a box whose criteria are weak passes while the work is half done.
+  What the gate guarantees is that the list and the repository agree, not that
+  the criteria were well chosen.
 - **`secrets` reads formats, not meaning.** A credential with no recognisable
   shape - a long random password in a variable - is invisible to it, and a
   string that happens to match a shape is red even when it is an example. The
@@ -2495,4 +2574,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.15.0 capabilities=e89c6b1c97da74523ad54b5b0c7fc305e2be62667862ce83f95c55c761dbca79 template=2d64d4a6a061380a86f37e346e802c9dc8f4210031245f938786d29606c63947 -->
+<!-- x3-dist version=v0.16.0 capabilities=b8a423b89bb02bdb6d42fca8d2e23833dd5c96be5264031762cd533e80e6995d template=b5890ca0efdc739907bc003e1e6e692820374759baa6d58a07a29ceee9bf84f9 -->
