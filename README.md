@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.27.0`**
+**Current version: `v0.28.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `58bafbaef976f4079a3c292a1d81728bcfe8ef74adf563d184ee76ee473a3dd4` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `c896dbec3f0430411351701df30017dedd863cab4aeee354176526313ad0c755` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `d2d654c596227ae4b7dbb335632523e785512d6c47c0911cd1054af4c7216b69` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `343f7edf3cac6e2d12104ed2bfa9205ff335c568687730fb466e7c597129cb2f` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -80,6 +80,7 @@ x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
 x3 scope  -config x3.json .     # a change that must stay in its lane
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
+x3 outbound serve -listen :9101 -ledger out.jsonl                  # the far side, from the ledger
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -2183,6 +2184,38 @@ same ledger against the same application must produce the same bytes. Recorded
 and received values are truncated and run through the `secrets` pattern set
 before they are printed — the report that finds a leak must not become one.
 
+### Calls the application makes
+
+`x3 record` sees what the world asks of the application. This sees what the
+application asks of the world - the rate service, the mail gateway, the payment
+provider - and later answers those calls itself, so a replay does not reach
+anybody outside.
+
+```
+x3 outbound record -listen :9101 -ledger x3/ledger/out.jsonl
+x3 outbound serve  -listen :9101 -ledger x3/ledger/out.jsonl
+```
+
+This one is a **forward** proxy, not a reverse one: the application is told
+about it the way every HTTP client already understands, with `HTTP_PROXY`. Once
+again nothing is imported and no code changes.
+
+In `record` mode the call goes out, comes back, and is written down with the
+same redaction the inbound ledger gets. In `serve` mode nothing goes out at all:
+the answer comes from the ledger, matched on method plus scheme, host and path,
+in recorded order - so an application that calls the same endpoint twice gets
+the first answer first.
+
+A call the ledger never saw is refused with `502` and counted. That is the point
+of the mode: during a replay, a *new* outbound call is new behaviour, and a
+proxy that quietly let it through would hide exactly what the replay is for. The
+command exits `1` when the count is above zero.
+
+**Encrypted calls are refused, not tunnelled.** A `CONNECT` gets `501` and a
+line on stderr. Recording HTTPS would mean terminating TLS with a certificate of
+x3's own, and believing you recorded a call you did not is worse than knowing
+you did not record it.
+
 ### The control experiment
 
 `check.ps1` records two requests against a small application
@@ -3109,9 +3142,10 @@ sales page.
   replaying an authenticated suite sends the requests without them. The count
   is printed, but the run behind an authorisation wall is not the run that was
   recorded.
-- **The recorder sees inbound HTTP only.** What the application asks of other
-  services is not written down, so it can only be replayed as far as it shows
-  through in the application's own answers.
+- **Outbound recording is plain HTTP only.** `x3 outbound` refuses `CONNECT`
+  rather than terminating TLS, so a service reached over HTTPS cannot be
+  recorded yet. Matching is on method, host and path: two calls to the same
+  path with different bodies are told apart only by their order.
 - **A recording is as good as the traffic it saw.** Nothing measures coverage: a
   ledger of two requests looks exactly as green as a ledger of two hundred.
 - **The language gate speaks one language.** `en` is the only embedded
@@ -3242,4 +3276,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.27.0 capabilities=96ca384678381825d52405c49e21fb954d27b31d91e3dbdb4ec416904b542647 template=00eda2142087c5074ec83700c145d740bbc833e7f8d463eb4774fd3a44e509d4 -->
+<!-- x3-dist version=v0.28.0 capabilities=2e2f8dc8be5aac4fcf750dd6c79af26c845294d61ded05a72d16ed7b65df015e template=87330100fe0efeb05683444a1c48a7fbd2bc42f04e01c2df2ab9543a330fc620 -->
