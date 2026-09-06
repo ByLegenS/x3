@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.14.0`**
+**Current version: `v0.15.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `b1f05d46581d9b91e31b5555cecc252c97aa03af9b3a09cfab6272dc3876d27f` |
-| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `79f5fad7a15956f146729480c300a2e7844f8b3e4d5b2e7f8c60373147fe04df` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `e608ff62ee4724f19c5e059529852ba02503c10f4285100d088437ceffb53c3c` |
+| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `441e34a9ee1f4b4ec4a163f0c377e88420a5f07e155f1c49948386e597da36bc` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -74,6 +74,7 @@ x3 lang  -config x3.json .      # one language outside comments
 x3 arch  -config x3.json .      # which component may import which
 x3 freeze -config x3.json .     # frozen lists that only shrink
 x3 docs  -config x3.json .      # changes that must not travel alone
+x3 secrets -config x3.json .    # credentials that got into the source
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -86,7 +87,7 @@ returned instead.
 Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `docs` section for coupled changes,
-the `live`
+the `secrets` section for the leak scan, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -116,6 +117,7 @@ and not in this file, it does not exist yet.
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
+- [`x3 secrets`](#x3-secrets) — credentials that got into the source
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -153,6 +155,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; one of the nine specified rule kinds (`deps` with `match: "import"`) has a verifier |
 | **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink and refuses to record growth |
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
+| **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -1446,6 +1449,103 @@ commit is green, a marker without a reason is red and the same marker with one
 is green, a dirty tree is read instead of the commit under it, and a directory
 with no repository is red.
 
+## `x3 secrets`
+
+A credential in the source is the one mistake that cannot be taken back: it is
+in the history, and the history is shared. The patterns ship with the engine and
+the project adds its own.
+
+```
+x3 secrets [-config <file>] [-out <file>] [dir]
+```
+
+Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
+**No `secrets` section is not an error** — the builtin patterns apply. A leak
+scan is not a check somebody skips by not configuring it.
+
+```json
+{
+  "secrets": {
+    "sources": ["**"],
+    "exclude": ["internal/secrets/testdata/**"],
+    "patterns": [
+      { "name": "internal-service-token", "match": "svc_[0-9a-f]{32}" }
+    ]
+  }
+}
+```
+
+Paths are relative to the directory being scanned. `builtin: false` turns the
+shipped patterns off, and then the project must write its own — a scan with no
+patterns is refused rather than passed.
+
+### The report carries no secret
+
+**The value found is masked**: the first four characters, then its length.
+
+```
+BLOCK config.go:7: secret_found
+	a value matching "aws-access-key" is in the source
+	value: AKIA... (20 characters)
+```
+
+A report is written to a log, pasted into a ticket, shared on a screen. A tool
+that found a leak and then printed it would be a second leak. What survives is
+enough to recognise the finding and useless to anybody who reads it.
+
+### The shipped patterns
+
+| Name | Catches |
+|---|---|
+| `private-key-block` | a PEM private key header of any kind |
+| `aws-access-key` | an `AKIA`/`ASIA` access key id |
+| `google-api-key` | an `AIza` API key |
+| `slack-token` | an `xox[baprs]-` token |
+| `github-token` | a `gh[pousr]_` token |
+| `json-web-token` | a three-part JWT |
+| `url-with-password` | a password inside a connection string |
+
+**Every pattern is a recognisable format, not an entropy score.** A value that
+looks random is not thereby a secret, and a gate that reds every random-looking
+string is switched off within a week. Binary files are skipped for the same
+reason: random bytes match anything eventually.
+
+### Exemption, with a reason
+
+```go
+//x3:allow:secret: a documented example key, not a live credential
+const example = "AKIAJ4EXAMPLEKEY9ABC"
+```
+
+The directive covers **its own line and the one below it**, and it must be the
+first thing on its line after the comment opener — `#`, `--`, `/*`, `*`,
+`<!--`, `;` — so a sentence that merely *mentions* the directive is not one.
+That distinction is not theoretical: this package's own comments describe the
+directive, and the first version of the scanner read them as exemptions.
+
+An exemption nobody needed is `dead_exemption` and red, the same law as
+everywhere else in the engine — and it applies here too. The example above
+carries a real-shaped key on purpose: written with an ellipsis instead, the
+exemption over it would cover nothing and this document would fail the scan it
+describes.
+
+### The control experiment
+
+`check.ps1`, step `secrets control experiment`, runs the binary five times:
+
+| Run | Wants |
+|---|---|
+| `testdata/clean` | `0` |
+| `testdata/leaky` | `1` — three findings, one of them in a shell script |
+| `testdata/exempt` | `0`, and the exemption listed |
+| `testdata/dead` | `1` — `dead_exemption` |
+| this repository | `0` |
+
+Seeing only the red would not be enough: a scanner that says no to every value
+would also exit `1`. The clean and exempted rows are what separate a gate from
+a noise generator. The repository's own run is green because three test fixtures
+carry reasoned exemptions — which is the feature being used, not worked around.
+
 ## `x3 guard`
 
 ```
@@ -2325,6 +2425,10 @@ sales page.
   a single star in the pattern, which a list of fixed directories cannot have;
   until the pattern language grows, that rule is written as one `deny` rule per
   component or not at all.
+- **`secrets` reads formats, not meaning.** A credential with no recognisable
+  shape - a long random password in a variable - is invisible to it, and a
+  string that happens to match a shape is red even when it is an example. The
+  exemption exists for the second case; nothing covers the first.
 - **`case` payloads are parsed but not run.** The `in=(...) out=...` shape is
   checked; the values in it are not. Nothing calls the function and compares the
   result, so a `case` that is well formed and wrong stays green.
@@ -2391,4 +2495,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.14.0 capabilities=7871aae0246c7c4fca7bb8da381a2785f132a73d8cd1254fa02efd4786023869 template=be0b78bfcf32821b9c5e15e42581405c751f229bd887a9177572c1acce744430 -->
+<!-- x3-dist version=v0.15.0 capabilities=e89c6b1c97da74523ad54b5b0c7fc305e2be62667862ce83f95c55c761dbca79 template=2d64d4a6a061380a86f37e346e802c9dc8f4210031245f938786d29606c63947 -->
