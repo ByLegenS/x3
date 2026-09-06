@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.20.0`**
+**Current version: `v0.21.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `cecb8d1506798c3b54c9a6a292fcf0bc10fe8e85effdf0a7a992f4c98b869758` |
-| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `ce9ac9f2e3b5d9e7fad6b304cd9044fa669456cd1a80d98cc54ac99e1a9c58d4` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `690c8edca368969988994b0be8c0a57813dec9532e5f8182b1b27d6d859c1c48` |
+| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `0d92b8a132b7e2ab9096ccc6f3182bcee60fe3bb0eafc5f9f8857a88117ff11e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -2911,4 +2911,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.20.0 capabilities=1e9ea9a9e617a2ea0acc9d043df8826e5e06f6c496f7abea09f7ca9ec8a5614d template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
+<!-- x3-dist version=v0.21.0 capabilities=1e9ea9a9e617a2ea0acc9d043df8826e5e06f6c496f7abea09f7ca9ec8a5614d template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
