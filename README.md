@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.10.0`**
+**Current version: `v0.11.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.4 MB | `b0814976b4880663a55ee2da60b76c3fb207e6dfc919e58d43b6b73bdd4946e7` |
-| `x3-linux-amd64` | linux/amd64 | 12.1 MB | `b17ae40a22b959a0463494f2ff1c6ce8b049b872f388b50fc6f9bb1e7cee1f2e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.4 MB | `c58c7bea4dfe19d2cfab7095b3a10f07f5021bcc678bf8d2f439b460f78af248` |
+| `x3-linux-amd64` | linux/amd64 | 12.1 MB | `7d2ea497e2add608240f4ba305a8c27a89796df372b9928f73b61415e229fa19` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -726,13 +726,13 @@ turns those sentences into rules the engine checks. The rules live in `x3.json`,
 the verifier lives in the engine: neither do the rules enter the engine, nor do
 the project's names enter a verifier.
 
-**Six of the nine rule kinds are built.** `deps` with all three of its
+**Seven of the nine rule kinds are built.** `deps` with all three of its
 matchers — `import` reads the import graph, `literal` reads names the compiler
 never sees, `symbol` reads what the code actually uses; `required` asks whether
 every file of a class carries a mark; `pairing` asks whether anybody touches a
 file at all; `flow` asks where a value may appear; `exposure` asks what reaches
-the outside; `duplication` asks whether a body was written twice. The other
-three kinds are specified in
+the outside; `duplication` asks whether a body was written twice; `vocabulary` asks which
+words a layer must not know. The other two kinds are specified in
 [ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
 and says so — a planned kind that passed silently would be worse than no rule at
 all.
@@ -1061,12 +1061,47 @@ reports `empty_scope` rather than passing quietly.
 similar bodies would be caught too, and a noisy gate is a gate somebody switches
 off. Two bodies are the same only if they are the same after formatting.
 
+### `vocabulary` — the words a layer must not know
+
+An import ban stops the core from calling a module. It does not stop the core
+from *knowing* one: a module's name lives in a constant, a field name, a
+configuration key, a log line. This is the rule for that.
+
+```json
+{ "name": "the-core-speaks-no-module-word",
+  "kind": "vocabulary",
+  "sources": ["**/*.go", "ui/core/**/*.js", "config/**/*.json"],
+  "in": "core",
+  "terms": { "componentNames": "modules" } }
+```
+
+`in` is the layer that must stay ignorant. `terms` is what it must not know:
+
+| Written | Means |
+|---|---|
+| `componentNames: "<component>"` | the **instance names** of that component are the terms — no hand-kept list, so a new module is covered the day it appears |
+| `words: ["invoice", "billing"]` | terms written out, each one readable word |
+
+The tokenizer is the language gate's, so `alphaTable` is `alpha` + `table` and a
+name cannot hide inside camel case. Matching is per word: a term shorter than
+three letters is never read, which is why `componentNames` needs a component
+whose patterns carry a single star.
+
+**Comments are exempt by default.** Explaining why a rule exists requires naming
+the thing; what is forbidden is the *code* knowing it. Set
+`"comments": "checked"` when the ban is meant to cover prose as well.
+
+What is read in Go is what the language gate reads: the package name, declared
+identifiers, and string literals. A name declared elsewhere is not yours to
+spell, and the import rule already guards that boundary. In every other file
+type, every line is read.
+
 ### Fields a rule has
 
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | yes | unique in the file; what the report and the stderr lines call this rule |
-| `kind` | yes | `deps`, `required`, `pairing`, `flow`, `exposure` or `duplication`; the other three stop the run |
+| `kind` | yes | `deps`, `required`, `pairing`, `flow`, `exposure`, `duplication` or `vocabulary`; the other two stop the run |
 | `match` | `deps` only | `import`, `literal` or `symbol` |
 | `from` + `deny` | import | the outward question |
 | `to` + `allowFrom` | import | the inward question |
@@ -1078,6 +1113,7 @@ off. Two bodies are the same only if they are the same after formatting.
 | `value` + `allow` | flow | the value to follow, and the places it may appear |
 | `surface` + `fields` + `carrier` | exposure | where to watch, which names, written how |
 | `across` + `minLines` | duplication | the component to compare with itself, and the shortest body worth comparing |
+| `in` + `terms` + `comments` | vocabulary | the layer, the words it must not know, and whether prose counts |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
@@ -1189,6 +1225,7 @@ The `code` field is the stable part; the `message` text may be reworded.
 | `escaped_value` | `flow` | the value appeared in a place it may not |
 | `exposed_field` | `exposure` | a hidden name reached the surface |
 | `duplicate_body` | `duplication` | the same body in two instances of a component |
+| `foreign_term` | `vocabulary` | a layer let a word through that it must not know |
 | `missing_marker` | `required` | a file of the class does not carry the mark |
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
 | `empty_scope` | every rule | a component the rule names, its own source set, or the field it follows, matched nothing |
@@ -1214,6 +1251,7 @@ kinds that do not exist yet.
 | `testdata/flow-green` / `-red` with theirs | `0` / `1` — three findings: the handle as an argument, as a result, and under another name |
 | `testdata/exposure-green` / `-red` with theirs | `0` / `1` — the same field is red on the tenant surface and green under the excluded path |
 | `testdata/duplication-green` / `-red` with theirs | `0` / `1` — the copy carries an extra comment and an extra blank line, so a run that only compared raw text would miss it |
+| `testdata/vocabulary-green` / `-red` with theirs | `0` / `1` — two findings, one in an identifier and one in a `.json` file, while the same word in a comment stays green |
 | this repository with its own `x3.json` | `0` |
 | the same three rules split across three files | `1` — the parts carry the rules |
 
@@ -2069,8 +2107,11 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
-- **Three of the nine rule kinds do not exist.** Vocabulary, containment and
-  consistency are specified in the roadmap and have no verifier.
+- **Two of the nine rule kinds do not exist.** Containment and consistency are
+  specified in the roadmap and have no verifier.
+- **`vocabulary` reads words, not meaning.** A term that is also an ordinary
+  word turns every innocent use red, and a term under three letters is never
+  read at all.
 - **`duplication` compares text, not meaning.** Two bodies that differ by one
   renamed variable are two different bodies to it. That is deliberate — the
   alternative catches deliberately separate code and turns the gate into noise —
@@ -2183,4 +2224,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.10.0 capabilities=35034d5306bd97aa7814aef31a8dfd36091ee2eb0ab02a393465f56dd8c724f8 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
+<!-- x3-dist version=v0.11.0 capabilities=93e1bcf319e252ca47feb94d40879ee216c1ddda4fd4b2d740810ba06a77a7d7 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
