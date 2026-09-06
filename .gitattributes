@@ -1,0 +1,7 @@
+# The published binaries are bytes, not text: an end-of-line conversion on
+# checkout would change the file this repository publishes a checksum for.
+x3-windows-amd64.exe binary
+x3-linux-amd64 binary
+
+*.md text eol=lf
+SHA256SUMS.txt text eol=lf

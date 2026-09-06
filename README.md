@@ -1,1 +1,1207 @@
- 
+# x3 — one engine, every audit
+
+x3 reads a Go code base and the live environment it is about to run against,
+and answers one question before the work starts: **is anything not what this
+code assumes?** It checks contracts written as ordinary comments (`//x3:` directives,
+so the compiler never sees them), it checks that the source is written in one
+language outside its comments, and it checks the running world — a database
+row, an HTTP endpoint, a command's output — and refuses to launch when the
+answer is wrong.
+
+**This repository ships binaries only.** The source is private. Everything the
+published binaries can do is documented below, and this file is generated from
+the engine's own capability document at build time, so it can never describe a
+version that does not exist.
+
+**Current version: `v0.1.0`**
+
+## Download
+
+| File | Platform | Size | SHA256 |
+|---|---|---|---|
+| `x3-windows-amd64.exe` | windows/amd64 | 12 MB | `98e529bbfa5238a6b698e8011b5e0bbb5c799bcea6f5c0751b13129f472e0939` |
+| `x3-linux-amd64` | linux/amd64 | 11.7 MB | `da6e52aaa08c54900c13803a93e437b36c866ff64a4a4a8dfac9ce02021e2405` |
+
+Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
+
+### Verify what you downloaded
+
+The checksums above are also in `SHA256SUMS.txt`, next to the binaries:
+
+```
+sha256sum -c SHA256SUMS.txt                                  # Linux
+Get-FileHash .\x3-windows-amd64.exe -Algorithm SHA256        # Windows
+```
+
+The build is reproducible — `-trimpath -buildvcs=false -ldflags "-s -w
+-buildid= -X main.version=<tag>"` with `CGO_ENABLED=0` — and every release is
+built twice and published only when both passes produce the same hash. A
+checksum that does not match the table is not the binary that was published.
+
+### Install
+
+Rename the file to `x3` (`x3.exe` on Windows) and put it on your `PATH`, or
+call it by path from a gate script. There is no installer and nothing is
+written outside the file you downloaded.
+
+```
+x3 version
+```
+
+prints the embedded release tag — the same tag as the download you took. A
+binary built outside a release prints `unreleased`.
+
+### Pin a version
+
+A gate should pin a tag and a checksum, not "the latest file". Every release is
+tagged in this repository, so a fixed URL fetches a fixed binary:
+
+```
+https://raw.githubusercontent.com/ByLegenS/x3/<tag>/x3-linux-amd64
+https://raw.githubusercontent.com/ByLegenS/x3/<tag>/x3-windows-amd64.exe
+```
+
+Fetch it, compare the SHA256 against the one you pinned, and treat a mismatch
+or a missing binary as **red** — not as a skipped step. A gate that quietly
+passes because its tool was missing is worse than no gate at all.
+
+## First run
+
+```
+x3 scan  ./internal/...         # directives in the source
+x3 lang  -config x3.json .      # one language outside comments
+x3 guard -config x3.json -- go test ./...   # live checks, then the command
+```
+
+Exit codes are the same for every command: **0** green, **1** red, **2** usage
+or I/O error. When `guard` launches the command, the command's own exit code is
+returned instead.
+
+Project configuration lives in one file, `x3.json`: the `language` section for
+the language gate, the `live` section for the guards. Both are documented below,
+with the schema and a worked example.
+
+---
+
+**What the engine does today** — one worked example per capability, quoted from
+the control samples that live in the repository. The README describes the
+vision; this file describes the build. If something is on the README roadmap
+and not in this file, it does not exist yet.
+
+> **Documentation gate.** A change under `internal/` or `cmd/` must carry a
+> change under `docs/` in the same diff, or `check.ps1` turns red. See
+> [The documentation gate](#the-documentation-gate) at the bottom.
+
+## Contents
+
+- [What is built and what is not](#what-is-built-and-what-is-not)
+- [`x3 scan`](#x3-scan) — command, flags, exit codes, what it walks
+- [Scopes](#scopes) — where you write a directive decides what it binds
+- [The dictionary](#the-dictionary) — the six directive types
+- [Error codes](#error-codes) — the four ways a directive turns red
+- [The JSON report](#the-json-report)
+- [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
+- [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
+- [`x3 version`](#x3-version) — the release tag embedded in the binary
+- [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
+- [The guard report](#the-guard-report)
+- [Pilot: a real `x3.json`](#pilot-a-real-x3json)
+- [Releases and reproducible builds](#releases-and-reproducible-builds)
+- [Using x3 from another project](#using-x3-from-another-project)
+- [Gaps we know about](#gaps-we-know-about)
+- [The documentation gate](#the-documentation-gate)
+
+## What is built and what is not
+
+The architecture has four components (README, *Architecture*). One is
+implemented:
+
+| Component | State |
+|---|---|
+| **Scanner** (`internal/scan`) | **implemented** — walks the AST, collects directives, resolves scopes |
+| **Dictionary** (`internal/scan`, `dict`) | **implemented** — six types, format and scope checks only |
+| **Recorder** (`internal/engine`) | interface only — no implementation |
+| **Ledger** (`internal/engine`) | interface only — no implementation |
+
+Alongside them, one capability that is not part of that four-component picture:
+
+| Capability | State |
+|---|---|
+| **Live guards** (`internal/live`) | **implemented** — `sql`, `http` and `exec` checks declared in `x3.json`, a `warn`/`block` policy each, and the `x3 guard` command that launches a command only when they allow it |
+| **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
+
+What is implemented is a **language check**, not a behaviour check. The scanner
+answers three questions about every `//x3:` line it finds:
+
+1. Is this directive type known — does it have a verifier at all?
+2. Is its shape right — are the required sub-types and the reason present?
+3. Is it in a scope where this type is legal?
+
+It never calls your code, never runs a case, never proves that a `rule` holds.
+A green `x3 scan` means *"your directives are well formed"*, nothing more.
+(`x3 guard`, further down, *does* reach the outside world — but it checks the
+environment a run is about to happen in, not the behaviour of your code.) That
+distinction is deliberate: behaviour verification is the next stage, and
+claiming it now would be a promise the engine cannot keep.
+
+## `x3 scan`
+
+```
+x3 scan [-out <file>] [dir]
+```
+
+| Part | Meaning |
+|---|---|
+| `dir` | root directory to walk; defaults to `.` |
+| `-out <file>` | write the JSON report to this file. Without it the report goes to **stdout** |
+| (always) | human-readable findings and the summary line go to **stderr** |
+
+Because the report goes to stdout and the findings to stderr, you can pipe the
+JSON somewhere and still read the reds on your terminal.
+
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | green — every directive found is well formed and in a legal scope |
+| `1` | red — at least one directive failed; each one is printed with `file:line` |
+| `2` | usage error, or the run could not complete (unparsable Go file, report not writable) |
+
+A run over a tree that contains **no directives at all** exits `0`. That matters
+if you build a gate on top of x3: the exit code alone cannot tell "everything
+passed" from "nothing was checked". Read the counts in the report as well — see
+[Using x3 from another project](#using-x3-from-another-project).
+
+### What gets walked
+
+- Only files ending in `.go` are read.
+- These directory **names** are skipped: `vendor`, `testdata`, `node_modules`,
+  and any directory whose name starts with `.` or `_`.
+- The skip applies to sub-directories only. A skipped name given *as the root*
+  is still scanned — that is how the control samples under
+  `internal/scan/testdata/` get scanned:
+
+```
+x3 scan internal/scan/testdata/green   # exit 0
+x3 scan internal/scan/testdata/red     # exit 1
+```
+
+### What a run looks like
+
+Green sample, stderr:
+
+```
+x3 scan: 2 file(s) - 7 directive(s) - 0 red
+```
+
+Broken sample, stderr — one block per red, then the same summary line:
+
+```
+bad.go:3: unknown_category: no verifier exists for kind "nope"
+	found: //x3:nope:whatever
+bad.go:6: malformed: skip: expected shape //x3:skip:<reason>
+	found: //x3:skip
+bad.go:9: malformed: rule: expected shape //x3:rule:<kind>[:<subkind>...]
+	found: //x3:rule:
+bad.go:12: malformed: guard: expected shape //x3:guard:<kind>[:<subkind>...]
+	found: //x3:guard
+bad.go:15: malformed: allow: expected shape //x3:allow:<kind>:<reason>
+	found: //x3:allow:secret
+bad.go:18: malformed: case: the payload must start with in=(; expected shape //x3:case: in=(<args>) out=<want>
+	found: //x3:case: in=1 out=2
+bad.go:22: unattached: the directive binds to no declaration
+	found: //x3:rule:idempotent
+doc.go:1: scope_not_allowed: scope pkg is not allowed; valid scopes: decl
+	found: //x3:case: in=(0) out=ErrInsufficientBalance
+x3 scan: 2 file(s) - 8 directive(s) - 8 red
+```
+
+Paths are relative to the scan root and always use `/`, on every operating
+system.
+
+## Scopes
+
+Where you write the directive decides what it binds. There are three legal
+scopes and one failure state.
+
+| Scope | Where you write it | Binds |
+|---|---|---|
+| `decl` | in the doc comment of a func, type, var or const | that one declaration; the report names it in `target` |
+| `file` | above the `package` clause — the same placement as `//go:build` | that file |
+| `pkg` | above the `package` clause **in a file named `doc.go`** | the whole package |
+| `unattached` | anywhere else: inside a function body, or a floating comment | nothing — always red |
+
+`pkg` is not a different syntax from `file`; it is the same placement in a file
+named `doc.go`. That filename is the only thing that separates them.
+
+Real resolutions from `internal/scan/testdata/green`:
+
+```go
+// doc.go:1 → scope "pkg"
+//x3:guard:output:non-negative
+
+// Package wallet, ...
+package wallet
+```
+
+```go
+// wallet.go:1 → scope "file"
+//x3:live
+
+package wallet
+```
+
+```go
+// wallet.go:15 → scope "decl", target "Wallet.Add"
+// Add, bakiyeye ekler ve yeni bakiyeyi döndürür.
+//
+//x3:rule:math:commutative
+//x3:case: in=(1) out=1
+func (w *Wallet) Add(n int64) int64 {
+```
+
+A method's `target` is written `Receiver.Method` with pointer stars and generic
+brackets stripped: `*Wallet` and `Wallet[T]` both report `Wallet`.
+
+And the failure state, from `internal/scan/testdata/red/bad.go:22` — a directive
+inside a function body has nothing to attach to, so it is **not silently
+ignored**, it is red:
+
+```go
+func Floating() {
+	//x3:rule:idempotent
+	_ = 1
+}
+```
+
+## The dictionary
+
+Six types are declared today. Every type states which scopes it is valid in and
+what shape it must have. **A type that is not in the dictionary has no verifier,
+and a directive with no verifier turns the run red** — invented types cannot
+survive a scan.
+
+| Directive | Valid scopes | Requires |
+|---|---|---|
+| `//x3:rule:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
+| `//x3:guard:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
+| `//x3:case: <payload>` | `decl` only | a non-empty payload |
+| `//x3:live` | `decl`, `file`, `pkg` | nothing |
+| `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
+| `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
+
+**How a line is parsed.** After the `//x3:` prefix, the rest is split on `:`
+into a category and its sub-types. A **payload** is whatever follows a colon
+that is itself followed by a space — `: ` — and it runs to the end of the line:
+
+| Written | Parsed as |
+|---|---|
+| `//x3:rule:math:commutative` | category `rule`, segments `["math","commutative"]` |
+| `//x3:case: in=(0) out=Err` | category `case`, payload `in=(0) out=Err` |
+| `//x3:skip: legacy generator` | category `skip`, payload `legacy generator` |
+
+The payload counts toward the required-segment count, so a reason may be written
+either way: `//x3:skip:legacy-generator` and `//x3:skip: legacy generator` are
+both accepted. That is what lets a reason contain spaces.
+
+---
+
+### `//x3:rule:<type>[:<subtype>...]`
+
+**Catches:** a semantic contract — a behavioural rule the code is expected to
+obey. Today x3 checks only that you named a rule and named it in a legal scope;
+nothing verifies that the rule actually holds.
+
+**Green** — `internal/scan/testdata/green/wallet.go:15`:
+
+```go
+//x3:rule:math:commutative
+//x3:case: in=(1) out=1
+func (w *Wallet) Add(n int64) int64 {
+```
+
+**Red** — `internal/scan/testdata/red/bad.go:9`, a category with no sub-type:
+
+```go
+//x3:rule:
+func EmptySegment() {}
+```
+
+```
+bad.go:9: malformed: rule: expected shape //x3:rule:<kind>[:<subkind>...]
+```
+
+A trailing `:` is trimmed before parsing, so `//x3:rule:` is read as the bare
+category `rule` — which needs one sub-type and does not have one. A doubled
+colon such as `//x3:rule::idempotent` is red too, with
+`empty subkind (a doubled colon)`.
+
+---
+
+### `//x3:guard:<type>[:<subtype>...]`
+
+**Catches:** an invariant — a never-condition. Same shape and same scopes as
+`rule`; the difference is meaning, not mechanics.
+
+**Green** — `internal/scan/testdata/green/wallet.go:24`, bound to one method:
+
+```go
+//x3:guard:output:non-negative
+func (w *Wallet) Withdraw(n int64) (int64, error) {
+```
+
+**Green** — `internal/scan/testdata/green/doc.go:1`, the same guard raised to
+the whole package:
+
+```go
+//x3:guard:output:non-negative
+
+// Package wallet, ...
+package wallet
+```
+
+**Red:** there is no `guard` sample in `testdata/red` today. Its shape check is
+the same code path as `rule`'s, so a bare `//x3:guard` fails exactly the way
+`//x3:rule:` does above. That is a gap in the control samples, not a claim that
+`guard` cannot go red — see [Gaps we know about](#gaps-we-know-about).
+
+---
+
+### `//x3:case: <payload>`
+
+**Catches:** an inline example — one input and its expected output — written
+next to the function instead of in a test file. **`decl` scope only**: an
+example belongs to one declaration, so writing it at file or package level is
+meaningless and therefore red.
+
+The payload has a shape: `in=(<args>) out=<want>`. The argument list may be
+empty — a call with no arguments is an example too — and the closing `)` is the
+**last** one on the line, so a nested call fits: `in=(f(1), 2) out=ErrX`. A
+payload that does not parse is `malformed`. What the parts *mean* is still not
+checked: nothing calls the function and compares the result. That is the next
+stage.
+
+**Green** — `internal/scan/testdata/green/wallet.go:16`:
+
+```go
+//x3:case: in=(1) out=1
+func (w *Wallet) Add(n int64) int64 {
+```
+
+**Red** — `internal/scan/testdata/red/doc.go:1`, a perfectly well-formed case in
+the wrong scope:
+
+```go
+//x3:case: in=(0) out=ErrInsufficientBalance
+
+// Package broken, ...
+package broken
+```
+
+```
+doc.go:1: scope_not_allowed: scope pkg is not allowed; valid scopes: decl
+```
+
+---
+
+### `//x3:live`
+
+**Catches:** code that talks to a real provider and costs money to exercise —
+marked so it can be kept out of automated runs and used manually only.
+
+**Green** — `internal/scan/testdata/green/wallet.go:1`, marking the whole file:
+
+```go
+//x3:live
+
+package wallet
+```
+
+**Red:** `live` takes no sub-type and no reason, so it has no shape to get wrong
+and cannot produce `malformed` on its own. Its failure modes are the two that
+apply to every type: writing it where nothing can hold it (`unattached`) and a
+doubled colon (`//x3:live::x`). No dedicated `live` red sample exists.
+
+---
+
+### `//x3:skip:<reason>`
+
+**Catches:** a deliberate exemption. The **reason is mandatory** — a silent skip
+is exactly the failure this engine exists to prevent, so a bare `//x3:skip` is
+red rather than a free pass.
+
+**Green** — `internal/scan/testdata/green/wallet.go:40`:
+
+```go
+//x3:skip: legacy generator
+const legacyRate = 3
+```
+
+**Red** — `internal/scan/testdata/red/bad.go:6`, a skip with no reason:
+
+```go
+//x3:skip
+func NoReason() {}
+```
+
+```
+bad.go:6: malformed: skip: expected shape //x3:skip:<reason>
+```
+
+---
+
+### `//x3:allow:<type>:<reason>`
+
+**Catches:** a justified silence for one specific finding — the counterpart of
+`skip` for scanners that flag things. It needs **two** parts: what is being
+silenced, and why. One part alone is not enough.
+
+**Green** — `internal/scan/testdata/green/wallet.go:35`, silencing a secret
+finding on a constant that is deliberately not a real key:
+
+```go
+//x3:allow:secret:example-only
+const demoToken = "not-a-real-key"
+```
+
+**Red:** no `allow` sample exists in `testdata/red` today. `//x3:allow:secret` —
+a type with no reason — fails the same shape check as `//x3:skip` above.
+
+## Error codes
+
+Four codes, and they are the stable part of the output: the JSON `code` field is
+what a machine should read, the `message` text may be reworded at any time.
+
+| Code | Turns red when | Sample |
+|---|---|---|
+| `unknown_category` | the type is not in the dictionary — no verifier exists for it | `red/bad.go:3` — `//x3:nope:whatever` |
+| `malformed` | a required sub-type or reason is missing, a doubled colon left an empty sub-type, or a `case` payload does not parse | `red/bad.go:6`, `red/bad.go:9`, `red/bad.go:18` |
+| `scope_not_allowed` | the type is known and well formed, but may not be used in this scope | `red/doc.go:1` — a `case` at package level |
+| `unattached` | the directive binds to nothing at all | `red/bad.go:22` — inside a function body |
+
+The checks run in that order and stop at the first failure, so one directive
+reports exactly one code. Everything that is not an error is counted `ok`.
+
+## The JSON report
+
+```json
+{
+  "version": 1,
+  "root": "internal/scan/testdata/green",
+  "files": 2,
+  "directives": [ ... ],
+  "summary": { "ok": 7, "errors": 0 }
+}
+```
+
+`version` is the schema version — it goes up when the meaning of a field
+changes. Directives are sorted by file, then by line, so two runs over the same
+sources produce the same list in the same order.
+
+One green entry and one red entry, verbatim:
+
+```json
+{
+  "file": "wallet.go",
+  "line": 1,
+  "raw": "//x3:live",
+  "category": "live",
+  "scope": "file",
+  "status": "ok"
+}
+```
+
+```json
+{
+  "file": "bad.go",
+  "line": 6,
+  "raw": "//x3:skip",
+  "category": "skip",
+  "scope": "decl",
+  "target": "NoReason",
+  "status": "error",
+  "code": "malformed",
+  "message": "skip: expected shape //x3:skip:<reason>"
+}
+```
+
+| Field | Notes |
+|---|---|
+| `file`, `line` | relative to the scan root, always `/`-separated |
+| `raw` | the directive line exactly as written, trailing whitespace trimmed |
+| `category`, `segments`, `payload` | the parsed line; `segments` and `payload` are omitted when empty |
+| `scope`, `target` | resolved binding; `target` is present only for `decl` |
+| `status` | `ok` or `error` |
+| `code`, `message` | present only on `error` |
+
+**There is no timestamp anywhere in the report, by design.** Identical sources
+must produce identical bytes, so that a later ledger can compare two runs and
+never raise a false red over a clock tick. `TestDeterministic` holds that line.
+
+## `x3 lang`
+
+A project that mixes languages outside its comments leaks the author's mother
+tongue into identifiers, log lines and error messages, and nobody notices until
+a stranger reads the code. `x3 lang` is the gate for that, and it is a **general**
+capability: it knows nothing about which language you are leaking *from*.
+
+**The dictionary runs in reverse.** There is no list of forbidden words — such a
+list can only ever cover the language whose words somebody thought to write
+down. What is known is the **allowed** language. Every token that is not in it is
+red, whatever language it came from.
+
+```
+x3 lang [-config <file>] [-out <file>] [dir]
+```
+
+Exit codes are scan's: `0` green, `1` red, `2` usage or I/O error. Without
+`-out` the JSON report goes to stdout; findings always go to stderr.
+
+### What is checked
+
+| Read | Not read |
+|---|---|
+| the package name | comments (see `comments` below) |
+| every **declared** identifier — function, type, variable, constant, struct field, parameter, result, label, import alias | the **use** of a name declared elsewhere |
+| every string constant, struct tags included | import paths |
+
+The asymmetry is deliberate. A name is spelled once, where it is declared, and
+that is where the gate reads it; flagging every use would report the same word
+fifty times. A name declared somewhere else — `fmt.Fprintf`, `pgx.Connect` — is
+not yours to spell, so it is not yours to be red for.
+
+### The token rule
+
+A text is split into words on anything that is not a letter, and at case
+boundaries, with runs of capitals kept together: `JSONPath` → `json` + `path`,
+`wordCount` → `word` + `count`, `TOTAL` → `total`. A run of capitals stays whole
+on purpose: split letter by letter, a foreign word written in capitals would
+dissolve into fragments and slip through. Fragments shorter than three letters
+are not read at all — `id`, `n`, `x3` are in no dictionary.
+
+Each remaining word must be either in the embedded dictionary of the allowed
+language or in `language.allow`. Then one absolute rule on top: **any non-ASCII
+letter outside a comment is red**, whatever alphabet it belongs to, and
+`language.allow` cannot excuse it. `ç`, `é`, `α`, `ш` are all evidence that a
+second language got into the source.
+
+### `language` in `x3.json`
+
+```json
+{
+  "language": {
+    "allowed": "en",
+    "comments": "any",
+    "allow": ["cfg", "ctx", "dsn", "json", "omitempty"]
+  }
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `allowed` | the language of the source outside comments. `en` is the only embedded dictionary today; any other value is an error, not a silent pass |
+| `comments` | `any` (default) leaves comments alone — write them in your working language; `en` holds them to the same dictionary |
+| `allow` | project terms and abbreviations that no dictionary has: `dsn`, `ctx`, `omitempty`, a product name. One ASCII word per entry, three letters or more — an entry that could never match a token is rejected rather than ignored |
+
+**No file, or no `language` section, is not an error**: the smart default is
+`allowed: "en"`, `comments: "any"`, no allow list. A `language` section that *is*
+written and is wrong — unknown field, unknown language, dead allow entry — stops
+the run. Fail-closed, like the `live` section.
+
+### What a run looks like
+
+`internal/lang/testdata/red/sample.go`, checked against a configuration with no
+allow list:
+
+```go
+// Reason, hiçbir dilde kelime olmayan bir adı kullanır.
+func Reason() string {
+	notaword := "the reason is missing"
+	return notaword
+}
+
+// Accented, ASCII dışı harf taşıyan bir dizgi sabiti.
+const Accented = "café"
+```
+
+```
+sample.go:8:2: not_in_dictionary: notaword (identifier)
+sample.go:14:18: non_ascii_letter: é (string)
+x3 lang: 1 file(s) - 2 finding(s) - dictionary "en"
+```
+
+The Turkish comments in that file are green: `comments` is `any`. The report
+carries the same findings, sorted by file and line, with no timestamp:
+
+```json
+{
+  "version": 1,
+  "root": "internal/lang/testdata/red",
+  "language": "en",
+  "files": 1,
+  "findings": [
+    {
+      "file": "sample.go",
+      "line": 8,
+      "column": 2,
+      "where": "identifier",
+      "token": "notaword",
+      "code": "not_in_dictionary"
+    }
+  ]
+}
+```
+
+`code` is the stable part — `not_in_dictionary` or `non_ascii_letter`; `where` is
+`identifier`, `string` or `comment`.
+
+### The embedded dictionary
+
+141,848 words are compiled into the binary (`internal/lang/english.txt`, ~1.4 MB
+of text). It is a custom list generated from the **English Speller Database**
+(ESDB, formerly SCOWL) at <https://app.aspell.net/create>, size 70 (large), US
+spelling, diacritics stripped, with the `hacker` special list included — which
+is why `http`, `auth` and `err` are already words. The file was lowercased,
+de-duplicated and cut to entries of three ASCII letters or more.
+
+Its licence is permissive and requires the notice to travel with any copy, so
+the notice is kept verbatim at the top of `english.txt` and repeated here:
+
+> Copyright 2000-2026 by Kevin Atkinson
+>
+> Permission to use, copy, modify, distribute, and sell any part of the English
+> Speller Database (ESDB, previously known as SCOWLv2), or word lists created
+> from it, is hereby granted without fee, provided that the above copyright
+> notice appears in all copies and that both the above copyright notice and this
+> notice appear in supporting documentation. Kevin Atkinson makes no
+> representations about the suitability of this database for any purpose. It is
+> provided "as is" without express or implied warranty.
+
+Do not edit the file by hand. A word that belongs to your project belongs in
+`language.allow`.
+
+### The control experiment
+
+`check.ps1`, step `language gate`, runs the same binary four times and requires
+all four answers:
+
+| Run | Wants |
+|---|---|
+| the repository, with its own `x3.json` | `0` |
+| `testdata/red`, no allow list | `1` — the planted word and the planted accent |
+| `testdata/green`, with `testdata/allow.json` | `0` |
+| `testdata/green`, with a configuration that has no `language` section | `1` — the allow list is what made it green |
+
+The last row is the half that is easy to skip: an allow list that is never seen
+to change an answer is decoration.
+
+The repository holds itself to this gate. Its own `x3.json` lists 34 terms —
+`cfg`, `ctx`, `dsn`, `fset`, `omitempty`, `pgx`, `testdata` and so on — which is
+what the allow list is for. Writing that list is also how the gate paid for
+itself the first time it ran: it found a misspelled field name in a test
+fixture.
+
+## `x3 guard`
+
+```
+x3 guard [-config <file>] [-report <file>] [-stamp] -- <command> [args...]
+```
+
+Runs the **live guards** declared in a configuration file, then decides whether
+the command after `--` may start. This is the *guard-then-launch* shape: one
+process, one decision, no wrapper script.
+
+| Part | Meaning |
+|---|---|
+| `-config <file>` | configuration file holding the guards; defaults to `x3.json` |
+| `-report <file>` | write the JSON report here. **Without it no report is written** — stdout belongs to the launched command |
+| `-stamp` | put a wall-clock start time in the report (off by default; see [The guard report](#the-guard-report)) |
+| `--` | everything after it is the command and its arguments |
+| (always) | the reason for every red guard, and the decision, go to **stderr** |
+
+The command is started with x3's **own environment and working directory** —
+nothing added, removed or rewritten — and its exit code is returned verbatim.
+Its stdin, stdout and stderr are x3's own, so a launched test run or server
+behaves exactly as it would without the guard in front of it.
+
+### The decision rule
+
+| Guards | Decision | What happens |
+|---|---|---|
+| all pass | `launch` | the command runs; x3 exits with the command's exit code |
+| red, all of them `policy: warn` | `launch` | the command runs; each red is printed as `WARN` first |
+| at least one red with `policy: block` | `blocked` | **the command is never started**; reasons go to stderr, x3 exits `1` |
+
+A guard that could not run at all — missing environment variable, unreachable
+host, unknown driver — counts as red. That is deliberate: a live guard whose
+answer is unknown is not an answer, and the switch is **fail-closed**.
+
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| the command's own | the guards allowed the launch |
+| `1` | a `block` guard was red, and the command was never started |
+| `2` | the configuration could not be read or validated, the report could not be written, or the command could not be started at all |
+
+`1` therefore carries two meanings — "blocked" and "the command itself exited
+1". The report separates them: `decision` is `blocked` in the first case, and
+`launch` with an `exit` field in the second. A gate that needs the distinction
+passes `-report` and reads it.
+
+## Live guards in `x3.json`
+
+Guards are **declared, not coded**. There is no Go file per guard and no plugin
+to write: the engine knows three general source kinds — `sql`, `http`, `exec` —
+and everything project-specific (the query, the address, the expected value, the
+policy) is data in the configuration file.
+
+```json
+{
+  "$schema": "https://x3.example/x3.schema.json",
+  "live": {
+    "guards": [
+      { "name": "...", "kind": "sql", "policy": "block", "...": "..." }
+    ]
+  }
+}
+```
+
+Keys outside `live` are left untouched — `x3.json` is one file with several
+sections: `language` (above) is read by `x3 lang`, and `settings`/`policies` are
+waiting for later stages. Inside `live` the check is
+**strict and up-front**: an unknown key, a key that belongs to a different kind,
+a missing required key, a duplicate name, an unknown policy or an empty guard
+list stops the run *before any guard is executed*. An empty list is an error on
+purpose — a guard run with nothing in it would otherwise be a silent pass.
+
+**Two surfaces, one law.** `//x3:live` written in source code is a *marker*:
+this code talks to a real provider, keep it out of automated runs. The `live`
+section here is where runnable guards are *defined*. Both are declared in a
+dictionary inside the engine, and in both an entry the dictionary does not know
+turns the run red. Invented kinds cannot survive, exactly as invented directive
+types cannot.
+
+### Fields every guard has
+
+| Field | Required | Meaning |
+|---|---|---|
+| `name` | yes | unique within the file; what the report and the stderr lines call this guard |
+| `kind` | yes | `sql`, `http` or `exec` |
+| `policy` | no | `warn` or `block`; **defaults to `block`** |
+| `timeoutMs` | no | time limit for this guard; defaults to `10000`. A dead dependency must not hang the gate forever |
+
+### `kind: "sql"`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `dsnEnv` | yes | **name** of the environment variable holding the DSN. The DSN itself never appears in the file |
+| `query` | yes | the query; its first row, first column is the observed value |
+| `driver` | no | `database/sql` driver name; defaults to `pgx` |
+| `equals` / `contains` | one of them | what the observed value must be |
+
+`equals` or `contains` is mandatory here: a query with no expectation asserts
+nothing, so the configuration is rejected rather than quietly passing.
+
+```json
+{
+  "name": "schema-current",
+  "kind": "sql",
+  "policy": "block",
+  "dsnEnv": "APP_DATABASE_URL",
+  "query": "select max(version)::text from schema_migrations",
+  "equals": "0117"
+}
+```
+
+### `kind: "http"`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `url` | yes | the address; the request is always a `GET` |
+| `status` | yes | the expected status code |
+| `headerEnv` | no | header name → **name** of the environment variable holding its value |
+| `jsonPath` | no | [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901) JSON Pointer into the response body, e.g. `/agent/permissions/0`. Without it the observed value is the whole body |
+| `equals` / `contains` | no | what the observed value must be. With only `status`, the status code alone is the assertion |
+
+```json
+{
+  "name": "provider-agent-enabled",
+  "kind": "http",
+  "policy": "warn",
+  "url": "https://api.provider.example/v1/agents/self",
+  "status": 200,
+  "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
+  "jsonPath": "/agent/permissions/0",
+  "equals": "outbound"
+}
+```
+
+### `kind: "exec"`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `command` | yes | executable to run |
+| `args` | no | its arguments |
+| `equals` / `contains` | no | what its trimmed stdout must be. Without either, **exit code 0** is the assertion |
+
+```json
+{
+  "name": "toolchain-present",
+  "kind": "exec",
+  "command": "go",
+  "args": ["env", "GOOS"]
+}
+```
+
+### Secrets never enter the report
+
+A live guard needs credentials, and a report is a file people paste into
+tickets. So:
+
+- Credentials are referenced **by environment variable name only** (`dsnEnv`,
+  `headerEnv`). A DSN or a token written literally in `x3.json` is the caller's
+  own mistake — x3 never asks for one.
+- Before anything is written, the values of those variables are stripped out of
+  the observed value **and out of the error text**. Driver errors routinely
+  quote the DSN they failed on; that string is replaced with `[redacted]`.
+- An empty environment variable is an error, not an empty credential: the guard
+  goes red instead of asking anonymously and reporting a misleading `401`.
+
+`TestSecretNeverLeaves` holds this line — it makes the fake driver fail with the
+DSN inside its own error message and then asserts the password is nowhere in the
+marshalled result.
+
+## The guard report
+
+```json
+{
+  "version": 1,
+  "config": "internal/live/testdata/guard-block-red.json",
+  "guards": [
+    {
+      "name": "toolchain-present",
+      "kind": "exec",
+      "policy": "block",
+      "status": "pass",
+      "expected": "exit code 0",
+      "observed": "windows"
+    },
+    {
+      "name": "impossible-platform",
+      "kind": "exec",
+      "policy": "block",
+      "status": "fail",
+      "expected": "equals \"there-is-no-such-platform\"",
+      "observed": "windows",
+      "detail": "observed value is not equal to the expected value"
+    }
+  ],
+  "summary": { "pass": 1, "warned": 0, "blocked": 1 },
+  "decision": "blocked",
+  "command": ["x3", "scan", "internal"]
+}
+```
+
+| Field | Notes |
+|---|---|
+| `version` | schema version of this report; it goes up when a field's meaning changes |
+| `guards[].status` | `pass`, `fail` (it ran and disagreed) or `error` (it could not run). Both non-`pass` values are red |
+| `guards[].policy` | the policy that was applied to **this** guard — always present, so the report explains its own decision |
+| `guards[].expected` / `observed` / `detail` | what was wanted, what was seen, and why it counted as red. Secrets are already redacted |
+| `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`) |
+| `decision` | `launch` or `blocked` |
+| `command` | the command as given after `--`; absent when none was given |
+| `exit` | the command's exit code. **Absent when `decision` is `blocked`** — that absence is the proof the command never ran |
+| `startedAt` | present **only** with `-stamp` |
+
+**No timestamp unless you ask for one**, the same rule as the scan report: the
+same configuration and the same answers must produce the same bytes, so that a
+later ledger comparing two runs never raises a red over a clock tick.
+`TestReportIsDeterministic` holds that line.
+
+### The control samples
+
+Three configurations in `internal/live/testdata/` differ **only** in the guard
+declaration; the launched command is identical in all three, and it proves it
+ran by writing a file:
+
+| Sample | Guards | Expected |
+|---|---|---|
+| `guard-green.json` | one passing `exec` guard | exit `0`, file written |
+| `guard-block-red.json` | the same guard plus a red one, `policy: block` | exit `1`, **file not written** |
+| `guard-warn-red.json` | the same pair, the red one `policy: warn` | exit `0`, file written, `WARN` on stderr |
+
+`check.ps1` runs all three as the `guard control experiment` step and asserts
+both the exit code and the presence of the file:
+
+```
+== guard control experiment
+  green:     exit=0 ran=True (want 0/True)
+  block-red: exit=1 ran=False (want 1/False)
+  warn-red:  exit=0 ran=True (want 0/True)
+```
+
+And the stderr of the blocked run — one block per red guard, then the decision:
+
+```
+BLOCK impossible-platform (exec): observed value is not equal to the expected value
+	want: equals "there-is-no-such-platform"
+	got:  windows
+x3 guard: 2 guard(s) - 1 pass, 0 warn, 1 block - command not started
+```
+
+The `sql` and `http` kinds are control-tested in `internal/live/live_test.go`
+rather than in `check.ps1`, because the gate must not need a database or a
+network: `TestSQLGuard` runs the real `database/sql` path against a fake driver
+registered by the test, and `TestHTTPGuard` runs the real HTTP path against an
+`httptest` server — each green, then each turned red by changing only the
+expectation.
+
+## `x3 version`
+
+```
+x3 version
+```
+
+Prints the release tag embedded in the binary at build time, and exits `0`:
+
+```
+v0.1.0
+```
+
+One line, nothing else, so a gate can compare it with the version it pinned
+without parsing anything. A binary that was not produced by a release run has
+no tag to embed and prints `unreleased`; an untagged binary is not a published
+one, and a gate that pins versions should treat it as red.
+
+## Pilot: a real `x3.json`
+
+x3 is piloted inside a real production application. Nothing about that
+application is encoded in the engine; what follows is its configuration file,
+with generic names, as an example of what live guards are actually for.
+
+The pilot's problem is the one every deployment has: a long test or migration
+run that starts against a **wrong live environment** wastes an hour and can
+corrupt state. Four questions must be answered before it starts.
+
+```json
+{
+  "live": {
+    "guards": [
+      {
+        "name": "schema-current",
+        "kind": "sql",
+        "policy": "block",
+        "dsnEnv": "APP_DATABASE_URL",
+        "query": "select max(version)::text from schema_migrations",
+        "equals": "0117"
+      },
+      {
+        "name": "catalog-engine-address",
+        "kind": "sql",
+        "policy": "block",
+        "dsnEnv": "APP_DATABASE_URL",
+        "query": "select engine_ref from capability_catalog where tier = 'standard'",
+        "equals": "provider:engine-v3"
+      },
+      {
+        "name": "provider-agent-permission",
+        "kind": "http",
+        "policy": "warn",
+        "url": "https://api.provider.example/v1/agents/self",
+        "status": 200,
+        "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
+        "jsonPath": "/agent/permissions/0",
+        "equals": "outbound"
+      }
+    ]
+  }
+}
+```
+
+| Guard | The question it answers | Why that policy |
+|---|---|---|
+| `schema-current` | is the **migration ledger** at the schema version this code expects? | `block` — running against an older schema produces failures that look like code bugs and are not |
+| `catalog-engine-address` | does the **catalog row for this tier** still point at the engine address the run assumes? | `block` — a stale row silently routes the whole run somewhere else |
+| `provider-agent-permission` | does the **provider still grant this agent the permission** the run needs? | `warn` — an external provider having a bad minute should not stop local work, but nobody should discover it an hour in |
+
+The gate then becomes one line, and there is no shell logic deciding anything:
+
+```
+x3 guard -config x3.json -report build/guards.json -- go test ./...
+```
+
+**The red that made this worth building.** When `PROVIDER_TOKEN` holds a rotated
+key, the external endpoint answers `401`, and the run says so before anything
+starts:
+
+```
+WARN  provider-agent-permission (http): want status 200, got 401
+	want: status 200 and equals "outbound"
+	got:  status 401
+x3 guard: 3 guard(s) - 2 pass, 1 warn, 0 block - starting go
+```
+
+The token itself appears nowhere — not in the config, not on stderr, not in
+`build/guards.json`. Change that guard's policy to `block` and the same
+situation stops the run instead of warning about it; that one word is the whole
+difference.
+
+## Releases and reproducible builds
+
+The engine is published as binaries — one per platform — into a public
+repository that carries nothing else: the two binaries, `SHA256SUMS.txt` and a
+generated `README.md`. The source repository is private, so the binary and its
+documentation are the whole public surface.
+
+One command produces a release, and if any step of it fails nothing is
+published:
+
+1. it builds `windows/amd64` and `linux/amd64` with
+   `-trimpath -buildvcs=false -ldflags "-s -w -buildid= -X main.version=<tag>"`
+   and `CGO_ENABLED=0`, so the binary carries no build path, no build id and no
+   VCS stamp — only the tag;
+2. it builds **each target a second time** and compares the SHA256 of the two
+   passes. A build that does not reproduce is not published, and that
+   comparison happens on every release rather than in a one-off experiment;
+3. it writes `SHA256SUMS.txt` and generates the public `README.md` from this
+   document plus a template, stamping the release tag and the SHA256 of both
+   sources into the generated file;
+4. it re-reads what it just wrote and runs the staleness gate against it.
+
+**The staleness gate.** The gate recomputes the SHA256 of this document and of
+the README template and compares them with the stamp in the published README.
+Either one changing after the last release run turns the step **red**: the
+binaries do one thing and the README describes another. A publish directory
+that is not configured, or configured and missing, is red as well and says
+`NOT GENERATED` — deliberately not a green skip, because "nobody has published
+yet" and "the publication is current" are not the same answer. The step carries
+its own control experiment: it asks the same question again with a deliberately
+wrong document hash and requires a red answer.
+
+The publish directory is configuration and never a constant in the code: the
+`-DistDir` argument wins, then the `X3_DIST_DIR` environment variable, then
+`dist.dir` in `x3.json`, resolved relative to the repository root.
+
+**Checking a downloaded binary.** The published `SHA256SUMS.txt` is in the
+format `sha256sum -c` reads. A consuming project pins the tag and the checksum,
+not a path (see below).
+
+## Using x3 from another project
+
+x3 is being piloted inside a real production Go application. The engine stays
+general: nothing about that application is encoded in the engine or in this
+document. What follows is how the integration works in practice, and it is the
+same for any project.
+
+**Integration is by binary, not by import.** The consuming project does not add
+x3 to its `go.mod`, does not use a `replace`, and does not put x3 in a
+`go.work`. It builds the binary and calls it:
+
+```
+go build -o <path> ./cmd/x3      # in the x3 checkout
+<path> scan <package-or-tree>    # from the consuming project's gate
+```
+
+The directives are plain comments, so the consuming project's compiler never
+sees them and its dependency graph never learns that x3 exists.
+
+**Pin a version and a checksum, not a path.** The consuming project records
+the release tag and the SHA256 of the binary it verified against — one small
+tracked file — and fetches that exact file from the public binary repository
+into a directory its VCS ignores. A checked-in path (or an environment variable
+holding one) is green on the machine that wrote it and unmeasured on every
+other one, and neither of them can tell you *which* build ran.
+
+**A missing or mismatched binary is red, not skipped.** The pilot's gate was
+fail-open at first: no binary meant a warning and a normal start. That is the
+failure this engine exists to prevent, so it now refuses — no binary, wrong
+version, wrong checksum, all three stop the run and print the command that
+fetches the pinned release. "The tool was not there" and "the tool found
+nothing" must never produce the same colour.
+
+**Read the counts, not only the exit code.** This was measured on the pilot: a
+scan of a tree with no directives in it exits `0` and reports `0 red`. A
+gate that trusts the exit code alone turns "delete the directives" into a way to
+go green. The pilot's gate therefore asserts on the report itself — it requires
+the expected directives to be present and verified, and goes red if the count
+drops.
+
+**Directives arrive next to the existing tests, not instead of them.** In the
+pilot the existing test file was kept untouched and the directives were added
+alongside it. Nothing is migrated until its x3 equivalent has been seen to go
+red on a deliberately broken input.
+
+## Gaps we know about
+
+Stated plainly, because a capabilities document that lists only strengths is a
+sales page.
+
+- **The language gate speaks one language.** `en` is the only embedded
+  dictionary, so `allowed` accepts nothing else today. A dictionary is also a
+  blunt instrument: an English word the list does not have (a rare technical
+  term) is red until it is allow-listed, and a foreign word that happens to be
+  an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
+  most of the second case.
+- **`case` payloads are parsed but not run.** The `in=(...) out=...` shape is
+  checked; the values in it are not. Nothing calls the function and compares the
+  result, so a `case` that is well formed and wrong stays green.
+- **Only one of the four components exists as behaviour.** Recorder and Ledger
+  are interfaces in `internal/engine` with no implementation, so the "nothing
+  unchanged is ever re-checked" property described in the README is not real
+  yet. Live guards are outside that picture: they check the environment, and
+  nothing about them is remembered between runs.
+- **The gate's guard control experiment covers `exec` only.** `sql` and `http`
+  are proven red and green in `internal/live/live_test.go`, against a fake
+  driver and an `httptest` server. Neither has ever been seen red against real
+  infrastructure inside `check.ps1`, because the gate must run without a
+  database or a network.
+- **Guard expectations are string comparisons.** `equals` and `contains`, and
+  nothing else: no regular expressions, no numeric or version ordering, so
+  "schema at least 0117" cannot be written today — only "schema is 0117".
+- **`http` guards are `GET` only**, with no request body and no redirect or
+  TLS policy of their own.
+- **Guards run one after another**, in file order, each with its own timeout.
+  Ten slow guards take the sum of their times.
+- **The guard report is written once, after the command finishes.** If x3 is
+  killed while the launched command is running, no report file is produced,
+  even though the guards did run.
+
+## The documentation gate
+
+This file is enforced. `check.ps1` runs a `docs gate` step:
+
+> If the diff under review touches anything under `internal/` or `cmd/`, it must
+> also touch something under `docs/`. Otherwise the gate is **red**.
+
+The diff under review is:
+
+- the **uncommitted changes** — staged, unstaged and untracked — when the
+  working tree is dirty. This is the pre-commit case.
+- otherwise the **HEAD commit**. This is the after-commit and CI case.
+
+**Justified exemption.** A code change that genuinely needs no documentation
+update is committed with a reason in the commit body:
+
+```
+docs: none — <reason>
+```
+
+`docs: yok — <neden>` is accepted as well. The reason is required: the line must
+carry actual words, not just the marker. The gate reads the body of the commit
+under review, so an exemption is a permanent, reviewable part of the history
+rather than a flag someone passed once.
+
+For a pre-commit run, where no commit body exists yet, the same exemption can be
+given for that one run through the `X3_DOCS_NONE` environment variable — its
+value is the reason, and the gate prints it, so an exemption is never silent.
+
+**The gate itself was control-tested**, as every verifier here must be: a
+capability file was edited with no documentation change and the gate went
+red; the edit was reverted and the gate went silent. A gate whose red has never
+been seen is not a gate.
+
+---
+
+<!-- x3-dist version=v0.1.0 capabilities=e5cdf852c68bfe9a82fb08e321f7a475d52ccfb41fbf92cf8dd722a7fa79de07 template=81c251aa05f727b953d1be13977062617eaf3acaf4f374ad87eb6ccd874950a8 -->
