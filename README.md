@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.28.0`**
+**Current version: `v0.29.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `d2d654c596227ae4b7dbb335632523e785512d6c47c0911cd1054af4c7216b69` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `343f7edf3cac6e2d12104ed2bfa9205ff335c568687730fb466e7c597129cb2f` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `714f89044005557020d1ba47072aed5a29f10f5706a753e9cda875395b07362a` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `44df437b9e266bdedb75ebce35609b968a67fee3aafa371b5b7dcba27afd3f26` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -2163,6 +2163,51 @@ If the field is not in the recorded request at all, it is added. That is the
 common case: the header was masked away, and what replaces it is not the old
 value but a live one.
 
+### Replaying in parallel
+
+Requests go out one at a time in the recorded order by default. Where the
+interactions are independent, `workers` sends them on several connections at
+once:
+
+```json
+{ "replay": { "workers": 8 } }
+```
+
+Measured against a target that waits 20 ms per call, the way a real service
+does - 60 interactions:
+
+| Run | Time |
+|---|---|
+| sequential | 1.28 s |
+| 8 workers | **0.21 s** |
+
+Against a local application answering instantly the two are the same, because
+what parallelism buys is the waiting, not the work. The report is identical
+either way: findings are collected in interaction order, so the same ledger
+produces the same bytes whatever the worker count.
+
+Parallelism is declared, never assumed. Only the project knows whether its
+recorded interactions are independent - two orders posted at once are, a login
+and the request after it are not. **`workers` and `carry` together are a
+configuration error**, refused before the run: a carried session needs the
+recorded order, and going faster while getting a different answer is not going
+faster.
+
+### A database of its own
+
+`testdb` and `replay` need no new feature to pair; the existing commands
+compose:
+
+```
+x3 testdb run -- ./start-app-and-replay.sh
+```
+
+`testdb run` clones a template database for the run, exports its DSN as
+`X3_TESTDB_DSN`, runs the command, and drops the database afterwards. The
+script starts the application against that DSN and calls `x3 replay`. What the
+engine deliberately does not do is start the application itself - it does not
+know how, and a wrong guess would be worse than the two lines of script.
+
 ### What a recording cannot send back
 
 A masked value is not sent to the application. `<redacted:credential-header>` as
@@ -3134,10 +3179,10 @@ sales page.
   use it, and a change in one file still costs a full pass for those. `lang`
   can be slower with the cache than without it on a project where it finds
   thousands of findings; the Speed section gives the numbers.
-- **Replay is single-threaded.** Requests go out one at a time in the recorded
-  order. A recording of a hundred interactions replays in a hundred round
-  trips, and a suite that needs a database of its own has to be given one by
-  hand - `testdb` pairing is a box, not a feature.
+- **Parallel replay is opt-in and all-or-nothing.** `workers` applies to the
+  whole ledger; there is no way to say that these five interactions are
+  independent and those two are not. A suite with any ordering constraint runs
+  sequentially or declares `carry` and is refused parallelism.
 - **A masked value cannot be sent back.** Recording redacts credentials, so
   replaying an authenticated suite sends the requests without them. The count
   is printed, but the run behind an authorisation wall is not the run that was
@@ -3276,4 +3321,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.28.0 capabilities=2e2f8dc8be5aac4fcf750dd6c79af26c845294d61ded05a72d16ed7b65df015e template=87330100fe0efeb05683444a1c48a7fbd2bc42f04e01c2df2ab9543a330fc620 -->
+<!-- x3-dist version=v0.29.0 capabilities=549dbfb77b334cf856b6c080ea8b30ee16c7d92f2aab8fb35e7a455b28af19c5 template=87330100fe0efeb05683444a1c48a7fbd2bc42f04e01c2df2ab9543a330fc620 -->
