@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.22.0`**
+**Current version: `v0.23.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `bd0ae8a509d459003d1c9b1d216ee7c44c37f34cc355e5ea808ea5653c363989` |
-| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `63e1eaf957a25967c637a7dfe7584184c713ab1003d89a7a4803eb9e21df3526` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `ea48d0f84733c40cd730940394abcf17e2df64b403a726e8c6cae73aa5d9b2cb` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `d332f627f637527b0fb07203902daa779daedc11b1ffbae37c3cb4610a1bd126` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -1126,6 +1126,24 @@ What is read in Go is what the language gate reads: the package name, declared
 identifiers, and string literals. A name declared elsewhere is not yours to
 spell, and the import rule already guards that boundary. In every other file
 type, every line is read.
+
+#### Word forms
+
+A rename is not finished while an inflected form of the old word is still in
+the tree, and the list of forms cannot be kept by hand - a language keeps
+making them. So a term set can be matched by **form** instead of by whole word:
+
+```json
+{ "kind": "vocabulary", "in": "core",
+  "terms": { "words": ["invoice"], "match": "forms" } }
+```
+
+With `match: "word"` (the default) only `invoice` is a finding. With
+`match: "forms"`, any word that *starts with* the term is one - `invoices`,
+`invoicing`, `invoice_id` - and the message names the term the form came from.
+A term used this way must be at least four characters: a short prefix falls
+inside innocent words (`car` would catch `card` and `cargo`), and a noisy gate
+is a gate somebody switches off.
 
 ### `containment` - a component's parts stay under its root
 
@@ -3026,4 +3044,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.22.0 capabilities=a3eba9a9cbb76eb183611e34203b9ba552eab9a3d896cf74be753c089deb893c template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
+<!-- x3-dist version=v0.23.0 capabilities=b2ffb59f9d1aaa9b8c8e855f8a3d575b3a76543642d83538307bacbaafe01c8b template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
