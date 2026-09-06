@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.6.0`**
+**Current version: `v0.7.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `e9b5a4199b9aee7ca2b5cde56c1cfa9305001902f99ba77038f709158e8a1f23` |
-| `x3-linux-amd64` | linux/amd64 | 11.9 MB | `5244c38124de1352923abec45bffb1b1a48cec30c8e0db8cf914ca46f6d16e06` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `7840daa9a8b91a973d518e9bb743bf2b03f571418bd3cedf25ac715c1f88bf7c` |
+| `x3-linux-amd64` | linux/amd64 | 11.9 MB | `729c2b3a438c0c6fe733eb2ef305dc38fdfb0100d60c6a7049789fada78d3e33` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -726,9 +726,11 @@ turns those sentences into rules the engine checks. The rules live in `x3.json`,
 the verifier lives in the engine: neither do the rules enter the engine, nor do
 the project's names enter a verifier.
 
-**One rule kind is built, with all three of its matchers:** `import` reads the
-import graph, `literal` reads names the compiler never sees, `symbol` reads what
-the code actually uses. The other eight kinds are specified in
+**Three of the nine rule kinds are built.** `deps` with all three of its
+matchers — `import` reads the import graph, `literal` reads names the compiler
+never sees, `symbol` reads what the code actually uses; `required` asks whether
+every file of a class carries a mark; `pairing` asks whether anybody touches a
+file at all. The other six kinds are specified in
 [ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
 and says so — a planned kind that passed silently would be worse than no rule at
 all.
@@ -916,18 +918,70 @@ Both are needed. Catching only the import lets a file take a package it already
 has and call the forbidden function; catching only the call lets a package be
 taken and aliased out of sight.
 
+### `required` — the mark every file of a class must carry
+
+"Every file of this kind carries this protection" is the rule that breaks the
+seventh time somebody adds a file. It is one line of configuration instead:
+
+```json
+{ "name": "entry-scripts-declare-strict-arguments",
+  "kind": "required",
+  "sources": ["scripts/**/*.ps1"],
+  "marker": "regex:(?m)^\\[CmdletBinding\\(\\)\\]$" }
+```
+
+`sources` is the class of file, `marker` is what each of them must carry. The
+only marker form today is `regex:<pattern>`, matched against the file's text —
+write `(?m)` when the pattern anchors to a line rather than the whole file. The
+rule reads whatever the globs name, Go or not.
+
+A finding carries **no line number**: what is missing is missing from the file,
+not from one place in it.
+
+### `pairing` — does anybody touch this file?
+
+```json
+{ "name": "every-source-file-is-named-by-a-test",
+  "kind": "pairing",
+  "sources": ["internal/**/*.go"],
+  "counterpart": "sibling:*_test.go",
+  "requires": "references-a-declaration" }
+```
+
+This is **not coverage**. The question is narrower: does any file at all name
+this one? Freezing today's state is a `freeze` concern, not this one.
+
+`counterpart` is `sibling:<template>`, and the `*` in the template is the
+subject's own base name without its extension — `beta.go` asks for
+`beta_test.go`, not for any test file in the directory. The same string read as
+a glob says which files are counterparts themselves, and those are never
+subjects: asking a test file for its own test is a chain with no end.
+
+| `requires` | Asks |
+|---|---|
+| `exists` (default) | the counterpart is there |
+| `references-a-declaration` | the counterpart also names at least one declaration from the subject |
+
+A subject with no declarations — a file that only carries a package comment —
+cannot be asked the second question, so its counterpart only has to exist.
+
+Both kinds name no component, and a configuration with no `components` at all is
+valid: only a rule that names one needs the list.
+
 ### Fields a rule has
 
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | yes | unique in the file; what the report and the stderr lines call this rule |
-| `kind` | yes | `deps` today; the other eight stop the run |
-| `match` | yes | `import`, `literal` or `symbol` |
+| `kind` | yes | `deps`, `required` or `pairing`; the other six stop the run |
+| `match` | `deps` only | `import`, `literal` or `symbol` |
 | `from` + `deny` | import | the outward question |
 | `to` + `allowFrom` | import | the inward question |
 | `pattern` + `owner` | literal | only the owner may spell this name |
 | `pattern` + `from` | literal | this component may not spell it |
 | `from` + `deny` | symbol | this component may not use these names |
+| `marker` | required | the mark every file in `sources` must carry |
+| `counterpart` + `requires` | pairing | the file that must name this one |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
@@ -1034,9 +1088,11 @@ The `code` field is the stable part; the `message` text may be reworded.
 
 | Code | Raised by | Meaning |
 |---|---|---|
-| `forbidden_dependency` | `deps` | a forbidden import edge, or a component spelling a name it may not |
+| `forbidden_dependency` | `deps` | a forbidden import edge, or a component spelling or using a name it may not |
 | `foreign_resource` | `deps:literal` | a component spelled a name another component owns |
-| `empty_scope` | every rule | a component the rule names matched no file it reads |
+| `missing_marker` | `required` | a file of the class does not carry the mark |
+| `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
+| `empty_scope` | every rule | a component the rule names, or the rule's own source set, matched no file |
 | `dead_exemption` | exemptions | an `allow:arch` that no violation needed, or one that binds to no import |
 
 The remaining nine codes in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) belong to rule
@@ -1054,6 +1110,8 @@ kinds that do not exist yet.
 | `testdata/literal-red` with its configuration | `1` — three findings, one of them from a `.sql` file |
 | `testdata/symbol-green` with its configuration | `0` |
 | `testdata/symbol-red` with its configuration | `1` — four findings: an import path, two calls through it, and a retry |
+| `testdata/required-green` / `-red` with theirs | `0` / `1` — a script that lost its mark |
+| `testdata/pairing-green` / `-red` with theirs | `0` / `1` — two findings: a file with no counterpart, and one whose counterpart names it nowhere |
 | this repository with its own `x3.json` | `0` |
 | the same three rules split across three files | `1` — the parts carry the rules |
 
@@ -1909,16 +1967,18 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
-- **`arch` reads dependencies and nothing else yet.** One of nine rule kinds is
-  built, and the other eight — value flow, serialization surface, vocabulary,
-  containment, pairing, consistency, duplication, required markers — are
-  specified and do not exist. The `import` and `symbol` matchers read Go only,
+- **Six of the nine rule kinds do not exist.** Value flow, serialization
+  surface, vocabulary, containment, consistency and duplication are specified in
+  the roadmap and have no verifier. The `import` and `symbol` matchers read Go only,
   so pointing their `sources` at a text glob leaves them with nothing to read.
 - **`symbol` reads names, not types.** It sees `client.Retry` without knowing
   what `client` is, so a forbidden call reached through an interface, a function
   value or a wrapper is invisible to it, and two different types with the same
   method name are the same name to it. Type resolution would need the whole
   program; this reads one file at a time.
+- **`pairing` reads names, not meaning.** `references-a-declaration` is a text
+  search for a declared name, so a counterpart that merely mentions the name in
+  a comment counts, and a short name that occurs by accident counts too.
 - **A text file cannot carry an exemption.** `//x3:allow:arch:` is a Go comment.
   A `literal` finding in SQL or JSON is answered by fixing it, by `alsoAllow`,
   or by narrowing `sources` — not by silencing that one line.
@@ -2012,4 +2072,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.6.0 capabilities=c935d246e3766d18ff1f3809f67b04760d5c2f6c2087170304b5d950bd96184e template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
+<!-- x3-dist version=v0.7.0 capabilities=cb80ba96636edde40a5a9e2f0b8ee19d97c0f80fc1396c67e580281e9c711aa2 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
