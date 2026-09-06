@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.3.0`**
+**Current version: `v0.4.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.1 MB | `31a8f0e428ca3942ec3c10d25c21eb2fa433d277e11bc65b1c6693fb2ccfb1cc` |
-| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `93b9d894f0d08d078b026cc48791c8f65656052543589ee401957e3fc3e15c3c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.1 MB | `d74fcd61b3568bf1b36c1617dd053df37bca63d90b90bdd6916bf22c558e06d0` |
+| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `b420cc0a96d95f446d159981885ee4fd1056fc26eb61d24ee8e45aa50a2a0dbf` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -84,7 +84,9 @@ returned instead.
 Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
-comparisons, the `testdb` section for run-lifetime databases. All of them are documented below, with the schema and a worked
+comparisons, the `testdb` section for run-lifetime databases. A large repository
+splits that file: the root declares its parts with `include`, lists are added
+and objects merged, and anything else set twice stops the run. All of them are documented below, with the schema and a worked
 example.
 
 ---
@@ -116,6 +118,7 @@ and not in this file, it does not exist yet.
 - [Effective checks in `x3.json`](#effective-checks-in-x3json) — the recorded side, the effective sides, mapping and retries
 - [The effective report](#the-effective-report)
 - [`x3 testdb`](#x3-testdb) — run-lifetime test databases: clone, migrate, drop, collect the leftovers
+- [Splitting the configuration](#splitting-the-configuration) — one file, or many parts the root declares
 - [Pilot: a real `x3.json`](#pilot-a-real-x3json)
 - [Releases and reproducible builds](#releases-and-reproducible-builds)
 - [Using x3 from another project](#using-x3-from-another-project)
@@ -1589,6 +1592,53 @@ seen that **nothing reached the server**:
 - `TestRunDropsAfterTheCommand` — the drop happens after the command, and
   `-keep` suppresses it.
 
+## Splitting the configuration
+
+One `x3.json` is enough for a small repository and wrong for a large one. A code
+base with dozens of gates puts thousands of lines into one file, and the rules
+that belong to a module end up far from the module — so removing the module
+leaves its rules behind, guarding nothing.
+
+The root file declares its parts:
+
+```json
+{
+  "include": ["x3/*.json", "apps/*/x3.json"],
+  "language": { "allowed": "en" }
+}
+```
+
+Every command reads the merged result. There is one merge law, and it knows
+nothing about any section's schema:
+
+| Both sides are | Result |
+|---|---|
+| lists | the parts are **added**, root first, then the files in name order |
+| objects | merged key by key, recursively |
+| anything else | **refused** — the run stops and names both files and the key |
+
+So `arch.rules` from four files become one list, `arch.components` from two
+files become one object, and two files setting `language.allowed` stop the run.
+Nothing is silently overwritten: a setting that quietly loses to another file is
+a setting whose author believes it is in force.
+
+Four more refusals, all of them fail-closed:
+
+- **A pattern that matches no file.** An `include` that was written and does not
+  work is a set of rules nobody notices is missing.
+- **A part that includes.** Parts are one level deep, so the whole configuration
+  is readable from the root file. Nesting hides where a rule came from.
+- **Discovery.** Parts are declared, never found by scanning a directory: a file
+  dropped into a folder must not add a rule nobody reviewed.
+- **A missing section** is still an error for the command that needs it, exactly
+  as with a single file.
+
+Ordering is by file name, so the merged configuration is the same on every run
+and on every machine.
+
+A project that does not split pays nothing: without an `include` key the file is
+read exactly as before.
+
 ## Pilot: a real `x3.json`
 
 x3 is piloted inside a real production application. Nothing about that
@@ -1854,4 +1904,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.3.0 capabilities=cd9a32f6bdbf640a088c4b143ca60cbd4ce37b9241884fe247bc66a030daa7bb template=2074ad5aa2949d2fe9b2ed8c9638de6ebb4484ec831fbd8cdfdca191717e9e20 -->
+<!-- x3-dist version=v0.4.0 capabilities=e2c15ca996139f5397371aa352a8dafc63da53a1593e4f5dc6e595698da07bd9 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
