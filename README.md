@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.17.0`**
+**Current version: `v0.18.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `22a76071d8dd2ac30096530fb3ea1aa58cd0f89069b69af7503067b13121f439` |
-| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `e2e7066677b51055c9822b73f084ec9e95d9b4a3a3de602029dbff9d45182e58` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13 MB | `f0468db6f57f9d0ce46a0f14455f325abf3045d7290deea76ea386baaea8cb19` |
+| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `5c9ca65100f752cd9ab07fcfb92bb3a3c1279195f6497bc0fbac3156edd7463a` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -76,6 +76,7 @@ x3 freeze -config x3.json .     # frozen lists that only shrink
 x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
 x3 boxes -config x3.json .      # open work, measured against its criteria
+x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -89,7 +90,8 @@ Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `docs` section for coupled changes,
 the `secrets` section for the leak scan,
-the `boxes` section for the open-work list, the `live`
+the `boxes` section for the open-work list, the `record` section for
+what a recording must hide, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -121,6 +123,7 @@ and not in this file, it does not exist yet.
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
+- [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -146,8 +149,8 @@ implemented:
 |---|---|
 | **Scanner** (`internal/scan`) | **implemented** — walks the AST, collects directives, resolves scopes |
 | **Dictionary** (`internal/scan`, `dict`) | **implemented** — six types, format and scope checks only |
-| **Recorder** (`internal/engine`) | interface only — no implementation |
-| **Ledger** (`internal/engine`) | interface only — no implementation |
+| **Recorder** (`internal/record`) | **implemented** — a reverse proxy records inbound HTTP; the interface in `internal/engine` still describes the wider goal |
+| **Ledger** (`internal/record`) | **implemented** — JSON Lines, one interaction per line, redacted before it is written |
 
 Alongside them, one capability that is not part of that four-component picture:
 
@@ -161,6 +164,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
 | **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
+| **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; comparing a later run against that recording (`x3 replay`) is **not built yet** |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -171,6 +175,9 @@ answers three questions about every `//x3:` line it finds:
 3. Is it in a scope where this type is legal?
 
 It never calls your code, never runs a case, never proves that a `rule` holds.
+(`x3 record` now writes a run of the application down, which is the raw material
+for behaviour verification — but a recording nobody compares anything against is
+still not a check.)
 A green `x3 scan` means *"your directives are well formed"*, nothing more.
 (`x3 guard`, further down, *does* reach the outside world — but it checks the
 environment a run is about to happen in, not the behaviour of your code.) That
@@ -1622,6 +1629,130 @@ one tree: a list that matches it (`0`), a list that leaves finished work open
 (`1`), a list that closes unfinished work (`1`), and this repository's own list
 (`0`).
 
+## `x3 record`
+
+Every other checker here reads the project **at rest**: files, imports, names,
+sets. This one reads it **in motion**. x3 stands in front of the running
+application as a reverse proxy, passes the traffic through untouched, and
+writes down what went by.
+
+```
+x3 record [-config <file>] -listen <addr> -target <url> -ledger <file>
+```
+
+```
+x3 record -listen :9100 -target http://localhost:8080 -ledger x3/ledger/api.jsonl
+```
+
+The application is not modified, not rebuilt and not linked against x3 — no
+middleware, no import, no build tag. That follows the standing rule that a
+project never carries a bridge script for the engine, and it makes the
+capability language-independent from the first line: the recorder does not know
+or care what the application behind it is written in.
+
+The command listens until it is interrupted, then reports how many interactions
+it wrote. Exit codes: `0` when it shut down cleanly, `2` for usage,
+configuration or I/O errors. There is no `1` — recording is not a gate. It
+produces the source a later run is compared against, and that comparison
+(`x3 replay`) is **not built yet**; the specification it will be measured
+against is `docs/ROADMAP-X4.md`.
+
+### The ledger
+
+One file per suite, JSON Lines, one interaction per line:
+
+```json
+{"n":1,"req":{"method":"POST","path":"/orders","query":{},"headers":{"Content-Type":["application/json"]},"body":{"name":"a cup"}},"res":{"status":201,"headers":{"Content-Type":["application/json"]},"body":{"id":"17","state":"created"}},"ms":34}
+```
+
+One line per interaction is deliberate: a behaviour change then shows up as a
+**diff a human can read** in review, which a single re-serialised document would
+not. `n` is the recorded order, and replay will follow it. Header and query
+values are kept as lists, because a header folded into one string comes back
+different when it is sent again.
+
+A JSON body is stored parsed, so a change inside it reads as one changed field
+rather than one changed string; anything else is stored as text. `ms` is written
+for the reader — nothing compares it.
+
+The ledger is a source file: it is committed, it is reviewed, and it is the
+thing that shrinks a pile of hand-written behaviour tests. Which is exactly why
+nothing secret may reach it.
+
+### Redaction happens before the disk
+
+A secret that was never written cannot leak from a ledger later, so redaction
+sits between reading the response and writing the line — not in a cleanup pass
+afterwards. Three layers run over every interaction, and the first two need no
+configuration at all:
+
+1. **Credential headers**, always: `Authorization`, `Cookie`, `Set-Cookie`,
+   `Proxy-Authorization`. What they carry is identity, not behaviour.
+2. **The `secrets` pattern set** — the same patterns `x3 secrets` searches the
+   source with, applied to every recorded value.
+3. **The project's own field paths**, declared under `record.redact`.
+
+```json
+{
+  "record": {
+    "redact": [
+      { "path": "res.body.token",         "reason": "session token" },
+      { "path": "res.body.items.*.email", "reason": "personal data" },
+      { "path": "req.headers.X-Api-Key",  "reason": "customer key" }
+    ]
+  }
+}
+```
+
+A rule without a reason is refused, in the house style: whoever reads the ledger
+sees *why* a field is hidden next to the fact that it is hidden.
+
+A path starts with `req` or `res`, then `headers`, `query` or `body`; the rest
+walks into the body, where `*` means every element of an array or every field of
+an object. A path that reaches nothing is not an error — that field simply did
+not appear in this run. A path that cannot mean anything (`res.query.page`, a
+`headers` without a name) is a configuration error, because a misspelled rule
+would otherwise look exactly like a rule that had nothing to hide.
+
+Hidden values are written as `"<redacted:reason>"`, so a reader can tell a masked
+field from an absent one:
+
+```json
+{"headers":{"Authorization":["<redacted:credential-header>"]},
+ "body":{"key":"<redacted:secret:aws-access-key>","name":"a cup"}}
+```
+
+The proxy itself stays transparent: the client receives the application's answer
+exactly as it was sent, cookies and all. Redaction applies to what is written
+down, never to what is served.
+
+### What is recorded, and what is not
+
+**Inbound HTTP**, by decision. In-process middleware would require the project
+to import x3 and tie the capability to one language; recording what the
+application asks of *other* services needs a stand-in for the far side;
+function-level capture needs instrumentation. Each is a later version rather
+than a v0 shortcut, and each is a box in `docs/OPEN-WORK.json`.
+
+Connection headers (`Connection`, `Keep-Alive`, `Transfer-Encoding` and the
+rest) are neither forwarded nor recorded: the ledger holds the request as it was
+*forwarded*, so replaying it cannot send a proxy's own connection settings on to
+the application.
+
+When the target does not answer, the client is told so with `502` and **no line
+is written**. There is no behaviour to record — that answer came from the proxy,
+not from the application.
+
+### The control experiment
+
+`check.ps1` starts a small application (`internal/record/testdata/echo`), puts
+the recorder in front of it, sends real traffic through, and then asks four
+questions of the ledger: the credential header is hidden, a planted key in the
+shape of a real one is hidden, the raw key appears nowhere in the file, and an
+ordinary undeclared field is **still there**. The last one is the half that is
+easy to skip — without it, a recorder that masked every field would pass just as
+well.
+
 ## `x3 guard`
 
 ```
@@ -2484,6 +2615,14 @@ red on a deliberately broken input.
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
+- **`x3 record` writes; nothing replays it yet.** A ledger is a recording, not a
+  gate: until `x3 replay` lands, a behaviour change is something a reader
+  notices in review, not something the engine turns red.
+- **The recorder sees inbound HTTP only.** What the application asks of other
+  services is not written down, so it can only be replayed as far as it shows
+  through in the application's own answers.
+- **A recording is as good as the traffic it saw.** Nothing measures coverage: a
+  ledger of two requests looks exactly as green as a ledger of two hundred.
 - **The language gate speaks one language.** `en` is the only embedded
   dictionary, so `allowed` accepts nothing else today. A dictionary is also a
   blunt instrument: an English word the list does not have (a rare technical
@@ -2600,4 +2739,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.17.0 capabilities=818091039adf54ee0c8948ce38c75be72f73f0bb9dd54061477b9eec2a6c2d6e template=b5890ca0efdc739907bc003e1e6e692820374759baa6d58a07a29ceee9bf84f9 -->
+<!-- x3-dist version=v0.18.0 capabilities=775de14ac7d446485b0b6c1bb787bacd748ce286ebe020db09e43f1d6e9f26dd template=de323ac82a6ff57098a3aa95b6bb2d244d0ee0100aa040aaf9e15f027ea110d4 -->
