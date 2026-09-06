@@ -4,23 +4,24 @@ x3 reads a Go code base and the live environment it is about to run against,
 and answers one question before the work starts: **is anything not what this
 code assumes?** It checks contracts written as ordinary comments (`//x3:` directives,
 so the compiler never sees them), it checks that the source is written in one
-language outside its comments, and it checks the running world — a database
-row, an HTTP endpoint, a command's output — and refuses to launch when the
-answer is wrong.
+language outside its comments, it checks the shape of the project against the
+architecture the project itself declares, and it checks the running world — a
+database row, an HTTP endpoint, a command's output — and refuses to launch when
+the answer is wrong.
 
 **This repository ships binaries only.** The source is private. Everything the
 published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.2.0`**
+**Current version: `v0.3.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.1 MB | `3a28f8615e49c94f8b2e15288b9667e26a9920618910d47fcc1eebce275c97f5` |
-| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `f573b95691716c190c67f46fbf63cdfcc4cfd269888ce8c2841ae93f899dae9d` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.1 MB | `31a8f0e428ca3942ec3c10d25c21eb2fa433d277e11bc65b1c6693fb2ccfb1cc` |
+| `x3-linux-amd64` | linux/amd64 | 11.8 MB | `93b9d894f0d08d078b026cc48791c8f65656052543589ee401957e3fc3e15c3c` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -70,6 +71,7 @@ passes because its tool was missing is worse than no gate at all.
 ```
 x3 scan  ./internal/...         # directives in the source
 x3 lang  -config x3.json .      # one language outside comments
+x3 arch  -config x3.json .      # which component may import which
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -80,9 +82,9 @@ or I/O error. When `guard` launches the command, the command's own exit code is
 returned instead.
 
 Project configuration lives in one file, `x3.json`: the `language` section for
-the language gate, the `live` section for the guards, the `effective` section for
-the recorded-versus-in-force comparisons, the `testdb` section for run-lifetime
-databases. All of them are documented below, with the schema and a worked
+the language gate, the `arch` section for the architecture rules, the `live`
+section for the guards, the `effective` section for the recorded-versus-in-force
+comparisons, the `testdb` section for run-lifetime databases. All of them are documented below, with the schema and a worked
 example.
 
 ---
@@ -105,6 +107,7 @@ and not in this file, it does not exist yet.
 - [Error codes](#error-codes) — the four ways a directive turns red
 - [The JSON report](#the-json-report)
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
+- [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -138,6 +141,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Live guards** (`internal/live`) | **implemented** — `sql`, `http` and `exec` checks declared in `x3.json`, a `warn`/`block` policy each, and the `x3 guard` command that launches a command only when they allow it |
 | **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
 | **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
+| **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; one of the nine specified rule kinds (`deps` with `match: "import"`) has a verifier |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -236,7 +240,7 @@ scopes and one failure state.
 
 | Scope | Where you write it | Binds |
 |---|---|---|
-| `decl` | in the doc comment of a func, type, var or const | that one declaration; the report names it in `target` |
+| `decl` | in the doc comment of a func, type, var, const or **import** | that one declaration; the report names it in `target` |
 | `file` | above the `package` clause — the same placement as `//go:build` | that file |
 | `pkg` | above the `package` clause **in a file named `doc.go`** | the whole package |
 | `unattached` | anywhere else: inside a function body, or a floating comment | nothing — always red |
@@ -710,6 +714,253 @@ The repository holds itself to this gate. Its own `x3.json` lists 34 terms —
 what the allow list is for. Writing that list is also how the gate paid for
 itself the first time it ran: it found a misspelled field name in a test
 fixture.
+
+## `x3 arch`
+
+A project's shape is written in prose — "the core does not know the modules",
+"only the entry point wires them" — and prose does not fail a build. `x3 arch`
+turns those sentences into rules the engine checks. The rules live in `x3.json`,
+the verifier lives in the engine: neither do the rules enter the engine, nor do
+the project's names enter a verifier.
+
+**One rule kind is built:** `deps` with `match: "import"`. The other eight kinds
+and the other two matchers are specified in [ROADMAP-ARCH.md](ROADMAP-ARCH.md)
+and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
+and says so — a planned kind that passed silently would be worse than no rule at
+all.
+
+```
+x3 arch [-config <file>] [-out <file>] [dir]
+```
+
+Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
+Without `-out` the JSON report goes to stdout; findings always go to stderr.
+
+**No `arch` section means exit `2`**, deliberately the opposite of the language
+gate's smart default. A language has a universal default; an architecture does
+not, and an invented default architecture is the most dangerous silent green
+there is.
+
+### `arch` in `x3.json`
+
+```json
+{
+  "arch": {
+    "components": {
+      "contract": ["internal/engine/**"],
+      "shared":   ["internal/config/**", "internal/source/**"],
+      "checkers": ["internal/arch/**", "internal/lang/**", "internal/live/**",
+                   "internal/scan/**", "internal/testdb/**"],
+      "entry":    ["cmd/**"]
+    },
+    "rules": [
+      { "name": "the-contract-knows-no-implementation",
+        "kind": "deps", "match": "import",
+        "from": "contract", "deny": ["shared", "checkers", "entry"] },
+
+      { "name": "only-the-entry-point-reaches-a-checker",
+        "kind": "deps", "match": "import",
+        "to": "checkers", "allowFrom": ["entry"] }
+    ]
+  }
+}
+```
+
+That is this repository's own section, quoted from its `x3.json`. The engine
+holds itself to it on every `check.ps1` run.
+
+### Components
+
+A component is a name and a set of path patterns. Membership is declared here,
+by path — not labelled in the source — so the shape of the project is reviewed
+in one place instead of being scattered over three hundred comments.
+
+| Pattern | Matches |
+|---|---|
+| `**` | zero or more path elements; at the end of a pattern, **at least one** |
+| `*` | a run inside one element, never crossing `/` |
+| `?` | one character inside one element |
+
+`internal/core/**` is what is *under* `internal/core`, not the directory itself;
+`**/*.go` still sees a file at the root. What a single `*` catches is the
+component's **instance** — `internal/modules/*/**` tells `alpha` from `beta` —
+and that is what `except: "self"` compares.
+
+Two boundaries the engine enforces on its own:
+
+- **Paths resolve against the module root**, the directory holding `go.mod`, not
+  against the directory you point the command at. Checking a subtree therefore
+  does not invalidate the patterns. Without a `go.mod` above the root there is
+  no way to turn an import path back into a directory, and the run stops.
+- **A file has one component.** If two components' patterns claim the same file,
+  or the same package, the run stops with exit `2`. A package that is silently
+  counted on the wrong side is worse than a package with no component.
+
+### The two rule forms
+
+Every rule asks one of two questions, and mixing them is refused.
+
+| Form | Written | Asks |
+|---|---|---|
+| outward | `from` + `deny` | may **this** component touch those? |
+| inward | `to` + `allowFrom` | who may touch **this** component? |
+
+```json
+{ "name": "modules-must-not-know-each-other",
+  "kind": "deps", "match": "import",
+  "from": "modules", "deny": ["modules"], "except": "self" }
+```
+
+`except: "self"` narrows a component's ban to *other instances of itself*: a
+module may reach into its own parts, not into its sibling's. It needs a single
+star in that component's patterns to tell the instances apart, and it needs the
+component to be in its own `deny` list; without either it would exempt
+everything, so it is refused at load time.
+
+In the inward form, the component's **own** files are always inside: an import
+within a component is not access from outside. A file in no declared component
+is outside, and named that way in the message.
+
+### Fields a rule has
+
+| Field | Required | Meaning |
+|---|---|---|
+| `name` | yes | unique in the file; what the report and the stderr lines call this rule |
+| `kind` | yes | `deps` today; the other eight stop the run |
+| `match` | yes | `import` today; `literal` and `symbol` stop the run |
+| `from` + `deny` | one form | the outward question |
+| `to` + `allowFrom` | one form | the inward question |
+| `except` | no | `self` only, next to `from` + `deny` |
+| `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
+| `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]` |
+
+Configuration is validated **strictly and up front**, as `live` already is: an
+unknown key, a key belonging to another kind, a missing required key, a
+duplicate `name`, an undeclared component name, an unknown `policy` or an empty
+`rules` list stops the run with exit `2` before any rule executes. An empty list
+is an error on purpose — a check with nothing in it is a silent pass.
+
+### Exemptions
+
+`arch` adds no directive type. A violation is silenced with the one the
+dictionary already has:
+
+```go
+import (
+	//x3:allow:arch: the ledger is wired to alpha here, and only here
+	"example.com/app/modules/alpha"
+)
+```
+
+- **`skip` does not silence `arch`.** Say what you are silencing by name, or a
+  broad `//x3:skip:` would one day switch off the architecture too.
+- **An exemption binds a line, not a tree.** It is written above a single import
+  (it covers that import) or above the `package` clause (it covers the file).
+  Above a parenthesised `import (` block it binds nothing and shows up dead: a
+  block-wide silence is a deleted rule.
+- **A reason is required.** `//x3:allow:arch` with nothing after it is malformed
+  for `x3 scan` and silences nothing here.
+- **Exemptions are listed in the report**, separately from violations. A silence
+  nobody can see is not a silence, it is a loss.
+- **A dead exemption is red.** An `allow:arch` that no violation needed reports
+  `dead_exemption`. A stale exemption is how a gate goes quietly blind.
+
+### Scope integrity
+
+A rule that matched nothing is red — `empty_scope` — and this is engine
+behaviour, not a rule you can choose to write. A gate holding a path constant
+says "clean" and exits `0` the day the file it guards moves; it never saw it.
+
+Every component the rule names is measured, the object side included: a `deny`
+list pointing at a component with no files can never turn red, and that is a
+silent pass wearing a green shirt. `empty_scope` and `dead_exemption` are always
+`block`, whatever the rule's `policy` says — a policy grades how bad a violation
+is, and neither of these is a violation. They are the measurement failing.
+
+### What a run looks like
+
+The planted violation in `internal/arch/testdata/red`, where `beta` reaches into
+`alpha`:
+
+```
+BLOCK internal/arch/testdata/red/modules/beta/beta.go:3 (modules-must-not-know-each-other): forbidden_dependency
+	component "modules" must not import another instance of itself
+	internal/arch/testdata/red/modules/beta -> internal/arch/testdata/red/modules/alpha
+x3 arch: 5 file(s) - 3 rule(s) - 1 block, 0 warn, 0 exempted
+```
+
+The same tree with the rule set to `policy: "warn"` prints `WARN` and exits `0`.
+The same tree with the exemption in place prints the silence and exits `0`:
+
+```
+ALLOW core-must-not-know-modules internal/arch/testdata/exempt/core/ledger.go:4: the ledger is wired to alpha here, and only here
+x3 arch: 2 file(s) - 1 rule(s) - 0 block, 0 warn, 1 exempted
+```
+
+### The arch report
+
+No timestamp, and violations sorted by rule, then file, then line: the same
+source produces the same bytes, so a later ledger never raises a red over a
+clock tick.
+
+```json
+{
+  "version": 1,
+  "root": "internal/arch/testdata/red",
+  "config": "internal/arch/testdata/arch-red.json",
+  "files": 5,
+  "rules": [
+    { "name": "modules-must-not-know-each-other", "kind": "deps", "match": "import",
+      "policy": "block", "subjects": 4, "violations": 1 }
+  ],
+  "violations": [
+    { "rule": "modules-must-not-know-each-other", "kind": "deps",
+      "file": "internal/arch/testdata/red/modules/beta/beta.go", "line": 3,
+      "subject": "internal/arch/testdata/red/modules/beta",
+      "object": "internal/arch/testdata/red/modules/alpha",
+      "code": "forbidden_dependency", "policy": "block",
+      "message": "component \"modules\" must not import another instance of itself" }
+  ],
+  "exemptions": [],
+  "summary": { "rules": 3, "violations": 1, "warned": 0, "exempted": 0 }
+}
+```
+
+`subject` and `object` are the packages; the message names the components.
+`summary.violations` counts only `block` findings — those are what turn the run
+red — while `warned` counts the rest.
+
+### Error codes
+
+The `code` field is the stable part; the `message` text may be reworded.
+
+| Code | Raised by | Meaning |
+|---|---|---|
+| `forbidden_dependency` | `deps` | a forbidden import edge was found |
+| `empty_scope` | every rule | a component the rule names matched no file it reads |
+| `dead_exemption` | exemptions | an `allow:arch` that no violation needed, or one that binds to no import |
+
+The remaining nine codes in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) belong to rule
+kinds that do not exist yet.
+
+### The control experiment
+
+`check.ps1`, step `arch control experiment`, runs the same binary three times:
+
+| Run | Wants |
+|---|---|
+| `testdata/green` with `arch-green.json` | `0` |
+| `testdata/red` with `arch-red.json` | `1` — one planted violation, one finding |
+| this repository with its own `x3.json` | `0` |
+
+The Go tests carry the rest of the table: `warn` counts but does not stop the
+run, an exemption silences and is listed, a dead exemption is red, an empty
+component is red, two runs produce identical bytes, and fifteen broken
+configurations are all refused before a rule executes.
+
+A hand-written gate elsewhere is retired only after the `arch` rule has been
+seen to go red on the **same** injected violation. Retiring without that double
+red is forbidden.
 
 ## `x3 guard`
 
@@ -1507,6 +1758,18 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
+- **`arch` reads the import graph and nothing else yet.** One of nine rule kinds
+  is built. Ownership violations the compiler never sees — a table, a queue or a
+  bucket named in a string — need `deps:literal`, and a capability written where
+  it does not belong needs `deps:symbol`; both are specified and neither exists.
+  Until then a rule's `sources` set may name any glob, but only `.go` files are
+  ever read, so a text-only pattern turns the rule red as `empty_scope`.
+- **The inward form does not see a component's inside.** `to` + `allowFrom`
+  answers "who reaches in from outside", so one checker importing another
+  checker inside the same component passes. Splitting them into instances needs
+  a single star in the pattern, which a list of fixed directories cannot have;
+  until the pattern language grows, that rule is written as one `deny` rule per
+  component or not at all.
 - **`case` payloads are parsed but not run.** The `in=(...) out=...` shape is
   checked; the values in it are not. Nothing calls the function and compares the
   result, so a `case` that is well formed and wrong stays green.
@@ -1591,4 +1854,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.2.0 capabilities=c8d9e19da0201b2ed376ba422de8f96893b07291d1ed1052c0e1902bf2f12b4a template=3c1a35fcfe8c57d3ec8b391b731f427bdfaf95a6e192d0dfad985064c5a23838 -->
+<!-- x3-dist version=v0.3.0 capabilities=cd9a32f6bdbf640a088c4b143ca60cbd4ce37b9241884fe247bc66a030daa7bb template=2074ad5aa2949d2fe9b2ed8c9638de6ebb4484ec831fbd8cdfdca191717e9e20 -->
