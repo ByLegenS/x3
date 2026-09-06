@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.12.0`**
+**Current version: `v0.13.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.4 MB | `c06d6c1888ba7a53788cab01f72d6d56a9ffc84d7f2548ae5c7fb3328126091d` |
-| `x3-linux-amd64` | linux/amd64 | 12.1 MB | `e8b7980d16302deec5fe90584dbee743d44e5d34120942173bb5b03605acf97e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `94c62c78270989adc1664af85ae87db3c946a9fefbadc136d70697d490b2e30c` |
+| `x3-linux-amd64` | linux/amd64 | 12.1 MB | `4a2c75c8bf82c73ec913aedbb20b2be71997b052cde027a6d668068024b28ad6` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -72,6 +72,7 @@ passes because its tool was missing is worse than no gate at all.
 x3 scan  ./internal/...         # directives in the source
 x3 lang  -config x3.json .      # one language outside comments
 x3 arch  -config x3.json .      # which component may import which
+x3 freeze -config x3.json .     # frozen lists that only shrink
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -82,7 +83,8 @@ or I/O error. When `guard` launches the command, the command's own exit code is
 returned instead.
 
 Project configuration lives in one file, `x3.json`: the `language` section for
-the language gate, the `arch` section for the architecture rules, the `live`
+the language gate, the `arch` section for the architecture rules, the `freeze`
+section for the frozen baselines, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -110,6 +112,7 @@ and not in this file, it does not exist yet.
 - [The JSON report](#the-json-report)
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
+- [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -145,6 +148,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
 | **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
 | **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; one of the nine specified rule kinds (`deps` with `match: "import"`) has a verifier |
+| **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink and refuses to record growth |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -1302,6 +1306,70 @@ A hand-written gate elsewhere is retired only after the `arch` rule has been
 seen to go red on the **same** injected violation. Retiring without that double
 red is forbidden.
 
+## `x3 freeze`
+
+Some lists are only allowed to get shorter: the exported surface of a core
+package, the symbols a binary depends on, the debt somebody promised to pay
+down. Hand-written gates for these are always the same three parts — a
+measurement, a baseline kept in a file, and a comparison — and the only thing
+that differs is what gets measured. The engine carries all three.
+
+```
+x3 freeze [-config <file>] [-out <file>] [-update] [dir]
+```
+
+Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
+
+```json
+{
+  "freeze": {
+    "baselines": [
+      { "name": "core-surface",
+        "sources": ["internal/core/**/*.go"],
+        "set": { "from": "go", "select": "exported" },
+        "file": "ops/baselines/core-surface.json" }
+    ]
+  }
+}
+```
+
+`set` is the same extractor the `consistency` rule uses — `go` (`exported`, or
+`const-set:<Type>`), `json` (`keys:<pattern>`), or `regex` with one capture
+group — so a baseline can freeze anything a set can be read from. `file` is
+where the frozen set lives; the repository keeps it, and a reviewer reads it.
+
+### The direction is the whole point
+
+| Measured against the baseline | Result |
+|---|---|
+| a value that is not frozen | **red** — `baseline_grew`, named |
+| a frozen value that is gone | green, counted as **shrunk** |
+| nothing measured at all | **red** — `empty_scope` |
+
+`-update` rewrites the baselines to the measured set, and **refuses to write a
+set that grew**. That refusal is the gate: an update that accepted growth would
+zero the baseline on every run, and no growth would ever be seen again. Shrink
+is recorded, because punishing somebody for deleting dead code is how a gate
+teaches people to keep it.
+
+A missing baseline file measures against an empty set, so every value is new and
+the run is red until `-update` writes the first one. A baseline that cannot be
+measured — a moved directory, a renamed type — is `empty_scope` rather than a
+quiet pass.
+
+### The control experiment
+
+`check.ps1`, step `freeze control experiment`, runs the binary three times:
+
+| Run | Wants |
+|---|---|
+| `testdata/surface` against its baseline | `0` |
+| `testdata/grown` — one name added to the surface | `1`, the new name reported |
+| `-update` on the grown tree | `1`, and the baseline file **unchanged** |
+
+The third row is the one that matters. Without it, a `-update` that quietly
+accepted growth would look exactly like a working gate.
+
 ## `x3 guard`
 
 ```
@@ -2265,4 +2333,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.12.0 capabilities=af9a9d3ebd307c0962640dd2a63d2ebdb4b497cfeab8f9fb7fec05bb31750974 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
+<!-- x3-dist version=v0.13.0 capabilities=8b5cdd609886b46c3005cc0b53f2bac094a026f7f17328aed60166476750770f template=5a34be1cfa922b76b03c1ac0c6a9dd24c71415b71280ae9c1ec9868e33c0a8c6 -->
