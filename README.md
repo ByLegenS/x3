@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.18.0`**
+**Current version: `v0.19.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13 MB | `f0468db6f57f9d0ce46a0f14455f325abf3045d7290deea76ea386baaea8cb19` |
-| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `5c9ca65100f752cd9ab07fcfb92bb3a3c1279195f6497bc0fbac3156edd7463a` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13 MB | `65b73e28706861281eb8c4cde80915852c98f5d31a74d4c1bbe25a5c66f0c270` |
+| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `5e98675db58ef4cee38e49f77d26ba02aa7feec613c44781eef8fc32760ee88c` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -77,6 +77,7 @@ x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
 x3 boxes -config x3.json .      # open work, measured against its criteria
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
+x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
@@ -91,7 +92,7 @@ the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `docs` section for coupled changes,
 the `secrets` section for the leak scan,
 the `boxes` section for the open-work list, the `record` section for
-what a recording must hide, the `live`
+what a recording must hide, the `replay` section for what may differ, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases. A large repository
 splits that file: the root declares its parts with `include`, lists are added
@@ -124,6 +125,7 @@ and not in this file, it does not exist yet.
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
+- [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -164,7 +166,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
 | **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
-| **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; comparing a later run against that recording (`x3 replay`) is **not built yet** |
+| **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -175,9 +177,9 @@ answers three questions about every `//x3:` line it finds:
 3. Is it in a scope where this type is legal?
 
 It never calls your code, never runs a case, never proves that a `rule` holds.
-(`x3 record` now writes a run of the application down, which is the raw material
-for behaviour verification — but a recording nobody compares anything against is
-still not a check.)
+(`x3 record` and `x3 replay` do reach behaviour — a recorded run compared with a
+later one — but only through the HTTP surface, and only over the traffic the
+recording happened to see.)
 A green `x3 scan` means *"your directives are well formed"*, nothing more.
 (`x3 guard`, further down, *does* reach the outside world — but it checks the
 environment a run is about to happen in, not the behaviour of your code.) That
@@ -1753,6 +1755,129 @@ ordinary undeclared field is **still there**. The last one is the half that is
 easy to skip — without it, a recorder that masked every field would pass just as
 well.
 
+## `x3 replay`
+
+`record` writes a run down; this one sends it again and compares. The behaviour
+test is not a file somebody wrote — it is a recording the machine took.
+
+```
+x3 replay [-config <file>] -target <url> -ledger <file> [-out <file>]
+```
+
+```
+x3 replay -target http://localhost:8080 -ledger x3/ledger/api.jsonl
+```
+
+The recorded requests go out in the recorded order against a freshly started
+application, and each answer is compared with the one on file. Exit codes are
+the usual: `0` green, `1` red, `2` usage, configuration or I/O error.
+
+Three things are compared: the **status code**, the **headers named in
+configuration**, and the **body, field by field**. Every field that is not named
+in a rule is compared exactly — the default is fail-closed, the direction every
+other gate here points.
+
+```
+DIFF 2 res.body.state: value_differs
+        the value is not the one that was recorded
+        recorded: created
+        received: queued
+```
+
+### What is allowed to differ
+
+A recording that compares timestamps fails on the second run. `normalize` names
+the fields that may differ, and how:
+
+```json
+{
+  "replay": {
+    "headers": ["Content-Type"],
+    "normalize": [
+      { "path": "res.body.created_at", "as": "time" },
+      { "path": "res.body.id",         "as": "uuid" },
+      { "path": "res.body.items.*.n",  "as": "number" },
+      { "path": "res.headers.Date",    "as": "any" }
+    ]
+  }
+}
+```
+
+`time`, `uuid`, `number` and `any` are the four kinds. A normalized field is not
+compared by value — but its **presence and kind still are**. Dropping the field
+entirely, or returning a string where a time was recorded, is a difference:
+
+```
+DIFF 2 res.body.created_at: kind_differs
+        the answer is not a time any more
+```
+
+`headers` lists the response headers that take part; it defaults to
+`Content-Type`, because the shape of a body is behaviour while `Date` and
+`Content-Length` are not. This is the one place where the comparison is opt-in
+rather than fail-closed, and the reason is that a full header comparison is red
+on every run — a gate that is always red is a gate somebody switches off.
+
+### Exemptions, and the dead ones
+
+An exemption is declared in `x3.json`, never inside the ledger, always with a
+reason — and an exemption that silenced nothing is **red**:
+
+```json
+{ "replay": { "ignore": [ { "path": "res.headers.X-Request-Id",
+                            "reason": "per-request id, not behaviour" } ] } }
+```
+
+```
+DIFF res.headers.X-Request-Id: dead_exemption
+        no difference needed this exemption
+```
+
+A stale exemption is how a gate goes quietly blind, so it is treated the same
+way `secrets` treats one. `normalize` rules are not held to this: a rule for a
+field that did not appear in this run says nothing about whether the rule is
+still needed.
+
+Paths are the ones `record.redact` uses — `req`/`res`, then `headers`, `query`
+or `body`, then into the body, where `*` matches one segment (an array element
+or a field name).
+
+### What a recording cannot send back
+
+A masked value is not sent to the application. `<redacted:credential-header>` as
+an `Authorization` header would arrive as a real credential and come back `401`,
+and a reader would file an identity error as a behaviour change. Those values
+are counted instead, and the count is on the last line of every run:
+
+```
+x3 replay: 2 interaction(s) - 0 difference(s) - 0 exempted - 1 value(s) could not be sent back
+```
+
+This is the honest edge of v0: a suite behind authentication is recorded fine,
+and replays as an unauthenticated one. Sessions — a login whose token the
+following requests carry — are a box in `docs/OPEN-WORK.json`, not a promise
+made here.
+
+The report is JSON, like every other command's, and carries no timestamp: the
+same ledger against the same application must produce the same bytes. Recorded
+and received values are truncated and run through the `secrets` pattern set
+before they are printed — the report that finds a leak must not become one.
+
+### The control experiment
+
+`check.ps1` records two requests against a small application
+(`internal/record/testdata/echo`) whose answers carry a fresh id and timestamp
+every time, and then replays the same ledger three times:
+
+- **without a `normalize` rule** — red, because the id and the timestamp differ;
+- **with the rule** — green, on the very same ledger and the very same run;
+- **against the application started with `-drift`**, which answers `queued`
+  where it answered `created` — red, and the report names `res.body.state`.
+
+The first run is the one that is easy to leave out, and it is the one that
+proves the rule is doing something. The third proves the gate can still see a
+real change while the rule is in force.
+
 ## `x3 guard`
 
 ```
@@ -2615,9 +2740,13 @@ red on a deliberately broken input.
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
-- **`x3 record` writes; nothing replays it yet.** A ledger is a recording, not a
-  gate: until `x3 replay` lands, a behaviour change is something a reader
-  notices in review, not something the engine turns red.
+- **Replay is single-threaded and stateless.** Requests go out one at a time in
+  the recorded order, and nothing carries a session from one to the next: a
+  login whose token the following requests need cannot be replayed yet.
+- **A masked value cannot be sent back.** Recording redacts credentials, so
+  replaying an authenticated suite sends the requests without them. The count
+  is printed, but the run behind an authorisation wall is not the run that was
+  recorded.
 - **The recorder sees inbound HTTP only.** What the application asks of other
   services is not written down, so it can only be replayed as far as it shows
   through in the application's own answers.
@@ -2739,4 +2868,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.18.0 capabilities=775de14ac7d446485b0b6c1bb787bacd748ce286ebe020db09e43f1d6e9f26dd template=de323ac82a6ff57098a3aa95b6bb2d244d0ee0100aa040aaf9e15f027ea110d4 -->
+<!-- x3-dist version=v0.19.0 capabilities=c0a85dc16da3c67cb16e46b07ea540b6ede5cd97deb303941731b58fa3f6e4a3 template=67b0db5164038d61ef4399d26459cbdd0353b39b5082c9d0edd7312f59ee7252 -->
