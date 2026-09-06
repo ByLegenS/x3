@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.25.0`**
+**Current version: `v0.26.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `e64abefacbceb1c3b0e6a6883949a8687e81783fb45275669a2bd93c874fe3f3` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `078eb9a50ad07e2cf44c9bfe39c099afb7d19cb6280e2d215390718c15a0bf0b` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `10ce5180b5c325cfebea64efafc72a752f0761275b9ebcb8e7dffdb9681078c2` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `67a4bf301371130ba0ba9a8913740903ce5c6ead7bc6b63e998342834ab2fc82` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -1151,6 +1151,22 @@ A term used this way must be at least four characters: a short prefix falls
 inside innocent words (`car` would catch `card` and `cargo`), and a noisy gate
 is a gate somebody switches off.
 
+Because the extractor reads any text file with a capture group, this kind
+reaches past Go. A template calls names that a script has to define, and nobody
+compiles either of them:
+
+```json
+{ "name": "every-name-a-template-calls-exists",
+  "kind": "consistency",
+  "left":  { "from": "regex", "sources": ["ui/**/*.html"], "select": "@click=\"([a-zA-Z_][a-zA-Z0-9_]*)\\(" },
+  "right": { "from": "regex", "sources": ["ui/**/*.js"],   "select": "function ([a-zA-Z_][a-zA-Z0-9_]*)" },
+  "compare": "left-subset-of-right" }
+```
+
+The same shape checks a table in a document against reality - a row claiming a
+rule "has a gate" on the left, the gate names a script actually runs on the
+right.
+
 ### `containment` - a component's parts stay under its root
 
 Every part a component owns - its migrations, its scripts, its interface files -
@@ -1732,6 +1748,29 @@ changes yearly:
 
 That is this repository's own list, and `check.ps1` runs this command against
 it.
+
+### A box that is not needed yet
+
+Some work is owed only once something else happens: a second tenant, a second
+voice application, a version bump that has not landed. Such a box is open and
+*should* be, even when the thing that would prove it done happens to exist
+already. `when` says what makes it due:
+
+```json
+{ "id": "second-voice-application",
+  "title": "the billing migration a second voice application would need",
+  "state": "open",
+  "when": [{ "when": "pattern", "sources": ["apps/*/kind.json"], "match": "\"voice\"" }],
+  "done": [{ "when": "file", "path": "docs/migration-b.md" }] }
+```
+
+While the condition does not hold, the box waits: it stays open without being
+red, and the run counts it. The moment the condition holds, the box is measured
+like any other - if the work is already done, leaving it open is red.
+
+The rule that does **not** relax is the other one: a conditional box still
+cannot be closed without proof. A box closes because the work was done, never
+because it stopped being needed.
 
 ### Both directions, or neither
 
@@ -3174,4 +3213,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.25.0 capabilities=cedb7f61ec6fa5e6b4ffc41111eb30b27caa7e50c27c5705cf8c73bda63740ee template=00eda2142087c5074ec83700c145d740bbc833e7f8d463eb4774fd3a44e509d4 -->
+<!-- x3-dist version=v0.26.0 capabilities=875982d1c69a5cd9bb85abbe26ff74065c7caf133842137ad5c4524a09f7a8a0 template=00eda2142087c5074ec83700c145d740bbc833e7f8d463eb4774fd3a44e509d4 -->
