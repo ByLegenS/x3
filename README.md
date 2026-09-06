@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.24.0`**
+**Current version: `v0.25.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `6bce1a91161a9737d9458975912d37a704329c4238a42a04b480f78538386fb1` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `c391d2f49b35e41984f4e9677676acdbe966d2f98556bbc8ce056450966c94ea` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `e64abefacbceb1c3b0e6a6883949a8687e81783fb45275669a2bd93c874fe3f3` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `078eb9a50ad07e2cf44c9bfe39c099afb7d19cb6280e2d215390718c15a0bf0b` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -77,6 +77,7 @@ x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
 x3 boxes -config x3.json .      # open work, measured against its criteria
 x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
+x3 scope  -config x3.json .     # a change that must stay in its lane
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
@@ -128,6 +129,7 @@ and not in this file, it does not exist yet.
 - [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
 - [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
+- [`x3 scope`](#x3-scope) - a change that must stay in its lane
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
 - [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
@@ -172,6 +174,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
 | **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
 | **Syntax** (`internal/syntax`) | **implemented** - `x3 syntax` parses the files no compiler reads (a built-in JSON parser, or a parser the project names), and refuses to go green when the parser it was told to use is not installed |
+| **Lane discipline** (`internal/scope`) | **implemented** - `x3 scope` reads what a change touched and turns a commit red when it enters a declared lane and also reaches outside it; crossing needs a reason in the message |
 | **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
 | **Incremental cache** (`internal/cache`) | **implemented** — a run remembers what it measured, keyed on engine version, configuration fingerprint and file content; declared per project, off when it is not declared |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
@@ -1825,6 +1828,62 @@ with `missing: "warn"` (green, and the skip is still printed). The third and
 fourth are the pair that matters: without them, a missing tool would look
 exactly like a clean run.
 
+## `x3 scope`
+
+The other half of the coupled-change problem. `x3 docs` asks what a change must
+bring **with** it; this one asks what a change must **stay away from**. A part
+that ships on its own stops shipping on its own the day it rides in the same
+commit as something else.
+
+```
+x3 scope [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [dir]
+```
+
+A lane is a set of paths, plus the paths that are allowed to travel with them:
+
+```json
+{
+  "scope": {
+    "lanes": [
+      { "name": "site",
+        "paths": ["services/site/**"],
+        "also":  ["docs/site/**"],
+        "exempt": "lane: crossed" }
+    ]
+  }
+}
+```
+
+A change that touches nothing in `paths` is none of this lane's business. A
+change that does touch it must stay inside `paths` and `also`; anything else is
+named, file by file:
+
+```
+BLOCK site: outside_the_lane
+        this change is in the "site" lane (1 file(s)) and also touches 1 file(s)
+        outside it; split the change, or say "lane: crossed" followed by a reason
+        outside: internal/core/money.go
+```
+
+Crossing a lane is allowed when it is said out loud. The exemption goes in the
+commit message (or `-reason` for a working-tree run), and a marker with nothing
+after it is red - the same rule `docs` has, for the same reason: a marker
+anybody can type without saying why is a marker everybody types.
+
+`-scope auto` reads the working tree when it is dirty and `HEAD` when it is
+clean, so a developer before the commit and a gate after it type the same
+command. Both this gate and `x3 docs` read the diff through the same code
+(`internal/changed`), because two gates that disagreed about what a commit
+touched would each be right about a different commit.
+
+### The lane control experiment
+
+A temporary repository and three commits: one inside the lane (green), one that
+touches the lane and a file outside it (red, naming the file), and one that
+crosses with a reason in the message (green, counted as an exemption). The
+middle one is what the gate is for; the outer two are what keep it from being a
+gate that refuses everything.
+
 ## `x3 record`
 
 Every other checker here reads the project **at rest**: files, imports, names,
@@ -2993,6 +3052,10 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
+- **A lane is paths, not intent.** `scope` can see that a commit touched two
+  places; it cannot see whether the second one had to move with the first.
+  That judgement is the reasoned crossing, and the gate only insists the
+  reason be written down.
 - **`syntax` carries one parser.** JSON, and nothing else. Everything beyond it
   is an external command the project installs and names, which means a machine
   without that command cannot run that check - it says so rather than passing.
@@ -3111,4 +3174,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.24.0 capabilities=629d2904fbc53553f85eaac09d0e0ff3847169b63e3282b22fe9ce8dd1bb14ca template=44ce5708b0442743655a7b0ee7bc3cac429bb0f7080051922db644e642f40625 -->
+<!-- x3-dist version=v0.25.0 capabilities=cedb7f61ec6fa5e6b4ffc41111eb30b27caa7e50c27c5705cf8c73bda63740ee template=00eda2142087c5074ec83700c145d740bbc833e7f8d463eb4774fd3a44e509d4 -->
