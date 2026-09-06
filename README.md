@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.23.0`**
+**Current version: `v0.24.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `ea48d0f84733c40cd730940394abcf17e2df64b403a726e8c6cae73aa5d9b2cb` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `d332f627f637527b0fb07203902daa779daedc11b1ffbae37c3cb4610a1bd126` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `6bce1a91161a9737d9458975912d37a704329c4238a42a04b480f78538386fb1` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `c391d2f49b35e41984f4e9677676acdbe966d2f98556bbc8ce056450966c94ea` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -76,6 +76,7 @@ x3 freeze -config x3.json .     # frozen lists that only shrink
 x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
 x3 boxes -config x3.json .      # open work, measured against its criteria
+x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
@@ -126,6 +127,7 @@ and not in this file, it does not exist yet.
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
 - [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
+- [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
 - [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
@@ -169,6 +171,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
 | **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
 | **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
+| **Syntax** (`internal/syntax`) | **implemented** - `x3 syntax` parses the files no compiler reads (a built-in JSON parser, or a parser the project names), and refuses to go green when the parser it was told to use is not installed |
 | **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
 | **Incremental cache** (`internal/cache`) | **implemented** — a run remembers what it measured, keyed on engine version, configuration fingerprint and file content; declared per project, off when it is not declared |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
@@ -1761,6 +1764,67 @@ one tree: a list that matches it (`0`), a list that leaves finished work open
 (`1`), a list that closes unfinished work (`1`), and this repository's own list
 (`0`).
 
+## `x3 syntax`
+
+A compiler tells you when a file does not parse. Nobody compiles a template, a
+settings file, or a script the browser will read at run time - so those go out
+broken, the server still answers 200, and the screen is simply blank.
+
+```
+x3 syntax [-config <file>] [-out <file>] [dir]
+```
+
+The gate does not guess which parser a file wants; a project declares it. There
+are three kinds of check, and each check is exactly one of them:
+
+```json
+{
+  "syntax": {
+    "checks": [
+      { "name": "every-settings-file-parses",
+        "sources": ["**/*.json"], "as": "json" },
+
+      { "name": "browser-scripts-parse",
+        "sources": ["ui/**/*.js"], "run": ["node", "--check"] },
+
+      { "name": "no-escaped-quote-in-an-attribute",
+        "sources": ["ui/**/*.html"], "deny": "=\"[^\"]*\\\\'",
+        "reason": "a backslash escape inside an attribute is not valid here" }
+    ]
+  }
+}
+```
+
+`as` names a parser the engine carries - `json` is the only one, because a
+format half-understood is worse than a format not understood at all. `run` names
+an external parser: the file path is appended to the command, and a non-zero
+exit is a finding with the parser's own first line of output. `deny` is the
+other half of the same problem - text that parses but means nothing in this
+format, and it needs a reason, like every other silence-or-refusal in the
+engine.
+
+**A parser that is not installed is red.** That is the default, and it is the
+point: a gate that quietly skips its check on a machine without the tool is a
+gate that reports green having verified nothing. A project that genuinely wants
+the check optional says so:
+
+```json
+{ "name": "browser-scripts-parse", "sources": ["ui/**/*.js"],
+  "run": ["node", "--check"], "missing": "warn" }
+```
+
+Files are independent, so each check runs its files on every core. A check whose
+sources match nothing is red with `empty_scope`, for the reason every other gate
+here has that rule.
+
+### The syntax control experiment
+
+Four runs. A tree whose files parse (green), the same tree with one file broken
+(red), a check naming a parser that is not installed (red), and the same check
+with `missing: "warn"` (green, and the skip is still printed). The third and
+fourth are the pair that matters: without them, a missing tool would look
+exactly like a clean run.
+
 ## `x3 record`
 
 Every other checker here reads the project **at rest**: files, imports, names,
@@ -2929,6 +2993,9 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
+- **`syntax` carries one parser.** JSON, and nothing else. Everything beyond it
+  is an external command the project installs and names, which means a machine
+  without that command cannot run that check - it says so rather than passing.
 - **A long block is a proxy, not a judgement.** The gate counts lines; it cannot
   tell a necessary table from a paragraph nobody needed. That is what the
   reasoned exemption is for, and why the ratio only warns.
@@ -3044,4 +3111,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.23.0 capabilities=b2ffb59f9d1aaa9b8c8e855f8a3d575b3a76543642d83538307bacbaafe01c8b template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
+<!-- x3-dist version=v0.24.0 capabilities=629d2904fbc53553f85eaac09d0e0ff3847169b63e3282b22fe9ce8dd1bb14ca template=44ce5708b0442743655a7b0ee7bc3cac429bb0f7080051922db644e642f40625 -->
