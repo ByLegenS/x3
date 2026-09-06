@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.8.0`**
+**Current version: `v0.9.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `0710968879af883e4681f493b82737fc139671ed0501dac2e5a2a7631b30e98a` |
-| `x3-linux-amd64` | linux/amd64 | 11.9 MB | `29f5ce86f7c74f4c8b26f830d8c3fcd43d3fb60dfc1dd2f3535fe8f5205d170d` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.2 MB | `693d2f6f0082a0e0e725cd43357450febb47873b583e3cd12758b6c1588dce24` |
+| `x3-linux-amd64` | linux/amd64 | 11.9 MB | `68b6966656a7d76c3437836dc2984f3233382c9e58d29568cd711febcb341da8` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -726,12 +726,12 @@ turns those sentences into rules the engine checks. The rules live in `x3.json`,
 the verifier lives in the engine: neither do the rules enter the engine, nor do
 the project's names enter a verifier.
 
-**Four of the nine rule kinds are built.** `deps` with all three of its
+**Five of the nine rule kinds are built.** `deps` with all three of its
 matchers — `import` reads the import graph, `literal` reads names the compiler
 never sees, `symbol` reads what the code actually uses; `required` asks whether
 every file of a class carries a mark; `pairing` asks whether anybody touches a
-file at all; `flow` asks where a value may appear. The other five kinds are
-specified in
+file at all; `flow` asks where a value may appear; `exposure` asks what reaches
+the outside. The other four kinds are specified in
 [ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
 and says so — a planned kind that passed silently would be worse than no rule at
 all.
@@ -1006,12 +1006,41 @@ actually declared somewhere the rule reads. If it is not, the rule reports
 Once the value is copied into another name, the copy is not followed; that
 copy is itself the `assignment` the rule reports.
 
+### `exposure` — what reaches the outside
+
+An internal cost or margin sitting in a struct is nobody's problem. The problem
+is the day that struct is written out. Import and flow rules cannot see it: the
+field is already in that package, and the violation is that it leaves.
+
+```json
+{ "name": "internal-numbers-stay-off-the-tenant-surface",
+  "kind": "exposure",
+  "surface": { "components": ["core", "modules"], "exclude": ["**/admin/**"] },
+  "fields": ["*cost*", "*margin*"],
+  "carrier": ["json-tag", "map-key"] }
+```
+
+`surface` is where the rule watches — components, minus the paths in `exclude`,
+which is how the same field stays legal on an operator screen and illegal on a
+tenant one. `fields` are the names that must not reach it, matched
+case-insensitively so `unitCost` and `unit_cost` are one rule. `carrier` is how
+the name would be written:
+
+| Carrier | Read from |
+|---|---|
+| `json-tag` | the `json:"…"` name of a struct field |
+| `map-key` | a string key in a composite literal |
+
+**A field with no tag is not seen.** Whether an untagged field is serialized at
+all needs type resolution, and calling every field an exposure would drown the
+gate in noise. What is checked is what the code says it writes out.
+
 ### Fields a rule has
 
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | yes | unique in the file; what the report and the stderr lines call this rule |
-| `kind` | yes | `deps`, `required`, `pairing` or `flow`; the other five stop the run |
+| `kind` | yes | `deps`, `required`, `pairing`, `flow` or `exposure`; the other four stop the run |
 | `match` | `deps` only | `import`, `literal` or `symbol` |
 | `from` + `deny` | import | the outward question |
 | `to` + `allowFrom` | import | the inward question |
@@ -1021,6 +1050,7 @@ copy is itself the `assignment` the rule reports.
 | `marker` | required | the mark every file in `sources` must carry |
 | `counterpart` + `requires` | pairing | the file that must name this one |
 | `value` + `allow` | flow | the value to follow, and the places it may appear |
+| `surface` + `fields` + `carrier` | exposure | where to watch, which names, written how |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
@@ -1130,6 +1160,7 @@ The `code` field is the stable part; the `message` text may be reworded.
 | `forbidden_dependency` | `deps` | a forbidden import edge, or a component spelling or using a name it may not |
 | `foreign_resource` | `deps:literal` | a component spelled a name another component owns |
 | `escaped_value` | `flow` | the value appeared in a place it may not |
+| `exposed_field` | `exposure` | a hidden name reached the surface |
 | `missing_marker` | `required` | a file of the class does not carry the mark |
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
 | `empty_scope` | every rule | a component the rule names, its own source set, or the field it follows, matched nothing |
@@ -1153,6 +1184,7 @@ kinds that do not exist yet.
 | `testdata/required-green` / `-red` with theirs | `0` / `1` — a script that lost its mark |
 | `testdata/pairing-green` / `-red` with theirs | `0` / `1` — two findings: a file with no counterpart, and one whose counterpart names it nowhere |
 | `testdata/flow-green` / `-red` with theirs | `0` / `1` — three findings: the handle as an argument, as a result, and under another name |
+| `testdata/exposure-green` / `-red` with theirs | `0` / `1` — the same field is red on the tenant surface and green under the excluded path |
 | this repository with its own `x3.json` | `0` |
 | the same three rules split across three files | `1` — the parts carry the rules |
 
@@ -2008,9 +2040,11 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
-- **Five of the nine rule kinds do not exist.** Serialization surface,
-  vocabulary, containment, consistency and duplication are specified in the
-  roadmap and have no verifier.
+- **Four of the nine rule kinds do not exist.** Vocabulary, containment,
+  consistency and duplication are specified in the roadmap and have no verifier.
+- **`exposure` sees tags, not serialization.** An untagged field written out by
+  a marshaller is invisible to it, and a tagged field in a type nobody
+  serializes is still read.
 - **`flow` does not follow a copy.** Once the value is assigned to another name,
   what happens to that name is invisible — the assignment itself is the finding.
   Following it would need type resolution over the whole program. The `import` and `symbol` matchers read Go only,
@@ -2116,4 +2150,4 @@ been seen is not a gate.
 
 ---
 
-<!-- x3-dist version=v0.8.0 capabilities=76cc6346c78f7d75eebc4af5ec5ce2cb2f88af5eb50691f7af9bb8a8f4e567c5 template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
+<!-- x3-dist version=v0.9.0 capabilities=c92acf4ad1f3accdfe412c776760615f9a0d3915e2ea265493124669a596225e template=09bd5c3267b29248c7fcaf7ceb6f1350b1567210cb146095452e47a10d69d713 -->
