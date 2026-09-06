@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.21.0`**
+**Current version: `v0.22.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `690c8edca368969988994b0be8c0a57813dec9532e5f8182b1b27d6d859c1c48` |
-| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `0d92b8a132b7e2ab9096ccc6f3182bcee60fe3bb0eafc5f9f8857a88117ff11e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.1 MB | `bd0ae8a509d459003d1c9b1d216ee7c44c37f34cc355e5ea808ea5653c363989` |
+| `x3-linux-amd64` | linux/amd64 | 12.7 MB | `63e1eaf957a25967c637a7dfe7584184c713ab1003d89a7a4803eb9e21df3526` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -124,6 +124,7 @@ and not in this file, it does not exist yet.
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
+- [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
 - [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
@@ -162,11 +163,12 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Live guards** (`internal/live`) | **implemented** — `sql`, `http` and `exec` checks declared in `x3.json`, a `warn`/`block` policy each, and the `x3 guard` command that launches a command only when they allow it |
 | **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
 | **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
-| **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; one of the nine specified rule kinds (`deps` with `match: "import"`) has a verifier |
+| **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; all nine specified rule kinds have a verifier |
 | **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink and refuses to record growth |
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
 | **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
+| **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
 | **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
 | **Incremental cache** (`internal/cache`) | **implemented** — a run remembers what it measured, keyed on engine version, configuration fingerprint and file content; declared per project, off when it is not declared |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
@@ -753,13 +755,14 @@ turns those sentences into rules the engine checks. The rules live in `x3.json`,
 the verifier lives in the engine: neither do the rules enter the engine, nor do
 the project's names enter a verifier.
 
-**Eight of the nine rule kinds are built.** `deps` with all three of its
+**All nine rule kinds are built.** `deps` with all three of its
 matchers — `import` reads the import graph, `literal` reads names the compiler
 never sees, `symbol` reads what the code actually uses; `required` asks whether
 every file of a class carries a mark; `pairing` asks whether anybody touches a
 file at all; `flow` asks where a value may appear; `exposure` asks what reaches
 the outside; `duplication` asks whether a body was written twice; `vocabulary` asks which
-words a layer must not know; `consistency` asks whether two sets still agree.
+words a layer must not know; `consistency` asks whether two sets still agree;
+`containment` asks whether a component's parts stay under its own root.
 The last kind, `containment`, is specified in
 [ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
 and says so — a planned kind that passed silently would be worse than no rule at
@@ -1123,6 +1126,49 @@ What is read in Go is what the language gate reads: the package name, declared
 identifiers, and string literals. A name declared elsewhere is not yours to
 spell, and the import rule already guards that boundary. In every other file
 type, every line is read.
+
+### `containment` - a component's parts stay under its root
+
+Every part a component owns - its migrations, its scripts, its interface files -
+must live under its own root. One part outside, and the component is no longer
+movable: deleting it leaves litter, and copying it to another project leaves the
+part behind.
+
+The hard question is not where a file is. It is **which component a file belongs
+to**, and the answer cannot come from the directory: read that way, every file
+is already where it is and the rule would be a tautology that never fires.
+
+So ownership is declared, as a **key** - a short prefix each component puts at
+the start of the names of the things it owns:
+
+```json
+{ "name": "a-components-parts-stay-under-its-root",
+  "kind": "containment",
+  "sources": ["**"],
+  "keys": { "billing": "blgx_", "orders": "ordx_" } }
+```
+
+A path segment that starts with a key marks that file as that component's part -
+a file name, a directory name, anywhere in the path. Then the only question left
+is whether it sits under one of the component's declared roots:
+
+```
+apps/billing/blgx_handler.go          ok
+apps/billing/blgx_migrations/1.sql    ok
+core/blgx_helper.go                   part_outside_its_root
+core/money.go                         carries no key, nobody's part
+```
+
+A key must be **5 to 10 characters**. Shorter, and it matches by coincidence -
+half the words in a repository contain `bl`. Longer, and it is not a key but a
+name, which brings the coincidence back. Two keys may not start alike either, or
+one part would answer to two components. All three are configuration errors,
+refused before the run starts.
+
+If no file carries any key, the rule is red with `empty_scope`: either the
+convention is not in use or a key is misspelled, and both are worth knowing -
+a rule that matched nothing has not passed, it simply did not run.
+
 
 ### `consistency` — two sets that must agree
 
@@ -1561,6 +1607,70 @@ Seeing only the red would not be enough: a scanner that says no to every value
 would also exit `1`. The clean and exempted rows are what separate a gate from
 a noise generator. The repository's own run is green because three test fixtures
 carry reasoned exemptions — which is the feature being used, not worked around.
+
+## `x3 comments`
+
+A comment block that grew past reading length is not documentation, it is a
+document in the wrong place. This gate measures two things and treats them
+differently on purpose.
+
+```
+x3 comments [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [dir]
+```
+
+**Block length is red.** Consecutive comment lines form a block; a blank line or
+a line of code closes it. Over the limit, the block is a finding:
+
+```
+BLOCK internal/source/glob.go:10: block_too_long
+        a comment block runs 11 lines, the limit is 10; what needs this many
+        lines belongs in a document
+```
+
+**The ratio only warns.** When a file carries more comment lines than code
+lines, the run says so and stays green. The asymmetry is deliberate: the measure
+is *necessity*, not count, and a gate that failed on a ratio would make people
+delete comments that were needed. It speaks only above a floor, because a
+three-line file with four comment lines is not a finding.
+
+```json
+{ "comments": { "block": 10, "doc": 20, "ratio": "warn", "ratioFloor": 30 } }
+```
+
+The **opening block** - everything before the first line of code - has its own
+limit, twice the ordinary one by default. It is read once and describes the
+whole file, so it may say more. "The first block" would have been the wrong
+rule: the first block *inside* the code is an ordinary block.
+
+Lines that talk to a tool rather than to a reader are neither prose nor code:
+`//go:...`, `// Deprecated:`, `//nolint`, `#!`, `// +build`, and x3's own
+directives. They close a block and count for nothing.
+
+Ten languages are built in (`.go`, `.js`, `.java`, `.cpp`, `.py`, `.ps1`,
+`.yaml`, `.yml`, `.sql`, `.lua`); a file whose extension is not among them is
+skipped rather than guessed at. A project adds its own:
+
+```json
+{ "comments": { "openers": { ".ts": "//", ".rb": "#" } } }
+```
+
+An exemption carries a reason, as everywhere else, and a dead one is red:
+
+```go
+//x3:allow:comments: the glob syntax table is the contract itself
+```
+
+It may sit **above or below** the block it covers. Above is the natural place,
+but `gofmt` moves directives to the end of a Go doc comment, and a rule that
+accepted only one side would break itself on the next format.
+
+### The comment control experiment
+
+Four trees: a block inside the limit (green), the same block one line over
+(red), the long block with a reasoned exemption (green), and an exemption that
+silences nothing (red). The fifth run is this repository itself - the diet is a
+house rule here, so the gate that enforces it runs against the house.
+
 
 ## `x3 boxes`
 
@@ -2801,8 +2911,13 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
-- **One of the nine rule kinds does not exist.** `containment` is specified in
-  the roadmap and has no verifier.
+- **A long block is a proxy, not a judgement.** The gate counts lines; it cannot
+  tell a necessary table from a paragraph nobody needed. That is what the
+  reasoned exemption is for, and why the ratio only warns.
+- **`containment` reads paths, not contents.** A part is recognised by a key at
+  the start of a path segment, so a table name inside a file, or a part whose
+  name nobody prefixed, is invisible to it. `deps` with `match: "literal"` is
+  the kind that reads names inside files.
 - **`consistency` reads three shapes and no more.** Typed string constants, JSON
   keys, and one regular-expression capture. A set that lives anywhere else — a
   database table, a generated file, a YAML document — cannot be compared yet.
@@ -2911,4 +3026,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.21.0 capabilities=1e9ea9a9e617a2ea0acc9d043df8826e5e06f6c496f7abea09f7ca9ec8a5614d template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
+<!-- x3-dist version=v0.22.0 capabilities=a3eba9a9cbb76eb183611e34203b9ba552eab9a3d896cf74be753c089deb893c template=53d566581cfcbe4a7ecbd62d3f9b689c50f6c77cc9c99e12c5c73039a6ed4e57 -->
