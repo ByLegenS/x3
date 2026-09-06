@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.16.0`**
+**Current version: `v0.17.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `a5ed5b5e3abd0cd1a3970cfd25a02defc5621b35256e9d3ba67cf94a8ff2b900` |
-| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `f83685cd9da5849b89f41ddd4e482846700ef34ce15e477b843a2b46bb3b1a8c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 12.5 MB | `22a76071d8dd2ac30096530fb3ea1aa58cd0f89069b69af7503067b13121f439` |
+| `x3-linux-amd64` | linux/amd64 | 12.2 MB | `e2e7066677b51055c9822b73f084ec9e95d9b4a3a3de602029dbff9d45182e58` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -129,6 +129,7 @@ and not in this file, it does not exist yet.
 - [Effective checks in `x3.json`](#effective-checks-in-x3json) — the recorded side, the effective sides, mapping and retries
 - [The effective report](#the-effective-report)
 - [`x3 testdb`](#x3-testdb) — run-lifetime test databases: clone, migrate, drop, collect the leftovers
+- [Speed](#speed) — every core, same bytes
 - [Splitting the configuration](#splitting-the-configuration) — one file, or many parts the root declares
 - [Pilot: a real `x3.json`](#pilot-a-real-x3json)
 - [Releases and reproducible builds](#releases-and-reproducible-builds)
@@ -2248,6 +2249,31 @@ seen that **nothing reached the server**:
 - `TestRunDropsAfterTheCommand` — the drop happens after the command, and
   `-keep` suppresses it.
 
+## Speed
+
+A gate that takes a minute is a gate somebody stops running. Files are
+independent of each other, so reading and parsing them is done on every core and
+the results are put back in file order — the report is byte-identical whatever
+the core count.
+
+Measured on a real Go application of **1174 Go files** (2040 files in total),
+sixteen cores:
+
+| Command | Before | After |
+|---|---|---|
+| `x3 lang` | 5.09 s | **0.24 s** |
+| `x3 scan` | — | **0.12 s** |
+| `x3 secrets` (all 2040 files) | — | **0.54 s** |
+
+The same run produced the same bytes before and after the change, which is the
+part worth checking: a parallel walk that reordered its findings would turn
+every later comparison into noise.
+
+**There is no cache.** Nothing is remembered between runs; the numbers above are
+a full scan every time. An incremental cache keyed on file content is a separate
+capability and does not exist yet — when it does, this section says so and gives
+its own measurement.
+
 ## Splitting the configuration
 
 One `x3.json` is enough for a small repository and wrong for a large one. A code
@@ -2574,4 +2600,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.16.0 capabilities=b8a423b89bb02bdb6d42fca8d2e23833dd5c96be5264031762cd533e80e6995d template=b5890ca0efdc739907bc003e1e6e692820374759baa6d58a07a29ceee9bf84f9 -->
+<!-- x3-dist version=v0.17.0 capabilities=818091039adf54ee0c8948ce38c75be72f73f0bb9dd54061477b9eec2a6c2d6e template=b5890ca0efdc739907bc003e1e6e692820374759baa6d58a07a29ceee9bf84f9 -->
