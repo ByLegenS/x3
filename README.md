@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.43.0`**
+**Current version: `v0.44.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `e329deddb801d10d01f30143eb8519c45342b17c47e2aaca5bdce3e8360d0eb8` |
-| `x3-linux-amd64` | linux/amd64 | 13.1 MB | `df1ba58796d6f2bfca40d0f1b7598db079c22087fb615e9cf8b81200c830e192` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `3a4e3a30c77cdbbd14c00a46df36a0e726ca6c4117fcc9a5f316e681e2243c5b` |
+| `x3-linux-amd64` | linux/amd64 | 13.1 MB | `84e1332e01f93cea48b95197ad37d0f64bd505af2080b4b2e2f2abbe9674e67e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -139,6 +139,7 @@ and not in this file, it does not exist yet.
 - [Expectations](#expectations) — the count a scan must reach, so deleting directives cannot go green
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
+- [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something) — a path constant a gate carries, checked against the file system: a blind gate is a gate that is not there
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [The count mode](#the-count-mode) — a number per key, and the cap that takes no debt
 - [A cap with no baseline](#a-cap-with-no-baseline) — a limit that holds no debt and cannot be frozen
@@ -158,7 +159,8 @@ and not in this file, it does not exist yet.
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [`x3 update`](#x3-update) — the binary replaces itself from a release, checksum first
 - [`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for) — the checksum kept in the project, because a release cannot vouch for itself
-- [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
+- [Live guards in `x3.json`](#live-guards-in-x3json) — the four source kinds and the warn/block switch
+- [`kind: "steps"`](#kind-steps--a-trial-not-a-reading) — a multi-step trial: set something up, run it, read what came out, and clean up in every case
 - [The guard report](#the-guard-report)
 - [`x3 guard:effective`](#x3-guardeffective) — compare a setting as recorded with the same setting as it is actually in force
 - [Effective checks in `x3.json`](#effective-checks-in-x3json) — the recorded side, the effective sides, mapping and retries
@@ -1437,12 +1439,68 @@ puts `not_found` into the set, not `error.not_found`, so it can be compared with
 the constant that produced it. A `regex` extractor must carry exactly one
 capture group for the same reason.
 
-`compare` is `left-subset-of-right` (everything produced has a counterpart) or
-`equals` (and nothing is declared that is never produced). Each difference is
-one finding, named.
+`compare` is `left-subset-of-right` (everything produced has a counterpart),
+`equals` (and nothing is declared that is never produced), or
+[`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something)
+(the other side is the file system). Each difference is one finding, named.
 
 **An empty side is `empty_scope`, not agreement.** A set that could not be read
 — a renamed type, a moved dictionary — would otherwise agree with everything.
+
+### `left-exists-on-disk` — does the path still point at something?
+
+The third `compare` has no right side: the other side is the **file system**.
+Every extracted value is read as a path, and the question is whether that path
+still leads anywhere.
+
+It answers a failure the two set comparisons cannot see. A gate that carries a
+path constant — the root it walks, the file it reads, the directory a criterion
+names — keeps working after that path moves. It just stops finding anything,
+reports nothing, and **exits `0`**. Nobody looks at a gate that is green. The
+most expensive form is a criterion phrased as an absence (*"this must appear
+nowhere under `X`"*): once `X` is gone the criterion is true forever, and work
+that was never done reads as finished.
+
+This is not [`containment`](#containment---a-components-parts-stay-under-its-root).
+There the question is where a file that exists belongs; here it is whether the
+thing pointed at exists at all.
+
+```json
+{ "name": "every-root-a-gate-names-is-still-there",
+  "kind": "consistency",
+  "sources": ["ops/gates/**/*.py", "ops/gates/**/*.go"],
+  "left": { "from": "regex", "select": "\"((?:internal|cmd|docs)/[A-Za-z0-9_./-]+)\"" },
+  "compare": "left-exists-on-disk",
+  "absent": {
+    "internal/legacy/importer": "deleted in the migration; the gate keeps the name until the next release"
+  } }
+```
+
+A value that names nothing on disk is `missing_target`, and the finding names
+the value. `./` at the front and a trailing `/` are trimmed before the lookup;
+a blank capture is a finding of its own, because a path that names nothing
+points at nothing.
+
+`absent` is the exemption, and it is a **path → reason** map, not a list. Some
+targets are meant to be missing: a file whose deletion is the very thing being
+measured, a temporary artefact of a control experiment, an output that is
+generated rather than committed. An exemption with no reason is refused —
+a silenced gate that nobody can explain later is worse than a red one.
+
+`absent` cannot be replaced by `exclude`, and the two are not the same axis:
+`exclude` narrows the **files that are read**, while `absent` excuses **a value
+that was read**. Dropping the file to excuse one of its paths would blind the
+rule to every other path in it.
+
+Two kinds of exemption die, and both are reported as `dead_exemption`:
+
+- The excused path **is on disk again**. The exemption outlived what it excused.
+- The excused path **is named nowhere any more**. Nothing is being excused, and
+  the list now says only that somebody once needed it.
+
+A dead exemption is red for the same reason a dead `exclude` pattern is: an
+exemption list that grows without ever shrinking is a gate carrying its own
+silencer, and the next person to read it cannot tell which entries still matter.
 
 ### Fields a rule has
 
@@ -1463,6 +1521,7 @@ one finding, named.
 | `across` + `minLines` | duplication | the component to compare with itself, and the shortest body worth comparing |
 | `in` + `terms` + `comments` | vocabulary | the layer, the words it must not know, and whether prose counts |
 | `left` + `right` + `compare` | consistency | the two sets and how they must agree |
+| `left` + `compare: left-exists-on-disk` (+ `absent`) | consistency | one set read as paths, checked against the file system, and the paths meant to be missing with the reason each one is |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
@@ -1577,10 +1636,11 @@ The `code` field is the stable part; the `message` text may be reworded.
 | `duplicate_body` | `duplication` | the same body in two instances of a component |
 | `foreign_term` | `vocabulary` | a layer let a word through that it must not know |
 | `set_mismatch` | `consistency` | the two sets drifted; each difference is named |
+| `missing_target` | `consistency` | a value read as a path leads nowhere on disk; the rule that names it can no longer fail |
 | `missing_marker` | `required` | a file of the class does not carry the mark |
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
 | `empty_scope` | every rule | a component the rule names, its own source set, or the field it follows, matched nothing |
-| `dead_exemption` | exemptions | an `allow:arch` that no violation needed, or one that binds to no import |
+| `dead_exemption` | exemptions, `absent` | an `allow:arch` that no violation needed or that binds to no import; an `absent` path that came back or that nothing names any more |
 | `dead_exclusion` | `exclude` | a pattern that takes no file out of the rule's sources |
 
 The remaining nine codes in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) belong to rule
@@ -1605,6 +1665,9 @@ kinds that do not exist yet.
 | `testdata/duplication-green` / `-red` with theirs | `0` / `1` — the copy carries an extra comment and an extra blank line, so a run that only compared raw text would miss it |
 | `testdata/vocabulary-green` / `-red` with theirs | `0` / `1` — two findings, one in an identifier and one in a `.json` file, while the same word in a comment stays green |
 | `testdata/consistency-green` / `-red` with theirs | `0` / `1` — a code the dictionary lost, named in the finding |
+| `testdata/ondisk` with `arch-ondisk-green.json` | `0` — one root is there, the other is written as `absent` with a reason |
+| `testdata/ondisk` with `arch-ondisk-red.json` | `1` — the same tree with no exemption: the moved root is `missing_target` |
+| `testdata/ondisk` with `arch-ondisk-dead.json` | `1` — two `dead_exemption` findings: one path came back, the other is named nowhere |
 | `testdata/exclude` with `arch-exclude-red.json` | `1` — the rule reads the test file and the planted import is red |
 | `testdata/exclude` with `arch-exclude-green.json` | `0` — the same tree, with `**/*_test.go` excluded |
 | `testdata/exclude` with `arch-exclude-dead.json` | `1` — **two** findings: the pattern that excludes nothing, and the import it therefore failed to hide |
@@ -3602,10 +3665,10 @@ types cannot.
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | yes | unique within the file; what the report and the stderr lines call this guard |
-| `kind` | yes | `sql`, `http` or `exec` |
+| `kind` | yes | `sql`, `http`, `exec` or `steps` |
 | `policy` | no | `warn` or `block`; **defaults to `block`** |
 | `tags` | no | names `-only` and `-skip` select on; a guard with none always runs. See [Choosing which guards run](#choosing-which-guards-run) |
-| `timeoutMs` | no | time limit for this guard; defaults to `10000`. A dead dependency must not hang the gate forever |
+| `timeoutMs` | no | time limit for this guard; defaults to `10000` (`steps`: `600000`). A dead dependency must not hang the gate forever |
 
 ### `kind: "sql"`
 
@@ -3669,6 +3732,100 @@ nothing, so the configuration is rejected rather than quietly passing.
   "args": ["env", "GOOS"]
 }
 ```
+
+### `kind: "steps"` — a trial, not a reading
+
+The three kinds above ask their question with **one** call. Some questions
+cannot be asked that way. *"Does this module still compile once the application
+is removed from the tree?"* is not a fact you can read; it is an experiment —
+copy the tree, take the application out, build what is left, and put everything
+back. So is *"does the binary this build produces name a released version of the
+library it links, or the working copy?"*: build first, then read the identity
+out of the artefact the build left behind.
+
+A single command cannot say either of those. Without a multi-step kind the only
+way to write such a check is a script inside the project — and a script is what
+x3 exists to remove: it is reviewed by nobody, it drifts when a path moves, and
+whether it can still turn red is never measured.
+
+| Field | Required | Meaning |
+|---|---|---|
+| `steps` | yes | the steps, run **in order**; the first one that does not hold ends the trial and names itself in the red |
+| `workspace` | no | a temporary working area the steps run in (below). Without it the steps run in the caller's own directory |
+| `equals` / `contains` | no | what the **last** step's output must be. Without either, every step holding is the assertion |
+
+A step:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `name` | yes | unique within the trial; the red says which step fell |
+| `command` | yes | executable to run |
+| `args` | no | its arguments |
+| `dir` | no | where to run it, relative to the working area (or to the caller's directory). Absolute paths and `..` are rejected |
+| `env` | no | environment variables **added to** the inherited environment for this step only |
+| `output` | no | what the step's output must and must not say — the same `must` / `mustNot` / `retry` expectation the [work list](#the-criteria) writes, read against both streams together |
+| `timeoutMs` | no | ceiling for this step; without it the guard's own ceiling applies |
+
+Without an `output`, a step's assertion is its **exit code**: anything but zero
+ends the trial there.
+
+The working area:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `copy` | yes | paths copied out of the **working tree** — files or directories. A path written here and missing on disk is an **error**, not a skip |
+| `remove` | no | paths deleted from the copy: the absence the trial is built on |
+| `write` | no | path → body, written into the copy |
+
+```json
+{
+  "name": "the core still builds once the application is removed",
+  "kind": "steps",
+  "policy": "block",
+  "workspace": {
+    "copy": ["go.mod", "go.sum", "cmd", "internal", "core"],
+    "remove": ["internal/app"]
+  },
+  "steps": [
+    { "name": "the core compiles with no application in the tree",
+      "dir": "core", "command": "go", "args": ["build", "./..."],
+      "env": { "GOWORK": "off" } },
+    { "name": "the binary names a released core, not the working copy",
+      "command": "go", "args": ["version", "-m", "out/service"],
+      "output": { "must": ["example.com/core v0."], "mustNot": ["(devel)"] } }
+  ]
+}
+```
+
+The copy is taken from the **working tree**, not from the last commit: if an
+uncommitted change crossed the boundary, the trial should see it in the same
+run.
+
+Three things are refused rather than run, and each one closes a way to a silent
+green:
+
+- **A trial with no steps.** It would pass every time.
+- **A `copy` path that is not on disk.** A build that fell because a source was
+  missing is red for the wrong reason, and its red points at the wrong place.
+- **A `remove` path that is not there.** Removing nothing establishes nothing;
+  a trial that measures the absence it never created is green by construction.
+
+Absolute paths and paths containing `..` are refused everywhere in a trial — in
+`dir`, in `copy`, in `remove`, in `write`. A `remove` that climbs out of the
+copy would delete from the working tree, and no gate may damage the thing it
+measures.
+
+**The working area is removed in every case**: when the trial passes, when a
+step fails in the middle, and when the setup itself fails half-way. Otherwise
+every red would leave a copy of the tree on the disk and nobody would notice.
+The paths inside the area are also stripped out of the output that reaches the
+report — the person reading the red opens the file **in the repository**, not a
+copy that no longer exists.
+
+`write` is what makes the control experiment possible from the configuration
+alone: the same trial, with one file written into the copy, has to go red. That
+is how you find out whether the trial can still fail — and a trial whose red
+has never been seen is not a trial.
 
 ### Secrets never enter the report
 
@@ -3776,6 +3933,25 @@ with no flags all three guards run and the decision is what it always was. The
 last line is the one that matters to the gate: a tag nobody carries stops the
 run instead of skipping nothing, so `-skip` can never be the quiet way to turn a
 red gate green.
+
+A trial gets a third step, and it moves **one thing** between the samples: the
+working area. `steps-green.json` copies a two-package tree, removes the
+application half and builds what is left; `steps-red.json` is the same trial
+with one file *written* into the copy — an import that pulls the removed half
+back in. `steps-empty-removal.json` removes a directory that is not there.
+
+```
+== multi-step trial control experiment
+  green:          exit=0 ran=True (want 0/True)
+  red:            exit=1 ran=False (want 1/False - the written import breaks the build)
+  empty removal:  exit=1 ran=False (want 1/False)
+  working areas left behind: 0 (want 0 - every trial cleans up, the red ones too)
+```
+
+The last line is the one that cannot be argued with: the step counts the
+temporary working areas before and after, and the two reds are in the middle of
+that count. A trial that leaves its copy behind on failure would show up here
+and nowhere else.
 
 And the stderr of the blocked run — one block per red guard, then the decision:
 
@@ -4884,4 +5060,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.43.0 capabilities=0d50f0610253c6c62d494f23d659a57f02d2b172c18431fb9af7861e90bcd5bf template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.44.0 capabilities=8f2a2fb828a2c5886ef618e1a876bb1f606f1614e312b79d09590770cac21157 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
