@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.33.0`**
+**Current version: `v0.34.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `e2c2bd464c7a01eef67a657b54aae4b2556ed3c8433abee793b63b6074abd879` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `b21f4cc900e69c92eed70ea8e37fac94b051da7af61b58efe24862ed32c0fd6d` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `febe06736f7f87814a587ba96fe65114926b976efbe636e798a7ad17f39c2296` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `1cefa12b3b410695aca41bba3c0b1fd4e651679310bebfe1fc97c7c4faf53349` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -151,6 +151,7 @@ and not in this file, it does not exist yet.
 - [Choosing which guards run](#choosing-which-guards-run) — tags, `-only` and `-skip`: a subset out of the one file everybody reviews
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [`x3 update`](#x3-update) — the binary replaces itself from a release, checksum first
+- [`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for) — the checksum kept in the project, because a release cannot vouch for itself
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
 - [The guard report](#the-guard-report)
 - [`x3 guard:effective`](#x3-guardeffective) — compare a setting as recorded with the same setting as it is actually in force
@@ -2980,9 +2981,11 @@ The order is fixed:
 
 1. resolve the tag - `-version` if given, otherwise the one named in the
    release pointer;
-2. read `SHA256SUMS.txt` of that release and find the entry for this platform;
+2. find the checksum this platform's binary must have — from
+   [`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for) when
+   the project wrote one, otherwise from the release's `SHA256SUMS.txt`;
 3. download the binary;
-4. compute its SHA256 and compare it with the listed one;
+4. compute its SHA256 and compare it with the expected one;
 5. put it in place of the running file.
 
 **A sum that does not match stops at step 4 and the running binary is left
@@ -3048,6 +3051,70 @@ Configuration is optional. The section is:
 
 An unknown key in it is an error, not a silent skip.
 
+### `update.pin` — the checksum the project itself vouches for
+
+Step 4 above compares the download against `SHA256SUMS.txt`, and that list ships
+**inside the release it describes**. It catches a truncated download, a mirror
+that fell behind, a corrupted file. It cannot catch a compromised release:
+whoever can replace the binary can replace the list beside it, and the update
+goes green. A release that vouches for itself is not a supply chain guarantee.
+
+`update.pin` moves the expected checksum into the project's own repository,
+where it is reviewed, versioned and diffed like any other line:
+
+```json
+{
+  "update": {
+    "pin": {
+      "v0.33.0": {
+        "x3-windows-amd64.exe": "e2c2bd46...",
+        "x3-linux-amd64":       "b21f4cc9..."
+      }
+    }
+  }
+}
+```
+
+**When a pin is written, `SHA256SUMS.txt` is not read at all.** There is nothing
+for it to add: the only checksum that binds anything is the one the project
+already agreed to. The stderr line says which authority it obeyed, so a run
+never leaves that ambiguous:
+
+```
+x3 update: v0.32.0 -> v0.33.0 (x3-linux-amd64, 12905472 bytes, sha256 b21f4cc9..., verified against update.pin)
+```
+
+The pin is keyed by **release tag**, not by binary name alone. That is what lets
+the engine tell two different refusals apart — "these are not the bytes I
+pinned" and "this is a release I never pinned" are different events, and a flat
+list would have reported the second as a checksum mismatch and sent the reader
+looking for corruption that was not there:
+
+| Situation | Result |
+|---|---|
+| the tag is pinned and the bytes match | installed |
+| the tag is pinned and the bytes differ | exit `1`, **the running binary is left in place**, and the message names `update.pin` as the source of the expectation |
+| the tag is not in `pin` | exit `1`, naming the tags that *are* pinned. Upgrading is a deliberate act: pin the release, then install it |
+| the tag is pinned but not for this platform | exit `1` — a machine whose binary nobody pinned gets no weaker guarantee than the others |
+| no `pin` at all | unchanged: `SHA256SUMS.txt` decides, exactly as before |
+
+Because an unpinned tag is refused, a pinned project does not follow `LATEST` by
+accident. `x3 update` with no `-version` resolves the newest tag, finds it
+unpinned and stops — which is the point. A new release enters the project the
+day somebody writes its checksum down.
+
+A malformed pin is a **configuration error** (exit `2`) rather than a mismatch:
+an empty `pin`, a key that is not a release tag, a tag pinning no binary, an
+empty binary name, or a checksum that is not 64 hexadecimal characters. Reported
+as a mismatch, a mistyped checksum would leave a project unable to update and
+unable to see why. Upper case is accepted and lowered — `sha256sum` writes lower
+case, but not every tool does.
+
+The checksums to write are the ones a release run prints, and they are also in
+the published `SHA256SUMS.txt`; copying them from there is fine, since the
+question a pin answers is not "were these bytes ever right" but "are these still
+the bytes we reviewed".
+
 ### The minimum version gate
 
 A project can state the oldest engine it is willing to be checked by:
@@ -3084,6 +3151,36 @@ Details that matter:
   running.
 - **It reads the configuration the way every other section is read**, so the
   requirement may live in an included part rather than in the root file.
+
+### The update control experiment
+
+`check.ps1`, step `update control experiment`, publishes two local releases into
+a temporary directory — one whose `SHA256SUMS.txt` is correct, one whose entry
+is deliberately wrong — and updates a binary built as `v0.0.1`. The claim
+"it was replaced" is never taken from a filename: it is read back out of the
+binary by running `x3 version` on it afterwards.
+
+```
+== update control experiment
+  installed:         exit=0 now v9.9.9 (want 0 / v9.9.9)
+  planted checksum:  exit=1 still v0.0.1 (want 1 / v0.0.1)
+  below min_version: exit=1 (want 1)
+  meets min_version: exit=0 (want 0)
+  pin matches:       exit=0 now v9.9.9 (want 0 / v9.9.9)
+  pin disagrees with a SOUND release: exit=1 still v0.0.1 (want 1 / v0.0.1)
+  tag not pinned:    exit=1 still v0.0.1 (want 1 / v0.0.1)
+```
+
+The sixth line is the one that earns `update.pin` its place. The release it runs
+against is the **good** one — binary and `SHA256SUMS.txt` agree perfectly, which
+is also exactly how a compromised release looks. Only the project's own pin
+disagrees, and the update is refused. Without that direction the pin could have
+been doing nothing but repeating what the release already said.
+
+`internal/release/release_test.go` carries the rest: a pin that matches installs
+and reports `update.pin` as the authority, an unpinned tag and an unpinned
+platform are refused separately, and five malformed pins are all rejected when
+the configuration is read rather than when the download is compared.
 
 ## `x3 testdb`
 
@@ -3506,11 +3603,17 @@ sales page.
   ones. The other checkers report findings rather than directives and have
   their own `empty_scope` protection instead.
 - **`update` verifies a checksum, not a signature.** It proves the file it
-  installed is the file the release listed; it cannot prove who wrote the
-  release. A source that can rewrite the binary can rewrite `SHA256SUMS.txt`
-  beside it, so the trust you place in a source is the trust you place in its
-  releases. Pointing `-source` at a mirror you control narrows that; it does
-  not remove it.
+  installed is the file somebody expected; it cannot prove who wrote the
+  release. Without `update.pin` that expectation comes from `SHA256SUMS.txt`,
+  which ships inside the release it describes — a source that can rewrite the
+  binary can rewrite the list beside it. `update.pin` moves the expectation into
+  the project's own repository and closes that particular hole, but it opens no
+  identity: it binds *bytes*, and it is worth exactly as much as the review of
+  the commit that introduced the line. Nothing here checks a key.
+- **A pin has to be maintained by hand.** No command writes or refreshes one,
+  and the engine cannot tell a deliberate upgrade from a mistake, so every new
+  release is refused until somebody writes its checksum down. That friction is
+  the feature; it is still friction, and a project that pins must budget for it.
 - **The minimum version gate is enforced from v0.30.0 on.** An older binary
   reads the same configuration file and never sees the requirement, so pinning
   a minimum protects you from binaries newer than the gate itself, not from
@@ -3662,4 +3765,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.33.0 capabilities=9b9f8fbbcb24bb73a02f95d41d2ddc8d7371f833aa67eecd9abe2a0ed556330c template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.34.0 capabilities=fc67ccc5f50c65da3c663f8f25683b4f1afd11de92142ff9fe8665fac3cb50e2 template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
