@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.36.1`**
+**Current version: `v0.37.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `d0fc867169c83c58dc994040b6edfa8e3cfba62d806593fd91b9889ee115a773` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `38c6546ece84d1cbf07b1f9d6fc9e8c79cd3e60f091cbc3710d8e1e74a165acc` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `5be90532012108aa4e6fc25ca245357e69df8d580b8b4c2df7b42132bc8aaa80` |
+| `x3-linux-amd64` | linux/amd64 | 13 MB | `6ec6eb88ff8e61cf3f60cbcadb2a566374ef5b5ff78f649453e0c64a0bbb734f` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -140,6 +140,7 @@ and not in this file, it does not exist yet.
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [The count mode](#the-count-mode) — a number per key, and the cap that takes no debt
+- [A cap with no baseline](#a-cap-with-no-baseline) — a limit that holds no debt and cannot be frozen
 - [The finding baseline](#the-finding-baseline) — today's findings frozen, tomorrow's red
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
@@ -908,6 +909,16 @@ in one place instead of being scattered over three hundred comments.
 | `*` | a run inside one element, never crossing `/` |
 | `?` | one character inside one element |
 
+That table is the whole syntax, and one omission is loud on purpose. A pattern
+that **starts with `!` is refused, exit `2`**, in every section that takes
+patterns. In most glob dialects a leading `!` negates; here it would be read as
+an ordinary name, match nothing, and take nothing out of scope — and whoever
+wrote it would read the run's green as proof that the exclusion worked. A gate
+that hides a file it was never told to hide is worse than one that refuses to
+start. A scope is narrowed with `exclude`, and that list is held to the
+dead-exclusion law below. A blank pattern is refused for the same reason: it
+names nothing, so it matches nothing, silently.
+
 `internal/core/**` is what is *under* `internal/core`, not the directory itself;
 `**/*.go` still sees a file at the root. What a single `*` catches is the
 component's **instance** — `internal/modules/*/**` tells `alpha` from `beta` —
@@ -1569,12 +1580,28 @@ Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
     "baselines": [
       { "name": "core-surface",
         "sources": ["internal/core/**/*.go"],
+        "exclude": ["**/*_test.go"],
         "set": { "from": "go", "select": "exported" },
         "file": "ops/baselines/core-surface.json" }
     ]
   }
 }
 ```
+
+`exclude` takes files back out of `sources`, and it is read **first**: an
+exclusion only ever narrows a scope. It is the same escape hatch `arch` rules
+carry, held to the same law by the same code — a pattern that takes no file out
+of the baseline's sources is `dead_exclusion` and **red**, a pattern that takes
+every file out leaves the baseline with nothing to measure and is `empty_scope`
+and red, and `"exclude": []` stops the run with exit `2`. External documents a
+project keeps but does not write are the usual reason: nobody is going to split
+a statute into thirds to satisfy a line count, and without an exclusion the only
+way to keep that green is to raise the limit for everybody.
+
+Unlike `arch`, a baseline's exclusions are **not inherited** from the section.
+Baselines in one file rarely read the same tree — a debt list over every
+document and a cap over one of them sit side by side — and an inherited pattern
+would be dead for the narrow ones, which is to say red.
 
 `set` is the same extractor the `consistency` rule uses — `go` (`exported`, or
 `const-set:<Type>`), `json` (`keys:<pattern>`), or `regex` with one capture
@@ -1677,6 +1704,52 @@ is the number, and a key without one leaves a ceiling standing for a file that
 may come back at its old size. `-update` clears the dead keys in the same run
 that records the shrinks.
 
+### A cap with no baseline
+
+`count` answers "this may not grow". Some documents want the other sentence:
+**"this may not pass 300 lines, and it owes nothing"** — a status page, a
+handover note, a plan whose whole value is that it stays short. With `count`
+that sentence cannot be written. Putting the cap above `min` freezes every file
+between the two at whatever size it happens to have today, so the document that
+was supposed to be free under the limit is instead pinned to its current length,
+and one `-update` quietly pins it again a line lower. Putting `min` above the
+cap measures nothing at all and the baseline reports `empty_scope`.
+
+So a cap is its own form, and it keeps no file:
+
+```json
+{
+  "freeze": {
+    "baselines": [
+      { "name": "status-page",
+        "sources": ["docs/status.md"],
+        "cap": { "of": "lines", "max": 300 } }
+    ]
+  }
+}
+```
+
+A baseline writes exactly one of `set`, `count` and `cap`.
+
+| Written | Result |
+|---|---|
+| a key at or below `max` | green, and nothing is recorded anywhere |
+| a key above `max` | **red** — `above_cap`, both numbers named |
+| nothing measured at all | **red** — `empty_scope` |
+| `-update` | the cap is skipped; there is no file to write |
+
+The measurements are the count mode's — `lines`, `matches`, `files` — and the
+red is the same `above_cap`, because a cap is a cap whether it stands beside a
+baseline or alone. What a cap does not have is a memory, and the fields it
+refuses say so: `file` is refused because nothing is frozen, `min` is refused
+because a cap already reports only what is above `max`, and `policy` is refused
+because a cap that can be downgraded to a warning is not a limit. A cap is
+always `block`.
+
+That absence is the whole point. `-update` is the flag that silences everything
+else in this gate, and it cannot reach a cap, because there is nowhere for the
+number to go.
+
 #### The count control experiment
 
 `check.ps1`, step `freeze count control experiment`, runs one baseline over four
@@ -1696,6 +1769,30 @@ the cap out of reach of the flag that silences everything else.
 The `-update` in those rows really runs, so the step writes the baseline files back
 afterwards, byte for byte - an experiment that changed what it measures would
 be measuring itself by the second run.
+
+#### The scope control experiment
+
+`check.ps1`, step `freeze scope control experiment`, runs one tree five ways.
+The tree holds a 25-line external report under a cap of 20, so the report is red
+unless something takes it out of scope:
+
+| Run | Wants |
+|---|---|
+| `narrowed` with `exclude` written properly | `0` — the exclusion really narrowed the scope |
+| the same intent written as `"!**/external/**"` inside `sources` | `2`, and the message names the line and points at `exclude` |
+| an exclusion that takes no file out | `1`, `dead_exclusion` |
+| an exclusion that takes every file out | `1`, `empty_scope` |
+| `capped`, then `capped` with `-update` | `1`; the update writes the debt baseline's shrink and leaves the capped document out of it |
+
+The first row is the one that is easy to get wrong. A gate that finds nothing
+looks the same green as a gate that was told to look away, so the tree is built
+to be red without the exclusion: the `0` is the exclusion working, not the
+absence of anything to find.
+
+The second row is the reason this section exists. Before it, that pattern was
+read as an ordinary name, matched nothing, excluded nothing, and said nothing —
+the document went on being measured while the person who wrote the line believed
+it had been taken out.
 
 
 ## The finding baseline
@@ -4086,4 +4183,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.36.1 capabilities=eb404947df01eecd302c7caeb20ab3e36c0e611fc089a9031c6c6f539c7c8a3f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.37.0 capabilities=fd00b0aff72dfe2ceb64fd47a9eca2b380bb80c81b76b1fbdfd780ea518da27e template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
