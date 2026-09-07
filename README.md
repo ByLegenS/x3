@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.48.0`**
+**Current version: `v0.49.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `98cdd116729fb962cca6a2c2364b557500acd779ae5dab64c86404b61626e50a` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `57722248ec5ca0a30a0f53bf6b9274792c0c730802d6af490b57c954cc97d502` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `f4e3b53455b3714385beb03faba816d3f93f3d4c4c9cff54080651fbc7735506` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `0313c668b6684211563772213fc97366883569c755f1ef5badfac3958778f233` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -154,6 +154,8 @@ and not in this file, it does not exist yet.
 - [A list that is finished](#a-list-that-is-finished-and-where-it-goes-next) — a rule that reads the whole document, not the item
 - [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
 - [`x3 scope`](#x3-scope) - a change that must stay in its lane
+- [`x3 test`](#x3-test) — only the units a change can reach, and the cache that answers the run where nothing changed
+- [A test's import does not travel](#a-tests-import-does-not-travel) — why a shared test helper otherwise ties the whole tree together
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
 - [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
@@ -209,7 +211,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Inline examples** (`internal/cases`) | **implemented** — `x3 case` turns every `//x3:case` written above a declaration into a test that **calls** it and compares the result. The generated test is shown to the package through the Go toolchain's overlay, so not one byte is written into the tree being checked. An example is red when its payload does not parse, when it sits on something that is not a function, when its expectations do not match the signature, when the package does not build — and when **nothing ran it** |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
-What is implemented is a **language check**, not a behaviour check. The scanner
+What is implemented is a **language check**, not a behavior check. The scanner
 answers three questions about every `//x3:` line it finds:
 
 1. Is this directive type known — does it have a verifier at all?
@@ -220,13 +222,13 @@ It never calls your code and never proves that a `rule` holds. Running an
 example *is* implemented, but as a separate gate: [`x3 case`](#x3-case) calls
 the declaration a `//x3:case` sits on and compares what comes back. `x3 scan`
 itself only reads.
-(`x3 record` and `x3 replay` do reach behaviour — a recorded run compared with a
+(`x3 record` and `x3 replay` do reach behavior — a recorded run compared with a
 later one — but only through the HTTP surface, and only over the traffic the
 recording happened to see.)
 A green `x3 scan` means *"your directives are well formed"*, nothing more.
 (`x3 guard`, further down, *does* reach the outside world — but it checks the
-environment a run is about to happen in, not the behaviour of your code.) That
-distinction is deliberate: behaviour verification is the next stage, and
+environment a run is about to happen in, not the behavior of your code.) That
+distinction is deliberate: behavior verification is the next stage, and
 claiming it now would be a promise the engine cannot keep.
 
 ## `x3 scan`
@@ -449,7 +451,7 @@ both accepted. That is what lets a reason contain spaces.
 
 ### `//x3:rule:<type>[:<subtype>...]`
 
-**Catches:** a semantic contract — a behavioural rule the code is expected to
+**Catches:** a semantic contract — a behavioral rule the code is expected to
 obey. Today x3 checks only that you named a rule and named it in a legal scope;
 nothing verifies that the rule actually holds.
 
@@ -1916,7 +1918,7 @@ import (
 ### Scope integrity
 
 A rule that matched nothing is red — `empty_scope` — and this is engine
-behaviour, not a rule you can choose to write. A gate holding a path constant
+behavior, not a rule you can choose to write. A gate holding a path constant
 says "clean" and exits `0` the day the file it guards moves; it never saw it.
 
 Every component the rule names is measured, the object side included: a `deny`
@@ -3584,6 +3586,189 @@ crosses with a reason in the message (green, counted as an exemption). The
 middle one is what the gate is for; the outer two are what keep it from being a
 gate that refuses everything.
 
+## `x3 test`
+
+A suite that grows with the repository stops being run. `x3 test` hands the
+runner only the units a change can reach, so the cost of a run follows the
+**change**, not the size of the tree.
+
+```
+x3 test [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [-scope auto|working|head] [-reason <text>] [-full] [dir]
+```
+
+The engine knows no test runner. The command, the way a unit is written on the
+command line, and the way a dependency is read out of a file all come from the
+configuration:
+
+```json
+{
+  "test": {
+    "units": ["cmd/*/*.go", "internal/*/*.go"],
+    "tests": ["**/*_test.go"],
+    "ignore": {
+      "docs/**": "the published documentation is compiled into nothing a test exercises",
+      "*.md": "the handover ledgers are prose; no test reads them"
+    },
+    "module": "x3",
+    "imports": {
+      "from": "regex",
+      "select": "^\\s*(?:[\\w.]+\\s+)?\"(x3/[^\"]+)\"",
+      "comments": "exempt"
+    },
+    "run": { "command": ["go", "test"], "package": ["./{unit}"], "all": ["./..."] }
+  }
+}
+```
+
+`units` declares which files **define** a unit; the unit is the directory that
+holds them. `package` is that unit's argument list — a list, because one runner
+takes `./pkg` in one word and another takes `-p pkg` in two. `{unit}` must
+appear somewhere in it, or every unit would render the same argument and the
+selection would be a lie.
+
+`imports` is the ordinary extractor (`from: "regex"`, one capture group), so the
+value it captures is the dependency key and the files it came from are the other
+end of the edge. `module` is the prefix that means *this repository*; anything
+outside it is a third party and never enters the graph. Writing
+`comments: "exempt"` is worth the line: an import inside a commented-out block
+never runs, and an edge drawn from it would drag a unit into every run for
+nothing.
+
+### A test's import does not travel
+
+`tests` is the field that decides whether the selection is a selection at all.
+A test file's dependency belongs to **that unit alone**: a test binary links it,
+the package does not, so an importer of that package never sees it.
+
+This is not a detail. In the pilot, `database`'s test imports a shared test
+helper, that helper imports the AI engine package, and `ledger` imports
+`database`. With test edges travelling, touching one leaf of the AI engine
+reached **54 of 85 packages**. With `tests` declared, the same change reaches
+**17** — and the 37 packages that were being run had no path to the change at
+all.
+
+A `tests` pattern that matches nothing is *not* red, and that asymmetry is
+deliberate: a dead `ignore` makes a run **narrower** than the tree justifies, a
+dead `tests` pattern only makes it **wider**. The engine's dead-escape-hatch law
+guards the direction that can hide a failure.
+
+### Which unit a file belongs to
+
+| The file | Its unit |
+|---|---|
+| matches `units` | its own directory |
+| does not match `units` | the nearest unit **above** it — a fixture next to the package it feeds belongs to that package |
+| has no unit above it | none: the run goes **full** |
+
+The search upward never reaches the repository root, even when the root itself
+holds source files. If it did, the root unit would be every file's ancestor, a
+change to a README would narrow the whole tree down to one package, and the
+quietest possible narrowing would happen exactly where we set out to prevent it.
+
+### Fail-closed: when the run goes full, it says so
+
+| Reason | What happened |
+|---|---|
+| `orphan` | a changed file is in no unit and no `ignore` covers it |
+| `graph` | a dependency resolves inside `module` but to no unit: the graph has a hole |
+| `diff` | the change could not be read from git |
+| `units` | the `units` patterns match no file |
+| `forced` | `-full` was written |
+
+A full run is not a fault and does not turn the command red — the engine says it
+could not narrow, and does the work anyway. What *is* red is a dead `ignore`
+pattern or a dead `skip` inside `imports`: an escape hatch that takes nothing
+out leaves the reader believing the run is smaller than it is.
+
+`ignore` is measured against the whole tracked tree, not against this run's
+changed files — not having been touched today does not make a pattern dead.
+Every entry carries a reason, because "this path cannot change behavior" is a
+claim and a claim wants an owner.
+
+### The cache
+
+Each unit's result is stored under a digest of **everything its test binary
+links**: its own files, everything it imports transitively, and what its own
+test files import. Selection and digest read the same set, so a unit that was
+not run can never be sitting on a stale green.
+
+Only green is stored. Which unit failed inside a batched run can only be read
+out of the runner's output, and that output is specific to one language; a red
+result simply runs again, which is what happens anyway while it is being fixed.
+
+A **full** run does not consult the cache at all. The reason it went full is
+that the effect of the change could not be computed — and an effect that cannot
+be computed cannot be looked up either: the thing that was touched may be in no
+unit's digest.
+
+The engine never adds `-count=1`. Doing so would defeat the runner's own cache,
+and for Go that cache is not a detail — see the measurement below.
+
+### A monorepo with more than one module
+
+`run.dir` launches the runner somewhere other than the run root, and unit names
+are then written relative to it:
+
+```json
+"run": { "dir": "vtcore", "command": ["go", "test"], "package": ["./{unit}"], "all": ["./..."] }
+```
+
+Units still carry their repository-relative names (`vtcore/internal/auth`), so
+the changed set and the graph stay in one coordinate system, and only the
+command line is rewritten. Every module gets its own `test` section, run with
+its own `-config`.
+
+### The measurement — and what it honestly shows
+
+Pilot: a production Go repository, one module of 85 packages, read-only, on a
+clone so the source tree was never written to. One leaf package touched.
+
+| Case | the runner alone | `x3 test` | ratio |
+|---|---|---|---|
+| cold build cache (a fresh CI machine) | 28.7 s | 24.0 s | 1.2× |
+| warm cache, one package touched | 12.3 s | 12.1 s | 1.0× |
+| nothing changed since the last run | 4.15 s | **0.34 s** | **12×** |
+| everything, `-count=1` | 17.8 s | same under `-full` | 1.0× |
+
+Selection: 1 unit touched → 17 of 85 affected.
+
+**Read the table honestly.** For a Go project, `go test ./...` is *already*
+incremental: the toolchain caches per package, at the same granularity this
+command selects at. So narrowing the package list buys almost nothing on top of
+it — the 12 s is compiling, linking and running the packages that genuinely
+changed, and both approaches pay it in full.
+
+The one place it wins outright is the run where nothing changed. There the
+runner still walks all 85 packages to decide it has nothing to do, and that
+walk is the part that grows with the number of packages. x3 answers it out of
+its own cache in a third of a second, and that answer does not get slower as the
+repository grows.
+
+For a runner **without** a cache of its own — most of them — the first three
+rows would look very different, and the selection is the whole win. The engine
+does not assume either case; it measures.
+
+### The selective control experiment
+
+A temporary repository with five units, wired the way the pilot is: `b` imports
+`a`; `kit` imports `a`; `c`'s **test** imports `kit`; `d` imports `c`. Six
+directions, one tree:
+
+1. touch `a` → `a`, `b`, `c`, `kit` run and **`d` does not** — a test-only
+   dependency did not travel to an importer;
+2. touch a fixture inside `a` → the same four, because a file with no unit of
+   its own belongs to the one above it;
+3. touch a file in no unit → **full run**, `orphan` named, exit 0: widening is
+   not a fault;
+4. the same file with a reason in `ignore` → nothing runs at all;
+5. an `ignore` pattern that matches nothing → exit 1 while the tests are green;
+6. run twice → the second run runs nothing and is served from the cache, then
+   the same file changed once more → it runs again.
+
+Direction 1 without direction 3 would leave a narrowing gate unable to prove it
+ever refuses to narrow; direction 6 without its second half would leave a cache
+that cannot be told from a gate that stopped measuring.
+
 ## `x3 record`
 
 Every other checker here reads the project **at rest**: files, imports, names,
@@ -3620,7 +3805,7 @@ One file per suite, JSON Lines, one interaction per line:
 {"n":1,"req":{"method":"POST","path":"/orders","query":{},"headers":{"Content-Type":["application/json"]},"body":{"name":"a cup"}},"res":{"status":201,"headers":{"Content-Type":["application/json"]},"body":{"id":"17","state":"created"}},"ms":34}
 ```
 
-One line per interaction is deliberate: a behaviour change then shows up as a
+One line per interaction is deliberate: a behavior change then shows up as a
 **diff a human can read** in review, which a single re-serialised document would
 not. `n` is the recorded order, and replay will follow it. Header and query
 values are kept as lists, because a header folded into one string comes back
@@ -3631,7 +3816,7 @@ rather than one changed string; anything else is stored as text. `ms` is written
 for the reader — nothing compares it.
 
 The ledger is a source file: it is committed, it is reviewed, and it is the
-thing that shrinks a pile of hand-written behaviour tests. Which is exactly why
+thing that shrinks a pile of hand-written behavior tests. Which is exactly why
 nothing secret may reach it.
 
 ### Redaction happens before the disk
@@ -3642,7 +3827,7 @@ afterwards. Three layers run over every interaction, and the first two need no
 configuration at all:
 
 1. **Credential headers**, always: `Authorization`, `Cookie`, `Set-Cookie`,
-   `Proxy-Authorization`. What they carry is identity, not behaviour.
+   `Proxy-Authorization`. What they carry is identity, not behavior.
 2. **The `secrets` pattern set** — the same patterns `x3 secrets` searches the
    source with, applied to every recorded value.
 3. **The project's own field paths**, declared under `record.redact`.
@@ -3695,7 +3880,7 @@ rest) are neither forwarded nor recorded: the ledger holds the request as it was
 the application.
 
 When the target does not answer, the client is told so with `502` and **no line
-is written**. There is no behaviour to record — that answer came from the proxy,
+is written**. There is no behavior to record — that answer came from the proxy,
 not from the application.
 
 ### The control experiment
@@ -3710,7 +3895,7 @@ well.
 
 ## `x3 replay`
 
-`record` writes a run down; this one sends it again and compares. The behaviour
+`record` writes a run down; this one sends it again and compares. The behavior
 test is not a file somebody wrote — it is a recording the machine took.
 
 ```
@@ -3766,7 +3951,7 @@ DIFF 2 res.body.created_at: kind_differs
 ```
 
 `headers` lists the response headers that take part; it defaults to
-`Content-Type`, because the shape of a body is behaviour while `Date` and
+`Content-Type`, because the shape of a body is behavior while `Date` and
 `Content-Length` are not. This is the one place where the comparison is opt-in
 rather than fail-closed, and the reason is that a full header comparison is red
 on every run — a gate that is always red is a gate somebody switches off.
@@ -3778,7 +3963,7 @@ reason — and an exemption that silenced nothing is **red**:
 
 ```json
 { "replay": { "ignore": [ { "path": "res.headers.X-Request-Id",
-                            "reason": "per-request id, not behaviour" } ] } }
+                            "reason": "per-request id, not behavior" } ] } }
 ```
 
 ```
@@ -3872,7 +4057,7 @@ know how, and a wrong guess would be worse than the two lines of script.
 
 A masked value is not sent to the application. `<redacted:credential-header>` as
 an `Authorization` header would arrive as a real credential and come back `401`,
-and a reader would file an identity error as a behaviour change. Those values
+and a reader would file an identity error as a behavior change. Those values
 are counted instead, and the count is on the last line of every run:
 
 ```
@@ -3912,7 +4097,7 @@ in recorded order - so an application that calls the same endpoint twice gets
 the first answer first.
 
 A call the ledger never saw is refused with `502` and counted. That is the point
-of the mode: during a replay, a *new* outbound call is new behaviour, and a
+of the mode: during a replay, a *new* outbound call is new behavior, and a
 proxy that quietly let it through would hide exactly what the replay is for. The
 command exits `1` when the count is above zero.
 
@@ -3994,7 +4179,7 @@ x3 guard -skip slow -- go test ./...  # everything except the slow ones
 
 | Written | What runs |
 |---|---|
-| neither flag | **every guard in the file** — the behaviour a project already had, unchanged |
+| neither flag | **every guard in the file** — the behavior a project already had, unchanged |
 | `-only a,b` | guards carrying `a` or `b`, **plus every guard with no tags at all** |
 | `-skip a` | everything except the guards carrying `a` |
 | both | `-skip` wins on a guard that matches both |
@@ -5410,7 +5595,7 @@ sales page.
   declaration that returns nothing is red rather than callable, because there
   would be nothing to compare; the receiver an example passes in is not read
   back out after the call.
-- **Only one of the four components exists as behaviour.** Recorder and Ledger
+- **Only one of the four components exists as behavior.** Recorder and Ledger
   are interfaces in `internal/engine` with no implementation, so the "nothing
   unchanged is ever re-checked" property described in the README is not real
   yet. Live guards are outside that picture: they check the environment, and
@@ -5473,4 +5658,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.48.0 capabilities=e597037291412398a214bb2ac38b07ade5cb14ccc42c0aa42d4dddd79a83cb5f template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.49.0 capabilities=6f3f7d713feaf4f4b044a0cf0d2550745614ff7c767517d2f98ba1be048eaacc template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
