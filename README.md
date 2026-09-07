@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.40.0`**
+**Current version: `v0.41.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `3bc983cbd5da0b492bc3f8bf6494591cae9681431e94822aeb9b7455050a2b5f` |
-| `x3-linux-amd64` | linux/amd64 | 13 MB | `0065fc0833347ff532ff62c1f79425ebc9d8ed651f701d988db972db155d48ba` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `a50f31162a7125b82b0f4e49fc4a119bb1f82a0b3113d187ba0c5395b68b0190` |
+| `x3-linux-amd64` | linux/amd64 | 13 MB | `6d744c52ec3e90991b34c40dca8e7157fb8401e8de0b7cb1d650258cae24976e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -2353,6 +2353,32 @@ Three of them read the **tree**, because the proof is a file:
 | `pattern` | `sources`, `match` | `match` is found in any file under `sources` |
 | `absent` | `sources`, `match` | `match` is found **nowhere** under `sources` |
 
+`match` is a regular expression read against the **whole file**, and its `^`
+and `$` bind to a **line**, not to the file. A criterion is written about a line
+- "an import that starts the line", "a setting that ends it" - so that is what
+the two signs mean:
+
+| The pattern | Holds when |
+|---|---|
+| `^func main` | some line in the file starts with `func main` |
+| `\Apackage ` | the **file** starts with `package ` |
+| `(?-m)^package ` | the same thing, said by turning the mode off |
+
+Nothing is lost by this: `\A` and `\z` always mean the ends of the file, and
+`(?-m)` turns line mode off for the rest of the pattern. What is gained is that
+the common intent is the default. Read the other way, `^...$` matches almost
+nothing in a file of many lines - a `pattern` criterion goes red over an absence
+that is not there, and an `absent` criterion goes **green without measuring
+anything**, which is the worse of the two because nobody looks at green.
+
+A criterion whose answer depends on that reading says so on its own line:
+
+```
+unmet: absent "^the parser is here$" in PROOF.md - ^ and $ read a line here,
+       not the whole file; read the other way this criterion would have
+       answered the other way
+```
+
 `absent` is the one that makes deletion provable: "the old call site is gone"
 is exactly the sentence that becomes true when that work finishes, and nothing
 else in the engine can state it.
@@ -2552,6 +2578,17 @@ into a configuration file.
 | `command` | arguments appended to `prefix` |
 | `manual` | who looks, the separator, what they must see |
 
+The place and the expression are separated by the first space, so a path that
+carries one is written in quotes and stays a single piece:
+
+```
+criterion: contains "docs/design notes/READER.md" the parser is here
+```
+
+A quote that never closes is a **configuration error** on that line, not a path
+quietly split in two. Split, the criterion would measure a place that does not
+exist, never hold, and never say why.
+
 A kind declaration is checked the same way a criterion is: a `prefix` on a
 `file` kind, or a `dsnEnv` on a `command`, is refused rather than ignored.
 
@@ -2564,6 +2601,37 @@ A kind declaration is checked the same way a criterion is: a `prefix` on a
 
 The second is the quiet one. The work was written down and it is in no list, so
 nobody will ever come looking for it; a loud error is the only way it surfaces.
+
+#### Regions that are not work
+
+Documents explain themselves. A note that keeps a work list usually also shows
+**how an item is written** - a filled-in example, a template to copy, a quoted
+passage - and those examples are drawn with the same checkboxes as the work.
+Collected, they inflate the list with its own illustrations: the count reports
+work nobody has, and the reds it produces belong to no one.
+
+Fenced code blocks are skipped by the engine, because that is Markdown's own
+writing. Every other "this part is an example" marker is written differently in
+every project, so it is **declared**, not built in:
+
+```json
+"markdown": {
+  "examples": [
+    { "open": "^<!-- EXAMPLE -->", "close": "^<!-- /EXAMPLE -->" }
+  ]
+}
+```
+
+`open` and `close` are patterns matched against a line; both are required, and
+the marker lines themselves are skipped along with everything between them.
+
+Because this is an escape hatch, it obeys the law every escape hatch in the
+engine obeys - it may not go stale in silence:
+
+| Code | The declaration it refuses |
+|---|---|
+| `example_unclosed` | a region opens in a document and never closes; every box below it would leave the list without a word |
+| `dead_example` | a declared region opens in no document at all - a marker that skips nothing, written by someone who believes it skips something |
 
 ### A list that is adopted gradually
 
@@ -3425,7 +3493,7 @@ types cannot.
 |---|---|---|
 | `dsnEnv` | yes | **name** of the environment variable holding the DSN. The DSN itself never appears in the file |
 | `query` | yes | the query; its first row, first column is the observed value |
-| `driver` | no | `database/sql` driver name; defaults to `pgx` |
+| `driver` | no | `database/sql` driver name; defaults to `pgx`. A name this binary has not registered is a **configuration error** (exit `2`) - the run never opens |
 | `equals` / `contains` | one of them | what the observed value must be |
 
 `equals` or `contains` is mandatory here: a query with no expectation asserts
@@ -4127,7 +4195,7 @@ the gate observable from outside, and `check.ps1` measures exactly it.
 | Field | Required | Meaning |
 |---|---|---|
 | `adminDsnEnv` | yes | **name** of the environment variable holding the maintenance DSN. Point it at a maintenance database (`postgres`), never at the template: a template with an open connection cannot be cloned |
-| `driver` | no | `database/sql` driver name; defaults to `pgx` |
+| `driver` | no | `database/sql` driver name; defaults to `pgx`. A name this binary has not registered is a **configuration error** (exit `2`) - the run never opens |
 | `prefix` | no | name prefix, defaults to `x3test_`. It is also the **authority boundary**: nothing outside it is listed or dropped, so an empty prefix is rejected |
 | `template` | no | template database to clone. Without it an empty database is created and the migration hook does the work |
 | `dsnEnv` | no | name of the variable the new DSN is exported as, for the hook and for `run`; defaults to `X3_TESTDB_DSN` |
@@ -4696,4 +4764,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.40.0 capabilities=3a4238293b211fa6d3284b51ef096dd4d6ac5eb4fb039d5d122dec85beaa6390 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.41.0 capabilities=b961f0c25f99aeb78a9002c0cf6418eeae1043fa99a3288a1751054dd2031377 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
