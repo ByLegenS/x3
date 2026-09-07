@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.31.0`**
+**Current version: `v0.32.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `c71a073e033412558bdd83d40a3f596c87d26a270ba40c9156afb38af49e6bdd` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `3a34427395b5c2716ba0e56455e8b04b18cb002b18d911ce011fb513e07f2f70` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `09411ba5edd55ff8e14f6353a6d236861280219881b13705447acd49bf3c4065` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `0e40e1632f94a60e01bf9e9ab9f97eec3ecb9387295cbc22ddfa4c7245db447e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -918,6 +918,52 @@ Two boundaries the engine enforces on its own:
   or the same package, the run stops with exit `2`. A package that is silently
   counted on the wrong side is worse than a package with no component.
 
+### Narrowing the source set
+
+`sources` says which files a rule reads. `exclude` takes files back out of it,
+and it is read **first**: an exclusion only ever narrows a scope, it can never
+widen one. Both live at the top of the `arch` section, where every rule inherits
+them, and on a single rule, where the rule's own list **replaces** the inherited
+one rather than adding to it — otherwise a rule could never escape a pattern
+declared above it.
+
+```json
+{
+  "arch": {
+    "sources": ["**/*.go"],
+    "exclude": ["**/*_test.go"],
+    "components": { "core": ["internal/core/**"], "modules": ["internal/modules/*/**"] },
+    "rules": [
+      { "name": "core-must-not-know-modules",
+        "kind": "deps", "match": "import",
+        "from": "core", "deny": ["modules"] }
+    ]
+  }
+}
+```
+
+Tests are the usual reason: a `_test.go` file next to the core is allowed to
+reach for a module the core itself must not know. Without an exclusion the only
+way to keep that green is to weaken the rule for everybody.
+
+An exclusion is an **escape hatch**, so the engine holds it to the same law it
+holds exemptions to:
+
+| Written | Result |
+|---|---|
+| a pattern that takes at least one file out of `sources` | it applies |
+| a pattern that takes **no** file out of `sources` | `dead_exclusion`, red — it excludes nothing, and after the next rename it will go on excluding nothing |
+| a pattern that takes **every** file out | `empty_scope`, red — a rule that reads nothing proves nothing |
+| `"exclude": []`, or a blank pattern | the run stops with exit `2` before any rule executes |
+
+An empty list is refused rather than ignored because it cannot be told apart
+from an absent one: whoever wrote it meant "no exclusions here" and would have
+silently inherited the list above instead.
+
+This is not `surface.exclude`, which belongs to an `exposure` rule and drops
+paths from the **surface being watched**. `exclude` at the rule level drops
+files from what the rule **reads at all**.
+
 ### The two rule forms
 
 Every rule asks one of two questions, and mixing them is refused.
@@ -1343,6 +1389,7 @@ one finding, named.
 | `except` | no | `self` only, next to `from` + `deny` |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
+| `exclude` | no | files taken back out of `sources`; defaults to `arch.exclude`. A rule's own list replaces the inherited one. See [Narrowing the source set](#narrowing-the-source-set) |
 
 Configuration is validated **strictly and up front**, as `live` already is: an
 unknown key, a key belonging to another kind, a missing required key, a
@@ -1457,6 +1504,7 @@ The `code` field is the stable part; the `message` text may be reworded.
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
 | `empty_scope` | every rule | a component the rule names, its own source set, or the field it follows, matched nothing |
 | `dead_exemption` | exemptions | an `allow:arch` that no violation needed, or one that binds to no import |
+| `dead_exclusion` | `exclude` | a pattern that takes no file out of the rule's sources |
 
 The remaining nine codes in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) belong to rule
 kinds that do not exist yet.
@@ -1480,6 +1528,10 @@ kinds that do not exist yet.
 | `testdata/duplication-green` / `-red` with theirs | `0` / `1` — the copy carries an extra comment and an extra blank line, so a run that only compared raw text would miss it |
 | `testdata/vocabulary-green` / `-red` with theirs | `0` / `1` — two findings, one in an identifier and one in a `.json` file, while the same word in a comment stays green |
 | `testdata/consistency-green` / `-red` with theirs | `0` / `1` — a code the dictionary lost, named in the finding |
+| `testdata/exclude` with `arch-exclude-red.json` | `1` — the rule reads the test file and the planted import is red |
+| `testdata/exclude` with `arch-exclude-green.json` | `0` — the same tree, with `**/*_test.go` excluded |
+| `testdata/exclude` with `arch-exclude-dead.json` | `1` — **two** findings: the pattern that excludes nothing, and the import it therefore failed to hide |
+| `testdata/exclude` with `arch-exclude-all.json` | `1` — `**/*.go` empties the rule; both components report `empty_scope` |
 | this repository with its own `x3.json` | `0` |
 | the same three rules split across three files | `1` — the parts carry the rules |
 
@@ -3542,4 +3594,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.31.0 capabilities=65b2d6b5538c3dcc8d22a76988bcc0adfebaab0827197abeb13d90683e3cccb9 template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.32.0 capabilities=fddfec2728965886c9cb2f5ca756829b8e8f28af6f4b2b74d329669c31a1458b template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
