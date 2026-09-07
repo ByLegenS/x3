@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.47.0`**
+**Current version: `v0.48.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `fcecd4d7d1cc4ad48621a8ab01dcce39d31caa6d42ee292fe8a7a4817bb00b39` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `58924f232971904f3c99f10df5d4ada21b7afc726f362a0220d0ce4cb90423fd` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `98cdd116729fb962cca6a2c2364b557500acd779ae5dab64c86404b61626e50a` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `57722248ec5ca0a30a0f53bf6b9274792c0c730802d6af490b57c954cc97d502` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -1662,6 +1662,58 @@ nothing inside the block, the value comes out empty and is reported: a pattern
 that read a block and could not take anything out of it must not shrink the set
 quietly.
 
+**Prose is not code.** A rule usually asks *"does the code know this name?"*,
+and a name written in a comment never runs. Counting it turns the rule into
+something worse than useless: the cheapest way to go green becomes deleting a
+correct explanation, so the gate starts rewarding the opposite of what it exists
+for. `comments: "exempt"` makes the pattern read code only — comment text is
+blanked before `select` runs (blanked, not deleted, so every line keeps its
+number and `^`/`$` still bind to the line they always did).
+
+```json
+"left": {
+  "from": "regex",
+  "select": "(shared_[a-z_]+)",
+  "comments": "exempt"
+}
+```
+
+The syntax comes from the file's extension, and the built-in table knows the
+usual languages. What it deliberately does **not** know is which *other*
+language a string carries. A raw string holding SQL carries SQL's comments too,
+and a `--` line inside it runs exactly as often as a `//` line does — never.
+Whether a backtick in this project holds SQL, HTML or nothing at all is the
+project's knowledge, not the language's, so it is declared rather than guessed:
+
+```json
+"comments": "exempt",
+"syntax": {
+  ".go": {
+    "line": ["//"],
+    "block": [{ "open": "/*", "close": "*/" }],
+    "quoted": [
+      { "open": "\"", "close": "\"", "escape": "\\" },
+      { "open": "`",  "close": "`", "line": ["--"] }
+    ]
+  }
+}
+```
+
+`quoted` is where comments **stop**: without it, the `//` in `"https://x"` would
+end the line. `quoted[].line` is where a comment starts **again**, inside that
+string, in the embedded language. The closing delimiter always wins over an
+embedded comment — the compiler reading the file does not know the embedded
+language either. A declaration **replaces** the built-in entry for that
+extension rather than merging with it: inheriting half a language's syntax would
+make it unreadable which half is in force. An extension nobody declared and the
+table does not know stops the run with exit `2`; saying "this is code" about a
+language whose comments are unknown is pretending to cut without cutting.
+
+`comments` belongs to the `regex` extractor. The `go` reader already works from
+a syntax tree and never sees a comment, and JSON has none; writing `syntax`
+without `comments: "exempt"` is refused, because a declaration that changes
+nothing convinces its author otherwise.
+
 **A value that is not a subject.** An extractor sees every text its pattern
 matches, and not all of them are members of the set. A list of path constants
 also holds `"logs/*.txt"` — a glob, which names a shape and not a target — and
@@ -1821,6 +1873,8 @@ silencer, and the next person to read it cannot tell which entries still matter.
 | `left` + `compare: left-exists-on-disk` (+ `absent`) | consistency | one set read as paths, checked against the file system, and the paths meant to be missing with the reason each one is |
 | `left.parts` + `left.join` | consistency | a value spelled in pieces: the pattern that captures one piece, and the separator that puts them back together |
 | `left.skip` / `right.skip` | consistency | values the extractor must not put in the set: a **pattern → reason** map read against the value itself. A pattern that sifts nothing is `dead_filter` |
+| `left.comments` / `right.comments` | consistency | `checked` (**default**) or `exempt`: whether the pattern reads comment text as well as code |
+| `left.syntax` / `right.syntax` | consistency | per-extension comment syntax, replacing the built-in entry; `quoted[].line` is the comment of a language embedded in a string |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `relativeTo` | no | `left-exists-on-disk` only: `repo` (**default**) or `source`, the directory of the file that carries the value |
 | `minimum` | no | the fewest subjects the rule must see; below it the run is `scope_below_minimum`. No `minimum` means no floor |
@@ -2006,6 +2060,9 @@ kinds that do not exist yet.
 | `testdata/skip` with `arch-skip-off.json` | `1` — read unfiltered, a glob and a scratch path are looked for on disk: two `missing_target` findings about things the rule cannot measure |
 | `testdata/skip` with `arch-skip-on.json` | `0` — the same tree with `skip`: one value is left, and it is there |
 | `testdata/skip` with `arch-skip-dead.json` | `1` — the same filter plus a pattern that matches no value: `dead_filter` |
+| `testdata/prose` with `arch-prose-read.json` | `1` — three findings: a name in a line comment, one in a block comment, and one in the SQL comment inside a raw string. None of them runs |
+| `testdata/prose` with `arch-prose-exempt.json` | `1` — the language's own comments are gone and **one** finding is left: the embedded SQL comment, which Go's syntax has no reason to know about |
+| `testdata/prose` with `arch-prose-embedded.json` | `0` — the same tree with the raw string's embedded `--` declared: only the call that really runs is left, and it is on the declared surface |
 | `testdata/relative` with `arch-relative-source.json` | `0` — the value is resolved against the file that carries it and the target is there |
 | `testdata/relative` with `arch-relative-repo.json` | `1` — the same tree read from the repository root: `missing_target` on a file that never moved |
 | `testdata/ondisk` with `arch-minimum-met.json` | `0` — the scan reached its declared floor |
@@ -2075,7 +2132,9 @@ group — so a baseline can freeze anything a set can be read from. `file` is
 where the frozen set lives; the repository keeps it, and a reviewer reads it. It
 carries the extractor's value filter too: `skip` keeps a value out of the
 measurement before it can ever be frozen, and a `skip` pattern that sifts
-nothing is `dead_filter` and red here as well.
+nothing is `dead_filter` and red here as well. The
+`comments` and `syntax` fields travel with it as well, so a baseline can be
+measured over code alone.
 
 ### The direction is the whole point
 
@@ -5414,4 +5473,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.47.0 capabilities=6c0ef84b5c9aac2c050cd27a55d05e2dec09d519b46394ef42253ebdd95dcdac template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.48.0 capabilities=e597037291412398a214bb2ac38b07ade5cb14ccc42c0aa42d4dddd79a83cb5f template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
