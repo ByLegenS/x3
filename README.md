@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.39.0`**
+**Current version: `v0.40.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `73cdea469e2a7c276dcaaaa11ac3378c69ac95169554e725823e13c72ae21d39` |
-| `x3-linux-amd64` | linux/amd64 | 13 MB | `a42505dcd6238c8b17f62d4f5d186ff94a441db7a86567736ac112847265b4dc` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `3bc983cbd5da0b492bc3f8bf6494591cae9681431e94822aeb9b7455050a2b5f` |
+| `x3-linux-amd64` | linux/amd64 | 13 MB | `0065fc0833347ff532ff62c1f79425ebc9d8ed651f701d988db972db155d48ba` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -194,7 +194,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink, refuses to record growth, and measures again so that its exit code still means "the tree is green" |
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
-| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show; criteria read the tree (`file`, `pattern`, `absent`), the running system (`sql`, `command`) or a recorded sign-off (`manual`). The list is either one machine-written file or the project's own documents — Markdown checkboxes, with as many states as the project declares and the record each state must carry — and a baseline lets a list be adopted gradually without ever freezing what a box claims |
+| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show; criteria read the tree (`file`, `pattern`, `absent`), the running system (`sql`, `command`) or a recorded sign-off (`manual`). A command criterion states what its **output** must and must not say, because an exit code alone cannot tell work that passed from work that never ran. The list is either one machine-written file or the project's own documents — Markdown checkboxes, with as many states as the project declares and the record each state must carry, a scope that can be narrowed, and a line that says the work moved elsewhere — and a baseline lets a list be adopted gradually without ever freezing what a box claims. A separate rule looks for criteria that stopped measuring: one proof shared by many items, a target the project carries in every state, an item that searches its own document |
 | **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
 | **Syntax** (`internal/syntax`) | **implemented** - `x3 syntax` parses the files no compiler reads (a built-in JSON parser, or a parser the project names), and refuses to go green when the parser it was told to use is not installed |
 | **Lane discipline** (`internal/scope`) | **implemented** - `x3 scope` reads what a change touched and turns a commit red when it enters a declared lane and also reaches outside it; crossing needs a reason in the message |
@@ -2363,13 +2363,20 @@ appears but when something starts behaving:
 | `when` | Fields | Holds when |
 |---|---|---|
 | `sql` | `dsnEnv`, `query`, `equals`, `driver`, `timeoutMs` | the query's first cell equals `equals` |
-| `command` | `command`, `args`, `timeoutMs` | the command exits `0` |
+| `command` | `command`, `args`, `output`, `timeoutMs` | the command exits `0` **and** its output meets `output` |
 
 `sql` is how "the migration ran" and "no row is left in the old state" become
 measurable; `command` is how "the test suite is green" does. `equals` is
 required, because a query that only has to *run* is answered by an empty table.
 The DSN is read from the environment by name and never written in the list.
 `timeoutMs` defaults to 60 seconds — a criterion may run a whole test suite.
+
+`driver` names a database driver this binary has registered, and a name it does
+not know is a **configuration error** (exit `2`), not a criterion that quietly
+could not be measured. The difference matters: a misspelled driver name would
+otherwise turn every query in the list into "the query did not run" — hundreds
+of criteria unmeasured, and not one line of warning anywhere. The error prints
+the names that are registered.
 
 The last one is for work no machine can see:
 
@@ -2388,6 +2395,43 @@ that grows is a list drifting back to nobody checking.
 Fields belong to exactly one criterion and writing a foreign one is refused. A
 `match` on a `sql` criterion would otherwise be ignored in silence, and the
 person who wrote it would believe the query was filtered.
+
+#### The exit code is half a command criterion
+
+A command that finds nothing to do usually exits `0`. A test runner asked for a
+test that was never written says so and exits `0`; a suite whose every case
+skipped itself because a resource was missing prints `PASS` and exits `0`. Both
+are read as "the work is finished", which means **writing the criterion is
+enough to close the box** — the work itself is optional.
+
+So a `command` criterion may state what the output has to say:
+
+```json
+{ "when": "command", "command": "go",
+  "args": ["test", "-v", "./..."],
+  "output": {
+    "must": ["--- PASS"],
+    "mustNot": ["no tests to run", "no test files"],
+    "retry": { "when": ["no tests to run", "no test files"],
+               "args": ["-tags", "integration"] } } }
+```
+
+`must` and `mustNot` are plain substrings searched in the command's output,
+both streams together — a runner's "I found nothing to run" is usually on
+stderr, and an expectation that reads only stdout never sees it. Every `must`
+has to appear and no `mustNot` may; the exit code still has to be `0`. The
+reason a criterion failed is printed beside it, so "the output never says
+`--- PASS`" is what the person fixing it reads.
+
+`retry` runs the same criterion **once** more with extra arguments appended,
+and only when the first output says one of `when`. The second run *replaces*
+the first — a rule of "either attempt may hold" would be an escape hatch — and
+its output faces the same `must` and `mustNot`. This is how a project whose
+tests hide behind a build tag states "look again with the tag on" without the
+engine knowing what a build tag is.
+
+Nothing here is specific to any runner: no command name, no output sentence and
+no flag is compiled in. The project writes what its own tools print.
 
 #### A criterion that cannot run
 
@@ -2422,9 +2466,13 @@ two states. `sources` reads the list that way:
         "exists":  { "when": "file" },
         "contains":{ "when": "pattern" },
         "gone":    { "when": "absent" },
-        "asks":    { "when": "sql", "dsnEnv": "TEST_DSN", "driver": "postgres" },
-        "passes":  { "when": "command", "prefix": ["go", "test"] },
-        "by-hand": { "when": "manual", "separator": " - " }
+        "asks":    { "when": "sql", "dsnEnv": "TEST_DSN", "driver": "pgx" },
+        "passes":  { "when": "command", "prefix": ["go", "test", "-v"],
+                     "output": { "must": ["--- PASS"],
+                                 "mustNot": ["no tests to run", "no test files"],
+                                 "retry": { "when": ["no tests to run", "no test files"],
+                                            "args": ["-tags", "integration"] } } },
+        "by-hand": { "when": "manual", "separator": " - ", "signed": " - signed " }
       } },
       "minLength": 4
     } } }
@@ -2542,6 +2590,8 @@ What may be frozen is **how the list is written today**:
 | `box_unlisted` | a checkbox drawn in a form nothing collects |
 | `box_unknown_state` | a mark from before the states were declared |
 | `box_owner` | a manual criterion left on an owner the list may not wait on |
+| `box_moved` | a move written down before the place it names existed |
+| `box_suspect` | a criterion that stopped measuring; the debt is the writing, not the claim |
 
 What may **never** be frozen is what the list *claims*:
 
@@ -2550,13 +2600,125 @@ What may **never** be frozen is what the list *claims*:
 | `box_finished` | freezing it lets finished work sit open forever |
 | `box_unproven` | freezing it makes closing without proof free |
 | `empty_scope` | freezing it paints a gate that measures nothing green |
-| `dead_state`, `dead_baseline` | the gate's own health, never the list's debt |
+| `dead_state`, `dead_baseline`, `dead_exclusion` | the gate's own health, never the list's debt |
 
 That split is the whole point. A baseline here buys time to write the criteria;
 it does not buy permission to stop asking the two questions. The control
 experiment proves it in the same run: with the baseline in place the uncovered
 items are silent **and** `summary.findings` is still zero only because no box
 lies about its state.
+
+### Work that moved rather than finished
+
+An item is sometimes closed because it was written down somewhere else. The
+work did not finish; its **place** changed, and its criterion went with it. If
+the gate kept measuring that criterion it would say "closed and unproven"
+forever, and it would be wrong every time.
+
+```json
+{ "boxes": { "markdown": {
+    "moved": { "match": "^\\s*moved to `([^`]+)`\\s*$", "roots": ["docs"] } } } }
+```
+
+```markdown
+- [x] the reader that took the old format
+      moved to `docs/FORMAT.md`
+```
+
+An item whose body carries that line is outside **both** directions: its
+criteria are not run, and it is not `box_uncovered` either. The pattern is the
+project's own — how a document says "this moved" is that document's language,
+not the engine's — and its **first capture group** is where the work went.
+
+This does not loosen the two-direction law; it names a case that law never
+covered. A moved item is not closed work, so asking closed work's question of
+it produces a red nobody can fix. Everything else stays exactly as it was: an
+item that is genuinely done still needs its proof.
+
+It is not free, either. Saying "moved" would otherwise be the cheapest way to
+silence a criterion, so the place the work went to has to **exist**: `roots`
+lists where to look for it (the scanned root is always tried first), and a
+target nothing can be found at is `box_moved` — a move nobody can follow is a
+loss, not a move. Every run prints how many items moved, because a quietly
+growing list of moves is the long way out of a gate.
+
+A marker that matches nothing is **not** red, and that is the same limit
+`manual.denyBy` carries: a move nobody wrote silences nothing, so the failure
+is loud rather than blind — the item keeps its criteria and the gate keeps
+asking. An exemption is only dangerous when it succeeds.
+
+### A scope that can be narrowed
+
+`sources` says which documents hold the list. On its own that is a blunt
+instrument: a new folder under the same tree is collected whether anyone meant
+it to be or not, and a folder that must stay out cannot be taken out.
+
+```json
+{ "boxes": { "sources": ["docs/**/*.md"], "exclude": ["docs/external/**"] } }
+```
+
+The law is `arch`'s and `freeze`'s, shared in one place: a pattern that takes no
+document out of the scope is `dead_exclusion`, an `exclude` written as an empty
+list is refused (it cannot be told from an unwritten one), and a scope that ends
+up holding no box at all is `empty_scope`. `exclude` narrows documents, so it
+may not be written beside `file` — a machine-written list has no scope to narrow.
+
+### A document that can carry a signature
+
+A `manual` criterion holds when `signed` records that the looking happened. In
+a document the criterion is one line of prose, and until now that line had a
+place for who looks and what they see but **nowhere to write the signature** —
+which meant a project keeping its list in documents could never close a manual
+item at all. Every one of them stayed `box_unproven`, forever.
+
+```json
+{ "by-hand": { "when": "manual", "separator": " - ", "signed": " - signed " } }
+```
+
+```markdown
+- [x] the installer works on a clean machine
+      criterion: by-hand the release owner - the installer runs on a clean machine - signed 2026-09-07
+```
+
+A `command` kind carries its `output` expectation the same way, and for the same
+reason `prefix` lives there: what a runner prints is a property of that runner,
+not of the item. Writing it beside a hundred checkboxes means updating it in
+ninety-nine places on the day the runner changes its wording.
+
+`separator` splits who looks from what they see; `signed` splits what they see
+from the record that they did. Both markers are the project's own words. If the
+kind declares no `signed` marker, a manual criterion in a document can never
+hold — which is correct rather than convenient: an unsigned manual criterion
+does not close a box in any list form.
+
+### A criterion that stopped measuring
+
+The quietest way a work list dies is not boxes being closed wrongly. It is
+criteria that cannot fail. Three writings do it, all three go green, and none of
+them measures anything:
+
+```json
+{ "boxes": { "suspect": {
+    "repeat": 3,
+    "always": ["go.mod", "README.md"],
+    "selfProof": true } } }
+```
+
+| Field | Finds |
+|---|---|
+| `repeat` | one criterion carried by that many items or more — a single proof cannot be the end of many different pieces of work |
+| `always` | a criterion pointing at a path the project carries in **every** state; a criterion that cannot fail is not a criterion |
+| `selfProof` | a criterion whose scope is the very document the item is written in — writing the sentence would close the box |
+
+Each is `box_suspect`. `repeat` counts distinct items, not lines, and skips
+`manual` criteria: asking the same person to see the same thing twice is the
+nature of that work, not a copy. `selfProof` asks the scope matcher rather than
+comparing names, so it sees a glob that reaches the document as clearly as a
+path that names it.
+
+The section is optional and, when written, must ask for at least one of the
+three — a rule that asks nothing cannot be told from an unwritten one. `repeat`
+below `2` is refused, because at `1` every criterion in the list is a repeat.
 
 ### Who a manual criterion may wait on
 
@@ -2623,6 +2785,32 @@ The sixth row is the one that matters most: one line of configuration decides
 whether an in-between state goes red, and nothing else in the tree changes. The
 last row is the other one — it proves the baseline silenced the debt without
 silencing the two questions.
+
+A third step, `boxes criterion fidelity control experiment`, asks whether the
+criteria themselves still measure. Every red in it has a **control**: take the
+line that produced it out of the configuration and the same tree goes green
+again, which is the only way to prove what the red was about.
+
+| Run | Wants |
+|---|---|
+| a test that runs and passes | `0` |
+| a test that **skipped itself** — prints `PASS`, exits `0` | `1` |
+| a test that was **never written** — exits `0` | `1` |
+| **the same run** measured by the exit code alone, no `output` | `0` |
+| a test behind a build tag, with a second attempt / without one | `0` / `1` |
+| a `driver` name this binary never registered | `2` |
+| moved work, with the rule / without it / moved to nowhere | `0` / `1` / `1` |
+| the moved item is counted: `summary.moved` is 1 | — |
+| a narrowed scope / the same tree unnarrowed / an exclusion that takes nothing out | `0` / `1` / `1` |
+| a signature the document can carry / nowhere to sign | `0` / `1` |
+| criteria that cannot fail / the same tree without the rule | `1` / `0` |
+| a document list stating what its runner must print / stating nothing | `1` / `0` |
+
+The fourth row is the one worth reading twice. It is the same command, the same
+tree and the same zero exit code as the row above it, and it is **green** — that
+is the hole, kept in the experiment on purpose so the rows around it prove what
+closes it. A gate whose green cannot be reproduced without the rule has not been
+tested; it has been trusted.
 
 ## `x3 syntax`
 
@@ -4367,6 +4555,25 @@ sales page.
   term) is red until it is allow-listed, and a foreign word that happens to be
   an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
   most of the second case.
+- **An output expectation is a substring, not an understanding.** `must` and
+  `mustNot` search text. A runner that changes its wording in a new version
+  turns a green criterion red, and one that prints the expected sentence while
+  failing at something else stays green. The exit code is still asked for; the
+  expectation is the half the exit code cannot see, not a replacement for
+  reading what a tool actually did.
+- **A command criterion runs where the gate runs.** Neither `command` nor its
+  `retry` changes directory: the working directory is the process's, not the
+  scanned tree's, so a criterion meant for another tree has to say so in its own
+  arguments.
+- **A move is trusted once its target exists.** `moved` checks that the place
+  named is *there*, not that the work is written down in it — a document that
+  exists and never mentions the item passes. The check catches the move to
+  nowhere, which is the failure that actually happens; it cannot read intent.
+- **`suspect` finds shapes, not lies.** A criterion legitimately shared by two
+  items trips `repeat`, and a criterion pointing at a file that is present
+  today but need not be tomorrow is invisible to `always`. It names three
+  writings that cannot measure; it cannot tell a weak criterion from a strong
+  one.
 - **A lane is paths, not intent.** `scope` can see that a commit touched two
   places; it cannot see whether the second one had to move with the first.
   That judgement is the reasoned crossing, and the gate only insists the
@@ -4489,4 +4696,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.39.0 capabilities=345f1043c434eccebe403549dfddaf6e3b13a54129908fbee9275de40d931278 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.40.0 capabilities=3a4238293b211fa6d3284b51ef096dd4d6ac5eb4fb039d5d122dec85beaa6390 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
