@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.46.0`**
+**Current version: `v0.47.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `dbd5c6e2f2c7b5fac8a372c797496a7d8c87bdd6d9241a4054f58c1663d7bc23` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `3ed22f81a10ebbdb4cae08ba0293b31158c768119d155d769da7bf16a574714e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `fcecd4d7d1cc4ad48621a8ab01dcce39d31caa6d42ee292fe8a7a4817bb00b39` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `58924f232971904f3c99f10df5d4ada21b7afc726f362a0220d0ce4cb90423fd` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -1662,6 +1662,47 @@ nothing inside the block, the value comes out empty and is reported: a pattern
 that read a block and could not take anything out of it must not shrink the set
 quietly.
 
+**A value that is not a subject.** An extractor sees every text its pattern
+matches, and not all of them are members of the set. A list of path constants
+also holds `"logs/*.txt"` — a glob, which names a shape and not a target — and
+`"_tmp/scratch.sql"`, a scratch path that is deliberately absent. Read whole,
+both turn the rule red for something it was never able to measure, and a false
+red closes a gate as fast as a silent green does. `skip` is a
+**pattern → reason** map, and a value matching any of its patterns never enters
+the set:
+
+```json
+"left": {
+  "from": "regex",
+  "select": "\"([A-Za-z0-9_.*/-]+)\"",
+  "skip": {
+    "\*": "a glob names a shape, not a target that can be looked for",
+    "/_tmp/": "a scratch path is deliberately absent; the gate does not own it"
+  }
+}
+```
+
+The pattern is read against **the value**, not against a file, so `^` and `$`
+are the ends of the value; [line mode](#how-a-pattern-is-read) is not turned on
+here, because what is being matched is one token and not a document. That
+separation is what makes the filter expressible at all. RE2 has no look-behind,
+so *"capture this, unless it contains that"* cannot be folded into `select`, and
+folding it into `parts` drops the offending piece and leaves a path nobody ever
+wrote — `ops/_tmp/x.sql` comes out as `ops/x.sql`, which is a different file and
+may well exist.
+
+`skip` belongs to the extractor, not to the comparison, so each side carries its
+own: what is noise on the side read from source is not noise on the side read
+from a dictionary. It works wherever the extractor does, `freeze` baselines
+included.
+
+**Every pattern is judged against the whole set**, before anything is dropped.
+Two filters that both match the same value are therefore both alive — sifted in
+turn, whichever ran second would look dead. A filter that matches nothing is
+`dead_filter` and **red**, a reason is required, and a `skip` written as `{}`
+stops the run: a filter nobody explained is a set quietly shrunk, and a filter
+with nothing left to sift reads as though the set were still being narrowed.
+
 `compare` is `left-subset-of-right` (everything produced has a counterpart),
 `equals` (and nothing is declared that is never produced), or
 [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something)
@@ -1734,10 +1775,19 @@ measured, a temporary artefact of a control experiment, an output that is
 generated rather than committed. An exemption with no reason is refused —
 a silenced gate that nobody can explain later is worse than a red one.
 
-`absent` cannot be replaced by `exclude`, and the two are not the same axis:
-`exclude` narrows the **files that are read**, while `absent` excuses **a value
-that was read**. Dropping the file to excuse one of its paths would blind the
-rule to every other path in it.
+**Three escape hatches, three axes.** None of them stands in for another:
+
+| Hatch | What it takes out | What the value is | When it goes stale |
+|---|---|---|---|
+| `exclude` | the **file** that would have been read | never seen at all | `dead_exclusion` |
+| `skip` | a **value** that was read | not a subject; no verdict is reached about it | `dead_filter` |
+| `absent` | the **verdict** on a value | a subject, measured, and forgiven with a reason | `dead_exemption` |
+
+Dropping the file to excuse one of its paths would blind the rule to every other
+path in that file. Filtering a value that really is a subject would hide the day
+it goes missing: that is what `absent` is for, and it is also why `absent` can
+bite back when the path comes home while `skip` cannot — a value the filter
+removed is not measured, so there is no verdict to outlive.
 
 Two kinds of exemption die, and both are reported as `dead_exemption`:
 
@@ -1770,6 +1820,7 @@ silencer, and the next person to read it cannot tell which entries still matter.
 | `left` + `right` + `compare` | consistency | the two sets and how they must agree |
 | `left` + `compare: left-exists-on-disk` (+ `absent`) | consistency | one set read as paths, checked against the file system, and the paths meant to be missing with the reason each one is |
 | `left.parts` + `left.join` | consistency | a value spelled in pieces: the pattern that captures one piece, and the separator that puts them back together |
+| `left.skip` / `right.skip` | consistency | values the extractor must not put in the set: a **pattern → reason** map read against the value itself. A pattern that sifts nothing is `dead_filter` |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `relativeTo` | no | `left-exists-on-disk` only: `repo` (**default**) or `source`, the directory of the file that carries the value |
 | `minimum` | no | the fewest subjects the rule must see; below it the run is `scope_below_minimum`. No `minimum` means no floor |
@@ -1925,6 +1976,7 @@ The `code` field is the stable part; the `message` text may be reworded.
 | `scope_below_minimum` | every rule | the rule saw fewer subjects than its `minimum`; the scan shrank without anybody deleting it |
 | `dead_exemption` | exemptions, `absent` | an `allow:arch` that no violation needed or that binds to no import; an `absent` path that came back or that nothing names any more |
 | `dead_exclusion` | `exclude` | a pattern that takes no file out of the rule's sources |
+| `dead_filter` | `skip` | a pattern that sifts no value out of the set it filters |
 
 The remaining nine codes in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) belong to rule
 kinds that do not exist yet.
@@ -1951,6 +2003,9 @@ kinds that do not exist yet.
 | `testdata/ondisk` with `arch-ondisk-green.json` | `0` — one root is there, the other is written as `absent` with a reason |
 | `testdata/ondisk` with `arch-ondisk-red.json` | `1` — the same tree with no exemption: the moved root is `missing_target` |
 | `testdata/ondisk` with `arch-ondisk-dead.json` | `1` — two `dead_exemption` findings: one path came back, the other is named nowhere |
+| `testdata/skip` with `arch-skip-off.json` | `1` — read unfiltered, a glob and a scratch path are looked for on disk: two `missing_target` findings about things the rule cannot measure |
+| `testdata/skip` with `arch-skip-on.json` | `0` — the same tree with `skip`: one value is left, and it is there |
+| `testdata/skip` with `arch-skip-dead.json` | `1` — the same filter plus a pattern that matches no value: `dead_filter` |
 | `testdata/relative` with `arch-relative-source.json` | `0` — the value is resolved against the file that carries it and the target is there |
 | `testdata/relative` with `arch-relative-repo.json` | `1` — the same tree read from the repository root: `missing_target` on a file that never moved |
 | `testdata/ondisk` with `arch-minimum-met.json` | `0` — the scan reached its declared floor |
@@ -2017,7 +2072,10 @@ would be dead for the narrow ones, which is to say red.
 `set` is the same extractor the `consistency` rule uses — `go` (`exported`, or
 `const-set:<Type>`), `json` (`keys:<pattern>`), or `regex` with one capture
 group — so a baseline can freeze anything a set can be read from. `file` is
-where the frozen set lives; the repository keeps it, and a reviewer reads it.
+where the frozen set lives; the repository keeps it, and a reviewer reads it. It
+carries the extractor's value filter too: `skip` keeps a value out of the
+measurement before it can ever be frozen, and a `skip` pattern that sifts
+nothing is `dead_filter` and red here as well.
 
 ### The direction is the whole point
 
@@ -5356,4 +5414,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.46.0 capabilities=641738ed4fe9d5761bdf45ba87b96966fd160484db25c5b7ba197b0a69345a15 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.47.0 capabilities=6c0ef84b5c9aac2c050cd27a55d05e2dec09d519b46394ef42253ebdd95dcdac template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
