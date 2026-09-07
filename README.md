@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.41.0`**
+**Current version: `v0.42.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `a50f31162a7125b82b0f4e49fc4a119bb1f82a0b3113d187ba0c5395b68b0190` |
-| `x3-linux-amd64` | linux/amd64 | 13 MB | `6d744c52ec3e90991b34c40dca8e7157fb8401e8de0b7cb1d650258cae24976e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `e8a6de50b314f096031951bbb806b3654aaa8faa2fbeca9ccdce9911df290a4e` |
+| `x3-linux-amd64` | linux/amd64 | 13 MB | `85020810cb8f84744bd5bde4c47ffcc5a35eee59db6461cec1fa3f587176e114` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -132,6 +132,7 @@ and not in this file, it does not exist yet.
 - [What is built and what is not](#what-is-built-and-what-is-not)
 - [`x3 scan`](#x3-scan) — command, flags, exit codes, what it walks
 - [Scopes](#scopes) — where you write a directive decides what it binds
+- [How a pattern is read](#how-a-pattern-is-read) — `^` and `$` bind to a line, and where they do not
 - [The dictionary](#the-dictionary) — the six directive types
 - [Error codes](#error-codes) — the four ways a directive turns red
 - [The JSON report](#the-json-report)
@@ -293,6 +294,62 @@ x3 scan: 2 file(s) - 8 directive(s) - 8 red
 
 Paths are relative to the scan root and always use `/`, on every operating
 system.
+
+## How a pattern is read
+
+Several settings take a regular expression, and most of them are matched
+against a **file's whole text**: a `boxes` criterion, an `arch` `required`
+marker, a `regex` extractor, a `freeze` count `of: matches`. In all of those,
+`^` and `$` bind to a **line**, not to the file:
+
+| The pattern | Holds when |
+|---|---|
+| `^func main` | some line starts with `func main` |
+| `\Apackage ` | the **file** starts with `package ` |
+| `(?-m)^package ` | the same thing, said by turning the mode off |
+
+The reason is that people write patterns about lines - "an import that starts
+the line", "a marker on its own line", "one name per row". Read the other way,
+`^...$` matches almost nothing in a file of many lines, and **what that costs
+depends on which direction the measurement leans**:
+
+| The measurement wants | A collapsed pattern gives | How it shows |
+|---|---|---|
+| something **found** (`pattern`, `required`, a `regex` extractor) | nothing found | loud: red over an absence that is not there |
+| something **absent** (`absent`) | nothing found | **silent: green without measuring anything** |
+| a **number** (`count`, `cap`) | a number near zero | **silent: debt reads as debt repaid, a cap is never reached** |
+
+The silent rows are the dangerous ones, because nobody looks at green. Line
+mode is therefore the default, and nothing is lost: `\A` and `\z` always mean
+the ends of the file, and `(?-m)` turns the mode off for the rest of the
+pattern. Line mode also only ever finds **more** than the whole-text reading -
+`(?m)` adds match positions, it never removes one - so turning it on can widen
+a measurement but never blind it.
+
+Where the answer depends on the reading, the finding says so on its own line
+rather than leaving the number unexplained:
+
+```
+"docs/list.md" counts 3, above the cap of 1; a cap takes no debt;
+^ and $ read a line here, not the whole file - read the other way it would count 1
+```
+
+**Four patterns are not read this way, because their subject is not a file.**
+They are already handed one line, or one value, so `^` and `$` already mean what
+the writer meant and nothing needed changing:
+
+| Setting | What the pattern is matched against |
+|---|---|
+| `syntax` `deny` | one line of the file at a time |
+| `secrets` `patterns[].match` and `ignore[].match` | one line, and then the value found inside it |
+| `boxes` `markdown.moved.match` | the single line that says the work left |
+| `arch` `literal` `pattern` | one string literal out of the source, not the file around it |
+
+The last one is the one to read twice: an `arch` `literal` rule looks for a
+**name**, and `^name$` there means "the whole literal is this name". That is
+still the whole-text reading, and it is the right one - a literal is not a
+document with lines. Line mode would let the pattern anchor inside a multi-line
+string, which is not what "only its owner may spell this name" is asking.
 
 ## Scopes
 
@@ -1110,9 +1167,11 @@ seventh time somebody adds a file. It is one line of configuration instead:
 ```
 
 `sources` is the class of file, `marker` is what each of them must carry. The
-only marker form today is `regex:<pattern>`, matched against the file's text —
-write `(?m)` when the pattern anchors to a line rather than the whole file. The
-rule reads whatever the globs name, Go or not.
+only marker form today is `regex:<pattern>`, matched against the file's text,
+and its `^` and `$` bind to a **line** ([How a pattern is read](#how-a-pattern-is-read)):
+a mark is a line - a build tag, a licence header, an ownership note - and it
+does not have to be the file's first one. A marker that really must open the
+file writes `\A`. The rule reads whatever the globs name, Go or not.
 
 A finding carries **no line number**: what is missing is missing from the file,
 not from one place in it.
@@ -1370,7 +1429,7 @@ narrow.
 |---|---|---|
 | `go` | string constants of a named type, in the rule's `sources` | `const-set:<Type>` |
 | `json` | the keys of one file, nested keys flattened to `a.b.c` | `keys:<pattern>` |
-| `regex` | one capture group, over `file` or `sources` | the pattern itself |
+| `regex` | one capture group, over `file` or `sources`, read **line by line** ([how](#how-a-pattern-is-read)) | the pattern itself |
 
 **What enters the set is what was captured**, not the whole key: `keys:error.*`
 puts `not_found` into the set, not `error.not_found`, so it can be compared with
@@ -1682,7 +1741,7 @@ A baseline writes `set` or `count`, never both. Three measurements are built in:
 | `of` | The key | The number |
 |---|---|---|
 | `lines` | the file | how many lines it has |
-| `matches` | the file | how many times `match` occurs in it |
+| `matches` | the file | how many times `match` occurs in it, counting **every line** ([how a pattern is read](#how-a-pattern-is-read)) |
 | `files` | the directory | how many files it holds |
 
 `min` is where the gate starts looking: a key at or below it is not measured and
@@ -2364,12 +2423,12 @@ the two signs mean:
 | `\Apackage ` | the **file** starts with `package ` |
 | `(?-m)^package ` | the same thing, said by turning the mode off |
 
-Nothing is lost by this: `\A` and `\z` always mean the ends of the file, and
-`(?-m)` turns line mode off for the rest of the pattern. What is gained is that
-the common intent is the default. Read the other way, `^...$` matches almost
-nothing in a file of many lines - a `pattern` criterion goes red over an absence
-that is not there, and an `absent` criterion goes **green without measuring
-anything**, which is the worse of the two because nobody looks at green.
+This is the engine's reading everywhere a pattern meets a file, and
+[How a pattern is read](#how-a-pattern-is-read) sets out why and what it costs
+when it is read the other way. Here the sharp edge is `absent`: a `pattern`
+criterion that stops matching goes loudly red, but an `absent` criterion that
+stops matching goes **green without measuring anything**, and that is the worse
+of the two because nobody looks at green.
 
 A criterion whose answer depends on that reading says so on its own line:
 
@@ -4764,4 +4823,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.41.0 capabilities=b961f0c25f99aeb78a9002c0cf6418eeae1043fa99a3288a1751054dd2031377 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.42.0 capabilities=a062c1e3b96e8d4dc6d544a8e11462926b93ba779f8db61c1718274cff76091a template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
