@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.34.0`**
+**Current version: `v0.35.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `febe06736f7f87814a587ba96fe65114926b976efbe636e798a7ad17f39c2296` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `1cefa12b3b410695aca41bba3c0b1fd4e651679310bebfe1fc97c7c4faf53349` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `a3507d3144f17d2a99bb4b4f1d57a1590bf8ea7fe098c0baee9979e29ce44edd` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `97ab0f0cb9c98589384cd68dcdeb086202d4a679ad185b1fa001683a22bc4e76` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -139,6 +139,7 @@ and not in this file, it does not exist yet.
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
+- [The finding baseline](#the-finding-baseline) — today's findings frozen, tomorrow's red
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
 - [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
@@ -1609,6 +1610,125 @@ quiet pass.
 
 The third row is the one that matters. Without it, a `-update` that quietly
 accepted growth would look exactly like a working gate.
+
+## The finding baseline
+
+`freeze` holds a set of values still. Most gates measure something else: they
+produce *findings*, and a project that switches one on for the first time meets
+a thousand of them in one run. Nobody clears a thousand findings in an
+afternoon, so that gate gets switched off again, and a gate that is off measures
+nothing. The way out is the one `freeze` already takes, applied one level up:
+write down what the tree owes today, and demand that no new debt appear.
+
+```json
+{
+  "baseline": { "dir": "ops/baselines" }
+}
+```
+
+The configuration declares a **directory**; the file name comes from the
+command, so `x3 comments` reads `ops/baselines/comments.json` and `x3 secrets`
+reads `ops/baselines/secrets.json`. That is the rule the cache already follows,
+and it means a project turns baselines on once rather than command by command.
+Declare nothing and there is no baseline: every finding is red, exactly as in
+every version before this one.
+
+| Flag | What it does |
+|---|---|
+| `-baseline <file>` | read this file instead of the one the configuration derives |
+| `-update-baseline` | rewrite the baseline to the findings of this run; growth is never written |
+
+Five commands read a baseline: `comments`, `secrets`, `arch`, `lang` and
+`syntax`. Each of them measures the state of a tree, which is where standing
+debt lives. `docs` and `scope` read a diff and `boxes` reads a work list — a
+finding there describes the change in front of you, not a debt somebody is
+paying down, and freezing it would silence the next change instead of the last
+one. `freeze` keeps its own baselines, of values rather than findings.
+
+### The identity carries no line number
+
+A baseline keyed by line number moves the day somebody adds an import. The
+finding is the same finding, the file shifted under it, and the gate reports a
+violation nobody introduced. Two of those and the baseline is refreshed out of
+irritation rather than out of work done, which is the same as not having one.
+
+So a finding is identified by **what it is, where it is, and what it says** —
+never by where it sits in the file:
+
+| Command | A finding is identified by |
+|---|---|
+| `comments` | the rule and the file |
+| `secrets` | the rule, the file, the pattern and the **masked** sample |
+| `arch` | the code, the file, and the rule, subject and object |
+| `lang` | the code, the file, and the token with the place it sits in |
+| `syntax` | the code, the file and the name of the check |
+
+The identity is stored as a digest, and the entry beside it carries the parts a
+reviewer needs to read:
+
+```json
+{
+  "version": 1,
+  "command": "comments",
+  "count": 2,
+  "findings": [
+    { "id": "4ace75caf575", "rule": "block_too_long", "path": "a.go" },
+    { "id": "243c6ff993db", "rule": "block_too_long", "path": "b.go" }
+  ]
+}
+```
+
+The digest, not the text, is what the run compares — a baseline that stored the
+matched text would put the very value `secrets` masks into a file the repository
+keeps.
+
+### The direction is the whole point
+
+| Measured against the baseline | Result |
+|---|---|
+| a finding the baseline holds | green, held, counted in `baselined` |
+| a finding the baseline does not hold | **red** — this is the gate |
+| a baseline entry the run no longer produces | **red** — `dead_baseline` |
+
+`-update-baseline` writes the measured findings and **refuses to write a set
+that grew**, naming every finding that blocked it. Without that refusal the flag
+would be a way of turning any red run green, and the baseline would reset itself
+on every run.
+
+A missing baseline file measures against an empty set: the run is red and the
+first `-update-baseline` writes it. A file that exists and holds nothing is a
+different thing — it is a project declaring that it owes nothing — and it can
+only shrink. An empty file is a statement, a missing file is a beginning.
+
+### What can never enter a baseline
+
+- **Warnings.** A `warn` finding does not fail the run; it is an observation,
+  not a debt. Freezing one would buy nothing and would later turn into a
+  `dead_baseline` red the moment somebody fixed it.
+- **Scope-integrity findings.** `empty_scope` says the rule measured nothing.
+  Freezing it would take a gate that checks nothing and paint it green — which
+  is precisely the failure the baseline is supposed to make impossible.
+- **Dead markers.** `dead_exemption`, `dead_exclusion` and a parser that is not
+  installed belong to the gate's own health, not to the source. A stale
+  exemption that could be baselined would never have to be removed.
+
+### The control experiment
+
+`check.ps1`, step `baseline control experiment`, runs one command seven times
+over four trees that differ only in the debt they carry:
+
+| Run | Wants |
+|---|---|
+| `tree`, no baseline yet | `1` |
+| `tree`, `-update-baseline` | the baseline file written |
+| `tree`, with the baseline | `0` |
+| `shifted` — the same debt, moved down the file | `0` |
+| `grown` — one file added to the debt | `1`, only the new one named |
+| `grown`, `-update-baseline` | `1`, and the baseline file **unchanged** |
+| `fixed` — one debt paid, the entry still in the baseline | `1`, `dead_baseline` |
+
+The fourth row is what separates an identity from a line number, and the sixth
+is what separates a baseline from a switch that turns the gate off.
 
 ## `x3 docs`
 
@@ -3597,6 +3717,16 @@ red on a deliberately broken input.
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
+- **A baseline is coarser than the finding it holds.** `comments` identifies a
+  finding by rule and file, so a file that already owes one over-long block can
+  grow a second one without the gate seeing it; the debt is cleared per file,
+  which is also how it is paid. Two identical findings in one file collapse into
+  one entry everywhere for the same reason: an identity that counts occurrences
+  would move again the moment one of them was fixed.
+- **Nothing checks that a baseline was reviewed.** `-update-baseline` refuses
+  growth, but the first write accepts whatever the tree owes that day. The file
+  is in the repository and shows up in a diff; that review is the only control
+  there is.
 - **Expectations count directives, and only from `scan`.** They say a minimum,
   never a maximum, and they cannot say "these two exact directives" - a file
   carrying three guards satisfies a `min: 2` that was written for two other
@@ -3765,4 +3895,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.34.0 capabilities=fc67ccc5f50c65da3c663f8f25683b4f1afd11de92142ff9fe8665fac3cb50e2 template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.35.0 capabilities=16c04a88b991cbd61c574d519d05f1187e1f9bc2eada5b840be27f3933b5864f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
