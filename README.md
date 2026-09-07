@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.45.0`**
+**Current version: `v0.46.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `0a3a09bb26bf498c551ef400c132cd1b1c5a81bd8de5b2c4dadbd73530086ea8` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `b328a3d8c790b9c1ea2aebf2acc4ed06153f5300a30a22b2b562ffef207d4233` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `dbd5c6e2f2c7b5fac8a372c797496a7d8c87bdd6d9241a4054f58c1663d7bc23` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `3ed22f81a10ebbdb4cae08ba0293b31158c768119d155d769da7bf16a574714e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -141,6 +141,7 @@ and not in this file, it does not exist yet.
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something) — a path constant a gate carries, checked against the file system: a blind gate is a gate that is not there
+- [Scope integrity](#scope-integrity) — a rule that measured nothing, or fewer things than it declared, is red
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [The count mode](#the-count-mode) — a number per key, and the cap that takes no debt
 - [A cap with no baseline](#a-cap-with-no-baseline) — a limit that holds no debt and cannot be frozen
@@ -1630,6 +1631,37 @@ puts `not_found` into the set, not `error.not_found`, so it can be compared with
 the constant that produced it. A `regex` extractor must carry exactly one
 capture group for the same reason.
 
+**A value written in pieces.** Some values are not spelled contiguously in the
+source. A path assembled by the language — `os.path.join(ROOT, "a", "b")`,
+`ROOT / "a" / "b"` — has separators, quotes and commas between its pieces, and a
+single capture can only take the whole block, punctuation included. That block
+is not a path: compared with the file system it is missing on every run. `parts`
+reads the pieces **inside** what `select` captured, and `join` puts them back
+together:
+
+```json
+"left": {
+  "from": "regex",
+  "select": "os[.]path[.]join\\(ROOT, ((?:\"[^\"]+\", )*\"[^\"]+\")\\)",
+  "parts": "\"([^\"]+)\"",
+  "join": "/"
+}
+```
+
+`select` captures `"a", "b"`; `parts` captures `a` and `b` from it; `join` makes
+`a/b`. `parts` carries exactly one capture group — it is *one* piece — and empty
+pieces are dropped, so an optional group that did not match cannot produce
+`a//b`.
+
+**`join` is written, never guessed.** The two pieces of a path are `a/b` in one
+project and `ab` in another, and both are real: a directory separator and a name
+built by concatenation. An engine that picked one would silently point at
+something that does not exist, so `parts` and `join` are required together —
+`"join": ""` is a valid answer, an unwritten `join` is not. If `parts` matches
+nothing inside the block, the value comes out empty and is reported: a pattern
+that read a block and could not take anything out of it must not shrink the set
+quietly.
+
 `compare` is `left-subset-of-right` (everything produced has a counterpart),
 `equals` (and nothing is declared that is never produced), or
 [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something)
@@ -1672,6 +1704,30 @@ the value. `./` at the front and a trailing `/` are trimmed before the lookup;
 a blank capture is a finding of its own, because a path that names nothing
 points at nothing.
 
+**What the path is relative to.** By default every value is resolved against
+the **repository root**, and that default does not move. But a path is not
+always written from the root: a test that reads its fixture writes
+`"../../user/user.go"`, and that only means something from the directory of the
+file it is written in. Read from the root it leads nowhere, and the rule reports
+a file that is sitting exactly where it belongs. `relativeTo: "source"` resolves
+each value against the directory of the file that carries it:
+
+```json
+{ "name": "what-a-test-reads-is-still-there",
+  "kind": "consistency",
+  "sources": ["**/*_test.go"],
+  "left": { "from": "regex", "select": "\"((?:[.][.]/)+[A-Za-z0-9_./-]+[.]go)\"" },
+  "compare": "left-exists-on-disk",
+  "relativeTo": "source" }
+```
+
+The same text in two files is **two targets**, and each is checked where it was
+written; one of them missing is enough to turn the rule red, and the finding
+names the value together with what it resolved to. `absent` still excuses the
+**value as written**, not the resolved path — the exemption is read where the
+reader will look for it. `relativeTo` belongs to this comparison only: two sets
+compared with each other are texts, and a text has no directory.
+
 `absent` is the exemption, and it is a **path → reason** map, not a list. Some
 targets are meant to be missing: a file whose deletion is the very thing being
 measured, a temporary artefact of a control experiment, an output that is
@@ -1713,7 +1769,10 @@ silencer, and the next person to read it cannot tell which entries still matter.
 | `in` + `terms` + `comments` | vocabulary | the layer, the words it must not know, and whether prose counts |
 | `left` + `right` + `compare` | consistency | the two sets and how they must agree |
 | `left` + `compare: left-exists-on-disk` (+ `absent`) | consistency | one set read as paths, checked against the file system, and the paths meant to be missing with the reason each one is |
+| `left.parts` + `left.join` | consistency | a value spelled in pieces: the pattern that captures one piece, and the separator that puts them back together |
 | `except` | no | `self` only, next to `from` + `deny` |
+| `relativeTo` | no | `left-exists-on-disk` only: `repo` (**default**) or `source`, the directory of the file that carries the value |
+| `minimum` | no | the fewest subjects the rule must see; below it the run is `scope_below_minimum`. No `minimum` means no floor |
 | `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
 | `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
 | `exclude` | no | files taken back out of `sources`; defaults to `arch.exclude`. A rule's own list replaces the inherited one. See [Narrowing the source set](#narrowing-the-source-set) |
@@ -1760,6 +1819,38 @@ list pointing at a component with no files can never turn red, and that is a
 silent pass wearing a green shirt. `empty_scope` and `dead_exemption` are always
 `block`, whatever the rule's `policy` says — a policy grades how bad a violation
 is, and neither of these is a violation. They are the measurement failing.
+
+**`minimum` — the floor a scan must reach.** `empty_scope` catches zero, and
+zero is only the last step of a fall. A rule that read a hundred paths still
+reports green after a rename leaves it three: nobody deleted the rule, nobody
+saw the loss, and the gate goes on being green about almost nothing. A rule may
+declare how many subjects it expects to see at the least:
+
+```json
+{ "name": "every-root-a-gate-names-is-still-there",
+  "kind": "consistency",
+  "sources": ["ops/gates/**/*.py"],
+  "left": { "from": "regex", "select": "\"((?:internal|cmd|docs)/[A-Za-z0-9_./-]+)\"" },
+  "compare": "left-exists-on-disk",
+  "minimum": 40 }
+```
+
+Below the floor the rule is `scope_below_minimum` and says what it counted:
+
+```
+BLOCK scope_below_minimum: every-root-a-gate-names-is-still-there
+  the rule saw 3 subjects and 40 were declared; a scan that shrank is a gate that stopped looking
+```
+
+`minimum` belongs to **every kind** — what is counted is the rule's own subject:
+values in a set for `consistency`, files for `required` and `pairing`, instances
+for `duplication`, and so on, the same number the report already carries as
+`subjects`. Writing no `minimum` declares no floor, and only zero is red.
+
+This is not [`expect`](#expectations), and the two never overlap: `expect`
+counts **verified directives in a scan**, so that deleting `//x3:guard` lines
+cannot go green. `minimum` counts **what one arch rule looked at**. Same
+disease, two organs; a single mechanism could not name either honestly.
 
 ### What a run looks like
 
@@ -1831,6 +1922,7 @@ The `code` field is the stable part; the `message` text may be reworded.
 | `missing_marker` | `required` | a file of the class does not carry the mark |
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
 | `empty_scope` | every rule | a component the rule names, its own source set, or the field it follows, matched nothing |
+| `scope_below_minimum` | every rule | the rule saw fewer subjects than its `minimum`; the scan shrank without anybody deleting it |
 | `dead_exemption` | exemptions, `absent` | an `allow:arch` that no violation needed or that binds to no import; an `absent` path that came back or that nothing names any more |
 | `dead_exclusion` | `exclude` | a pattern that takes no file out of the rule's sources |
 
@@ -1859,6 +1951,10 @@ kinds that do not exist yet.
 | `testdata/ondisk` with `arch-ondisk-green.json` | `0` — one root is there, the other is written as `absent` with a reason |
 | `testdata/ondisk` with `arch-ondisk-red.json` | `1` — the same tree with no exemption: the moved root is `missing_target` |
 | `testdata/ondisk` with `arch-ondisk-dead.json` | `1` — two `dead_exemption` findings: one path came back, the other is named nowhere |
+| `testdata/relative` with `arch-relative-source.json` | `0` — the value is resolved against the file that carries it and the target is there |
+| `testdata/relative` with `arch-relative-repo.json` | `1` — the same tree read from the repository root: `missing_target` on a file that never moved |
+| `testdata/ondisk` with `arch-minimum-met.json` | `0` — the scan reached its declared floor |
+| `testdata/ondisk` with `arch-minimum-short.json` | `1` — the same scan, one higher floor: `scope_below_minimum` |
 | `testdata/exclude` with `arch-exclude-red.json` | `1` — the rule reads the test file and the planted import is red |
 | `testdata/exclude` with `arch-exclude-green.json` | `0` — the same tree, with `**/*_test.go` excluded |
 | `testdata/exclude` with `arch-exclude-dead.json` | `1` — **two** findings: the pattern that excludes nothing, and the import it therefore failed to hide |
@@ -5260,4 +5356,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.45.0 capabilities=62b4baabaab9676256fe63a8a13723e12cb566a7d1977b10a2bd3ae26306ac3f template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.46.0 capabilities=641738ed4fe9d5761bdf45ba87b96966fd160484db25c5b7ba197b0a69345a15 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
