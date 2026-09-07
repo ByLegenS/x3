@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.38.0`**
+**Current version: `v0.39.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `b1d54f2e964d4363921eb36fb73f0986281798d69e308b4cea2cf568c005beac` |
-| `x3-linux-amd64` | linux/amd64 | 13 MB | `43b0bc57da8132c246a1d9c5e68d1643e583e5de16b5b697189c5a5a9fb102f7` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `73cdea469e2a7c276dcaaaa11ac3378c69ac95169554e725823e13c72ae21d39` |
+| `x3-linux-amd64` | linux/amd64 | 13 MB | `a42505dcd6238c8b17f62d4f5d186ff94a441db7a86567736ac112847265b4dc` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -88,7 +88,7 @@ x3 arch  -config x3.json .      # which component may import which
 x3 freeze -config x3.json .     # frozen lists that only shrink
 x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
-x3 boxes -config x3.json .      # open work, measured against its criteria
+x3 boxes -config x3.json .      # open work, in a file or in the documents
 x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
 x3 scope  -config x3.json .     # a change that must stay in its lane
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
@@ -146,7 +146,7 @@ and not in this file, it does not exist yet.
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
 - [Excluding what the pattern also catches](#excluding-what-the-pattern-also-catches) — per-pattern exclusions, because RE2 has no lookaround
 - [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
-- [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
+- [`x3 boxes`](#x3-boxes) — an open-work list the machine can read, in a file or in the project's own documents
 - [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
 - [`x3 scope`](#x3-scope) - a change that must stay in its lane
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
@@ -194,7 +194,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink, refuses to record growth, and measures again so that its exit code still means "the tree is green" |
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
-| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show; criteria read the tree (`file`, `pattern`, `absent`), the running system (`sql`, `command`) or a recorded sign-off (`manual`) |
+| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show; criteria read the tree (`file`, `pattern`, `absent`), the running system (`sql`, `command`) or a recorded sign-off (`manual`). The list is either one machine-written file or the project's own documents — Markdown checkboxes, with as many states as the project declares and the record each state must carry — and a baseline lets a list be adopted gradually without ever freezing what a box claims |
 | **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
 | **Syntax** (`internal/syntax`) | **implemented** - `x3 syntax` parses the files no compiler reads (a built-in JSON parser, or a parser the project names), and refuses to go green when the parser it was told to use is not installed |
 | **Lane discipline** (`internal/scope`) | **implemented** - `x3 scope` reads what a change touched and turns a commit red when it enters a declared lane and also reaches outside it; crossing needs a reason in the message |
@@ -1847,12 +1847,20 @@ every version before this one.
 | `-baseline <file>` | read this file instead of the one the configuration derives |
 | `-update-baseline` | rewrite the baseline to the findings of this run; growth is never written |
 
-Five commands read a baseline: `comments`, `secrets`, `arch`, `lang` and
-`syntax`. Each of them measures the state of a tree, which is where standing
-debt lives. `docs` and `scope` read a diff and `boxes` reads a work list — a
-finding there describes the change in front of you, not a debt somebody is
-paying down, and freezing it would silence the next change instead of the last
-one. `freeze` keeps its own baselines, of values rather than findings.
+Six commands read a baseline: `comments`, `secrets`, `arch`, `lang`, `syntax`
+and `boxes`. The first five measure the state of a tree, which is where
+standing debt lives. `docs` and `scope` read a diff — a finding there describes
+the change in front of you, not a debt somebody is paying down, and freezing it
+would silence the next change instead of the last one. `freeze` keeps its own
+baselines, of values rather than findings.
+
+`boxes` is the one with a **split**: a work list holds both kinds of finding at
+once. How the list is *written* today — items with no criterion, records that
+never got their fields, checkboxes drawn in a form nothing collects — is
+standing debt, and freezes. What the list *claims* — finished work left open,
+a box closed with nothing to show — is the change in front of you and can
+never be frozen. The list of codes that may enter is in
+[`x3 boxes`](#a-list-that-is-adopted-gradually).
 
 ### The identity carries no line number
 
@@ -2393,6 +2401,179 @@ boxes stay red, but nobody notices *why* unless the number is on the screen.
 A list with no boxes is `empty_scope`. A list that says nothing does not say
 everything is finished.
 
+### A list written as a document
+
+Most projects do not keep their open work in one machine-written file. They
+keep it in their documents, as Markdown checkboxes, spread across every note
+that describes a piece of work — and those checkboxes usually have more than
+two states. `sources` reads the list that way:
+
+```json
+{ "boxes": {
+    "sources": ["docs/**/*.md"],
+    "markdown": {
+      "states": [
+        { "mark": " ", "name": "open",  "means": "open" },
+        { "mark": "~", "name": "doing", "means": "open", "requires": ["done-so-far", "left"] },
+        { "mark": ">", "name": "held",  "means": "open", "requires": ["waiting-on"] },
+        { "mark": "x", "name": "done",  "means": "done" }
+      ],
+      "criterion": { "key": "criterion", "kinds": {
+        "exists":  { "when": "file" },
+        "contains":{ "when": "pattern" },
+        "gone":    { "when": "absent" },
+        "asks":    { "when": "sql", "dsnEnv": "TEST_DSN", "driver": "postgres" },
+        "passes":  { "when": "command", "prefix": ["go", "test"] },
+        "by-hand": { "when": "manual", "separator": " - " }
+      } },
+      "minLength": 4
+    } } }
+```
+
+`file` and `sources` cannot both be written: one list or the other, never two.
+
+Which reads a note like this one:
+
+```markdown
+- [x] the reader that takes a checkbox
+      criterion: contains internal/boxes the checkbox reader
+- [~] the report that names a state
+      done-so-far: the reader is written
+      left: the report still prints only the mark
+      criterion: exists docs/reader.md
+```
+
+#### The engine does not know what "in progress" means
+
+There is no built-in vocabulary of states. A mark gets a `name`, which is what
+the report calls it, and a `means`, which is the only thing the engine acts on:
+
+| `means` | The law for that state |
+|---|---|
+| `open` | all criteria met is **red** — the work is done, the list is stale |
+| `done` | any criterion unmet is **red** — closed with nothing to show |
+| `silent` | neither direction is asked |
+
+So whether "waiting on somebody" should go red when its proof already stands is
+a decision the project makes in one line, not a decision baked into the engine.
+The control experiment runs the same tree twice, changing only that line: red
+with `open`, green with `silent`.
+
+`silent` is an escape hatch, and every escape hatch in this engine shouts when
+it dies: a `silent` state no box carries is `dead_state`, red. A silence
+nothing uses is either a list that quietly emptied or a mark that was mistyped,
+and both should be said out loud. The count of silenced boxes is on the human
+line of every run for the same reason.
+
+#### The record a state must carry
+
+An in-between state is a claim, not a condition: "in progress" says nothing on
+its own. `requires` names the fields that must sit in the item's body, and the
+names are the project's own words — the engine never learns them:
+
+```markdown
+- [>] the second reader
+      waiting-on: a decision about the format
+```
+
+A missing field is `box_record`. So is a field so short it is a way of not
+answering — `minLength` sets the floor, and `left: -` does not clear it.
+
+A field line may carry any leading decoration (indentation, quoting, an arrow,
+a bullet, bold marks); what counts is a name, a colon and something after it.
+The body of a list item is everything indented under it; the body of an item
+written as a heading (`### - [~] …`) runs to the next heading, because a
+heading's body is not indented. Checkboxes inside a fenced code block are
+examples, not work, and are not collected.
+
+#### Writing a criterion in prose
+
+`criterion.key` is the word that opens a criterion line and `kinds` maps the
+project's word for a kind onto one of the six criteria. Everything a criterion
+needs but a document should not repeat lives in the kind, not in the line: the
+name of the DSN variable, the test runner that goes in front (`prefix`), the
+separator between who looks and what they see. Writing those beside every item
+would make a hundred work items carry the same three lines and turn the note
+into a configuration file.
+
+| `when` | The rest of the line is read as |
+|---|---|
+| `file` | a path |
+| `pattern`, `absent` | a place, then the expression — the place matches the file **and** everything under it |
+| `sql` | the query, `==`, the value it must give |
+| `command` | arguments appended to `prefix` |
+| `manual` | who looks, the separator, what they must see |
+
+A kind declaration is checked the same way a criterion is: a `prefix` on a
+`file` kind, or a `dsnEnv` on a `command`, is refused rather than ignored.
+
+#### What the reader refuses
+
+| Code | The writing it refuses |
+|---|---|
+| `box_unknown_state` | a mark the configuration never declared — a box nobody can read |
+| `box_unlisted` | `* [ ]`, `+ [ ]`, `1. [ ]` — drawn like a checkbox, collected by nothing |
+
+The second is the quiet one. The work was written down and it is in no list, so
+nobody will ever come looking for it; a loud error is the only way it surfaces.
+
+### A list that is adopted gradually
+
+A list does not become machine-readable in a day. Turning the gate on against a
+list of two thousand items would produce a thousand reds on the first run, and
+a gate that reds a thousand times on its first run is switched off on its
+second. So `boxes` reads a **baseline**, exactly like `comments` or `secrets`:
+today's shortcomings freeze, and a new one is red.
+
+```
+x3 boxes -baseline ops/x3/boxes.json                    # today's debt is silent
+x3 boxes -baseline ops/x3/boxes.json -update-baseline   # freeze what stands now
+```
+
+The law is the baseline's own, unchanged: the list only shrinks, `-update-baseline`
+never writes growth, and an entry the run no longer produces is `dead_baseline`.
+
+What may be frozen is **how the list is written today**:
+
+| Code | Why it may freeze |
+|---|---|
+| `box_uncovered` | an item with no criterion; the ordinary state of a list nobody has converted yet |
+| `box_record` | a state whose fields were never written, or a criterion line that cannot be read |
+| `box_unlisted` | a checkbox drawn in a form nothing collects |
+| `box_unknown_state` | a mark from before the states were declared |
+| `box_owner` | a manual criterion left on an owner the list may not wait on |
+
+What may **never** be frozen is what the list *claims*:
+
+| Code | Why it may not |
+|---|---|
+| `box_finished` | freezing it lets finished work sit open forever |
+| `box_unproven` | freezing it makes closing without proof free |
+| `empty_scope` | freezing it paints a gate that measures nothing green |
+| `dead_state`, `dead_baseline` | the gate's own health, never the list's debt |
+
+That split is the whole point. A baseline here buys time to write the criteria;
+it does not buy permission to stop asking the two questions. The control
+experiment proves it in the same run: with the baseline in place the uncovered
+items are silent **and** `summary.findings` is still zero only because no box
+lies about its state.
+
+### Who a manual criterion may wait on
+
+A work list cannot wait on somebody the machine cannot reach. An item that says
+"somebody should try it and see" sits in the list forever, because everybody
+who reads it assumes somebody else will look.
+
+```json
+{ "boxes": { "manual": { "denyBy": ["the person who owns this project"] } } }
+```
+
+A `manual` criterion whose `by` matches one of those names (case-insensitive,
+whole value) is `box_owner`: write a criterion the machine can measure, or move
+the item to that person's own list. This is a **prohibition**, not an escape
+hatch, so it does not shout when it matches nothing — a rule that catches
+nothing is good news, unlike an exemption that silences nothing.
+
 ### The control experiment
 
 `check.ps1`, step `boxes control experiment`, runs the binary against one tree
@@ -2418,6 +2599,30 @@ criterion that could not run does not turn a closed box green.
 A `sql` criterion needs a database to be *met*, so the step proves the direction
 that no environment can fake — it stays red and it is counted. The reading
 itself is the same shared probe the live guard uses.
+
+A second step, `boxes document list control experiment`, does the same for a
+list kept as documents. It writes nothing: the baseline it reads is in the
+repository and only ever read.
+
+| Run | Wants |
+|---|---|
+| four states, records complete, criteria consistent | `0` |
+| finished work left open / unfinished work closed | `1` / `1` |
+| an in-between state with no `left:` line | `1` |
+| `* [ ]` — a checkbox nothing collects | `1` |
+| a mark the configuration never declared | `1` |
+| **the same tree**, the held state declared `open` / `silent` | `1` / `0` |
+| a `silent` state no box carries | `1` |
+| a manual criterion on a denied owner / the same tree without the rule | `1` / `0` |
+| an item with no criterion, no baseline / held by one | `1` / `0` |
+| a **new** item with no criterion, same baseline | `1` |
+| a baseline entry the run no longer produces | `1` |
+| the frozen run: `baselined` is 1 **and** `findings` is 0 | — |
+
+The sixth row is the one that matters most: one line of configuration decides
+whether an in-between state goes red, and nothing else in the tree changes. The
+last row is the other one — it proves the baseline silenced the debt without
+silencing the two questions.
 
 ## `x3 syntax`
 
@@ -4284,4 +4489,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.38.0 capabilities=b75c6a49730144a85dd1366236f94778b720d6693254b6806f8fc42d2b7ca52f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.39.0 capabilities=345f1043c434eccebe403549dfddaf6e3b13a54129908fbee9275de40d931278 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
