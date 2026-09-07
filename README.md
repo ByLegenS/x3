@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.35.0`**
+**Current version: `v0.36.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `a3507d3144f17d2a99bb4b4f1d57a1590bf8ea7fe098c0baee9979e29ce44edd` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `97ab0f0cb9c98589384cd68dcdeb086202d4a679ad185b1fa001683a22bc4e76` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `4bbd8d2848a9668aadf89834adaa54de486f37014118f4e32241fdb78fea3066` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `22582694226a32336fdd72e527fa73d43ab760469a9bcbee1e775d371fcd7542` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -139,9 +139,11 @@ and not in this file, it does not exist yet.
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
+- [The count mode](#the-count-mode) — a number per key, and the cap that takes no debt
 - [The finding baseline](#the-finding-baseline) — today's findings frozen, tomorrow's red
 - [`x3 docs`](#x3-docs) — changes that must not travel alone
 - [`x3 secrets`](#x3-secrets) — credentials that got into the source
+- [Excluding what the pattern also catches](#excluding-what-the-pattern-also-catches) — per-pattern exclusions, because RE2 has no lookaround
 - [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read
 - [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
@@ -1611,6 +1613,87 @@ quiet pass.
 The third row is the one that matters. Without it, a `-update` that quietly
 accepted growth would look exactly like a working gate.
 
+### The count mode
+
+Some baselines do not hold a set of values but a **number per key**: how many
+lines a document runs, how many files a directory holds, how many places still
+reach past a boundary. Freezing the *set* of keys is the wrong gate for those —
+it says "this document was already on the list", not "this document grew", and
+1471 lines turning into 1499 would pass in silence.
+
+```json
+{
+  "freeze": {
+    "baselines": [
+      { "name": "document-length",
+        "sources": ["docs/**/*.md"],
+        "count": { "of": "lines", "min": 1000, "max": 1500 },
+        "file": "ops/baselines/document-length.json" }
+    ]
+  }
+}
+```
+
+A baseline writes `set` or `count`, never both. Three measurements are built in:
+
+| `of` | The key | The number |
+|---|---|---|
+| `lines` | the file | how many lines it has |
+| `matches` | the file | how many times `match` occurs in it |
+| `files` | the directory | how many files it holds |
+
+`min` is where the gate starts looking: a key at or below it is not measured and
+never enters the baseline. Without it the baseline would be a list of every file
+in the repository. `max` is a **cap that takes no debt** — a key above it is red
+whatever the baseline says, and `-update` leaves it out rather than freezing it.
+A cap that could be frozen would be a request, not a limit.
+
+The frozen file carries the numbers, so a reviewer reads the debt instead of
+counting it:
+
+```json
+{
+  "name": "document-length",
+  "count": 2,
+  "counts": {
+    "docs/architecture.md": 1471,
+    "docs/protocol.md": 1215
+  }
+}
+```
+
+| Measured against the baseline | Result |
+|---|---|
+| a key the baseline does not hold | **red** — `baseline_grew` |
+| a number above the frozen one | **red** — `count_grew`, both numbers named |
+| a number below the frozen one | green, counted as **shrunk**; `-update` records it |
+| a number above `max` | **red** — `above_cap`, and never written |
+| a key the baseline holds and nothing measures | **red** — `dead_key` |
+| nothing measured at all | **red** — `empty_scope` |
+
+The last of those reds is where the two modes part. In the set mode a value
+that is gone *is* the shrink — the set is the measurement. Here the measurement
+is the number, and a key without one leaves a ceiling standing for a file that
+may come back at its old size. `-update` clears the dead keys in the same run
+that records the shrinks.
+
+#### The count control experiment
+
+`check.ps1`, step `freeze count control experiment`, runs one baseline over four
+trees that differ only in what they measure:
+
+| Run | Wants |
+|---|---|
+| `count-held` — the numbers the baseline holds | `0`, and the file below `min` not measured at all |
+| `count-grown` — one number up, one key gone, one over the cap | `1`, all three named |
+| `count-grown`, `-update` | `1`, and the baseline file **unchanged** |
+| `count-shrunk` — one number down | `0`, and `-update` writes the smaller number |
+| `count-cap`, `-update` | the capped key still **out** of the baseline, the run still `1` |
+
+The fourth row is what makes a baseline shrink at all; the fifth is what keeps
+the cap out of reach of the flag that silences everything else.
+
+
 ## The finding baseline
 
 `freeze` holds a set of values still. Most gates measure something else: they
@@ -1863,6 +1946,88 @@ looks random is not thereby a secret, and a gate that reds every random-looking
 string is switched off within a week. Binary files are skipped for the same
 reason: random bytes match anything eventually.
 
+### Excluding what the pattern also catches
+
+A credential format is easy to describe and hard to describe *exactly*. A
+pattern for an IPv4 address also matches a private range, a documentation
+address reserved by RFC 5737, a browser version string like `126.0.0.0`, and a
+date written with dots. Measured on a real production Go application, the bare
+patterns for its own credential shapes returned **530 findings where 63 were
+real** — and a gate running at eight times noise is switched off within a week.
+
+The exclusion belongs next to the pattern it corrects, one entry per reason:
+
+```json
+{
+  "secrets": {
+    "patterns": [
+      { "name": "ipv4-address",
+        "match": "(?:^|[^0-9.])((?:[0-9]{1,3}[.]){3}[0-9]{1,3})(?:[^0-9.]|$)",
+        "ignore": [
+          { "match": "^(?:0|10|127)[.]", "reason": "this host and the private range" },
+          { "match": "^(?:192[.]0[.]2|198[.]51[.]100|203[.]0[.]113)[.]", "reason": "RFC 5737 documentation addresses" },
+          { "match": "[.]0$", "reason": "a network block or a version string, not a host" },
+          { "value": "255.255.255.255", "reason": "the broadcast address" }
+        ] }
+    ]
+  }
+}
+```
+
+- An entry writes **`match`** (a second expression) or **`value`** (one exact
+  value), never both, and always a **`reason`**: an exclusion nobody explained
+  is never questioned again. A literal dot reads better as `[.]` than as an
+  escape the JSON has to carry twice.
+- It reads the **value that was found**, not the line. Excluding by line would
+  hide every other value that shares it.
+- `"on": "match"` hands it the whole match instead, for the case where the
+  surroundings decide rather than the value: an extension is a secret when the
+  address around it names a real host, and not when it names a documentation
+  one.
+- An exclusion that excluded nothing is `dead_ignore` and **red** — the law that
+  covers dead exemptions and dead exclusions everywhere else in the engine. A
+  stale exclusion is how a gate goes blind quietly.
+
+**A capture group is the value.** A pattern usually has to match the characters
+around a value to find it — a separator, a boundary, a prefix — and those
+characters are not part of the secret. When the pattern has a capture group, the
+mask covers the group and the exclusions read the group; without that rule the
+mask sits one character off and every exclusion reads the wrong text. Every
+match on a line is examined, not only the first: an excluded value must not hide
+the real one beside it.
+
+**Lookaround does not exist here.** Go's regexp engine is RE2, so a pattern
+written with `(?<!...)` comes back as `invalid named capture`, which sends the
+reader looking for a named group nobody wrote. The engine names the real gap and
+points at what replaces it:
+
+```
+patterns[0]: match: error parsing regexp: invalid named capture: `(?<![0-9.])[0-9]{15,17}`;
+"(?<!" is a lookaround and RE2 has none - write the exclusion as an ignore entry instead
+```
+
+Exclusions belong to the pattern that carries them, so the shipped patterns
+cannot take one; a project that needs a narrower rule writes its own pattern
+with `builtin: false`, or exempts the line where the value sits.
+
+#### The ignore control experiment
+
+`check.ps1`, step `secrets ignore control experiment`, runs the same tree
+against two configurations and then two more:
+
+| Run | Wants |
+|---|---|
+| the noisy tree, pattern with no exclusions | `1`, five findings |
+| the same tree, exclusions written | `0` |
+| the same tree plus one real address | `1`, that one finding, masked to the capture group |
+| an exclusion that excludes nothing in this tree | `1`, `dead_ignore` |
+| a pattern written with a lookaround | `2`, a configuration error |
+
+The second row alone would prove nothing — an exclusion that swallowed
+everything would also be green. The third is what says the exclusions removed
+noise rather than sight.
+
+
 ### Exemption, with a reason
 
 ```go
@@ -1932,6 +2097,15 @@ The **opening block** - everything before the first line of code - has its own
 limit, twice the ordinary one by default. It is read once and describes the
 whole file, so it may say more. "The first block" would have been the wrong
 rule: the first block *inside* the code is an ordinary block.
+
+Not every language earns the same opening block. A Go package comment documents
+the whole package and is worth its twenty lines; handing the same allowance to
+every extension is the same as having no ceiling. A limit can be written per
+language, and the general one applies wherever nothing is:
+
+```json
+{ "comments": { "doc": 10, "docByExtension": { ".go": 20 } } }
+```
 
 Lines that talk to a tool rather than to a reader are neither prose nor code:
 `//go:...`, `// Deprecated:`, `//nolint`, `#!`, `// +build`, and x3's own
@@ -3723,6 +3897,19 @@ sales page.
   which is also how it is paid. Two identical findings in one file collapse into
   one entry everywhere for the same reason: an identity that counts occurrences
   would move again the moment one of them was fixed.
+- **An exclusion is only as narrow as somebody wrote it.** `ignore` entries are
+  regular expressions over the matched value, and nothing checks that one of
+  them is not swallowing a real credential — only that it swallows *something*.
+  The dead-exclusion red catches the rule nobody needed; it cannot catch the
+  rule that was written too wide.
+- **Exclusions apply to the scan, not to redaction.** The same patterns decide
+  what a recorded ledger masks, and that path deliberately ignores `ignore`: a
+  value nobody has to hide is cheap to mask, and a value that should have been
+  hidden is not.
+- **`of: files` counts one directory, not a subtree.** A directory that splits
+  its files into new subdirectories shrinks by that measure even though the same
+  files are still there; the count says how crowded one folder is, which is the
+  question it was written for.
 - **Nothing checks that a baseline was reviewed.** `-update-baseline` refuses
   growth, but the first write accepts whatever the tree owes that day. The file
   is in the repository and shows up in a diff; that review is the only control
@@ -3895,4 +4082,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.35.0 capabilities=16c04a88b991cbd61c574d519d05f1187e1f9bc2eada5b840be27f3933b5864f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.36.0 capabilities=a87d90d1a579dc52748dca4d8fb6e13d801726383560b09c53199ba93a0976d2 template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
