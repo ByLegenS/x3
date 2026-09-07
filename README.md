@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.30.0`**
+**Current version: `v0.31.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `9934cf675fa3372dd5f99a909ca06d9b551f204bd8701abd26372346a045d1be` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `350047d51e6d1bdc7a5464f7f7e42dabad4d6b6a1579094e4561d90f52f2b16b` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `c71a073e033412558bdd83d40a3f596c87d26a270ba40c9156afb38af49e6bdd` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `3a34427395b5c2716ba0e56455e8b04b18cb002b18d911ce011fb513e07f2f70` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -135,6 +135,7 @@ and not in this file, it does not exist yet.
 - [The dictionary](#the-dictionary) — the six directive types
 - [Error codes](#error-codes) — the four ways a directive turns red
 - [The JSON report](#the-json-report)
+- [Expectations](#expectations) — the count a scan must reach, so deleting directives cannot go green
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
@@ -604,6 +605,67 @@ One green entry and one red entry, verbatim:
 **There is no timestamp anywhere in the report, by design.** Identical sources
 must produce identical bytes, so that a later ledger can compare two runs and
 never raise a false red over a clock tick. `TestDeterministic` holds that line.
+
+## Expectations
+
+A scan reports what it finds. It cannot report what should have been there and
+was not, and that gap has a name: **deleting the directives is a way to go
+green.** A tree with no directives in it scans clean, reports `0 red` and exits
+`0` - correctly, because nothing in it is wrong. Nothing in it is checked
+either, and the exit code cannot tell those two apart.
+
+An expectation closes that. The project declares how many verified directives a
+scan must find, and `x3 scan` counts its own report:
+
+```json
+{
+  "expect": [
+    {
+      "name": "the ledger package keeps its guards",
+      "paths": ["ledger/**"],
+      "category": "guard",
+      "kind": "lookup",
+      "min": 2
+    }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `name` | required; the red names the expectation that was not met |
+| `min` | required, at least 1 - an expectation of zero verifies nothing |
+| `paths` | glob patterns, **relative to the scan root**; absent means the whole scan |
+| `category` | `guard`, `rule`, `case`, `live`, `allow`, `skip`, ...; absent means any |
+| `kind` | the first segment after the category (`guard:lookup` -> `lookup`); absent means any |
+
+An unmet expectation is red and says what it counted:
+
+```
+BLOCK expectation_not_met: the ledger package keeps its guards
+	the ledger package keeps its guards: 0 verified guard directive(s), the configuration requires 2
+```
+
+**Only verified directives count.** A directive that the scan marked red -
+malformed, unknown category, bound to nothing - counts as zero. Otherwise
+`//x3:guard` with its body emptied would satisfy the very expectation that
+exists to notice its removal: breaking a directive and deleting it check the
+same amount, which is none.
+
+**A stale pattern is red, not silent.** If `paths` matches nothing - the
+directory was renamed, the files moved - the count is zero and zero meets no
+expectation. There is no separate "this pattern is dead" code because none is
+needed: the gate is already failing closed.
+
+**The report is not touched.** Expectations are read from it and never written
+into it, so the same sources still produce the same bytes and a later
+comparison of two runs cannot go red over a clock tick or a configuration
+change.
+
+Writing no `expect` section means no expectation and no warning. That is the
+right default for a project that has not decided yet, and the wrong one to stay
+with: a gate that measures nothing is the failure this engine exists to
+prevent.
 
 ## `x3 lang`
 
@@ -3300,12 +3362,13 @@ version, wrong checksum, all three stop the run and print the command that
 fetches the pinned release. "The tool was not there" and "the tool found
 nothing" must never produce the same colour.
 
-**Read the counts, not only the exit code.** This was measured on the pilot: a
-scan of a tree with no directives in it exits `0` and reports `0 red`. A
+**The counts are the engine's job, not yours.** This was measured on the pilot:
+a scan of a tree with no directives in it exits `0` and reports `0 red`, so a
 gate that trusts the exit code alone turns "delete the directives" into a way to
-go green. The pilot's gate therefore asserts on the report itself — it requires
-the expected directives to be present and verified, and goes red if the count
-drops.
+go green. The first answer was to have the consuming project read the report and
+assert on it - which worked, and meant every project wrote the same counter with
+its own bugs. The count now belongs to the configuration and the engine measures
+it: see [Expectations](#expectations).
 
 **Directives arrive next to the existing tests, not instead of them.** In the
 pilot the existing test file was kept untouched and the directives were added
@@ -3317,6 +3380,11 @@ red on a deliberately broken input.
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
+- **Expectations count directives, and only from `scan`.** They say a minimum,
+  never a maximum, and they cannot say "these two exact directives" - a file
+  carrying three guards satisfies a `min: 2` that was written for two other
+  ones. The other checkers report findings rather than directives and have
+  their own `empty_scope` protection instead.
 - **`update` verifies a checksum, not a signature.** It proves the file it
   installed is the file the release listed; it cannot prove who wrote the
   release. A source that can rewrite the binary can rewrite `SHA256SUMS.txt`
@@ -3474,4 +3542,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.30.0 capabilities=903682098e8c8113ee851aa286b9ae37cf1d933d00308518c97454b7f1ec881f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.31.0 capabilities=65b2d6b5538c3dcc8d22a76988bcc0adfebaab0827197abeb13d90683e3cccb9 template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
