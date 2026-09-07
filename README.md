@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.36.0`**
+**Current version: `v0.36.1`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `4bbd8d2848a9668aadf89834adaa54de486f37014118f4e32241fdb78fea3066` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `22582694226a32336fdd72e527fa73d43ab760469a9bcbee1e775d371fcd7542` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `d0fc867169c83c58dc994040b6edfa8e3cfba62d806593fd91b9889ee115a773` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `38c6546ece84d1cbf07b1f9d6fc9e8c79cd3e60f091cbc3710d8e1e74a165acc` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -1692,6 +1692,10 @@ trees that differ only in what they measure:
 
 The fourth row is what makes a baseline shrink at all; the fifth is what keeps
 the cap out of reach of the flag that silences everything else.
+
+The `-update` in those rows really runs, so the step writes the baseline files back
+afterwards, byte for byte - an experiment that changed what it measures would
+be measuring itself by the second run.
 
 
 ## The finding baseline
@@ -4082,4 +4086,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.36.0 capabilities=a87d90d1a579dc52748dca4d8fb6e13d801726383560b09c53199ba93a0976d2 template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.36.1 capabilities=eb404947df01eecd302c7caeb20ab3e36c0e611fc089a9031c6c6f539c7c8a3f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
