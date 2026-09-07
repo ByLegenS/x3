@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.44.0`**
+**Current version: `v0.45.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `3a4e3a30c77cdbbd14c00a46df36a0e726ca6c4117fcc9a5f316e681e2243c5b` |
-| `x3-linux-amd64` | linux/amd64 | 13.1 MB | `84e1332e01f93cea48b95197ad37d0f64bd505af2080b4b2e2f2abbe9674e67e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.5 MB | `0a3a09bb26bf498c551ef400c132cd1b1c5a81bd8de5b2c4dadbd73530086ea8` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `b328a3d8c790b9c1ea2aebf2acc4ed06153f5300a30a22b2b562ffef207d4233` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -137,6 +137,7 @@ and not in this file, it does not exist yet.
 - [Error codes](#error-codes) — the four ways a directive turns red
 - [The JSON report](#the-json-report)
 - [Expectations](#expectations) — the count a scan must reach, so deleting directives cannot go green
+- [`x3 case`](#x3-case) — the example on a declaration, actually called: a test built from it, run, and never written into the project
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something) — a path constant a gate carries, checked against the file system: a blind gate is a gate that is not there
@@ -204,6 +205,7 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Lane discipline** (`internal/scope`) | **implemented** - `x3 scope` reads what a change touched and turns a commit red when it enters a declared lane and also reaches outside it; crossing needs a reason in the message |
 | **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
 | **Incremental cache** (`internal/cache`) | **implemented** — a run remembers what it measured, keyed on engine version, configuration fingerprint and file content; declared per project, off when it is not declared |
+| **Inline examples** (`internal/cases`) | **implemented** — `x3 case` turns every `//x3:case` written above a declaration into a test that **calls** it and compares the result. The generated test is shown to the package through the Go toolchain's overlay, so not one byte is written into the tree being checked. An example is red when its payload does not parse, when it sits on something that is not a function, when its expectations do not match the signature, when the package does not build — and when **nothing ran it** |
 | **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
 
 What is implemented is a **language check**, not a behaviour check. The scanner
@@ -213,7 +215,10 @@ answers three questions about every `//x3:` line it finds:
 2. Is its shape right — are the required sub-types and the reason present?
 3. Is it in a scope where this type is legal?
 
-It never calls your code, never runs a case, never proves that a `rule` holds.
+It never calls your code and never proves that a `rule` holds. Running an
+example *is* implemented, but as a separate gate: [`x3 case`](#x3-case) calls
+the declaration a `//x3:case` sits on and compares what comes back. `x3 scan`
+itself only reads.
 (`x3 record` and `x3 replay` do reach behaviour — a recorded run compared with a
 later one — but only through the HTTP surface, and only over the traffic the
 recording happened to see.)
@@ -420,7 +425,7 @@ survive a scan.
 |---|---|---|
 | `//x3:rule:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
 | `//x3:guard:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
-| `//x3:case: <payload>` | `decl` only | a non-empty payload |
+| `//x3:case: <payload>` | `decl` only | a payload that parses: `in=(...) out=...` |
 | `//x3:live` | `decl`, `file`, `pkg` | nothing |
 | `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
 | `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
@@ -510,11 +515,17 @@ example belongs to one declaration, so writing it at file or package level is
 meaningless and therefore red.
 
 The payload has a shape: `in=(<args>) out=<want>`. The argument list may be
-empty — a call with no arguments is an example too — and the closing `)` is the
-**last** one on the line, so a nested call fits: `in=(f(1), 2) out=ErrX`. A
-payload that does not parse is `malformed`. What the parts *mean* is still not
-checked: nothing calls the function and compares the result. That is the next
-stage.
+empty — a call with no arguments is an example too — and the closing `)` is
+found by **counting**, not by taking the last one on the line, so a nested call
+fits on both sides: `in=(f(1), 2) out=ErrX` and `in=(1) out=Wrap(err)`. A
+payload that does not parse is `malformed`.
+
+`x3 scan` stops there — it reads the shape, not the values. What the parts
+*mean* is measured by a separate gate, [`x3 case`](#x3-case), which calls the
+function with those arguments and compares the result with that expectation.
+The grammar has one implementation for both: the dictionary and the runner
+call the same parser, because a payload one of them accepts and the other
+reads differently would be an example that goes green without running.
 
 **Green** — `internal/scan/testdata/green/wallet.go:16`:
 
@@ -733,6 +744,186 @@ Writing no `expect` section means no expectation and no warning. That is the
 right default for a project that has not decided yet, and the wrong one to stay
 with: a gate that measures nothing is the failure this engine exists to
 prevent.
+
+## `x3 case`
+
+```
+x3 case [-config <file>] [-out <file>] [dir]
+```
+
+An example written above a declaration is **called**. The engine collects every
+`//x3:case` in the tree, builds one test per package out of them, runs it
+through the Go toolchain, and compares each result with what the example says.
+
+**Nothing is written into the project.** The generated test never touches the
+disk of the tree being checked: it is handed to the compiler through the Go
+toolchain's *overlay*, which shows a package a file that exists only in a
+temporary directory. An interrupted run leaves nothing behind to clean up, and
+the repository being checked stays byte for byte what it was.
+
+### The payload
+
+```
+//x3:case: in=(<arguments>) out=<expected>
+```
+
+- **`in=(...)`** — the arguments, written as Go expressions and separated by
+  top-level commas. A nested call, a composite literal, or a string holding a
+  comma or a parenthesis is read as one argument, not split.
+- **`out=...`** — one expression per result the declaration returns, in order.
+  A result may be skipped with `_`. An example whose expectations are *all*
+  skipped is refused: it would compile, run, pass, and prove nothing.
+- **A method takes its receiver as the first argument.** The engine assigns
+  that argument to a variable and calls the method on it, so value receivers
+  and pointer receivers both work, and a generic receiver needs no type written
+  out.
+
+The expressions are compiled **inside the package they belong to**, so
+unexported functions, package-level variables and the package's own types are
+all in scope. The engine never interprets them; the only thing that reads an
+expression is the compiler that runs it.
+
+**How a result is compared.** The expected value is handed to the comparison
+without being assigned to a variable first, so an untyped constant takes the
+type of the result it is measured against — `out=5` holds against an `int64` as
+well as an `int`. Two errors are compared with `errors.Is`, and failing that by
+message, so a wrapped sentinel still matches the sentinel it wraps. Everything
+else goes through `reflect.DeepEqual`.
+
+### Green
+
+`internal/cases/testdata/green/wallet.go`:
+
+```go
+// Add, iki sayıyı toplar.
+//
+//x3:case: in=(2, 3) out=5
+//x3:case: in=(0, 0) out=0
+func Add(a, b int) int { return a + b }
+
+// Withdraw, cüzdandan düşer; kalan yetmiyorsa hata döner.
+//
+//x3:case: in=(10, 4) out=6, nil
+//x3:case: in=(0, 1) out=0, ErrEmpty
+//x3:case: in=(9, 9) out=0, _
+func Withdraw(balance, amount int) (int, error) {
+
+// Plus, sayacı büyütür ve yeni değeri döner. Örneğin ilk argümanı ALICIDIR.
+//
+//x3:case: in=(&Counter{Total: 2}, 3) out=5
+func (c *Counter) Plus(n int) int {
+```
+
+```
+x3 case: 7 example(s) in 1 package(s) - 7 passed, 0 finding(s)
+```
+
+### Red
+
+`internal/cases/testdata/red/wallet.go` — a payload `x3 scan` calls perfectly
+well formed, and a value that is wrong:
+
+```go
+//x3:case: in=(2, 3) out=6
+func Add(a, b int) int { return a + b }
+```
+
+```
+wallet.go:8 (Add): example_failed
+	out[0] = 5, want 6
+x3 case: 1 example(s) in 1 package(s) - 0 passed, 1 finding(s)
+```
+
+### An example nothing ran is not a green example
+
+The dangerous state is not the wrong answer, it is **no answer**. A package
+whose test entry point returns without calling `m.Run` runs no test at all;
+the toolchain exits `0`, nothing is reported, and a gate that only looked for
+failures would call that green.
+
+`internal/cases/testdata/silent` is exactly that package. The engine keeps the
+name of every example it generated and demands a verdict for each one:
+
+```
+wallet.go:8 (Add): never_ran
+	nothing ran the example; the package reported no result for it
+```
+
+A skipped example is refused for the same reason — `t.Skip` is not a proof —
+and a package that does not compile is named as such rather than as an example
+that did not run, so the fault is looked for where it is.
+
+### Findings
+
+| Code | Means |
+|---|---|
+| `example_failed` | the declaration was called and the result is not what the example says |
+| `never_ran` | the example was generated but the run reported no verdict for it, or it was skipped |
+| `does_not_build` | the package carrying the example does not compile |
+| `malformed` | the payload has no body, or does not parse |
+| `not_a_function` | the example is written above something that cannot be called |
+| `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
+| `wrong_result_count` | the declaration returns nothing, or a different number of values than the example expects; or a method was given no receiver |
+
+The first three are answers the toolchain gave. The last four are refusals the
+engine makes **before** it runs anything: there is no test to generate, so the
+toolchain is never asked.
+
+### Settings
+
+The section is optional — an example is written in the source, not in the
+configuration, so the gate needs nothing declared to run:
+
+```json
+{
+  "case": {
+    "exclude": ["internal/legacy/**"],
+    "timeout": "2m"
+  }
+}
+```
+
+| Key | Means |
+|---|---|
+| `exclude` | path patterns whose files are not read at all |
+| `timeout` | how long one package's run may take; `1m` when it is not written |
+
+The timeout is applied twice: to the test binary, and to the toolchain call
+around it. Only the first would leave a run that hangs while downloading a
+dependency waiting forever.
+
+### The report
+
+```json
+{
+  "version": 1,
+  "root": ".",
+  "config": "x3.json",
+  "findings": [
+    {
+      "file": "wallet.go",
+      "line": 8,
+      "target": "Add",
+      "code": "example_failed",
+      "message": "out[0] = 5, want 6"
+    }
+  ],
+  "summary": {
+    "files": 1,
+    "packages": 1,
+    "cases": 1,
+    "passed": 0,
+    "findings": 1
+  }
+}
+```
+
+`passed` is counted separately from `findings` on purpose: "no findings" and
+"no examples" are not the same sentence, and a repository with nothing to run
+must not read like a repository that ran everything.
+
+Exit `0` when every example held, `1` on any finding, `2` when the setting
+cannot be read or the toolchain cannot be run.
 
 ## `x3 lang`
 
@@ -4994,9 +5185,18 @@ sales page.
   shape - a long random password in a variable - is invisible to it, and a
   string that happens to match a shape is red even when it is an example. The
   exemption exists for the second case; nothing covers the first.
-- **`case` payloads are parsed but not run.** The `in=(...) out=...` shape is
-  checked; the values in it are not. Nothing calls the function and compares the
-  result, so a `case` that is well formed and wrong stays green.
+- **An example is one call, not a scenario.** `x3 case` calls a declaration
+  once with the arguments written down and compares what comes back. A test
+  that builds a fixture, mutates state and then reads it, or that needs a stub
+  the production package does not carry, has no shape here: the arguments are
+  expressions the package can already compile, and there is nowhere to put a
+  helper. Nothing measures how much of a suite that leaves behind, either —
+  the gate counts the examples that exist, not the tests that could become
+  examples.
+- **An example cannot expect a panic, and cannot read a value it mutated.** A
+  declaration that returns nothing is red rather than callable, because there
+  would be nothing to compare; the receiver an example passes in is not read
+  back out after the call.
 - **Only one of the four components exists as behaviour.** Recorder and Ledger
   are interfaces in `internal/engine` with no implementation, so the "nothing
   unchanged is ever re-checked" property described in the README is not real
@@ -5060,4 +5260,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.44.0 capabilities=8f2a2fb828a2c5886ef618e1a876bb1f606f1614e312b79d09590770cac21157 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.45.0 capabilities=62b4baabaab9676256fe63a8a13723e12cb566a7d1977b10a2bd3ae26306ac3f template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
