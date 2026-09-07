@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.42.0`**
+**Current version: `v0.43.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `e8a6de50b314f096031951bbb806b3654aaa8faa2fbeca9ccdce9911df290a4e` |
-| `x3-linux-amd64` | linux/amd64 | 13 MB | `85020810cb8f84744bd5bde4c47ffcc5a35eee59db6461cec1fa3f587176e114` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.4 MB | `e329deddb801d10d01f30143eb8519c45342b17c47e2aaca5bdce3e8360d0eb8` |
+| `x3-linux-amd64` | linux/amd64 | 13.1 MB | `df1ba58796d6f2bfca40d0f1b7598db079c22087fb615e9cf8b81200c830e192` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -148,6 +148,7 @@ and not in this file, it does not exist yet.
 - [Excluding what the pattern also catches](#excluding-what-the-pattern-also-catches) — per-pattern exclusions, because RE2 has no lookaround
 - [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
 - [`x3 boxes`](#x3-boxes) — an open-work list the machine can read, in a file or in the project's own documents
+- [A list that is finished](#a-list-that-is-finished-and-where-it-goes-next) — a rule that reads the whole document, not the item
 - [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
 - [`x3 scope`](#x3-scope) - a change that must stay in its lane
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
@@ -2735,6 +2736,66 @@ experiment proves it in the same run: with the baseline in place the uncovered
 items are silent **and** `summary.findings` is still zero only because no box
 lies about its state.
 
+### A list that is finished, and where it goes next
+
+Every criterion so far reads one **item**. This one reads a whole **document**,
+because a work list can fail as a list while every item in it is written
+correctly: a file whose work is done sits among the ones that are not, and each
+one of those makes the list a little less worth opening. Nobody notices, because
+no single box is wrong.
+
+```json
+{
+  "boxes": {
+    "sources": ["docs/**/*.md"],
+    "markdown": {
+      "retire": {
+        "from": "ongoing",
+        "to": "done",
+        "bare": true,
+        "empty": true,
+        "few": [
+          { "open": 2, "finished": 1 },
+          { "open": 5, "percent": 75 }
+        ]
+      }
+    }
+  }
+}
+```
+
+`from` is the part of a path that says "this document is open work", `to` is
+what replaces it, and the finding writes the destination out. **Both are the
+project's words** - the engine knows no directory named `ongoing`, `done`,
+`todo` or anything else, and a project that keeps its lists somewhere else says
+so here.
+
+| Written | The finding | What it means |
+|---|---|---|
+| `bare` | `list_has_no_box` | the document sits among the open lists and carries no box at all |
+| `empty` | `list_finished` | nothing is open here any more |
+| `few` | `list_nearly_finished` | one of the thresholds holds |
+
+`bare` is the quiet one and it is the reason the rule walks **documents**
+rather than boxes: a file with no box produces nothing to walk past, so the one
+failure that leaves work completely invisible is exactly the one a box-by-box
+gate cannot see. Its finding does **not** say "move this" - a document with no
+box does not belong among the finished ones either; what it needs is boxes.
+
+Each `few` threshold is "at most this many open, and this much finished", and
+**the finished half is required**: `open` alone is refused as a configuration
+error. A threshold that only counted what is left would retire a one-item plan
+nobody has started yet - filing work nobody has begun under work that is done, which is the
+one thing this whole command exists to prevent. Write `finished` (at least this
+many boxes closed) or `percent` (at least this share of them), and any threshold
+that holds is enough.
+
+**The engine does not write the list out.** The report already names every open
+box, every document and every finding; turning that into a page somebody reads
+over breakfast is formatting, and formatting is where a project's own voice
+belongs. A gate that also published documents would own two contracts and break
+on the day one of them changed.
+
 ### Work that moved rather than finished
 
 An item is sometimes closed because it was written down somewhere else. The
@@ -4823,4 +4884,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.42.0 capabilities=a062c1e3b96e8d4dc6d544a8e11462926b93ba779f8db61c1718274cff76091a template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.43.0 capabilities=0d50f0610253c6c62d494f23d659a57f02d2b172c18431fb9af7861e90bcd5bf template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
