@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.32.0`**
+**Current version: `v0.33.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `09411ba5edd55ff8e14f6353a6d236861280219881b13705447acd49bf3c4065` |
-| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `0e40e1632f94a60e01bf9e9ab9f97eec3ecb9387295cbc22ddfa4c7245db447e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `e2c2bd464c7a01eef67a657b54aae4b2556ed3c8433abee793b63b6074abd879` |
+| `x3-linux-amd64` | linux/amd64 | 12.9 MB | `b21f4cc900e69c92eed70ea8e37fac94b051da7af61b58efe24862ed32c0fd6d` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -148,6 +148,7 @@ and not in this file, it does not exist yet.
 - [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
 - [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
+- [Choosing which guards run](#choosing-which-guards-run) — tags, `-only` and `-skip`: a subset out of the one file everybody reviews
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
 - [`x3 update`](#x3-update) — the binary replaces itself from a release, checksum first
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
@@ -2407,7 +2408,7 @@ real change while the rule is in force.
 ## `x3 guard`
 
 ```
-x3 guard [-config <file>] [-report <file>] [-stamp] -- <command> [args...]
+x3 guard [-config <file>] [-report <file>] [-only <tags>] [-skip <tags>] [-stamp] -- <command> [args...]
 ```
 
 Runs the **live guards** declared in a configuration file, then decides whether
@@ -2418,6 +2419,8 @@ process, one decision, no wrapper script.
 |---|---|
 | `-config <file>` | configuration file holding the guards; defaults to `x3.json` |
 | `-report <file>` | write the JSON report here. **Without it no report is written** — stdout belongs to the launched command |
+| `-only <tags>` | run only the guards carrying one of these comma separated tags. See [Choosing which guards run](#choosing-which-guards-run) |
+| `-skip <tags>` | skip the guards carrying one of these comma separated tags |
 | `-stamp` | put a wall-clock start time in the report (off by default; see [The guard report](#the-guard-report)) |
 | `--` | everything after it is the command and its arguments |
 | (always) | the reason for every red guard, and the decision, go to **stderr** |
@@ -2438,6 +2441,51 @@ behaves exactly as it would without the guard in front of it.
 A guard that could not run at all — missing environment variable, unreachable
 host, unknown driver — counts as red. That is deliberate: a live guard whose
 answer is unknown is not an answer, and the switch is **fail-closed**.
+
+### Choosing which guards run
+
+One configuration file usually holds every live guard a project has, but not
+every gate needs all of them: the one that starts a worker has no business
+waiting on the guard that belongs to a different binary. `tags` on a guard and
+`-only` / `-skip` on the command pick a subset **out of the same file**, so a
+narrower run is still the file everybody reviews rather than a second copy that
+drifts.
+
+```json
+{ "name": "database-reachable", "kind": "sql", "tags": ["db", "slow"],
+  "dsnEnv": "APP_DSN", "query": "select 1", "equals": "1" }
+```
+
+```
+x3 guard -only db   -- ./worker      # the database guards, and every untagged one
+x3 guard -skip slow -- go test ./...  # everything except the slow ones
+```
+
+| Written | What runs |
+|---|---|
+| neither flag | **every guard in the file** — the behaviour a project already had, unchanged |
+| `-only a,b` | guards carrying `a` or `b`, **plus every guard with no tags at all** |
+| `-skip a` | everything except the guards carrying `a` |
+| both | `-skip` wins on a guard that matches both |
+
+**A guard with no tags always runs.** Narrowing a set must not drop the check
+nobody got round to classifying; that is the same fail-closed reading the engine
+gives an unwritten `policy`. It also means `-only` narrows only *among tagged
+guards* — to run exactly one guard and nothing else, every guard in the file
+needs a tag.
+
+Three ways to write a selection are refused outright, with exit `2` and before
+any guard runs:
+
+| Written | Why it is refused |
+|---|---|
+| a tag no guard carries | a misspelled `-skip` would otherwise skip nothing and read as if it had — and a misspelled `-only` would quietly run the wrong set |
+| a selection that leaves no guard | an empty run is a silent pass, the same reason an empty rule list is an error |
+| `"tags": [""]` on a guard | an empty tag selects nothing |
+
+Whatever a selection dropped is named in the report's `skipped` list and in the
+stderr summary (`2 guard(s), 1 skipped`). A check that did not run must never
+look like a check that passed.
 
 ### Exit codes
 
@@ -2492,6 +2540,7 @@ types cannot.
 | `name` | yes | unique within the file; what the report and the stderr lines call this guard |
 | `kind` | yes | `sql`, `http` or `exec` |
 | `policy` | no | `warn` or `block`; **defaults to `block`** |
+| `tags` | no | names `-only` and `-skip` select on; a guard with none always runs. See [Choosing which guards run](#choosing-which-guards-run) |
 | `timeoutMs` | no | time limit for this guard; defaults to `10000`. A dead dependency must not hang the gate forever |
 
 ### `kind: "sql"`
@@ -2613,6 +2662,7 @@ marshalled result.
 | `guards[].policy` | the policy that was applied to **this** guard — always present, so the report explains its own decision |
 | `guards[].expected` / `observed` / `detail` | what was wanted, what was seen, and why it counted as red. Secrets are already redacted |
 | `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`) |
+| `skipped` | the guards a `-only` / `-skip` selection left out, by name; absent when nothing was dropped. A check that did not run must not look like one that passed |
 | `decision` | `launch` or `blocked` |
 | `command` | the command as given after `--`; absent when none was given |
 | `exit` | the command's exit code. **Absent when `decision` is `blocked`** — that absence is the proof the command never ran |
@@ -2644,6 +2694,24 @@ both the exit code and the presence of the file:
   block-red: exit=1 ran=False (want 1/False)
   warn-red:  exit=0 ran=True (want 0/True)
 ```
+
+Selection gets its own step, and it is the sharper experiment: **one** file,
+`guard-tagged.json`, holding an untagged guard, a `fast` one and a red `slow`
+one. Only the flags change, so anything that moves is the selection's doing:
+
+```
+== guard selection control experiment
+  no selection: exit=1 ran=False (want 1/False - every guard runs, the red one decides)
+  -skip slow:   exit=0 ran=True (want 0/True)
+  -only fast:   exit=0 ran=True (want 0/True)
+  mistyped tag: exit=2 ran=False (want 2/False)
+```
+
+The first line is the one that matters to a project already using `x3 guard`:
+with no flags all three guards run and the decision is what it always was. The
+last line is the one that matters to the gate: a tag nobody carries stops the
+run instead of skipping nothing, so `-skip` can never be the quiet way to turn a
+red gate green.
 
 And the stderr of the blocked run — one block per red guard, then the decision:
 
@@ -3594,4 +3662,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.32.0 capabilities=fddfec2728965886c9cb2f5ca756829b8e8f28af6f4b2b74d329669c31a1458b template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.33.0 capabilities=9b9f8fbbcb24bb73a02f95d41d2ddc8d7371f833aa67eecd9abe2a0ed556330c template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
