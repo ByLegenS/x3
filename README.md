@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.37.0`**
+**Current version: `v0.38.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `5be90532012108aa4e6fc25ca245357e69df8d580b8b4c2df7b42132bc8aaa80` |
-| `x3-linux-amd64` | linux/amd64 | 13 MB | `6ec6eb88ff8e61cf3f60cbcadb2a566374ef5b5ff78f649453e0c64a0bbb734f` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.3 MB | `b1d54f2e964d4363921eb36fb73f0986281798d69e308b4cea2cf568c005beac` |
+| `x3-linux-amd64` | linux/amd64 | 13 MB | `43b0bc57da8132c246a1d9c5e68d1643e583e5de16b5b697189c5a5a9fb102f7` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -163,6 +163,7 @@ and not in this file, it does not exist yet.
 - [The effective report](#the-effective-report)
 - [`x3 testdb`](#x3-testdb) — run-lifetime test databases: clone, migrate, drop, collect the leftovers
 - [Speed](#speed) — every core, same bytes, and the content-keyed cache
+- [Files the engine reads back](#files-the-engine-reads-back) — baselines, lists and caches go through the same reader as the settings file
 - [Splitting the configuration](#splitting-the-configuration) — one file, or many parts the root declares
 - [Pilot: a real `x3.json`](#pilot-a-real-x3json)
 - [Releases and reproducible builds](#releases-and-reproducible-builds)
@@ -190,10 +191,10 @@ Alongside them, one capability that is not part of that four-component picture:
 | **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
 | **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
 | **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; all nine specified rule kinds have a verifier |
-| **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink and refuses to record growth |
+| **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink, refuses to record growth, and measures again so that its exit code still means "the tree is green" |
 | **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
-| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show |
+| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show; criteria read the tree (`file`, `pattern`, `absent`), the running system (`sql`, `command`) or a recorded sign-off (`manual`) |
 | **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
 | **Syntax** (`internal/syntax`) | **implemented** - `x3 syntax` parses the files no compiler reads (a built-in JSON parser, or a parser the project names), and refuses to go green when the parser it was told to use is not installed |
 | **Lane discipline** (`internal/scope`) | **implemented** - `x3 scope` reads what a change touched and turns a commit red when it enters a declared lane and also reaches outside it; crossing needs a reason in the message |
@@ -1622,6 +1623,21 @@ zero the baseline on every run, and no growth would ever be seen again. Shrink
 is recorded, because punishing somebody for deleting dead code is how a gate
 teaches people to keep it.
 
+`-update` then **measures again and reports what is left**, so its exit code
+carries the same meaning as a plain run: `0` only when the tree is green. This
+matters because recording a baseline is not the same as passing the gate. A
+document above a `cap` is never written to a baseline — there is nowhere for the
+number to go — so an update has nothing to write and nothing to refuse, and
+before the second measurement it ended with `0 baseline(s) rewritten, 0 refused`
+and exit `0` while the plain run was red on the very same tree. Anyone who runs
+`-update` as their check saw green on a red tree. Findings an update *can* clear
+— a dead key, a shrink not yet recorded — are cleared by the write and the
+second measurement then passes them, so the flag stays useful.
+
+Because an update is a run that **writes**, it keeps its report off stdout: pass
+`-out` to get the post-update JSON report, otherwise only the human summary goes
+to stderr.
+
 A missing baseline file measures against an empty set, so every value is new and
 the run is red until `-update` writes the first one. A baseline that cannot be
 measured — a moved directory, a renamed type — is `empty_scope` rather than a
@@ -1736,7 +1752,7 @@ A baseline writes exactly one of `set`, `count` and `cap`.
 | a key at or below `max` | green, and nothing is recorded anywhere |
 | a key above `max` | **red** — `above_cap`, both numbers named |
 | nothing measured at all | **red** — `empty_scope` |
-| `-update` | the cap is skipped; there is no file to write |
+| `-update` | the cap is skipped; there is no file to write, and the run stays **red** |
 
 The measurements are the count mode's — `lines`, `matches`, `files` — and the
 red is the same `above_cap`, because a cap is a cap whether it stands beside a
@@ -1746,9 +1762,11 @@ because a cap already reports only what is above `max`, and `policy` is refused
 because a cap that can be downgraded to a warning is not a limit. A cap is
 always `block`.
 
-That absence is the whole point. `-update` is the flag that silences everything
-else in this gate, and it cannot reach a cap, because there is nowhere for the
-number to go.
+That absence is the whole point. `-update` lowers every other number in this
+gate to what is measured, and it cannot reach a cap, because there is nowhere
+for the number to go. What it therefore must not do is call the run green: a cap
+it cannot record is still a cap it violated, and `-update` reports it like any
+other run.
 
 #### The count control experiment
 
@@ -1761,10 +1779,17 @@ trees that differ only in what they measure:
 | `count-grown` — one number up, one key gone, one over the cap | `1`, all three named |
 | `count-grown`, `-update` | `1`, and the baseline file **unchanged** |
 | `count-shrunk` — one number down | `0`, and `-update` writes the smaller number |
-| `count-cap`, `-update` | the capped key still **out** of the baseline, the run still `1` |
+| `count-cap`, plain | `1` — the document above the cap, named |
+| `count-cap`, `-update` | the capped key still **out** of the baseline, **and the update itself exits `1`** |
+| `count-shrunk`, `-update` | `0` — an update that fixes the tree still reports green |
 
-The fourth row is what makes a baseline shrink at all; the fifth is what keeps
-the cap out of reach of the flag that silences everything else.
+The fourth row is what makes a baseline shrink at all; the sixth is what keeps
+the cap out of reach of the flag that lowers every other number, *and* keeps the
+update honest about it. That sixth row used to read "the run still `1`" while
+only the plain run of the fifth row was ever measured — the update was exiting
+`0` on the same red tree, unmeasured. The last row is the other direction: the
+rule is not "an update is always red", it is "an update reports what it leaves
+behind".
 
 The `-update` in those rows really runs, so the step writes the baseline files back
 afterwards, byte for byte - an experiment that changed what it measures would
@@ -2310,27 +2335,89 @@ because it stopped being needed.
 Asking only the second question lets a list fill up with finished work. Asking
 only the first leaves closing without proof free. The value is in asking both.
 
-### The three criteria
+### The criteria
 
-| `when` | Holds when |
-|---|---|
-| `file` | `path` exists |
-| `pattern` | `match` is found in any file under `sources` |
-| `absent` | `match` is found **nowhere** under `sources` |
+Three of them read the **tree**, because the proof is a file:
+
+| `when` | Fields | Holds when |
+|---|---|---|
+| `file` | `path` | `path` exists |
+| `pattern` | `sources`, `match` | `match` is found in any file under `sources` |
+| `absent` | `sources`, `match` | `match` is found **nowhere** under `sources` |
 
 `absent` is the one that makes deletion provable: "the old call site is gone"
 is exactly the sentence that becomes true when that work finishes, and nothing
 else in the engine can state it.
+
+Two read the **running system**, because most work is not finished when a file
+appears but when something starts behaving:
+
+| `when` | Fields | Holds when |
+|---|---|---|
+| `sql` | `dsnEnv`, `query`, `equals`, `driver`, `timeoutMs` | the query's first cell equals `equals` |
+| `command` | `command`, `args`, `timeoutMs` | the command exits `0` |
+
+`sql` is how "the migration ran" and "no row is left in the old state" become
+measurable; `command` is how "the test suite is green" does. `equals` is
+required, because a query that only has to *run* is answered by an empty table.
+The DSN is read from the environment by name and never written in the list.
+`timeoutMs` defaults to 60 seconds — a criterion may run a whole test suite.
+
+The last one is for work no machine can see:
+
+| `when` | Fields | Holds when |
+|---|---|---|
+| `manual` | `by`, `seen`, `signed` | `signed` is written |
+
+A manual criterion is not forbidden — some work really is "somebody looked at
+the screen" — but it may not hide. `by` says who looks and `seen` says what they
+must see, both required, because a criterion without them is an intention. It
+holds only once `signed` records that the looking happened, which keeps the law
+that closes a box: **a box closes because the work was done, not because it
+stopped being needed**. Every run prints how many criteria are manual; a ratio
+that grows is a list drifting back to nobody checking.
+
+Fields belong to exactly one criterion and writing a foreign one is refused. A
+`match` on a `sql` criterion would otherwise be ignored in silence, and the
+person who wrote it would believe the query was filtered.
+
+#### A criterion that cannot run
+
+A `sql` criterion whose DSN variable is empty, or a `command` that cannot start,
+is **unmet** — never met — and the reason is printed beside it. Treating what
+could not be measured as proof is how a gate stops being one. Those criteria are
+also counted in the report (`summary.unmeasured`) and on the human line, because
+a count that is always above zero is a gate that never actually runs: closed
+boxes stay red, but nobody notices *why* unless the number is on the screen.
 
 A list with no boxes is `empty_scope`. A list that says nothing does not say
 everything is finished.
 
 ### The control experiment
 
-`check.ps1`, step `boxes control experiment`, runs the binary four times against
-one tree: a list that matches it (`0`), a list that leaves finished work open
-(`1`), a list that closes unfinished work (`1`), and this repository's own list
-(`0`).
+`check.ps1`, step `boxes control experiment`, runs the binary against one tree
+with several lists:
+
+| List | Wants |
+|---|---|
+| matches the tree | `0` |
+| finished work left open | `1` |
+| unfinished work closed | `1` |
+| a condition not yet met / met | `0` / `1` |
+| a `command` and a `manual` criterion, both closed **with** proof | `0` |
+| the same two boxes closed **without** proof | `1` |
+| the same two boxes, proof complete, left **open** | `1` |
+| a `sql` criterion whose DSN is empty, box closed | `1`, and `summary.unmeasured` is `1` |
+| this repository's own list | `0` |
+
+The middle three are one experiment in three directions on the same two boxes.
+Without the second, a `manual` criterion would close a box for free; without the
+third, proven work could sit open forever. The fourth is the fail-closed law: a
+criterion that could not run does not turn a closed box green.
+
+A `sql` criterion needs a database to be *met*, so the step proves the direction
+that no environment can fake — it stays red and it is counted. The reading
+itself is the same shared probe the live guard uses.
 
 ## `x3 syntax`
 
@@ -3773,6 +3860,20 @@ switched on for everybody.
 Every one of those runs produced a report byte-identical to the uncached one.
 That is the property the cache is worth having only if it holds.
 
+## Files the engine reads back
+
+Some of what a gate reads is not source but state the project keeps beside it:
+the frozen baselines, a findings baseline, the open-work list, the cache. Those
+are JSON, they live in the repository, and people edit them.
+
+They are read through one reader, the same one that reads `x3.json`, and it
+**drops a leading byte order mark**. Windows tools write one — PowerShell 5.1's
+`Set-Content -Encoding utf8` and Notepad both do — while Go's JSON decoder calls
+it an invalid character. Having the settings file forgive it and a baseline
+refuse it meant that two files written by the same editor behaved differently,
+and the error named a character nobody typed. It is not a decision a project
+should have to make, so it is not one it is asked about.
+
 ## Splitting the configuration
 
 One `x3.json` is enough for a small repository and wrong for a large one. A code
@@ -4183,4 +4284,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.37.0 capabilities=fd00b0aff72dfe2ceb64fd47a9eca2b380bb80c81b76b1fbdfd780ea518da27e template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
+<!-- x3-dist version=v0.38.0 capabilities=b75c6a49730144a85dd1366236f94778b720d6693254b6806f8fc42d2b7ca52f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
