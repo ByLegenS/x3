@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.29.0`**
+**Current version: `v0.30.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `714f89044005557020d1ba47072aed5a29f10f5706a753e9cda875395b07362a` |
-| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `44df437b9e266bdedb75ebce35609b968a67fee3aafa371b5b7dcba27afd3f26` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.2 MB | `9934cf675fa3372dd5f99a909ca06d9b551f204bd8701abd26372346a045d1be` |
+| `x3-linux-amd64` | linux/amd64 | 12.8 MB | `350047d51e6d1bdc7a5464f7f7e42dabad4d6b6a1579094e4561d90f52f2b16b` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -51,6 +51,19 @@ x3 version
 
 prints the embedded release tag — the same tag as the download you took. A
 binary built outside a release prints `unreleased`.
+
+From then on the binary updates itself:
+
+```
+x3 update
+```
+
+It reads the newest published tag, downloads the binary for this platform,
+verifies its SHA256 against the published list and only then replaces the file
+it is running from. A sum that does not match is refused and nothing is
+touched. `x3 update -check` answers the same question without installing
+anything, and a project can require a minimum version in its own `x3.json` so
+that an old binary refuses to run at all.
 
 ### Pin a version
 
@@ -135,6 +148,7 @@ and not in this file, it does not exist yet.
 - [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
 - [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
 - [`x3 version`](#x3-version) — the release tag embedded in the binary
+- [`x3 update`](#x3-update) — the binary replaces itself from a release, checksum first
 - [Live guards in `x3.json`](#live-guards-in-x3json) — the three source kinds and the warn/block switch
 - [The guard report](#the-guard-report)
 - [`x3 guard:effective`](#x3-guardeffective) — compare a setting as recorded with the same setting as it is actually in force
@@ -2768,6 +2782,127 @@ without parsing anything. A binary that was not produced by a release run has
 no tag to embed and prints `unreleased`; an untagged binary is not a published
 one, and a gate that pins versions should treat it as red.
 
+## `x3 update`
+
+```
+x3 update [-config <file>] [-version <tag>] [-source <address|dir|owner/repo>] [-check]
+```
+
+The binary replaces itself with a published one, after verifying its SHA256.
+This exists so that a project using x3 does not have to carry a downloader of
+its own: reading the release layout, checking the sum and putting the new file
+in place are the engine's job, and a project that repeats them writes a script
+that only its author can vouch for.
+
+The order is fixed:
+
+1. resolve the tag - `-version` if given, otherwise the one named in the
+   release pointer;
+2. read `SHA256SUMS.txt` of that release and find the entry for this platform;
+3. download the binary;
+4. compute its SHA256 and compare it with the listed one;
+5. put it in place of the running file.
+
+**A sum that does not match stops at step 4 and the running binary is left
+exactly as it was.** The same is true when the release lists no binary for this
+platform: a missing file is treated like a wrong one. Both exit `1` and name the
+file that was left in place. Not being able to *reach* the source is a
+different answer - that exits `2`, because "the release refused me" and "the
+network refused me" are not the same event and must not wear the same colour.
+
+**The layout.** Every source, remote or local, is read the same way:
+
+```
+<source>/<ref>/<file>
+```
+
+- `<source>/main/LATEST` - one line, the newest release tag
+- `<source>/<tag>/SHA256SUMS.txt` - the checksum list, in `sha256sum -c` format
+- `<source>/<tag>/x3-<goos>-<goarch>[.exe]` - the binary for one platform
+
+`LATEST` is written by the same run that builds the binaries. A separate step
+would drift, and a pointer naming a release nobody published is the quietest
+way to break an update.
+
+**Where it downloads from**, first answer wins: `-source`, then the
+`X3_UPDATE_SOURCE` environment variable, then `update.source` in the
+configuration, then the engine's own public repository. The order runs from
+outside in on purpose - pointing one run at a mirror should not require editing
+a tracked file.
+
+A source may be an address (`https://...`), an `owner/repository` shorthand
+(read from `raw.githubusercontent.com`), or **a local directory**. The
+directory case is not a test fixture: an air-gapped or mirrored environment
+publishes the same three files onto a share and every machine updates from it
+with no code path of its own. An existing directory wins over the shorthand
+reading - if you have a folder called `mirror/x3`, you meant the folder.
+
+**`-check` changes nothing.** It prints the tag the source publishes and exits
+`1` if that tag is newer than the running binary, `0` if it is not. Use it in a
+gate that wants to report drift without installing anything.
+
+Output is split so a script can read it: the tag goes to stdout on a line of
+its own, everything written for a human goes to stderr.
+
+**Replacing a running file.** The new bytes are written next to the target
+first, because a rename is only atomic within one filesystem. On Windows a
+running executable cannot be overwritten but can be renamed, so the sequence is
+three steps - write, move the old one aside, put the new one in place - and if
+the last step fails the old name is given back. The old file is then deleted; if
+the running process still holds it, it stays and the next update removes it,
+which is not a reason to call a finished update red.
+
+Configuration is optional. The section is:
+
+```json
+{
+  "update": {
+    "source": "owner/repository",
+    "latestRef": "main",
+    "timeoutMs": 120000
+  }
+}
+```
+
+An unknown key in it is an error, not a silent skip.
+
+### The minimum version gate
+
+A project can state the oldest engine it is willing to be checked by:
+
+```json
+{
+  "x3": { "min_version": "v0.30.0" }
+}
+```
+
+This runs **before every command**. If the binary's own tag is older, the
+command does not start:
+
+```
+x3: RED - this binary is v0.29.0, the project requires v0.30.0 or newer
+	run: x3 update
+```
+
+`x3 update` is the one command exempt from the gate - it is the answer the gate
+points at, and a red with no way out is a wall, not a gate.
+
+Details that matter:
+
+- **An untagged binary satisfies nothing.** A build produced outside a release
+  prints `unreleased`, and the gate treats that as failing any requirement. A
+  binary nobody published cannot prove which code it carries.
+- **A `git describe` suffix is ignored.** `v0.30.0-3-gabc1234` and
+  `v0.30.0-dirty` both count as `v0.30.0`: those commits come *after* the tag,
+  so such a binary is at least as new as the tag it names.
+- **A requirement that is written must parse.** A missing file, a missing
+  section or an empty field means no requirement and no warning. A value that
+  is not a release tag, or an unknown key beside it, is an error - a misspelled
+  requirement that is silently ignored leaves its author believing a gate is
+  running.
+- **It reads the configuration the way every other section is read**, so the
+  requirement may live in an included part rather than in the root file.
+
 ## `x3 testdb`
 
 ```
@@ -3143,12 +3278,20 @@ go build -o <path> ./cmd/x3      # in the x3 checkout
 The directives are plain comments, so the consuming project's compiler never
 sees them and its dependency graph never learns that x3 exists.
 
-**Pin a version and a checksum, not a path.** The consuming project records
-the release tag and the SHA256 of the binary it verified against — one small
-tracked file — and fetches that exact file from the public binary repository
-into a directory its VCS ignores. A checked-in path (or an environment variable
-holding one) is green on the machine that wrote it and unmeasured on every
-other one, and neither of them can tell you *which* build ran.
+**Pin a version, and let the engine fetch itself.** The consuming project
+writes the version it requires into its own `x3.json`
+([the minimum version gate](#the-minimum-version-gate)) and calls
+[`x3 update`](#x3-update) to obtain that binary. Nothing else about x3 is
+tracked in the project: no downloader, no checksum file, no path.
+
+This corrects earlier advice, and the reason is worth keeping. The first
+integration had the project carry its own script to read a pinned version,
+download the binary and verify the sum. That script was correct and it was
+still wrong: every project using the engine would write the same one, each with
+its own bugs, and the engine could fix none of them. Fetching and verifying a
+release is the engine's own subject. A checked-in path (or an environment
+variable holding one) is worse still - green on the machine that wrote it,
+unmeasured everywhere else, and unable to say *which* build ran.
 
 **A missing or mismatched binary is red, not skipped.** The pilot's gate was
 fail-open at first: no binary meant a warning and a normal start. That is the
@@ -3174,6 +3317,16 @@ red on a deliberately broken input.
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
+- **`update` verifies a checksum, not a signature.** It proves the file it
+  installed is the file the release listed; it cannot prove who wrote the
+  release. A source that can rewrite the binary can rewrite `SHA256SUMS.txt`
+  beside it, so the trust you place in a source is the trust you place in its
+  releases. Pointing `-source` at a mirror you control narrows that; it does
+  not remove it.
+- **The minimum version gate is enforced from v0.30.0 on.** An older binary
+  reads the same configuration file and never sees the requirement, so pinning
+  a minimum protects you from binaries newer than the gate itself, not from
+  every old one.
 - **The cache is per file, not per project.** A checker whose answer depends on
   more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not
   use it, and a change in one file still costs a full pass for those. `lang`
@@ -3321,4 +3474,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.29.0 capabilities=549dbfb77b334cf856b6c080ea8b30ee16c7d92f2aab8fb35e7a455b28af19c5 template=87330100fe0efeb05683444a1c48a7fbd2bc42f04e01c2df2ab9543a330fc620 -->
+<!-- x3-dist version=v0.30.0 capabilities=903682098e8c8113ee851aa286b9ae37cf1d933d00308518c97454b7f1ec881f template=27dd89792d6c3fadeaa61f5d04ffd541f54e90e6867c6063b9ccc48325519be2 -->
