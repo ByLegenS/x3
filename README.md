@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.50.0`**
+**Current version: `v0.51.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `53cc8af1cf9c6f0058f30a3a3cad007f2e72c6b0f45ccd3b32fbfbf404cc6a86` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `b6ec41fc0e87463e22888750606170c7e038f28eb0d1c8cbe383d64c259cf1b4` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `30e3760f91044c296a0e18f91cede798721dddc55661c16e4bcd8d105dcd2e16` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `c6c1061231bad30a591354d212aee9c1ac7969fe923106d4f04be44ea6d0235f` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -141,6 +141,7 @@ and not in this file, it does not exist yet.
 - [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
 - [`x3 arch`](#x3-arch) — architecture rules: which component may import which
 - [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something) — a path constant a gate carries, checked against the file system: a blind gate is a gate that is not there
+- [`from: "x3"`](#from-x3--the-engines-own-roster) — the settings file read as the engine reads it: what a document claims is guarded, checked against what is actually in force
 - [Scope integrity](#scope-integrity) — a rule that measured nothing, or fewer things than it declared, is red
 - [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
 - [The count mode](#the-count-mode) — a number per key, and the cap that takes no debt
@@ -1627,6 +1628,7 @@ narrow.
 | `go` | string constants of a named type, in the rule's `sources` | `const-set:<Type>` |
 | `json` | the keys of one file, nested keys flattened to `a.b.c` | `keys:<pattern>` |
 | `regex` | one capture group, over `file` or `sources`, read **line by line** ([how](#how-a-pattern-is-read)) | the pattern itself |
+| `x3` | the settings file at `file`, read as a **configuration** ([what that changes](#from-x3--the-engines-own-roster)) | `in-force` or `commands` |
 
 **What enters the set is what was captured**, not the whole key: `keys:error.*`
 puts `not_found` into the set, not `error.not_found`, so it can be compared with
@@ -1882,6 +1884,86 @@ A dead exemption is red for the same reason a dead `exclude` pattern is: an
 exemption list that grows without ever shrinking is a gate carrying its own
 silencer, and the next person to read it cannot tell which entries still matter.
 
+### `from: "x3"` — the engine's own roster
+
+A rulebook says *"this one is guarded"*, and names the guard. That sentence is
+a **claim**, and it rots in a way nothing else in the project does: the guard is
+deleted, downgraded or never wired up, and the sentence stays. Somebody reads
+the rule, sees that it is guarded, and moves on. Nobody is looking.
+
+Checking the claim needs the two halves of *guarded* — the name is written
+where guards are declared, and the thing that runs guards actually runs. A
+`regex` over the settings file answers only the first half, and answers it
+badly: it finds the name in a rule that was turned down to `policy: "warn"`
+last month, which is exactly the day the claim became false. `from: "x3"` reads
+the same file as **a configuration**, the way the engine does, and the sets it
+produces carry the engine's own verdict rather than the file's text.
+
+```json
+{ "name": "what-the-rulebook-claims-is-in-force",
+  "kind": "consistency",
+  "left":  { "from": "regex", "file": "RULES.md", "select": "`x3: ([a-z-]+)`" },
+  "right": { "from": "x3", "file": "x3.json", "select": "in-force" },
+  "compare": "left-subset-of-right" }
+```
+
+| `select` | The set |
+|---|---|
+| `in-force` | every name this configuration puts **in force**: each rule, baseline, pattern, guard and expectation by its `name`, each section by its own key, and a mechanism that has no name by its **path in the configuration** (`boxes.markdown.criterion`) |
+| `commands` | the subcommands this configuration configures — `freeze` for a `freeze` section, `guard` for `live`, `scan` for `expect`. Sections that describe the engine's own workings (`x3`, `update`, `baseline`, `cache`) configure no check and are not in the set |
+
+**`policy: "warn"` is not in force.** A rule set to warn is written in the file
+and stops nobody, so it never enters the `in-force` set, and neither does
+anything nested under it. This is the whole reason the extractor exists: a
+grep would keep saying *"guarded"* the day the guard stopped guarding.
+
+**Named things are known by their name, unnamed ones by their address.** A rule
+with a `name` contributes that name and nothing deeper — its identity is the
+name, and the fields under it are its body, not more claims. A mechanism that
+carries no name is real all the same, and a document points at it too; it
+enters the set as the path it is written at, so the day it is deleted from the
+settings the claim that named it goes red.
+
+**The second half is a rule of its own.** `in-force` says the name is
+configured and blocking; it cannot say that anybody runs the engine. That is a
+comparison between the configuration and the run list, and it is written the
+other way round — every checker the settings configure must appear in the file
+that runs them:
+
+```json
+{ "name": "every-checker-the-settings-configure-is-in-the-run-list",
+  "kind": "consistency",
+  "left":  { "from": "x3", "file": "x3.json", "select": "commands" },
+  "right": { "from": "regex", "file": "ops/check.ps1", "select": "x3 ([a-z]+)",
+             "comments": "exempt" },
+  "compare": "left-subset-of-right" }
+```
+
+`comments: "exempt"` is load-bearing here, not decoration. A run list carries
+its own history in comments — steps that were retired, commands somebody meant
+to add — and a command named in a comment runs exactly as often as a name in
+prose does. Read with comments, the rule goes green on a checker nobody has
+ever run.
+
+**Red and green, same tree.** The green side claims a blocking rule and runs
+every checker it configures. The red side changes two things and nothing else:
+
+| Claim | Settings | Run list | Verdict |
+|---|---|---|---|
+| `` `x3: the-core-knows-no-application` `` | `"policy"` unwritten, so `block` | `x3 arch` in a step | green |
+| `` `x3: a-rule-that-only-warns` `` | `"policy": "warn"` | `x3 arch` in a step | `set_mismatch` — the name is in the file and not in force |
+| — | a `secrets` section | `x3 secrets` only in a comment | `set_mismatch` — `secrets` is configured and nobody runs it |
+
+Both reds are `set_mismatch`, and the finding names the value: the rule cannot
+say which of the two halves failed, and it does not need to — either way the
+document is promising something the run does not do.
+
+**It reads one file, not a file set.** `file` is required and `sources` is
+refused: a roster is what one configuration puts in force, and merging two
+configurations would produce a set no single run ever has. `parts`, `join`,
+`each` and `comments` belong to the `regex` extractor and are refused here for
+the same reason they are refused on `go` — this reader is not looking at text.
+
 ### Fields a rule has
 
 | Field | Required | Meaning |
@@ -1901,6 +1983,7 @@ silencer, and the next person to read it cannot tell which entries still matter.
 | `across` + `minLines` | duplication | the component to compare with itself, and the shortest body worth comparing |
 | `in` + `terms` + `comments` | vocabulary | the layer, the words it must not know, and whether prose counts |
 | `left` + `right` + `compare` | consistency | the two sets and how they must agree |
+| `left.from` / `right.from` | consistency | `go`, `json`, `regex`, or [`x3`](#from-x3--the-engines-own-roster): the settings file read as a configuration, so a `warn` rule counts as written and not as in force |
 | `left` + `compare: left-exists-on-disk` (+ `absent`) | consistency | one set read as paths, checked against the file system, and the paths meant to be missing with the reason each one is |
 | `left.parts` + `left.join` | consistency | a value spelled in pieces: the pattern that captures one piece, and the separator that puts them back together |
 | `left.skip` / `right.skip` | consistency | values the extractor must not put in the set: a **pattern → reason** map read against the value itself. A pattern that sifts nothing is `dead_filter` |
@@ -5570,9 +5653,10 @@ sales page.
   the start of a path segment, so a table name inside a file, or a part whose
   name nobody prefixed, is invisible to it. `deps` with `match: "literal"` is
   the kind that reads names inside files.
-- **`consistency` reads three shapes and no more.** Typed string constants, JSON
-  keys, and one regular-expression capture. A set that lives anywhere else — a
-  database table, a generated file, a YAML document — cannot be compared yet.
+- **`consistency` reads four shapes and no more.** Typed string constants, JSON
+  keys, one regular-expression capture, and the engine's own settings file. A
+  set that lives anywhere else — a database table, a generated file, a YAML
+  document — cannot be compared yet.
 - **`vocabulary` reads words, not meaning.** A term that is also an ordinary
   word turns every innocent use red, and a term under three letters is never
   read at all.
@@ -5687,4 +5771,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.50.0 capabilities=d9a7c8de925fa06fb48c2e4ff38a660fa62aab7dd6ba89b2c502ce474b225590 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.51.0 capabilities=c1a074e5b30e39c93749d31387e9e808e9221138656033bf8ad25a1bf0dfc3cf template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
