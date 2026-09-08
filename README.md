@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.53.0`**
+**Current version: `v0.54.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `f8705b36a8a7ec1782b9e170a47cbaec76073d40bed7a141081482231f1a30a4` |
-| `x3-linux-amd64` | linux/amd64 | 13.3 MB | `03fdee918d5b36bcf613aaf80070fe7eefc98ee318368c8b9b55bd4954893095` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14 MB | `b903caed7f72a28592d25c2fb1bba3545e4a0983c339ec138155351b783a7961` |
+| `x3-linux-amd64` | linux/amd64 | 13.6 MB | `3f41384366ef3ccb490824a66771ffc240b134e5115fc4bddfd4f2c4aaadcbac` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -86,6 +86,7 @@ x3 scan  ./internal/...         # directives in the source
 x3 lang  -config x3.json .      # one language outside comments
 x3 arch  -config x3.json .      # which component may import which
 x3 freeze -config x3.json .     # frozen lists that only shrink
+x3 surface -config x3.json .    # the exported API, which may only grow
 x3 docs  -config x3.json .      # changes that must not travel alone
 x3 secrets -config x3.json .    # credentials that got into the source
 x3 boxes -config x3.json .      # open work, in a file or in the documents
@@ -105,7 +106,7 @@ returned instead.
 
 Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
-section for the frozen baselines, the `docs` section for coupled changes,
+section for the frozen baselines, the `surface` section for the exported API, the `docs` section for coupled changes,
 the `secrets` section for the leak scan,
 the `boxes` section for the open-work list, the `record` section for
 what a recording must hide, the `replay` section for what may differ,
@@ -145,6 +146,9 @@ is on the README roadmap and not in this file, it does not exist yet.
 - [`x3 freeze`](#x3-freeze)
 - [The count mode](#the-count-mode)
 - [A cap with no baseline](#a-cap-with-no-baseline)
+- [`x3 surface`](#x3-surface)
+- [The direction is the whole point, and it is `freeze` inverted](#the-direction-is-the-whole-point-and-it-is-freeze-inverted)
+- [Who breaks](#who-breaks)
 - [The finding baseline](#the-finding-baseline)
 - [`x3 docs`](#x3-docs)
 - [`x3 secrets`](#x3-secrets)
@@ -194,6 +198,7 @@ evidence.
 | **Language gate** (`internal/lang`) | one language outside comments, against an embedded dictionary plus the project's `language.allow` |
 | **Architecture rules** (`internal/arch`) | the import graph and nine further rule kinds, against the components a project declares |
 | **Frozen baselines** (`internal/freeze`) | a measured set or number that may only shrink; `-update` records a shrink and refuses growth |
+| **Frozen API surface** (`internal/surface`) | the exported Go API of declared packages, which may only grow; a removal or a changed signature is red, and the finding names who uses it |
 | **Finding baseline** (`internal/baseline`) | today's findings frozen so a new gate can be adopted without a thousand reds |
 | **Coupled changes** (`internal/docs`) | a change that must not travel alone; the exemption needs a written reason |
 | **Secret scan** (`internal/secrets`) | credential formats in any text file, masked in the report |
@@ -1300,6 +1305,132 @@ is frozen), `min` (it already reports only what is above `max`) and `policy` (a
 limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
+
+## `x3 surface`
+
+**What it catches:** a core package's exported API changing under the
+applications that import it — a parameter type widened, a return value added, a
+function gone. The compiler catches it in *this* tree, on the day the whole
+repository is built together; what it cannot say is **who** the change breaks,
+and it says nothing at all once the callers live somewhere else. Version pinning
+answers neither: it only defers the break to upgrade day, and holds the pinned
+callers away from every fix in between.
+
+```
+x3 surface [-config <file>] [-out <file>] [-update] [dir]
+```
+
+```json
+{ "surface": {
+    "packages": ["core/**"],
+    "users": ["apps/**/*.go"],
+    "exclude": ["**/generated/**"],
+    "file": "baselines/surface.json" } }
+```
+
+### The direction is the whole point, and it is `freeze` inverted
+
+A debt list may only **shrink**. An API may only **grow**.
+
+| Measured against the baseline | Result |
+|---|---|
+| a symbol the baseline does not hold | green, counted in `added` — a new name breaks nobody |
+| a frozen symbol that is gone | **red** — `surface_removed`, with the signature it had |
+| a frozen symbol whose signature differs | **red** — `surface_changed`, both signatures named |
+| an `allow` entry that silences nothing | **red** — `dead_exemption` |
+| a `packages` pattern that names no package | **red** — `dead_package` |
+| nothing measured at all | **red** — `empty_scope` |
+| **no baseline file** | **red** — `no_baseline` |
+
+That last row is the direction's sharpest consequence and the reason it is
+written down. In `freeze`, a missing baseline measures against an empty set and
+everything is growth, so the run is red until somebody records it. Here growth
+is *green*: against an empty set every symbol is new, the run would exit `0`,
+and a gate that had measured nothing would look exactly like a gate that had
+measured everything. So a missing file is red, and `-update` is what answers it.
+
+`-update` rewrites the baseline and **refuses to write a single unexplained
+break**, naming each one. Additions are recorded without ceremony.
+
+### Deliberate breaks, and why the exemption is spent
+
+Sometimes the API has to change. The reason is written in the configuration,
+against the symbol:
+
+```json
+{ "surface": { "allow": {
+    "example/core/ledger.Record": "the amount had to carry cents" } } }
+```
+
+An allowed break is a `warn`: it is counted, its reason is printed inside the
+finding, and it does not stop the run. A reason is mandatory — `""` is exit `2`,
+the same law every escape hatch in this engine is held to.
+
+Then `-update` will move the frozen line for it, and the moment it does, the
+`allow` entry silences nothing and the next run calls it `dead_exemption`. That
+is deliberate: **an exemption is a one-time authorisation to move the line, not
+a permanent hole.** The update prints every entry it spent, so the line to
+delete is named rather than hunted.
+
+### What a signature is
+
+The identity carries no line number and no declaration order — both move
+whenever anybody edits the file, and a moving identity reports a contract as
+broken that nobody touched. A symbol is `<import path>.<name>`, a member is
+`<import path>.<Type>.<name>`, and the value is what a caller can see:
+
+| Written | Frozen as |
+|---|---|
+| `func Record(id string, amount int) (Entry, error)` | `func(string, int) (Entry, error)` |
+| `func (e *Entry) Add(n int) error` | `method(*Entry) func(int) error` |
+| `type Entry struct{ Total int }` | `type struct` **and** `Entry.Total` → `field int` |
+| `type Reader interface{ Read() error }` | `type interface` **and** `Reader.Read` → `method func() error` |
+| `type ID string` / `type Alias = other.T` | `type string` / `alias other.T` |
+| `const Max = 100` / `var Default *Entry` | `const` / `var *Entry` |
+| `func Map[T any](in []T) []T` | `func[T1 any]([]T1) []T1` |
+
+Three things are normalised away, because changing them changes nothing a caller
+sees, and a gate that reddens for them is switched off in its first week:
+**parameter names** (the type and the position are the contract), **import
+aliases** (a qualifier is written as the full import path, so `clock.Duration`
+and `time.Duration` are one signature), and **type parameter names** (rewritten
+to their position). Two declarations of one name under mutually exclusive build
+constraints are frozen as both, joined by ` | `; picking one would blind the
+gate to the other.
+
+Two exclusions are the **language's** rule and not a setting: a `_test.go` file
+is never part of a package's importable surface, and a path with an `internal`
+element is already closed to the outside. Letting either in would make removing
+a symbol nobody can call count as a break. A `packages` pattern that names only
+internal packages is therefore `dead_package` rather than a silent nothing.
+
+### Who breaks
+
+The question behind the gate is not *"what changed"* but *"who breaks"*, so
+`users` declares where the callers live and every finding carries them:
+
+```
+BLOCK surface_changed: example/core/web.WriteError
+	example/core/web.WriteError changed from "func(net/http.ResponseWriter, int, string)"
+	to "func(net/http.ResponseWriter, int, string, ...string)"
+	used by (symbol): apps/one/handler.go, apps/two/panel.go
+```
+
+`usersBasis` in the JSON says what the list is, and it is not always the same
+question:
+
+| `usersBasis` | What the list holds |
+|---|---|
+| `symbol` | files whose code writes this exact qualified name — **the callers** |
+| `type` | files that name the **owning type** of a changed member |
+| `unmeasured` | `users` was not declared; nothing was read |
+
+The `type` basis is a floor, not the set. Resolving `v.Method(…)` to the type of
+`v` needs a type checker, and this engine reads syntax; so for a field or a
+method the honest answer is *"these files name the type"*. It can miss a caller
+that receives the value without ever writing the type's name, and it never sees
+a dot-import. **A lie about who breaks would be worse than the gap**, so the
+basis is written next to the list rather than left to be assumed.
 
 ## The finding baseline
 
@@ -3073,6 +3204,14 @@ not lies; a lane is paths, not intent; an output expectation is a substring, not
 an understanding; and `syntax` carries one parser of its own. A text file cannot
 carry an exemption, and the inward `deps` form does not see a component's inside.
 
+**`surface` reads syntax, not types.** The callers of a *member* cannot be
+resolved without a type checker, so a changed field or method reports the files
+that name its owning type and says so (`usersBasis: "type"`); a dot-import is
+invisible either way. A constant's **value** is not frozen, only its declared
+type — freeze a value set with `freeze` if the number is the contract. The
+surface is the union across build constraints, so a platform-only symbol is in
+it. And it measures the API a caller *writes*, never what a call *does*.
+
 **`boxes` measures evidence, not completion.** A command criterion runs where the
 gate runs, and a move is trusted once its target exists.
 
@@ -3106,6 +3245,7 @@ step names below are the ones the gate prints.
 | `arch control experiment` | a green/red pair for every rule kind and every escape hatch: `absent` present, missing and dead; `skip` off, on and dead; `comments` read, exempt and embedded; `relativeTo` both ways; `minimum` met and short; `exclude` applying, dead and emptying the rule |
 | `freeze control experiment` | the surface green, one name added red, and **`-update` on the grown tree red with the file unchanged** |
 | `freeze count control experiment` | held, grown, shrunk and capped trees, each also under `-update`; the capped key stays out of the baseline **and the update itself exits `1`** |
+| `surface control experiment` | six directions on one tree: **no baseline** (red, because growth is green here), recorded, untouched, a changed signature red **and naming its caller**, the same break allowed, a symbol *added* green, and the allow gone dead |
 | `freeze scope control experiment` | one tree five ways; the exclusion written properly is `0` **on a tree built to be red without it**, and the same intent written as `"!…"` inside `sources` is `2` |
 | `baseline control experiment` | no baseline, written, re-run, **the same debt moved down the file** (`0`), grown, `-update-baseline` refused, and one debt paid leaving `dead_baseline` |
 | `secrets control experiment` | clean, leaky, exempted, a dead exemption, and this repository — the clean and exempted rows are what separate a gate from a noise generator |
@@ -3151,4 +3291,4 @@ red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.53.0 capabilities=a2f51222f40a21a6d5c9f5b8ce3d61d6c408d6fe7dfa0e7aad4f698834dfeb07 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.54.0 capabilities=599160690a601bcf2df89a82c4612276082bde102f8457852ca37268c2fa9b39 template=d39ceed05561e7d5c8874f19061eeb1698c3333be2225a2394965ec91e7bcfe5 -->
