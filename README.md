@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.49.0`**
+**Current version: `v0.50.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `f4e3b53455b3714385beb03faba816d3f93f3d4c4c9cff54080651fbc7735506` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `0313c668b6684211563772213fc97366883569c755f1ef5badfac3958778f233` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `53cc8af1cf9c6f0058f30a3a3cad007f2e72c6b0f45ccd3b32fbfbf404cc6a86` |
+| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `b6ec41fc0e87463e22888750606170c7e038f28eb0d1c8cbe383d64c259cf1b4` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -1663,6 +1663,35 @@ something that does not exist, so `parts` and `join` are required together —
 nothing inside the block, the value comes out empty and is reported: a pattern
 that read a block and could not take anything out of it must not shrink the set
 quietly.
+
+**One block, many values.** `parts` only *finds* the pieces; what to do with
+them is a separate question with two answers. `join` says the pieces are one
+value written in pieces. `each` says the block carries **many** values, one per
+piece — and the difference is not cosmetic. A rulebook line that reads
+`go test ./services/site/ ./core/web/` names **two** packages. Joined, they
+become `services/site/core/web`, a path that is missing on every run and that
+measures neither of the two names it was built from:
+
+```json
+"left": {
+  "from": "regex",
+  "select": "go test((?:\s+\./[A-Za-z0-9_./-]+)+)",
+  "parts": "\./([A-Za-z0-9_/-]+?)/?(?:\s|$)",
+  "each": true
+}
+```
+
+`select` captures ` ./services/site/ ./core/web/`; `parts` captures
+`services/site` and `core/web` from it; `each` puts both into the set on their
+own, and each is checked separately. The reason a repeated group cannot do this
+alone is that RE2 keeps only the **last** match of a repeated group, so the
+number of pieces is not something a fixed set of capture groups can hold.
+
+Exactly one of `join` and `each` is written next to `parts`. Both at once gives
+the same block two meanings and the mistake only surfaces when the gate prints
+the wrong colour; neither leaves the engine guessing. Under `each` a block whose
+`parts` match nothing contributes nothing — there is no single value to report
+empty, and a blank string would be the same false member added by every block.
 
 **Prose is not code.** A rule usually asks *"does the code know this name?"*,
 and a name written in a comment never runs. Counting it turns the rule into
@@ -5658,4 +5687,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.49.0 capabilities=6f3f7d713feaf4f4b044a0cf0d2550745614ff7c767517d2f98ba1be048eaacc template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.50.0 capabilities=d9a7c8de925fa06fb48c2e4ff38a660fa62aab7dd6ba89b2c502ce474b225590 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
