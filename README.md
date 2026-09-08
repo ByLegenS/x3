@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.51.0`**
+**Current version: `v0.52.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `30e3760f91044c296a0e18f91cede798721dddc55661c16e4bcd8d105dcd2e16` |
-| `x3-linux-amd64` | linux/amd64 | 13.2 MB | `c6c1061231bad30a591354d212aee9c1ac7969fe923106d4f04be44ea6d0235f` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `627fe0cf1662778370de946b87710b2a56837f981a3f8f3b9c755d3b6af16676` |
+| `x3-linux-amd64` | linux/amd64 | 13.3 MB | `cdc8bc9cdf1ffb0058bbd9c6fa61f9078f2aac5c938993eb0f6fc56b66aa525f` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -3690,6 +3690,59 @@ command. Both this gate and `x3 docs` read the diff through the same code
 (`internal/changed`), because two gates that disagreed about what a commit
 touched would each be right about a different commit.
 
+### A lane a branch declares
+
+The lane above is opened by the **files**: touch nothing in `paths` and the rule
+is none of your business. That is the right reading for a part that ships on its
+own. It is the wrong reading for a working lane — a branch that exists so that
+two people can work at the same time without landing on each other. There the
+promise is not "if you touch the site, stay in the site"; it is **"this branch
+only ever works here"**, and a commit on it that touches nothing inside the lane
+and everything outside it is the violation itself.
+
+`branch` says so:
+
+```json
+{ "name": "site",
+  "branch": "work/site*",
+  "base": "main",
+  "paths": ["services/site/**"],
+  "exempt": false }
+```
+
+Three things change when `branch` is written:
+
+- **The branch opens the lane, not the files.** The rule runs when the checked
+  out branch matches the pattern, and then every changed path must be inside
+  `paths` (and `also`). On any other branch the lane is silent, so the branches
+  that *build* the lane — the move, the gates, the ledger — are outside it by
+  name rather than by exception.
+- **The whole branch is measured**, `merge-base(base, HEAD)..HEAD`, not the last
+  commit. A violation that landed in the first commit does not go out of sight
+  once a clean commit is put on top of it. `base` defaults to `main`.
+- Reading the range is part of the answer. If git cannot be read, or the base is
+  not there, the run is **red** — a boundary that could not be measured is not a
+  boundary that held.
+
+`exempt: false` closes the lane: the marker is not even looked for, and the
+finding offers no way out.
+
+```
+BLOCK site: outside_the_lane
+        this change is in the "site" lane (1 file(s)) and also touches 1 file(s)
+        outside it; this lane cannot be crossed; the work outside it belongs to
+        another branch
+        outside: docs/NOTES.md
+```
+
+That is a deliberate hole in the rule everywhere else in the engine — an
+exemption must be sayable, with a reason. It is sayable here too, by leaving
+`exempt` out. Write `false` only when the boundary is somebody's stated
+condition rather than a convention: an exemption anybody can type is an
+exemption everybody types, and the day it is typed the guarantee the branch was
+cut for is gone. `base` without `branch` is refused; it would name a comparison
+nothing performs.
+
 ### The lane control experiment
 
 A temporary repository and three commits: one inside the lane (green), one that
@@ -3697,6 +3750,15 @@ touches the lane and a file outside it (red, naming the file), and one that
 crosses with a reason in the message (green, counted as an exemption). The
 middle one is what the gate is for; the outer two are what keep it from being a
 gate that refuses everything.
+
+The branch lane is asked the same both ways, on a repository with a branch cut
+from `main`: silent on a branch whose name does not match · green when the
+branch stayed inside · red, naming the file, on a change that **never enters**
+the lane — and the same commit is handed to a path lane, which stays silent, so
+the difference between the two forms is measured rather than asserted · red when
+the violation sits in the first commit of the branch and a clean commit is on
+top of it · red on a closed lane even with a reason in the commit body, while
+the same commit is green on an open one · red when the base branch is not there.
 
 ## `x3 test`
 
@@ -5771,4 +5833,4 @@ marker with nothing after it is red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.51.0 capabilities=c1a074e5b30e39c93749d31387e9e808e9221138656033bf8ad25a1bf0dfc3cf template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.52.0 capabilities=488df078eadbfef6fbbb24f6683d0a5474d90ac209f6613829ec03c3426083ff template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
