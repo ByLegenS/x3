@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.52.0`**
+**Current version: `v0.53.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `627fe0cf1662778370de946b87710b2a56837f981a3f8f3b9c755d3b6af16676` |
-| `x3-linux-amd64` | linux/amd64 | 13.3 MB | `cdc8bc9cdf1ffb0058bbd9c6fa61f9078f2aac5c938993eb0f6fc56b66aa525f` |
+| `x3-windows-amd64.exe` | windows/amd64 | 13.6 MB | `f8705b36a8a7ec1782b9e170a47cbaec76073d40bed7a141081482231f1a30a4` |
+| `x3-linux-amd64` | linux/amd64 | 13.3 MB | `03fdee918d5b36bcf613aaf80070fe7eefc98ee318368c8b9b55bd4954893095` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -118,10 +118,9 @@ example.
 
 ---
 
-**What the engine does today** — one worked example per capability, quoted from
-the control samples that live in the repository. The README describes the
-vision; this file describes the build. If something is on the README roadmap
-and not in this file, it does not exist yet.
+**What the engine does today** — every capability, what it catches, and one
+worked example, quoted from the control samples in the repository. If something
+is on the README roadmap and not in this file, it does not exist yet.
 
 > **Documentation gate.** A change under `internal/` or `cmd/` must carry a
 > change under `docs/` in the same diff, or `check.ps1` turns red. See
@@ -130,144 +129,127 @@ and not in this file, it does not exist yet.
 ## Contents
 
 - [What is built and what is not](#what-is-built-and-what-is-not)
-- [`x3 scan`](#x3-scan) — command, flags, exit codes, what it walks
-- [Scopes](#scopes) — where you write a directive decides what it binds
-- [How a pattern is read](#how-a-pattern-is-read) — `^` and `$` bind to a line, and where they do not
-- [The dictionary](#the-dictionary) — the six directive types
-- [Error codes](#error-codes) — the four ways a directive turns red
+- [`x3 scan`](#x3-scan)
+- [Scopes](#scopes)
+- [How a pattern is read](#how-a-pattern-is-read)
+- [The dictionary](#the-dictionary)
+- [Error codes](#error-codes)
 - [The JSON report](#the-json-report)
-- [Expectations](#expectations) — the count a scan must reach, so deleting directives cannot go green
-- [`x3 case`](#x3-case) — the example on a declaration, actually called: a test built from it, run, and never written into the project
-- [`x3 lang`](#x3-lang) — the language gate: one language outside comments, dictionary in reverse
-- [`x3 arch`](#x3-arch) — architecture rules: which component may import which
-- [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something) — a path constant a gate carries, checked against the file system: a blind gate is a gate that is not there
-- [`from: "x3"`](#from-x3--the-engines-own-roster) — the settings file read as the engine reads it: what a document claims is guarded, checked against what is actually in force
-- [Scope integrity](#scope-integrity) — a rule that measured nothing, or fewer things than it declared, is red
-- [`x3 freeze`](#x3-freeze) — frozen sets that are only allowed to shrink
-- [The count mode](#the-count-mode) — a number per key, and the cap that takes no debt
-- [A cap with no baseline](#a-cap-with-no-baseline) — a limit that holds no debt and cannot be frozen
-- [The finding baseline](#the-finding-baseline) — today's findings frozen, tomorrow's red
-- [`x3 docs`](#x3-docs) — changes that must not travel alone
-- [`x3 secrets`](#x3-secrets) — credentials that got into the source
-- [Excluding what the pattern also catches](#excluding-what-the-pattern-also-catches) — per-pattern exclusions, because RE2 has no lookaround
-- [`x3 comments`](#x3-comments) - the comment diet: block limits, and a ratio that only warns
-- [`x3 boxes`](#x3-boxes) — an open-work list the machine can read, in a file or in the project's own documents
-- [A list that is finished](#a-list-that-is-finished-and-where-it-goes-next) — a rule that reads the whole document, not the item
-- [`x3 syntax`](#x3-syntax) - files nobody compiles, parsed before they ship
-- [`x3 scope`](#x3-scope) - a change that must stay in its lane
-- [`x3 test`](#x3-test) — only the units a change can reach, and the cache that answers the run where nothing changed
-- [A test's import does not travel](#a-tests-import-does-not-travel) — why a shared test helper otherwise ties the whole tree together
-- [`x3 record`](#x3-record) — a run of the application written down, redacted before the disk
-- [`x3 replay`](#x3-replay) — the recording, sent again and compared field by field
-- [`x3 guard`](#x3-guard) — run live guards, then launch a command only if they pass
-- [Choosing which guards run](#choosing-which-guards-run) — tags, `-only` and `-skip`: a subset out of the one file everybody reviews
-- [`x3 version`](#x3-version) — the release tag embedded in the binary
-- [`x3 update`](#x3-update) — the binary replaces itself from a release, checksum first
-- [`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for) — the checksum kept in the project, because a release cannot vouch for itself
-- [Live guards in `x3.json`](#live-guards-in-x3json) — the four source kinds and the warn/block switch
-- [`kind: "steps"`](#kind-steps--a-trial-not-a-reading) — a multi-step trial: set something up, run it, read what came out, and clean up in every case
+- [Expectations](#expectations)
+- [`x3 case`](#x3-case)
+- [`x3 lang`](#x3-lang)
+- [`x3 arch`](#x3-arch)
+- [`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something)
+- [`from: "x3"`](#from-x3--the-engines-own-roster)
+- [Scope integrity](#scope-integrity)
+- [`x3 freeze`](#x3-freeze)
+- [The count mode](#the-count-mode)
+- [A cap with no baseline](#a-cap-with-no-baseline)
+- [The finding baseline](#the-finding-baseline)
+- [`x3 docs`](#x3-docs)
+- [`x3 secrets`](#x3-secrets)
+- [Excluding what the pattern also catches](#excluding-what-the-pattern-also-catches)
+- [`x3 comments`](#x3-comments)
+- [`x3 boxes`](#x3-boxes)
+- [A list that is finished](#a-list-that-is-finished-and-where-it-goes-next)
+- [`x3 syntax`](#x3-syntax)
+- [`x3 scope`](#x3-scope)
+- [`x3 test`](#x3-test)
+- [A test's import does not travel](#a-tests-import-does-not-travel)
+- [`x3 record`](#x3-record)
+- [`x3 replay`](#x3-replay)
+- [`x3 guard`](#x3-guard)
+- [Choosing which guards run](#choosing-which-guards-run)
+- [`x3 version`](#x3-version)
+- [`x3 update`](#x3-update)
+- [`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for)
+- [Live guards in `x3.json`](#live-guards-in-x3json)
+- [`kind: "steps"`](#kind-steps--a-trial-not-a-reading)
 - [The guard report](#the-guard-report)
-- [`x3 guard:effective`](#x3-guardeffective) — compare a setting as recorded with the same setting as it is actually in force
-- [Effective checks in `x3.json`](#effective-checks-in-x3json) — the recorded side, the effective sides, mapping and retries
+- [`x3 guard:effective`](#x3-guardeffective)
+- [Effective checks in `x3.json`](#effective-checks-in-x3json)
 - [The effective report](#the-effective-report)
-- [`x3 testdb`](#x3-testdb) — run-lifetime test databases: clone, migrate, drop, collect the leftovers
-- [Speed](#speed) — every core, same bytes, and the content-keyed cache
-- [Files the engine reads back](#files-the-engine-reads-back) — baselines, lists and caches go through the same reader as the settings file
-- [Splitting the configuration](#splitting-the-configuration) — one file, or many parts the root declares
+- [`x3 testdb`](#x3-testdb)
+- [Speed](#speed)
+- [Files the engine reads back](#files-the-engine-reads-back)
+- [Splitting the configuration](#splitting-the-configuration)
 - [Pilot: a real `x3.json`](#pilot-a-real-x3json)
 - [Releases and reproducible builds](#releases-and-reproducible-builds)
 - [Using x3 from another project](#using-x3-from-another-project)
 - [Gaps we know about](#gaps-we-know-about)
+- [Control experiments](#control-experiments)
 - [The documentation gate](#the-documentation-gate)
 
 ## What is built and what is not
 
-The architecture has four components (README, *Architecture*). One is
-implemented:
+Every capability below is implemented and has a control experiment in
+`check.ps1` that proves it can go **red** — a green nobody has seen fail is not
+evidence.
 
-| Component | State |
+| Capability | What it catches |
 |---|---|
-| **Scanner** (`internal/scan`) | **implemented** — walks the AST, collects directives, resolves scopes |
-| **Dictionary** (`internal/scan`, `dict`) | **implemented** — six types, format and scope checks only |
-| **Recorder** (`internal/record`) | **implemented** — a reverse proxy records inbound HTTP; the interface in `internal/engine` still describes the wider goal |
-| **Ledger** (`internal/record`) | **implemented** — JSON Lines, one interaction per line, redacted before it is written |
+| **Scanner** (`internal/scan`) | walks the Go AST, collects `//x3:` directives, resolves their scope |
+| **Dictionary** (`internal/scan`) | six directive types; an unknown type or a malformed shape is red |
+| **Inline examples** (`internal/cases`) | `x3 case` **calls** the declaration a `//x3:case` sits on; nothing is written into the tree |
+| **Language gate** (`internal/lang`) | one language outside comments, against an embedded dictionary plus the project's `language.allow` |
+| **Architecture rules** (`internal/arch`) | the import graph and nine further rule kinds, against the components a project declares |
+| **Frozen baselines** (`internal/freeze`) | a measured set or number that may only shrink; `-update` records a shrink and refuses growth |
+| **Finding baseline** (`internal/baseline`) | today's findings frozen so a new gate can be adopted without a thousand reds |
+| **Coupled changes** (`internal/docs`) | a change that must not travel alone; the exemption needs a written reason |
+| **Secret scan** (`internal/secrets`) | credential formats in any text file, masked in the report |
+| **Comment diet** (`internal/comments`) | comment blocks over a limit; the ratio to code only warns |
+| **Open work** (`internal/boxes`) | each box in the work list measured against the criteria that would prove it done — both directions |
+| **Syntax** (`internal/syntax`) | files no compiler reads, parsed anyway; a missing parser is red, not skipped |
+| **Lane discipline** (`internal/scope`) | a change that enters a declared lane and also reaches outside it |
+| **Selective tests** (`internal/test`) | only the units a change can reach, plus a cache for the run where nothing changed |
+| **Recorded traffic** (`internal/record`) | a run of the application written down, redacted before the disk |
+| **Replay** (`internal/record`) | the recording sent again and compared field by field |
+| **Live guards** (`internal/live`) | `sql`, `http`, `exec` and multi-step trials, each `warn` or `block`, before a command launches |
+| **Effective checks** (`internal/live`) | a setting as *recorded* against the same setting as it is *in force* |
+| **Test databases** (`internal/testdb`) | a template database cloned per run, migrated, dropped, and the leftovers collected |
+| **Incremental cache** (`internal/cache`) | keyed on engine version, configuration fingerprint and file content; off unless declared |
 
-Alongside them, one capability that is not part of that four-component picture:
-
-| Capability | State |
-|---|---|
-| **Live guards** (`internal/live`) | **implemented** — `sql`, `http` and `exec` checks declared in `x3.json`, a `warn`/`block` policy each, and the `x3 guard` command that launches a command only when they allow it |
-| **Language gate** (`internal/lang`) | **implemented** — `x3 lang` checks that everything outside comments is written in one language, against an embedded English dictionary plus the project's own `language.allow` list |
-| **Effective checks** (`internal/live`) | **implemented** — `x3 guard:effective` reads one setting from the place it is *recorded* and from every place it is *in force*, and turns a divergence red |
-| **Architecture rules** (`internal/arch`) | **implemented** — `x3 arch` compares the import graph against the components and rules a project declares in `x3.json`; all nine specified rule kinds have a verifier |
-| **Frozen baselines** (`internal/freeze`) | **implemented** — `x3 freeze` measures a set, compares it with a baseline the repository keeps, and turns growth red; `-update` records a shrink, refuses to record growth, and measures again so that its exit code still means "the tree is green" |
-| **Coupled changes** (`internal/docs`) | **implemented** — `x3 docs` reads what a diff touched and asks for the counterpart change the project declared; the exemption needs a written reason |
-| **Secret scan** (`internal/secrets`) | **implemented** — `x3 secrets` searches every text file for credential formats, masks what it finds, and takes a reasoned `//x3:allow:secret:` as the only silence |
-| **Open work** (`internal/boxes`) | **implemented** — `x3 boxes` measures each box in the project's work list against the criteria that would prove it done, and reds both a finished box left open and a closed box with nothing to show; criteria read the tree (`file`, `pattern`, `absent`), the running system (`sql`, `command`) or a recorded sign-off (`manual`). A command criterion states what its **output** must and must not say, because an exit code alone cannot tell work that passed from work that never ran. The list is either one machine-written file or the project's own documents — Markdown checkboxes, with as many states as the project declares and the record each state must carry, a scope that can be narrowed, and a line that says the work moved elsewhere — and a baseline lets a list be adopted gradually without ever freezing what a box claims. A separate rule looks for criteria that stopped measuring: one proof shared by many items, a target the project carries in every state, an item that searches its own document |
-| **Comment diet** (`internal/comments`) | **implemented** - `x3 comments` measures comment blocks against a limit and turns a long one red; the ratio of comment to code only warns, because the measure is necessity rather than count |
-| **Syntax** (`internal/syntax`) | **implemented** - `x3 syntax` parses the files no compiler reads (a built-in JSON parser, or a parser the project names), and refuses to go green when the parser it was told to use is not installed |
-| **Lane discipline** (`internal/scope`) | **implemented** - `x3 scope` reads what a change touched and turns a commit red when it enters a declared lane and also reaches outside it; crossing needs a reason in the message |
-| **Recorded traffic** (`internal/record`) | **implemented** — `x3 record` stands in front of the running application, passes the traffic through untouched and writes it down with credentials, matched secret patterns and declared fields already masked; `x3 replay` sends the recording again and compares status, declared headers and body field by field |
-| **Incremental cache** (`internal/cache`) | **implemented** — a run remembers what it measured, keyed on engine version, configuration fingerprint and file content; declared per project, off when it is not declared |
-| **Inline examples** (`internal/cases`) | **implemented** — `x3 case` turns every `//x3:case` written above a declaration into a test that **calls** it and compares the result. The generated test is shown to the package through the Go toolchain's overlay, so not one byte is written into the tree being checked. An example is red when its payload does not parse, when it sits on something that is not a function, when its expectations do not match the signature, when the package does not build — and when **nothing ran it** |
-| **Test databases** (`internal/testdb`) | **implemented** — `x3 testdb` clones a template database per run, applies a migration hook, drops it when the command finishes, and collects what earlier runs left behind |
-
-What is implemented is a **language check**, not a behavior check. The scanner
-answers three questions about every `//x3:` line it finds:
-
-1. Is this directive type known — does it have a verifier at all?
-2. Is its shape right — are the required sub-types and the reason present?
-3. Is it in a scope where this type is legal?
-
-It never calls your code and never proves that a `rule` holds. Running an
-example *is* implemented, but as a separate gate: [`x3 case`](#x3-case) calls
-the declaration a `//x3:case` sits on and compares what comes back. `x3 scan`
-itself only reads.
-(`x3 record` and `x3 replay` do reach behavior — a recorded run compared with a
-later one — but only through the HTTP surface, and only over the traffic the
-recording happened to see.)
-A green `x3 scan` means *"your directives are well formed"*, nothing more.
-(`x3 guard`, further down, *does* reach the outside world — but it checks the
-environment a run is about to happen in, not the behavior of your code.) That
-distinction is deliberate: behavior verification is the next stage, and
-claiming it now would be a promise the engine cannot keep.
+What `x3 scan` itself implements is a **language check**, not a behavior check.
+It answers three questions about every `//x3:` line: is the type known, is the
+shape right, is the scope legal. It never calls your code. Running an example
+*is* implemented, but as a separate gate — [`x3 case`](#x3-case). `x3 record`
+and `x3 replay` do reach behavior, but only through the HTTP surface and only
+over the traffic the recording saw. `x3 guard` reaches the outside world, but
+checks the environment a run is about to happen in, not your code. A green
+`x3 scan` means *"your directives are well formed"*, nothing more.
 
 ## `x3 scan`
+
+**What it catches:** a directive that no verifier knows, is malformed, or sits
+in a scope where it is not legal.
 
 ```
 x3 scan [-out <file>] [dir]
 ```
 
-| Part | Meaning |
-|---|---|
-| `dir` | root directory to walk; defaults to `.` |
-| `-out <file>` | write the JSON report to this file. Without it the report goes to **stdout** |
-| (always) | human-readable findings and the summary line go to **stderr** |
-
-Because the report goes to stdout and the findings to stderr, you can pipe the
-JSON somewhere and still read the reds on your terminal.
+`dir` defaults to `.`. The JSON report goes to `-out` or **stdout**; findings
+and the summary always go to **stderr**, so the report can be piped while the
+reds stay on the terminal.
 
 ### Exit codes
 
 | Code | Meaning |
 |---|---|
-| `0` | green — every directive found is well formed and in a legal scope |
-| `1` | red — at least one directive failed; each one is printed with `file:line` |
-| `2` | usage error, or the run could not complete (unparsable Go file, report not writable) |
+| `0` | green — every directive is well formed and in a legal scope |
+| `1` | red — at least one directive failed; each is printed with `file:line` |
+| `2` | usage error, or the run could not complete |
 
-A run over a tree that contains **no directives at all** exits `0`. That matters
-if you build a gate on top of x3: the exit code alone cannot tell "everything
-passed" from "nothing was checked". Read the counts in the report as well — see
+Exit codes are the same for every command. A tree with **no directives at all**
+exits `0`, so an exit code alone cannot tell "everything passed" from "nothing
+was checked" — read the counts too, see
 [Using x3 from another project](#using-x3-from-another-project).
 
 ### What gets walked
 
-- Only files ending in `.go` are read.
-- These directory **names** are skipped: `vendor`, `testdata`, `node_modules`,
-  and any directory whose name starts with `.` or `_`.
-- The skip applies to sub-directories only. A skipped name given *as the root*
-  is still scanned — that is how the control samples under
-  `internal/scan/testdata/` get scanned:
+Only `.go` files. These directory **names** are skipped: `vendor`, `testdata`,
+`node_modules`, and any name starting with `.` or `_`. The skip applies to
+sub-directories only — a skipped name given *as the root* is still scanned,
+which is how the control samples are reached:
 
 ```
 x3 scan internal/scan/testdata/green   # exit 0
@@ -276,31 +258,13 @@ x3 scan internal/scan/testdata/red     # exit 1
 
 ### What a run looks like
 
-Green sample, stderr:
-
-```
-x3 scan: 2 file(s) - 7 directive(s) - 0 red
-```
-
-Broken sample, stderr — one block per red, then the same summary line:
+One block per red, then the summary line, on stderr:
 
 ```
 bad.go:3: unknown_category: no verifier exists for kind "nope"
 	found: //x3:nope:whatever
-bad.go:6: malformed: skip: expected shape //x3:skip:<reason>
-	found: //x3:skip
-bad.go:9: malformed: rule: expected shape //x3:rule:<kind>[:<subkind>...]
-	found: //x3:rule:
-bad.go:12: malformed: guard: expected shape //x3:guard:<kind>[:<subkind>...]
-	found: //x3:guard
-bad.go:15: malformed: allow: expected shape //x3:allow:<kind>:<reason>
-	found: //x3:allow:secret
-bad.go:18: malformed: case: the payload must start with in=(; expected shape //x3:case: in=(<args>) out=<want>
-	found: //x3:case: in=1 out=2
 bad.go:22: unattached: the directive binds to no declaration
 	found: //x3:rule:idempotent
-doc.go:1: scope_not_allowed: scope pkg is not allowed; valid scopes: decl
-	found: //x3:case: in=(0) out=ErrInsufficientBalance
 x3 scan: 2 file(s) - 8 directive(s) - 8 red
 ```
 
@@ -309,121 +273,71 @@ system.
 
 ## How a pattern is read
 
-Several settings take a regular expression, and most of them are matched
-against a **file's whole text**: a `boxes` criterion, an `arch` `required`
-marker, a `regex` extractor, a `freeze` count `of: matches`. In all of those,
-`^` and `$` bind to a **line**, not to the file:
+**What it catches:** a pattern written about lines but read against a whole
+file, which silently measures almost nothing.
+
+Most settings match a regular expression against a **file's whole text**, and
+there `^` and `$` bind to a **line**:
 
 | The pattern | Holds when |
 |---|---|
 | `^func main` | some line starts with `func main` |
 | `\Apackage ` | the **file** starts with `package ` |
-| `(?-m)^package ` | the same thing, said by turning the mode off |
+| `(?-m)^package ` | the same thing, with the mode turned off |
 
-The reason is that people write patterns about lines - "an import that starts
-the line", "a marker on its own line", "one name per row". Read the other way,
-`^...$` matches almost nothing in a file of many lines, and **what that costs
-depends on which direction the measurement leans**:
+Line mode is the default because the cost of the other reading is not symmetric:
 
 | The measurement wants | A collapsed pattern gives | How it shows |
 |---|---|---|
-| something **found** (`pattern`, `required`, a `regex` extractor) | nothing found | loud: red over an absence that is not there |
-| something **absent** (`absent`) | nothing found | **silent: green without measuring anything** |
-| a **number** (`count`, `cap`) | a number near zero | **silent: debt reads as debt repaid, a cap is never reached** |
+| something **found** | nothing found | loud: red over an absence |
+| something **absent** | nothing found | **silent: green without measuring** |
+| a **number** (`count`, `cap`) | a number near zero | **silent: debt reads as repaid** |
 
-The silent rows are the dangerous ones, because nobody looks at green. Line
-mode is therefore the default, and nothing is lost: `\A` and `\z` always mean
-the ends of the file, and `(?-m)` turns the mode off for the rest of the
-pattern. Line mode also only ever finds **more** than the whole-text reading -
-`(?m)` adds match positions, it never removes one - so turning it on can widen
-a measurement but never blind it.
-
-Where the answer depends on the reading, the finding says so on its own line
-rather than leaving the number unexplained:
+Nobody looks at green, so the silent rows decide the default. Nothing is lost:
+`\A` and `\z` always mean the ends of the file. Where the answer depends on the
+reading, the finding says so rather than leaving the number unexplained:
 
 ```
 "docs/list.md" counts 3, above the cap of 1; a cap takes no debt;
 ^ and $ read a line here, not the whole file - read the other way it would count 1
 ```
 
-**Four patterns are not read this way, because their subject is not a file.**
-They are already handed one line, or one value, so `^` and `$` already mean what
-the writer meant and nothing needed changing:
-
-| Setting | What the pattern is matched against |
-|---|---|
-| `syntax` `deny` | one line of the file at a time |
-| `secrets` `patterns[].match` and `ignore[].match` | one line, and then the value found inside it |
-| `boxes` `markdown.moved.match` | the single line that says the work left |
-| `arch` `literal` `pattern` | one string literal out of the source, not the file around it |
-
-The last one is the one to read twice: an `arch` `literal` rule looks for a
-**name**, and `^name$` there means "the whole literal is this name". That is
-still the whole-text reading, and it is the right one - a literal is not a
-document with lines. Line mode would let the pattern anchor inside a multi-line
-string, which is not what "only its owner may spell this name" is asking.
+**Four patterns are not read this way**, because their subject is one line or
+one value, not a file: `syntax` `deny`, `secrets` `patterns[].match` and
+`ignore[].match`, `boxes` `markdown.moved.match`, and `arch` `literal`
+`pattern`. The last is the one to read twice — a `literal` rule looks for a
+**name**, so `^name$` means "the whole literal is this name".
 
 ## Scopes
 
-Where you write the directive decides what it binds. There are three legal
-scopes and one failure state.
+**What it catches:** a directive written where it binds to nothing.
 
 | Scope | Where you write it | Binds |
 |---|---|---|
-| `decl` | in the doc comment of a func, type, var, const or **import** | that one declaration; the report names it in `target` |
-| `file` | above the `package` clause — the same placement as `//go:build` | that file |
+| `decl` | in the doc comment of a func, type, var, const or **import** | that one declaration; `target` names it |
+| `file` | above the `package` clause | that file |
 | `pkg` | above the `package` clause **in a file named `doc.go`** | the whole package |
-| `unattached` | anywhere else: inside a function body, or a floating comment | nothing — always red |
+| `unattached` | anywhere else — inside a body, or a floating comment | nothing: always red |
 
-`pkg` is not a different syntax from `file`; it is the same placement in a file
-named `doc.go`. That filename is the only thing that separates them.
-
-Real resolutions from `internal/scan/testdata/green`:
-
-```go
-// doc.go:1 → scope "pkg"
-//x3:guard:output:non-negative
-
-// Package wallet, ...
-package wallet
-```
-
-```go
-// wallet.go:1 → scope "file"
-//x3:live
-
-package wallet
-```
+`pkg` is not a different syntax from `file`; the filename `doc.go` is the only
+thing that separates them.
 
 ```go
 // wallet.go:15 → scope "decl", target "Wallet.Add"
-// Add, bakiyeye ekler ve yeni bakiyeyi döndürür.
-//
 //x3:rule:math:commutative
 //x3:case: in=(1) out=1
 func (w *Wallet) Add(n int64) int64 {
 ```
 
 A method's `target` is written `Receiver.Method` with pointer stars and generic
-brackets stripped: `*Wallet` and `Wallet[T]` both report `Wallet`.
-
-And the failure state, from `internal/scan/testdata/red/bad.go:22` — a directive
-inside a function body has nothing to attach to, so it is **not silently
-ignored**, it is red:
-
-```go
-func Floating() {
-	//x3:rule:idempotent
-	_ = 1
-}
-```
-
+brackets stripped: `*Wallet` and `Wallet[T]` both report `Wallet`. A directive
+inside a function body has nothing to attach to and is **not silently ignored** —
+it is `unattached`, and red.
 ## The dictionary
 
-Six types are declared today. Every type states which scopes it is valid in and
-what shape it must have. **A type that is not in the dictionary has no verifier,
-and a directive with no verifier turns the run red** — invented types cannot
-survive a scan.
+**What it catches:** an invented directive type, or a known type written in the
+wrong shape. **A type that is not in the dictionary has no verifier, and a
+directive with no verifier turns the run red.**
 
 | Directive | Valid scopes | Requires |
 |---|---|---|
@@ -434,132 +348,67 @@ survive a scan.
 | `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
 | `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
 
-**How a line is parsed.** After the `//x3:` prefix, the rest is split on `:`
-into a category and its sub-types. A **payload** is whatever follows a colon
-that is itself followed by a space — `: ` — and it runs to the end of the line:
-
-| Written | Parsed as |
-|---|---|
-| `//x3:rule:math:commutative` | category `rule`, segments `["math","commutative"]` |
-| `//x3:case: in=(0) out=Err` | category `case`, payload `in=(0) out=Err` |
-| `//x3:skip: legacy generator` | category `skip`, payload `legacy generator` |
-
-The payload counts toward the required-segment count, so a reason may be written
-either way: `//x3:skip:legacy-generator` and `//x3:skip: legacy generator` are
-both accepted. That is what lets a reason contain spaces.
-
----
+After the `//x3:` prefix the rest is split on `:` into a category and its
+sub-types. A **payload** is whatever follows a colon that is itself followed by
+a space — `: ` — and runs to the end of the line. The payload counts toward the
+required-segment count, which is what lets a reason contain spaces:
+`//x3:skip:legacy-generator` and `//x3:skip: legacy generator` are both
+accepted. A trailing `:` is trimmed before parsing, so `//x3:rule:` is the bare
+category and red; a doubled colon (`//x3:rule::idempotent`) is red as
+`empty subkind (a doubled colon)`.
 
 ### `//x3:rule:<type>[:<subtype>...]`
 
-**Catches:** a semantic contract — a behavioral rule the code is expected to
-obey. Today x3 checks only that you named a rule and named it in a legal scope;
-nothing verifies that the rule actually holds.
-
-**Green** — `internal/scan/testdata/green/wallet.go:15`:
+**Catches:** a semantic contract the code is expected to obey. Today x3 checks
+only that you named a rule, in a legal scope; nothing verifies that it holds.
 
 ```go
 //x3:rule:math:commutative
-//x3:case: in=(1) out=1
 func (w *Wallet) Add(n int64) int64 {
 ```
 
-**Red** — `internal/scan/testdata/red/bad.go:9`, a category with no sub-type:
-
-```go
-//x3:rule:
-func EmptySegment() {}
-```
-
-```
-bad.go:9: malformed: rule: expected shape //x3:rule:<kind>[:<subkind>...]
-```
-
-A trailing `:` is trimmed before parsing, so `//x3:rule:` is read as the bare
-category `rule` — which needs one sub-type and does not have one. A doubled
-colon such as `//x3:rule::idempotent` is red too, with
-`empty subkind (a doubled colon)`.
-
----
-
 ### `//x3:guard:<type>[:<subtype>...]`
 
-**Catches:** an invariant — a never-condition. Same shape and same scopes as
-`rule`; the difference is meaning, not mechanics.
-
-**Green** — `internal/scan/testdata/green/wallet.go:24`, bound to one method:
+**Catches:** an invariant — a never-condition. Same shape and scopes as `rule`;
+the difference is meaning, not mechanics.
 
 ```go
 //x3:guard:output:non-negative
 func (w *Wallet) Withdraw(n int64) (int64, error) {
 ```
 
-**Green** — `internal/scan/testdata/green/doc.go:1`, the same guard raised to
-the whole package:
-
-```go
-//x3:guard:output:non-negative
-
-// Package wallet, ...
-package wallet
-```
-
-**Red:** there is no `guard` sample in `testdata/red` today. Its shape check is
-the same code path as `rule`'s, so a bare `//x3:guard` fails exactly the way
-`//x3:rule:` does above. That is a gap in the control samples, not a claim that
-`guard` cannot go red — see [Gaps we know about](#gaps-we-know-about).
-
----
+Written above the `package` clause of `doc.go`, the same guard binds to the
+whole package. There is no `guard` red sample today — its shape check is
+`rule`'s code path — see [Gaps we know about](#gaps-we-know-about).
 
 ### `//x3:case: <payload>`
 
-**Catches:** an inline example — one input and its expected output — written
-next to the function instead of in a test file. **`decl` scope only**: an
-example belongs to one declaration, so writing it at file or package level is
-meaningless and therefore red.
+**Catches:** an inline example — one input and its expected output — next to the
+function instead of in a test file. **`decl` scope only**: an example belongs to
+one declaration.
 
-The payload has a shape: `in=(<args>) out=<want>`. The argument list may be
-empty — a call with no arguments is an example too — and the closing `)` is
-found by **counting**, not by taking the last one on the line, so a nested call
-fits on both sides: `in=(f(1), 2) out=ErrX` and `in=(1) out=Wrap(err)`. A
-payload that does not parse is `malformed`.
-
-`x3 scan` stops there — it reads the shape, not the values. What the parts
-*mean* is measured by a separate gate, [`x3 case`](#x3-case), which calls the
-function with those arguments and compares the result with that expectation.
-The grammar has one implementation for both: the dictionary and the runner
-call the same parser, because a payload one of them accepts and the other
-reads differently would be an example that goes green without running.
-
-**Green** — `internal/scan/testdata/green/wallet.go:16`:
+The payload's shape is `in=(<args>) out=<want>`. The argument list may be empty,
+and the closing `)` is found by **counting** rather than by taking the last one
+on the line, so nested calls fit on both sides: `in=(f(1), 2) out=ErrX`.
 
 ```go
 //x3:case: in=(1) out=1
 func (w *Wallet) Add(n int64) int64 {
 ```
 
-**Red** — `internal/scan/testdata/red/doc.go:1`, a perfectly well-formed case in
-the wrong scope:
-
-```go
-//x3:case: in=(0) out=ErrInsufficientBalance
-
-// Package broken, ...
-package broken
-```
+`x3 scan` reads the shape, not the values; [`x3 case`](#x3-case) calls the
+function and compares. Both use the **same parser** — a payload one accepted and
+the other read differently would be an example that goes green without running.
+The same directive at package level is well formed and still red:
 
 ```
 doc.go:1: scope_not_allowed: scope pkg is not allowed; valid scopes: decl
 ```
 
----
-
 ### `//x3:live`
 
-**Catches:** code that talks to a real provider and costs money to exercise —
-marked so it can be kept out of automated runs and used manually only.
-
-**Green** — `internal/scan/testdata/green/wallet.go:1`, marking the whole file:
+**Catches:** code that talks to a real provider and costs money to exercise, so
+it can be kept out of automated runs.
 
 ```go
 //x3:live
@@ -567,70 +416,45 @@ marked so it can be kept out of automated runs and used manually only.
 package wallet
 ```
 
-**Red:** `live` takes no sub-type and no reason, so it has no shape to get wrong
-and cannot produce `malformed` on its own. Its failure modes are the two that
-apply to every type: writing it where nothing can hold it (`unattached`) and a
-doubled colon (`//x3:live::x`). No dedicated `live` red sample exists.
-
----
+It takes no sub-type and no reason, so it has no shape to get wrong; its only
+failure modes are `unattached` and a doubled colon.
 
 ### `//x3:skip:<reason>`
 
 **Catches:** a deliberate exemption. The **reason is mandatory** — a silent skip
-is exactly the failure this engine exists to prevent, so a bare `//x3:skip` is
-red rather than a free pass.
-
-**Green** — `internal/scan/testdata/green/wallet.go:40`:
+is the failure this engine exists to prevent, so a bare `//x3:skip` is red
+rather than a free pass.
 
 ```go
 //x3:skip: legacy generator
 const legacyRate = 3
 ```
 
-**Red** — `internal/scan/testdata/red/bad.go:6`, a skip with no reason:
-
-```go
-//x3:skip
-func NoReason() {}
-```
-
-```
-bad.go:6: malformed: skip: expected shape //x3:skip:<reason>
-```
-
----
-
 ### `//x3:allow:<type>:<reason>`
 
 **Catches:** a justified silence for one specific finding — the counterpart of
-`skip` for scanners that flag things. It needs **two** parts: what is being
-silenced, and why. One part alone is not enough.
-
-**Green** — `internal/scan/testdata/green/wallet.go:35`, silencing a secret
-finding on a constant that is deliberately not a real key:
+`skip` for scanners that flag things. It needs **two** parts: what is silenced,
+and why.
 
 ```go
 //x3:allow:secret:example-only
 const demoToken = "not-a-real-key"
 ```
 
-**Red:** no `allow` sample exists in `testdata/red` today. `//x3:allow:secret` —
-a type with no reason — fails the same shape check as `//x3:skip` above.
-
 ## Error codes
 
-Four codes, and they are the stable part of the output: the JSON `code` field is
-what a machine should read, the `message` text may be reworded at any time.
+The JSON `code` field is the stable part of the output; `message` may be
+reworded at any time.
 
-| Code | Turns red when | Sample |
-|---|---|---|
-| `unknown_category` | the type is not in the dictionary — no verifier exists for it | `red/bad.go:3` — `//x3:nope:whatever` |
-| `malformed` | a required sub-type or reason is missing, a doubled colon left an empty sub-type, or a `case` payload does not parse | `red/bad.go:6`, `red/bad.go:9`, `red/bad.go:18` |
-| `scope_not_allowed` | the type is known and well formed, but may not be used in this scope | `red/doc.go:1` — a `case` at package level |
-| `unattached` | the directive binds to nothing at all | `red/bad.go:22` — inside a function body |
+| Code | Turns red when |
+|---|---|
+| `unknown_category` | the type is not in the dictionary — no verifier exists for it |
+| `malformed` | a required sub-type or reason is missing, a doubled colon left an empty sub-type, or a `case` payload does not parse |
+| `scope_not_allowed` | the type is known and well formed, but not legal in this scope |
+| `unattached` | the directive binds to nothing at all |
 
 The checks run in that order and stop at the first failure, so one directive
-reports exactly one code. Everything that is not an error is counted `ok`.
+reports exactly one code.
 
 ## The JSON report
 
@@ -639,76 +463,40 @@ reports exactly one code. Everything that is not an error is counted `ok`.
   "version": 1,
   "root": "internal/scan/testdata/green",
   "files": 2,
-  "directives": [ ... ],
-  "summary": { "ok": 7, "errors": 0 }
-}
-```
-
-`version` is the schema version — it goes up when the meaning of a field
-changes. Directives are sorted by file, then by line, so two runs over the same
-sources produce the same list in the same order.
-
-One green entry and one red entry, verbatim:
-
-```json
-{
-  "file": "wallet.go",
-  "line": 1,
-  "raw": "//x3:live",
-  "category": "live",
-  "scope": "file",
-  "status": "ok"
-}
-```
-
-```json
-{
-  "file": "bad.go",
-  "line": 6,
-  "raw": "//x3:skip",
-  "category": "skip",
-  "scope": "decl",
-  "target": "NoReason",
-  "status": "error",
-  "code": "malformed",
-  "message": "skip: expected shape //x3:skip:<reason>"
+  "directives": [
+    { "file": "bad.go", "line": 6, "raw": "//x3:skip", "category": "skip",
+      "scope": "decl", "target": "NoReason", "status": "error",
+      "code": "malformed", "message": "skip: expected shape //x3:skip:<reason>" }
+  ],
+  "summary": { "ok": 7, "errors": 1 }
 }
 ```
 
 | Field | Notes |
 |---|---|
+| `version` | schema version; it goes up when a field changes meaning |
 | `file`, `line` | relative to the scan root, always `/`-separated |
-| `raw` | the directive line exactly as written, trailing whitespace trimmed |
-| `category`, `segments`, `payload` | the parsed line; `segments` and `payload` are omitted when empty |
-| `scope`, `target` | resolved binding; `target` is present only for `decl` |
-| `status` | `ok` or `error` |
-| `code`, `message` | present only on `error` |
+| `raw` | the directive line exactly as written |
+| `category`, `segments`, `payload` | the parsed line; omitted when empty |
+| `scope`, `target` | resolved binding; `target` only for `decl` |
+| `status`, `code`, `message` | `ok` or `error`; the last two only on `error` |
 
-**There is no timestamp anywhere in the report, by design.** Identical sources
-must produce identical bytes, so that a later ledger can compare two runs and
-never raise a false red over a clock tick. `TestDeterministic` holds that line.
+Directives are sorted by file then line, and **there is no timestamp anywhere in
+the report, by design**: identical sources must produce identical bytes, so a
+later comparison of two runs can never raise a false red over a clock tick.
 
 ## Expectations
 
-A scan reports what it finds. It cannot report what should have been there and
-was not, and that gap has a name: **deleting the directives is a way to go
-green.** A tree with no directives in it scans clean, reports `0 red` and exits
-`0` - correctly, because nothing in it is wrong. Nothing in it is checked
-either, and the exit code cannot tell those two apart.
-
-An expectation closes that. The project declares how many verified directives a
-scan must find, and `x3 scan` counts its own report:
+**What it catches:** deleting the directives as a way to go green. A tree with
+no directives scans clean and exits `0` — correctly, because nothing in it is
+wrong; nothing in it is checked either, and the exit code cannot tell those
+apart.
 
 ```json
 {
   "expect": [
-    {
-      "name": "the ledger package keeps its guards",
-      "paths": ["ledger/**"],
-      "category": "guard",
-      "kind": "lookup",
-      "min": 2
-    }
+    { "name": "the ledger package keeps its guards",
+      "paths": ["ledger/**"], "category": "guard", "kind": "lookup", "min": 2 }
   ]
 }
 ```
@@ -716,54 +504,34 @@ scan must find, and `x3 scan` counts its own report:
 | Field | Meaning |
 |---|---|
 | `name` | required; the red names the expectation that was not met |
-| `min` | required, at least 1 - an expectation of zero verifies nothing |
-| `paths` | glob patterns, **relative to the scan root**; absent means the whole scan |
-| `category` | `guard`, `rule`, `case`, `live`, `allow`, `skip`, ...; absent means any |
-| `kind` | the first segment after the category (`guard:lookup` -> `lookup`); absent means any |
-
-An unmet expectation is red and says what it counted:
+| `min` | required, at least 1 — an expectation of zero verifies nothing |
+| `paths` | globs **relative to the scan root**; absent means the whole scan |
+| `category` | `guard`, `rule`, `case`, ...; absent means any |
+| `kind` | the first segment after the category; absent means any |
 
 ```
 BLOCK expectation_not_met: the ledger package keeps its guards
-	the ledger package keeps its guards: 0 verified guard directive(s), the configuration requires 2
+	0 verified guard directive(s), the configuration requires 2
 ```
 
-**Only verified directives count.** A directive that the scan marked red -
-malformed, unknown category, bound to nothing - counts as zero. Otherwise
-`//x3:guard` with its body emptied would satisfy the very expectation that
-exists to notice its removal: breaking a directive and deleting it check the
-same amount, which is none.
-
-**A stale pattern is red, not silent.** If `paths` matches nothing - the
-directory was renamed, the files moved - the count is zero and zero meets no
-expectation. There is no separate "this pattern is dead" code because none is
-needed: the gate is already failing closed.
-
-**The report is not touched.** Expectations are read from it and never written
-into it, so the same sources still produce the same bytes and a later
-comparison of two runs cannot go red over a clock tick or a configuration
-change.
-
-Writing no `expect` section means no expectation and no warning. That is the
-right default for a project that has not decided yet, and the wrong one to stay
-with: a gate that measures nothing is the failure this engine exists to
-prevent.
-
+**Only verified directives count.** A directive the scan marked red counts as
+zero — otherwise emptying a `//x3:guard` would satisfy the expectation that
+exists to notice its removal. **A stale `paths` is red, not silent**: matching
+nothing gives zero, and zero meets no expectation. The report is read, never
+written, so identical sources still produce identical bytes.
 ## `x3 case`
+
+**What it catches:** an inline example whose declaration no longer returns what
+the example says — and, just as important, an example that **nothing ran**.
 
 ```
 x3 case [-config <file>] [-out <file>] [dir]
 ```
 
-An example written above a declaration is **called**. The engine collects every
-`//x3:case` in the tree, builds one test per package out of them, runs it
-through the Go toolchain, and compares each result with what the example says.
-
-**Nothing is written into the project.** The generated test never touches the
-disk of the tree being checked: it is handed to the compiler through the Go
-toolchain's *overlay*, which shows a package a file that exists only in a
-temporary directory. An interrupted run leaves nothing behind to clean up, and
-the repository being checked stays byte for byte what it was.
+The engine collects every `//x3:case`, builds one test per package, runs it
+through the Go toolchain and compares each result. **Nothing is written into the
+project**: the generated test reaches the compiler through the toolchain's
+*overlay*, so an interrupted run leaves nothing behind.
 
 ### The payload
 
@@ -771,49 +539,28 @@ the repository being checked stays byte for byte what it was.
 //x3:case: in=(<arguments>) out=<expected>
 ```
 
-- **`in=(...)`** — the arguments, written as Go expressions and separated by
-  top-level commas. A nested call, a composite literal, or a string holding a
-  comma or a parenthesis is read as one argument, not split.
-- **`out=...`** — one expression per result the declaration returns, in order.
-  A result may be skipped with `_`. An example whose expectations are *all*
-  skipped is refused: it would compile, run, pass, and prove nothing.
-- **A method takes its receiver as the first argument.** The engine assigns
-  that argument to a variable and calls the method on it, so value receivers
-  and pointer receivers both work, and a generic receiver needs no type written
-  out.
+`in=(...)` holds Go expressions separated by top-level commas — a nested call or
+a string containing a comma is one argument, not two. `out=...` holds one
+expression per result, in order; a result may be skipped with `_`, but an
+example whose expectations are *all* skipped is refused, because it would
+compile, run, pass and prove nothing. **A method takes its receiver as the first
+argument**, so value and pointer receivers both work.
 
-The expressions are compiled **inside the package they belong to**, so
-unexported functions, package-level variables and the package's own types are
-all in scope. The engine never interprets them; the only thing that reads an
-expression is the compiler that runs it.
-
-**How a result is compared.** The expected value is handed to the comparison
-without being assigned to a variable first, so an untyped constant takes the
-type of the result it is measured against — `out=5` holds against an `int64` as
-well as an `int`. Two errors are compared with `errors.Is`, and failing that by
-message, so a wrapped sentinel still matches the sentinel it wraps. Everything
-else goes through `reflect.DeepEqual`.
+Expressions compile **inside their own package**, so unexported names are in
+scope. The expected value is never assigned to a variable first, so an untyped
+constant takes the type it is measured against (`out=5` holds against `int64`).
+Errors compare with `errors.Is` and then by message, so a wrapped sentinel still
+matches; everything else goes through `reflect.DeepEqual`.
 
 ### Green
 
-`internal/cases/testdata/green/wallet.go`:
-
 ```go
-// Add, iki sayıyı toplar.
-//
 //x3:case: in=(2, 3) out=5
-//x3:case: in=(0, 0) out=0
 func Add(a, b int) int { return a + b }
 
-// Withdraw, cüzdandan düşer; kalan yetmiyorsa hata döner.
-//
-//x3:case: in=(10, 4) out=6, nil
 //x3:case: in=(0, 1) out=0, ErrEmpty
-//x3:case: in=(9, 9) out=0, _
 func Withdraw(balance, amount int) (int, error) {
 
-// Plus, sayacı büyütür ve yeni değeri döner. Örneğin ilk argümanı ALICIDIR.
-//
 //x3:case: in=(&Counter{Total: 2}, 3) out=5
 func (c *Counter) Plus(n int) int {
 ```
@@ -824,196 +571,118 @@ x3 case: 7 example(s) in 1 package(s) - 7 passed, 0 finding(s)
 
 ### Red
 
-`internal/cases/testdata/red/wallet.go` — a payload `x3 scan` calls perfectly
-well formed, and a value that is wrong:
-
-```go
-//x3:case: in=(2, 3) out=6
-func Add(a, b int) int { return a + b }
-```
-
 ```
 wallet.go:8 (Add): example_failed
 	out[0] = 5, want 6
-x3 case: 1 example(s) in 1 package(s) - 0 passed, 1 finding(s)
 ```
 
 ### An example nothing ran is not a green example
 
 The dangerous state is not the wrong answer, it is **no answer**. A package
-whose test entry point returns without calling `m.Run` runs no test at all;
-the toolchain exits `0`, nothing is reported, and a gate that only looked for
-failures would call that green.
-
-`internal/cases/testdata/silent` is exactly that package. The engine keeps the
-name of every example it generated and demands a verdict for each one:
+whose test entry point returns without calling `m.Run` runs nothing, the
+toolchain exits `0`, and a gate that only looked for failures would call that
+green. The engine keeps the name of every example it generated and demands a
+verdict for each:
 
 ```
 wallet.go:8 (Add): never_ran
 	nothing ran the example; the package reported no result for it
 ```
 
-A skipped example is refused for the same reason — `t.Skip` is not a proof —
-and a package that does not compile is named as such rather than as an example
-that did not run, so the fault is looked for where it is.
+A skipped example is refused for the same reason — `t.Skip` is not a proof — and
+a package that does not compile is named as such, so the fault is looked for
+where it is.
 
 ### Findings
 
 | Code | Means |
 |---|---|
 | `example_failed` | the declaration was called and the result is not what the example says |
-| `never_ran` | the example was generated but the run reported no verdict for it, or it was skipped |
+| `never_ran` | no verdict was reported for it, or it was skipped |
 | `does_not_build` | the package carrying the example does not compile |
 | `malformed` | the payload has no body, or does not parse |
-| `not_a_function` | the example is written above something that cannot be called |
+| `not_a_function` | the example sits above something that cannot be called |
 | `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
-| `wrong_result_count` | the declaration returns nothing, or a different number of values than the example expects; or a method was given no receiver |
+| `wrong_result_count` | the declaration returns a different number of values than the example expects, or a method was given no receiver |
 
-The first three are answers the toolchain gave. The last four are refusals the
-engine makes **before** it runs anything: there is no test to generate, so the
-toolchain is never asked.
+The first three are answers the toolchain gave; the last four are refusals made
+**before** anything runs.
 
 ### Settings
 
-The section is optional — an example is written in the source, not in the
-configuration, so the gate needs nothing declared to run:
+Optional — an example lives in the source, not the configuration:
 
 ```json
-{
-  "case": {
-    "exclude": ["internal/legacy/**"],
-    "timeout": "2m"
-  }
-}
+{ "case": { "exclude": ["internal/legacy/**"], "timeout": "2m" } }
 ```
 
-| Key | Means |
-|---|---|
-| `exclude` | path patterns whose files are not read at all |
-| `timeout` | how long one package's run may take; `1m` when it is not written |
-
-The timeout is applied twice: to the test binary, and to the toolchain call
-around it. Only the first would leave a run that hangs while downloading a
+`timeout` (default `1m`) is applied to the test binary **and** to the toolchain
+call around it; only the first would leave a run that hangs downloading a
 dependency waiting forever.
 
 ### The report
 
 ```json
-{
-  "version": 1,
-  "root": ".",
-  "config": "x3.json",
-  "findings": [
-    {
-      "file": "wallet.go",
-      "line": 8,
-      "target": "Add",
-      "code": "example_failed",
-      "message": "out[0] = 5, want 6"
-    }
-  ],
-  "summary": {
-    "files": 1,
-    "packages": 1,
-    "cases": 1,
-    "passed": 0,
-    "findings": 1
-  }
-}
+{ "version": 1, "root": ".", "config": "x3.json",
+  "findings": [ { "file": "wallet.go", "line": 8, "target": "Add",
+                  "code": "example_failed", "message": "out[0] = 5, want 6" } ],
+  "summary": { "files": 1, "packages": 1, "cases": 1, "passed": 0, "findings": 1 } }
 ```
 
-`passed` is counted separately from `findings` on purpose: "no findings" and
-"no examples" are not the same sentence, and a repository with nothing to run
-must not read like a repository that ran everything.
-
-Exit `0` when every example held, `1` on any finding, `2` when the setting
-cannot be read or the toolchain cannot be run.
+`passed` is counted separately from `findings` on purpose: "no findings" and "no
+examples" are not the same sentence.
 
 ## `x3 lang`
 
-A project that mixes languages outside its comments leaks the author's mother
-tongue into identifiers, log lines and error messages, and nobody notices until
-a stranger reads the code. `x3 lang` is the gate for that, and it is a **general**
-capability: it knows nothing about which language you are leaking *from*.
+**What it catches:** a second language outside the comments — the author's
+mother tongue leaking into identifiers, log lines and error messages.
 
-**The dictionary runs in reverse.** There is no list of forbidden words — such a
-list can only ever cover the language whose words somebody thought to write
-down. What is known is the **allowed** language. Every token that is not in it is
-red, whatever language it came from.
+**The dictionary runs in reverse.** There is no list of forbidden words; such a
+list can only cover the language somebody thought to write down. What is known
+is the **allowed** language, and every token outside it is red.
 
 ```
 x3 lang [-config <file>] [-out <file>] [dir]
 ```
 
-Exit codes are scan's: `0` green, `1` red, `2` usage or I/O error. Without
-`-out` the JSON report goes to stdout; findings always go to stderr.
-
 ### What is checked
 
 | Read | Not read |
 |---|---|
-| the package name | comments (see `comments` below) |
-| every **declared** identifier — function, type, variable, constant, struct field, parameter, result, label, import alias | the **use** of a name declared elsewhere |
+| the package name | comments (unless `comments: "en"`) |
+| every **declared** identifier — function, type, variable, constant, field, parameter, result, label, import alias | the **use** of a name declared elsewhere |
 | every string constant, struct tags included | import paths |
 
-The asymmetry is deliberate. A name is spelled once, where it is declared, and
-that is where the gate reads it; flagging every use would report the same word
-fifty times. A name declared somewhere else — `fmt.Fprintf`, `pgx.Connect` — is
-not yours to spell, so it is not yours to be red for.
+The asymmetry is deliberate: a name is spelled once where it is declared, and a
+name declared elsewhere — `fmt.Fprintf`, `pgx.Connect` — is not yours to spell.
 
 ### The token rule
 
-A text is split into words on anything that is not a letter, and at case
-boundaries, with runs of capitals kept together: `JSONPath` → `json` + `path`,
-`wordCount` → `word` + `count`, `TOTAL` → `total`. A run of capitals stays whole
-on purpose: split letter by letter, a foreign word written in capitals would
-dissolve into fragments and slip through. Fragments shorter than three letters
-are not read at all — `id`, `n`, `x3` are in no dictionary.
-
-Each remaining word must be either in the embedded dictionary of the allowed
-language or in `language.allow`. Then one absolute rule on top: **any non-ASCII
-letter outside a comment is red**, whatever alphabet it belongs to, and
-`language.allow` cannot excuse it. `ç`, `é`, `α`, `ш` are all evidence that a
-second language got into the source.
+Text splits on anything that is not a letter and at case boundaries, with runs
+of capitals kept together: `JSONPath` → `json` + `path`, `TOTAL` → `total`. A
+run of capitals stays whole on purpose — split letter by letter, a foreign word
+in capitals would dissolve into fragments and slip through. Fragments under
+three letters are not read. Each remaining word must be in the embedded
+dictionary or in `language.allow`. On top of that, one absolute rule: **any
+non-ASCII letter outside a comment is red**, and `allow` cannot excuse it.
 
 ### `language` in `x3.json`
 
 ```json
-{
-  "language": {
-    "allowed": "en",
-    "comments": "any",
-    "allow": ["cfg", "ctx", "dsn", "json", "omitempty"]
-  }
-}
+{ "language": { "allowed": "en", "comments": "any",
+                "allow": ["cfg", "ctx", "dsn", "omitempty"] } }
 ```
 
 | Field | Meaning |
 |---|---|
-| `allowed` | the language of the source outside comments. `en` is the only embedded dictionary today; any other value is an error, not a silent pass |
-| `comments` | `any` (default) leaves comments alone — write them in your working language; `en` holds them to the same dictionary |
-| `allow` | project terms and abbreviations that no dictionary has: `dsn`, `ctx`, `omitempty`, a product name. One ASCII word per entry, three letters or more — an entry that could never match a token is rejected rather than ignored |
+| `allowed` | the language outside comments; `en` is the only embedded dictionary, and any other value is an error, not a silent pass |
+| `comments` | `any` (default) leaves comments alone; `en` holds them to the dictionary |
+| `allow` | project terms no dictionary has. One ASCII word, three letters or more — an entry that could never match is rejected rather than ignored |
 
-**No file, or no `language` section, is not an error**: the smart default is
-`allowed: "en"`, `comments: "any"`, no allow list. A `language` section that *is*
-written and is wrong — unknown field, unknown language, dead allow entry — stops
-the run. Fail-closed, like the `live` section.
+No `language` section is not an error; the default is `en` / `any` / no list. A
+section that *is* written and is wrong stops the run — fail-closed.
 
 ### What a run looks like
-
-`internal/lang/testdata/red/sample.go`, checked against a configuration with no
-allow list:
-
-```go
-// Reason, hiçbir dilde kelime olmayan bir adı kullanır.
-func Reason() string {
-	notaword := "the reason is missing"
-	return notaword
-}
-
-// Accented, ASCII dışı harf taşıyan bir dizgi sabiti.
-const Accented = "café"
-```
 
 ```
 sample.go:8:2: not_in_dictionary: notaword (identifier)
@@ -1021,42 +690,17 @@ sample.go:14:18: non_ascii_letter: é (string)
 x3 lang: 1 file(s) - 2 finding(s) - dictionary "en"
 ```
 
-The Turkish comments in that file are green: `comments` is `any`. The report
-carries the same findings, sorted by file and line, with no timestamp:
-
-```json
-{
-  "version": 1,
-  "root": "internal/lang/testdata/red",
-  "language": "en",
-  "files": 1,
-  "findings": [
-    {
-      "file": "sample.go",
-      "line": 8,
-      "column": 2,
-      "where": "identifier",
-      "token": "notaword",
-      "code": "not_in_dictionary"
-    }
-  ]
-}
-```
-
-`code` is the stable part — `not_in_dictionary` or `non_ascii_letter`; `where` is
-`identifier`, `string` or `comment`.
+The report carries the same findings sorted by file and line, with no timestamp.
+`code` is the stable part — `not_in_dictionary` or `non_ascii_letter`; `where`
+is `identifier`, `string` or `comment`.
 
 ### The embedded dictionary
 
-141,848 words are compiled into the binary (`internal/lang/english.txt`, ~1.4 MB
-of text). It is a custom list generated from the **English Speller Database**
-(ESDB, formerly SCOWL) at <https://app.aspell.net/create>, size 70 (large), US
-spelling, diacritics stripped, with the `hacker` special list included — which
-is why `http`, `auth` and `err` are already words. The file was lowercased,
-de-duplicated and cut to entries of three ASCII letters or more.
-
-Its licence is permissive and requires the notice to travel with any copy, so
-the notice is kept verbatim at the top of `english.txt` and repeated here:
+141,848 words are compiled into the binary (`internal/lang/english.txt`). It is
+generated from the **English Speller Database** (ESDB, formerly SCOWL) at
+<https://app.aspell.net/create>, size 70, US spelling, diacritics stripped, with
+the `hacker` list included — which is why `http`, `auth` and `err` are already
+words. Its licence requires the notice to travel with any copy:
 
 > Copyright 2000-2026 by Kevin Atkinson
 >
@@ -1071,93 +715,48 @@ the notice is kept verbatim at the top of `english.txt` and repeated here:
 Do not edit the file by hand. A word that belongs to your project belongs in
 `language.allow`.
 
-### The control experiment
-
-`check.ps1`, step `language gate`, runs the same binary four times and requires
-all four answers:
-
-| Run | Wants |
-|---|---|
-| the repository, with its own `x3.json` | `0` |
-| `testdata/red`, no allow list | `1` — the planted word and the planted accent |
-| `testdata/green`, with `testdata/allow.json` | `0` |
-| `testdata/green`, with a configuration that has no `language` section | `1` — the allow list is what made it green |
-
-The last row is the half that is easy to skip: an allow list that is never seen
-to change an answer is decoration.
-
-The repository holds itself to this gate. Its own `x3.json` lists 34 terms —
-`cfg`, `ctx`, `dsn`, `fset`, `omitempty`, `pgx`, `testdata` and so on — which is
-what the allow list is for. Writing that list is also how the gate paid for
-itself the first time it ran: it found a misspelled field name in a test
-fixture.
-
 ## `x3 arch`
 
-A project's shape is written in prose — "the core does not know the modules",
-"only the entry point wires them" — and prose does not fail a build. `x3 arch`
-turns those sentences into rules the engine checks. The rules live in `x3.json`,
-the verifier lives in the engine: neither do the rules enter the engine, nor do
-the project's names enter a verifier.
+**What it catches:** the shape a project claims in prose — "the core does not
+know the modules", "only the entry point wires them" — drifting from the shape
+it has. The rules live in `x3.json`, the verifier in the engine: the project's
+names never enter a verifier.
 
-**All nine rule kinds are built.** `deps` with all three of its
-matchers — `import` reads the import graph, `literal` reads names the compiler
-never sees, `symbol` reads what the code actually uses; `required` asks whether
-every file of a class carries a mark; `pairing` asks whether anybody touches a
-file at all; `flow` asks where a value may appear; `exposure` asks what reaches
-the outside; `duplication` asks whether a body was written twice; `vocabulary` asks which
-words a layer must not know; `consistency` asks whether two sets still agree;
-`containment` asks whether a component's parts stay under its own root.
-The last kind, `containment`, is specified in
-[ROADMAP-ARCH.md](ROADMAP-ARCH.md) and have no verifier yet. Naming one in `x3.json` stops the run with exit `2`
-and says so — a planned kind that passed silently would be worse than no rule at
-all.
+**All nine rule kinds are built:** `deps` with three matchers (`import` reads the
+import graph, `literal` reads names the compiler never sees, `symbol` reads what
+the code uses), `required`, `pairing`, `flow`, `exposure`, `duplication`,
+`vocabulary`, `consistency`, `containment`. A kind with no verifier stops the run
+with exit `2` — a planned kind that passed silently would be worse than no rule.
 
 ```
 x3 arch [-config <file>] [-out <file>] [dir]
 ```
 
-Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
-Without `-out` the JSON report goes to stdout; findings always go to stderr.
-
 **No `arch` section means exit `2`**, deliberately the opposite of the language
-gate's smart default. A language has a universal default; an architecture does
-not, and an invented default architecture is the most dangerous silent green
-there is.
+gate's default: a language has a universal default, an architecture does not, and
+an invented default architecture is the most dangerous silent green there is.
 
 ### `arch` in `x3.json`
 
 ```json
-{
-  "arch": {
-    "components": {
-      "contract": ["internal/engine/**"],
-      "shared":   ["internal/config/**", "internal/source/**"],
-      "checkers": ["internal/arch/**", "internal/lang/**", "internal/live/**",
-                   "internal/scan/**", "internal/testdb/**"],
-      "entry":    ["cmd/**"]
-    },
+{ "arch": {
+    "components": { "contract": ["internal/engine/**"],
+                    "checkers": ["internal/arch/**", "internal/lang/**"],
+                    "entry":    ["cmd/**"] },
     "rules": [
-      { "name": "the-contract-knows-no-implementation",
-        "kind": "deps", "match": "import",
-        "from": "contract", "deny": ["shared", "checkers", "entry"] },
-
-      { "name": "only-the-entry-point-reaches-a-checker",
-        "kind": "deps", "match": "import",
-        "to": "checkers", "allowFrom": ["entry"] }
-    ]
-  }
-}
+      { "name": "the-contract-knows-no-implementation", "kind": "deps",
+        "match": "import", "from": "contract", "deny": ["checkers", "entry"] },
+      { "name": "only-the-entry-point-reaches-a-checker", "kind": "deps",
+        "match": "import", "to": "checkers", "allowFrom": ["entry"] } ] } }
 ```
 
-That is this repository's own section, quoted from its `x3.json`. The engine
-holds itself to it on every `check.ps1` run.
+That is this repository's own section; the engine holds itself to it on every
+`check.ps1` run.
 
 ### Components
 
-A component is a name and a set of path patterns. Membership is declared here,
-by path — not labelled in the source — so the shape of the project is reviewed
-in one place instead of being scattered over three hundred comments.
+A component is a name and a set of path patterns, declared here by path rather
+than labelled in the source, so the shape is reviewed in one place.
 
 | Pattern | Matches |
 |---|---|
@@ -1165,459 +764,225 @@ in one place instead of being scattered over three hundred comments.
 | `*` | a run inside one element, never crossing `/` |
 | `?` | one character inside one element |
 
-That table is the whole syntax, and one omission is loud on purpose. A pattern
-that **starts with `!` is refused, exit `2`**, in every section that takes
-patterns. In most glob dialects a leading `!` negates; here it would be read as
-an ordinary name, match nothing, and take nothing out of scope — and whoever
-wrote it would read the run's green as proof that the exclusion worked. A gate
-that hides a file it was never told to hide is worse than one that refuses to
-start. A scope is narrowed with `exclude`, and that list is held to the
-dead-exclusion law below. A blank pattern is refused for the same reason: it
-names nothing, so it matches nothing, silently.
+That is the whole syntax, and the omission is loud on purpose: a pattern starting
+with `!` is **refused, exit `2`**, in every section that takes patterns. In most
+dialects it negates; here it would be read as an ordinary name, match nothing,
+and whoever wrote it would read the green as proof the exclusion worked. A blank
+pattern is refused for the same reason.
 
-`internal/core/**` is what is *under* `internal/core`, not the directory itself;
-`**/*.go` still sees a file at the root. What a single `*` catches is the
-component's **instance** — `internal/modules/*/**` tells `alpha` from `beta` —
-and that is what `except: "self"` compares.
-
-Two boundaries the engine enforces on its own:
-
-- **Paths resolve against the module root**, the directory holding `go.mod`, not
-  against the directory you point the command at. Checking a subtree therefore
-  does not invalidate the patterns. Without a `go.mod` above the root there is
-  no way to turn an import path back into a directory, and the run stops.
-- **A file has one component.** If two components' patterns claim the same file,
-  or the same package, the run stops with exit `2`. A package that is silently
-  counted on the wrong side is worse than a package with no component.
+A single `*` catches the component's **instance** — `internal/modules/*/**` tells
+`alpha` from `beta` — which is what `except: "self"` compares. Two boundaries the
+engine enforces: **paths resolve against the module root**, so checking a subtree
+does not invalidate them; and **a file has one component**, because a package
+silently counted on the wrong side is worse than one with no component.
 
 ### Narrowing the source set
 
-`sources` says which files a rule reads. `exclude` takes files back out of it,
-and it is read **first**: an exclusion only ever narrows a scope, it can never
-widen one. Both live at the top of the `arch` section, where every rule inherits
-them, and on a single rule, where the rule's own list **replaces** the inherited
-one rather than adding to it — otherwise a rule could never escape a pattern
-declared above it.
+`sources` says what a rule reads; `exclude` takes files back out and is read
+**first**, so it can only narrow. Both may sit at the top of `arch`, where rules
+inherit them, and on a rule, where the rule's own list **replaces** the inherited
+one — otherwise a rule could never escape a pattern declared above it.
 
 ```json
-{
-  "arch": {
-    "sources": ["**/*.go"],
-    "exclude": ["**/*_test.go"],
-    "components": { "core": ["internal/core/**"], "modules": ["internal/modules/*/**"] },
-    "rules": [
-      { "name": "core-must-not-know-modules",
-        "kind": "deps", "match": "import",
-        "from": "core", "deny": ["modules"] }
-    ]
-  }
-}
+{ "arch": { "sources": ["**/*.go"], "exclude": ["**/*_test.go"] } }
 ```
 
-Tests are the usual reason: a `_test.go` file next to the core is allowed to
-reach for a module the core itself must not know. Without an exclusion the only
-way to keep that green is to weaken the rule for everybody.
-
-An exclusion is an **escape hatch**, so the engine holds it to the same law it
-holds exemptions to:
-
-| Written | Result |
-|---|---|
-| a pattern that takes at least one file out of `sources` | it applies |
-| a pattern that takes **no** file out of `sources` | `dead_exclusion`, red — it excludes nothing, and after the next rename it will go on excluding nothing |
-| a pattern that takes **every** file out | `empty_scope`, red — a rule that reads nothing proves nothing |
-| `"exclude": []`, or a blank pattern | the run stops with exit `2` before any rule executes |
-
-An empty list is refused rather than ignored because it cannot be told apart
-from an absent one: whoever wrote it meant "no exclusions here" and would have
-silently inherited the list above instead.
-
-This is not `surface.exclude`, which belongs to an `exposure` rule and drops
-paths from the **surface being watched**. `exclude` at the rule level drops
-files from what the rule **reads at all**.
+An exclusion is an escape hatch, held to the same law as an exemption: a pattern
+taking **no** file out is `dead_exclusion`, one taking **every** file out is
+`empty_scope`, and `"exclude": []` is exit `2` — an empty list cannot be told
+from an absent one, and whoever wrote it would have silently inherited instead.
+This is not `surface.exclude`, which drops paths from an `exposure` rule's
+surface; `exclude` drops files from what the rule reads at all.
 
 ### The two rule forms
-
-Every rule asks one of two questions, and mixing them is refused.
 
 | Form | Written | Asks |
 |---|---|---|
 | outward | `from` + `deny` | may **this** component touch those? |
 | inward | `to` + `allowFrom` | who may touch **this** component? |
 
-```json
-{ "name": "modules-must-not-know-each-other",
-  "kind": "deps", "match": "import",
-  "from": "modules", "deny": ["modules"], "except": "self" }
-```
-
-`except: "self"` narrows a component's ban to *other instances of itself*: a
-module may reach into its own parts, not into its sibling's. It needs a single
-star in that component's patterns to tell the instances apart, and it needs the
-component to be in its own `deny` list; without either it would exempt
-everything, so it is refused at load time.
-
-In the inward form, the component's **own** files are always inside: an import
-within a component is not access from outside. A file in no declared component
-is outside, and named that way in the message.
+Mixing them is refused. `except: "self"` narrows a component's ban to *other
+instances of itself*; it needs a single star in that component's patterns and the
+component in its own `deny` list, or it would exempt everything. In the inward
+form a component's own files are always inside, and a file in no declared
+component is outside.
 
 ### The `literal` matcher — names the compiler never sees
 
-An import ban cannot catch a table, a queue or a bucket. The name is a string,
-the code compiles, and the day its owner is removed the failure arrives at run
-time. `match: "literal"` reads **string constants** in Go and **whole lines** in
-every other configured file, so a name spelled in SQL, JSON or JavaScript is as
-visible as one spelled in Go.
-
-Two forms, and writing both is refused:
+**Catches:** a table, queue or bucket name spelled by a component that does not
+own it. The name is a string, the code compiles, and the failure arrives at run
+time. It reads **string constants** in Go and **whole lines** elsewhere.
 
 ```json
-{ "name": "resource-names-belong-to-their-owner",
-  "kind": "deps", "match": "literal",
+{ "kind": "deps", "match": "literal",
   "sources": ["**/*.go", "**/migrations/*.sql"],
   "pattern": "db_(?P<owner>[a-z0-9]+)_[a-z0-9_]+",
-  "owner": "modules/${owner}",
-  "alsoAllow": ["entry"] }
+  "owner": "modules/${owner}", "alsoAllow": ["entry"] }
 ```
 
-**Ownership** — `pattern` + `owner`. The owner is derived from the name itself:
-the capture group named in `owner` says which instance of the component the name
-belongs to, and only that instance (plus anything in `alsoAllow`) may spell it.
-There is no hand-kept ownership list, because a list goes stale and then the
-gate lies. `owner` may also be a bare component name, `"core"`, when the
-component has no instances.
-
-```json
-{ "name": "the-core-names-no-queue",
-  "kind": "deps", "match": "literal",
-  "from": "core", "pattern": "queue_[a-z0-9_]+" }
-```
-
-**Prohibition** — `from` + `pattern`. This component may not spell a name
-matching the pattern, whoever owns it.
-
-| Field | Form | Meaning |
-|---|---|---|
-| `pattern` | both | a Go regular expression, compiled when the configuration loads |
-| `owner` | ownership | `<component>` or `<component>/${<capture>}` |
-| `alsoAllow` | ownership | components that may spell any owner's name |
-| `from` | prohibition | the component that may not spell it |
-
-Two boundaries:
-
-- **Comments are not read.** Explaining why a rule exists requires naming the
-  thing; what is forbidden is the *code* knowing it. In Go that is exact — the
-  matcher reads string literals from the AST, not the file's text. In other
-  files there is no syntax to lean on, so every line is read.
-- **Exemptions cover Go only.** `//x3:allow:arch:` binds a declaration, an
-  import or a file, and a `.sql` file has nowhere to write one. A finding in a
-  text file is answered by fixing it, by naming the component in `alsoAllow`, or
-  by narrowing `sources`.
-
-An exemption above a declaration now covers **every line of that declaration**,
-not just its first: a literal violation sits inside a function body, and an
-exemption that only covered the signature would silence nothing.
+**Ownership** (`pattern` + `owner`) derives the owner from the name itself, so no
+hand-kept list goes stale; **prohibition** (`from` + `pattern`) says this
+component may not spell such a name at all. Writing both is refused. Comments are
+not read — what is forbidden is the *code* knowing the name — and exemptions
+cover Go only, since a `.sql` file has nowhere to write one.
 
 ### The `symbol` matcher — capabilities, not layers
 
-An import ban answers "may this component know that one". It cannot answer "may
-this component encrypt, open an outbound request, or retry" — a capability is
-usually one call inside a package everybody imports.
+**Catches:** a component using a capability — encrypting, opening an outbound
+request, retrying — that is one call inside a package everybody imports.
 
 ```json
-{ "name": "modules-carry-no-mechanism",
-  "kind": "deps", "match": "symbol",
-  "from": "modules",
+{ "kind": "deps", "match": "symbol", "from": "modules",
   "deny": ["crypto/**", "net/http.NewRequest", "**/*.Retry"] }
 ```
 
-**`deny` holds path patterns here, not component names.** The packages carrying
-a forbidden capability are usually not the project's own components, so nothing
-is checked against the component list — and a rule that reads no file is still
-`empty_scope`.
-
-Two things are read from every file in `from`:
-
-| Read | Written as | Caught by |
-|---|---|---|
-| each import path | `crypto/sha256` | `crypto/**` |
-| each `qualifier.Name` selector | `crypto/sha256.Sum256`, `client.Retry` | `crypto/**`, `**/*.Retry` |
-
-An import alias is resolved to its full path, so `http.NewRequest` is read as
-`net/http.NewRequest` whatever the file calls the package. A qualifier that is
-not an import — a variable, a receiver — is kept as written, which is what makes
-`**/*.Retry` find retry logic whose package cannot be known.
-
-Both are needed. Catching only the import lets a file take a package it already
-has and call the forbidden function; catching only the call lets a package be
-taken and aliased out of sight.
+**`deny` holds path patterns here, not component names.** Both the import path
+and each `qualifier.Name` selector are read: an alias is resolved to its full
+path, while a qualifier that is not an import is kept as written, which is what
+makes `**/*.Retry` find retry logic whose package cannot be known. Catching only
+the import lets a file call the function through a package it already has;
+catching only the call lets the package be aliased out of sight.
 
 ### `required` — the mark every file of a class must carry
 
-"Every file of this kind carries this protection" is the rule that breaks the
-seventh time somebody adds a file. It is one line of configuration instead:
+**Catches:** the seventh file somebody adds without the protection every other
+file of its kind carries.
 
 ```json
-{ "name": "entry-scripts-declare-strict-arguments",
-  "kind": "required",
-  "sources": ["scripts/**/*.ps1"],
+{ "kind": "required", "sources": ["scripts/**/*.ps1"],
   "marker": "regex:(?m)^\\[CmdletBinding\\(\\)\\]$" }
 ```
 
-`sources` is the class of file, `marker` is what each of them must carry. The
-only marker form today is `regex:<pattern>`, matched against the file's text,
-and its `^` and `$` bind to a **line** ([How a pattern is read](#how-a-pattern-is-read)):
-a mark is a line - a build tag, a licence header, an ownership note - and it
-does not have to be the file's first one. A marker that really must open the
-file writes `\A`. The rule reads whatever the globs name, Go or not.
-
-A finding carries **no line number**: what is missing is missing from the file,
-not from one place in it.
+The only marker form is `regex:<pattern>`, with `^` and `$` bound to a **line** —
+a mark need not open the file; one that must writes `\A`. A finding carries **no
+line number**: what is missing is missing from the file, not from a place in it.
 
 ### `pairing` — does anybody touch this file?
 
 ```json
-{ "name": "every-source-file-is-named-by-a-test",
-  "kind": "pairing",
-  "sources": ["internal/**/*.go"],
-  "counterpart": "sibling:*_test.go",
-  "requires": "references-a-declaration" }
+{ "kind": "pairing", "sources": ["internal/**/*.go"],
+  "counterpart": "sibling:*_test.go", "requires": "references-a-declaration" }
 ```
 
-This is **not coverage**. The question is narrower: does any file at all name
-this one? Freezing today's state is a `freeze` concern, not this one.
-
-`counterpart` is `sibling:<template>`, and the `*` in the template is the
-subject's own base name without its extension — `beta.go` asks for
-`beta_test.go`, not for any test file in the directory. The same string read as
-a glob says which files are counterparts themselves, and those are never
-subjects: asking a test file for its own test is a chain with no end.
-
-| `requires` | Asks |
-|---|---|
-| `exists` (default) | the counterpart is there |
-| `references-a-declaration` | the counterpart also names at least one declaration from the subject |
-
-A subject with no declarations — a file that only carries a package comment —
-cannot be asked the second question, so its counterpart only has to exist.
-
-Both kinds name no component, and a configuration with no `components` at all is
-valid: only a rule that names one needs the list.
+**Not coverage** — the question is whether any file at all names this one. In
+`sibling:<template>` the `*` is the subject's own base name, so `beta.go` asks
+for `beta_test.go`; read as a glob the same string says which files are
+counterparts, and those are never subjects. `requires` is `exists` (default) or
+`references-a-declaration`; a subject with no declarations cannot be asked the
+second question.
 
 ### `flow` — where a value may appear
 
-"Only this package may reach that resource" is usually kept as a list of
-packages, and the list goes stale. This asks the narrower question instead:
-where may the value itself appear?
+**Catches:** a restricted handle escaping the one place allowed to hold it.
 
 ```json
-{ "name": "restricted-handle-must-not-escape",
-  "kind": "flow",
-  "sources": ["internal/**/*.go"],
-  "value": { "field": "Module.pool" },
-  "allow": ["receiver"] }
+{ "kind": "flow", "sources": ["internal/**/*.go"],
+  "value": { "field": "Module.pool" }, "allow": ["receiver"] }
 ```
 
-A handle opened with restricted privileges may be a **receiver** and nothing
-else: not passed as an argument, not returned, not given another name. There is
-no list of who may hold it, because it never leaves.
-
-| Place | The value is |
-|---|---|
-| `receiver` | the thing a method is called on — `m.pool.Query()` |
-| `argument` | passed into a call |
-| `result` | returned |
-| `assignment` | assigned, declared, or put inside a composite literal |
-| `other` | somewhere the engine cannot name — a comparison, an index |
-
-**`allow` lists the permitted places; everything else is red.** A deny list
-would leave a place added later silently free, and `other` exists so that an
-unrecognised position is refused rather than skipped.
-
-**It reads names, not types.** `m.pool` matches on the field name, whatever `m`
-is, and the type in `value.field` is used for one thing: proving the field is
-actually declared somewhere the rule reads. If it is not, the rule reports
-`empty_scope` — a field that was renamed must not leave a green rule behind.
-Once the value is copied into another name, the copy is not followed; that
-copy is itself the `assignment` the rule reports.
+The places are `receiver`, `argument`, `result`, `assignment` and `other` — the
+last so an unrecognised position is refused rather than skipped. **`allow` lists
+what is permitted; everything else is red**, because a deny list would leave a
+place added later silently free. **It reads names, not types**: the type in
+`value.field` proves only that the field is declared somewhere the rule reads,
+and if it is not the rule is `empty_scope` — a renamed field must not leave a
+green rule behind.
 
 ### `exposure` — what reaches the outside
 
-An internal cost or margin sitting in a struct is nobody's problem. The problem
-is the day that struct is written out. Import and flow rules cannot see it: the
-field is already in that package, and the violation is that it leaves.
+**Catches:** an internal cost or margin the day the struct holding it is written
+out. Import and flow rules cannot see it: the field is already in that package,
+and the violation is that it leaves.
 
 ```json
-{ "name": "internal-numbers-stay-off-the-tenant-surface",
-  "kind": "exposure",
+{ "kind": "exposure",
   "surface": { "components": ["core", "modules"], "exclude": ["**/admin/**"] },
-  "fields": ["*cost*", "*margin*"],
-  "carrier": ["json-tag", "map-key"] }
+  "fields": ["*cost*", "*margin*"], "carrier": ["json-tag", "map-key"] }
 ```
 
-`surface` is where the rule watches — components, minus the paths in `exclude`,
-which is how the same field stays legal on an operator screen and illegal on a
-tenant one. `fields` are the names that must not reach it, matched
-case-insensitively so `unitCost` and `unit_cost` are one rule. `carrier` is how
-the name would be written:
-
-| Carrier | Read from |
-|---|---|
-| `json-tag` | the `json:"…"` name of a struct field |
-| `map-key` | a string key in a composite literal |
-
-**A field with no tag is not seen.** Whether an untagged field is serialized at
-all needs type resolution, and calling every field an exposure would drown the
-gate in noise. What is checked is what the code says it writes out.
+`surface` minus `exclude` is how the same field stays legal on an operator screen
+and illegal on a tenant one. `fields` match case-insensitively; `carrier` is a
+struct field's `json:"…"` name or a string key in a composite literal. **A field
+with no tag is not seen** — deciding whether it is serialized needs type
+resolution, and calling every field an exposure would drown the gate.
 
 ### `duplication` — the body written twice
 
-"If a second component has to write the same thing again, it is in the wrong
-place." This is the machine form of that sentence.
-
 ```json
-{ "name": "no-duplicated-mechanism-across-modules",
-  "kind": "duplication",
-  "across": "modules", "minLines": 8 }
+{ "kind": "duplication", "across": "modules", "minLines": 8 }
 ```
 
-Function bodies are reprinted from the syntax tree, then blank lines and
-indentation are dropped: comments and formatting differences disappear, and two
-copies of the same body match however differently they were laid out. Bodies
-shorter than `minLines` are not compared — otherwise two modules both writing
-`return nil` would be a finding.
-
-The comparison is between **instances** of one component, so `across` needs a
-single star in its patterns; with fewer than two instances present the rule
-reports `empty_scope` rather than passing quietly.
-
-**Identifier normalization is off.** With it on, two deliberately separate but
-similar bodies would be caught too, and a noisy gate is a gate somebody switches
-off. Two bodies are the same only if they are the same after formatting.
+Bodies are reprinted from the syntax tree with blank lines and indentation
+dropped, so formatting differences disappear. Below `minLines` nothing is
+compared — two modules both writing `return nil` are not a finding. The
+comparison is between **instances**, so `across` needs a single star, and with
+fewer than two the rule is `empty_scope`. **Identifier normalization is off**:
+with it on, two deliberately separate but similar bodies would be caught too.
 
 ### `vocabulary` — the words a layer must not know
 
-An import ban stops the core from calling a module. It does not stop the core
-from *knowing* one: a module's name lives in a constant, a field name, a
-configuration key, a log line. This is the rule for that.
-
-```json
-{ "name": "the-core-speaks-no-module-word",
-  "kind": "vocabulary",
-  "sources": ["**/*.go", "ui/core/**/*.js", "config/**/*.json"],
-  "in": "core",
-  "terms": { "componentNames": "modules" } }
-```
-
-`in` is the layer that must stay ignorant. `terms` is what it must not know:
-
-| Written | Means |
-|---|---|
-| `componentNames: "<component>"` | the **instance names** of that component are the terms — no hand-kept list, so a new module is covered the day it appears |
-| `words: ["invoice", "billing"]` | terms written out, each one readable word |
-
-The tokenizer is the language gate's, so `alphaTable` is `alpha` + `table` and a
-name cannot hide inside camel case. Matching is per word: a term shorter than
-three letters is never read, which is why `componentNames` needs a component
-whose patterns carry a single star.
-
-**Comments are exempt by default.** Explaining why a rule exists requires naming
-the thing; what is forbidden is the *code* knowing it. Set
-`"comments": "checked"` when the ban is meant to cover prose as well.
-
-What is read in Go is what the language gate reads: the package name, declared
-identifiers, and string literals. A name declared elsewhere is not yours to
-spell, and the import rule already guards that boundary. In every other file
-type, every line is read.
-
-#### Word forms
-
-A rename is not finished while an inflected form of the old word is still in
-the tree, and the list of forms cannot be kept by hand - a language keeps
-making them. So a term set can be matched by **form** instead of by whole word:
+**Catches:** the core *knowing* a module without calling it — the name living in
+a constant, a field name, a configuration key, a log line.
 
 ```json
 { "kind": "vocabulary", "in": "core",
-  "terms": { "words": ["invoice"], "match": "forms" } }
+  "sources": ["**/*.go", "ui/**/*.js", "config/**/*.json"],
+  "terms": { "componentNames": "modules" } }
 ```
 
-With `match: "word"` (the default) only `invoice` is a finding. With
-`match: "forms"`, any word that *starts with* the term is one - `invoices`,
-`invoicing`, `invoice_id` - and the message names the term the form came from.
-A term used this way must be at least four characters: a short prefix falls
-inside innocent words (`car` would catch `card` and `cargo`), and a noisy gate
-is a gate somebody switches off.
+`terms` is either `componentNames: "<component>"` (the **instance names** are the
+terms, so a new module is covered the day it appears) or `words: [...]` written
+out. The tokenizer is the language gate's, so `alphaTable` is `alpha` + `table`
+and a name cannot hide inside camel case. **Comments are exempt by default**;
+`"comments": "checked"` covers prose too.
 
-Because the extractor reads any text file with a capture group, this kind
-reaches past Go. A template calls names that a script has to define, and nobody
-compiles either of them:
+#### Word forms
+
+A rename is not finished while an inflected form of the old word is in the tree,
+and the list of forms cannot be kept by hand.
 
 ```json
-{ "name": "every-name-a-template-calls-exists",
-  "kind": "consistency",
-  "left":  { "from": "regex", "sources": ["ui/**/*.html"], "select": "@click=\"([a-zA-Z_][a-zA-Z0-9_]*)\\(" },
-  "right": { "from": "regex", "sources": ["ui/**/*.js"],   "select": "function ([a-zA-Z_][a-zA-Z0-9_]*)" },
-  "compare": "left-subset-of-right" }
+{ "terms": { "words": ["invoice"], "match": "forms" } }
 ```
 
-The same shape checks a table in a document against reality - a row claiming a
-rule "has a gate" on the left, the gate names a script actually runs on the
-right.
+With `match: "word"` (default) only `invoice` is a finding; with `forms`, any
+word that *starts with* the term is one — `invoices`, `invoicing`, `invoice_id` —
+and the message names the term it came from. A term used this way must be at
+least four characters: a short prefix falls inside innocent words.
 
 ### `containment` - a component's parts stay under its root
 
-Every part a component owns - its migrations, its scripts, its interface files -
-must live under its own root. One part outside, and the component is no longer
-movable: deleting it leaves litter, and copying it to another project leaves the
-part behind.
+**Catches:** a component that is no longer movable — one part outside its root,
+so deleting it leaves litter and copying it leaves the part behind.
 
-The hard question is not where a file is. It is **which component a file belongs
-to**, and the answer cannot come from the directory: read that way, every file
-is already where it is and the rule would be a tautology that never fires.
-
-So ownership is declared, as a **key** - a short prefix each component puts at
-the start of the names of the things it owns:
+The hard question is not where a file is but **which component it belongs to**,
+and that cannot come from the directory: read that way every file is already
+where it is. So ownership is declared as a **key**, a short prefix each component
+puts at the start of the names of the things it owns:
 
 ```json
-{ "name": "a-components-parts-stay-under-its-root",
-  "kind": "containment",
-  "sources": ["**"],
+{ "kind": "containment", "sources": ["**"],
   "keys": { "billing": "blgx_", "orders": "ordx_" } }
 ```
 
-A path segment that starts with a key marks that file as that component's part -
-a file name, a directory name, anywhere in the path. Then the only question left
-is whether it sits under one of the component's declared roots:
-
 ```
 apps/billing/blgx_handler.go          ok
-apps/billing/blgx_migrations/1.sql    ok
 core/blgx_helper.go                   part_outside_its_root
 core/money.go                         carries no key, nobody's part
 ```
 
-A key must be **5 to 10 characters**. Shorter, and it matches by coincidence -
-half the words in a repository contain `bl`. Longer, and it is not a key but a
-name, which brings the coincidence back. Two keys may not start alike either, or
-one part would answer to two components. All three are configuration errors,
-refused before the run starts.
-
-If no file carries any key, the rule is red with `empty_scope`: either the
-convention is not in use or a key is misspelled, and both are worth knowing -
-a rule that matched nothing has not passed, it simply did not run.
-
+A key must be **5 to 10 characters** — shorter and it matches by coincidence,
+longer and it is a name, which brings the coincidence back — and two keys may not
+start alike. All are configuration errors. If no file carries any key the rule is
+`empty_scope`: a rule that matched nothing has not passed, it did not run.
 
 ### `consistency` — two sets that must agree
 
-A set of codes produced in code, and a dictionary that gives each of them a
-message. When they drift, the user reads a raw key on screen. This is the most
-general kind, and the one most likely to produce noise, so the extractors stay
-narrow.
+**Catches:** two sets drifting — a set of codes produced in code and a dictionary
+giving each of them a message, so the user reads a raw key on screen.
 
 ```json
-{ "name": "error-codes-have-messages",
-  "kind": "consistency",
-  "sources": ["internal/**/*.go"],
+{ "kind": "consistency", "sources": ["internal/**/*.go"],
   "left":  { "from": "go",   "select": "const-set:Code" },
   "right": { "from": "json", "file": "i18n/en.json", "select": "keys:error.*" },
   "compare": "left-subset-of-right" }
@@ -1625,387 +990,124 @@ narrow.
 
 | `from` | Reads | `select` |
 |---|---|---|
-| `go` | string constants of a named type, in the rule's `sources` | `const-set:<Type>` |
+| `go` | string constants of a named type | `const-set:<Type>` |
 | `json` | the keys of one file, nested keys flattened to `a.b.c` | `keys:<pattern>` |
-| `regex` | one capture group, over `file` or `sources`, read **line by line** ([how](#how-a-pattern-is-read)) | the pattern itself |
-| `x3` | the settings file at `file`, read as a **configuration** ([what that changes](#from-x3--the-engines-own-roster)) | `in-force` or `commands` |
+| `regex` | one capture group, read **line by line** | the pattern itself |
+| `x3` | the settings file read as a **configuration** | `in-force` or `commands` |
 
-**What enters the set is what was captured**, not the whole key: `keys:error.*`
-puts `not_found` into the set, not `error.not_found`, so it can be compared with
-the constant that produced it. A `regex` extractor must carry exactly one
-capture group for the same reason.
+**What enters the set is what was captured**, not the whole key, so it can be
+compared with the constant that produced it. Because the extractor reads any text
+file, this kind reaches past Go — a template calling names a script has to
+define, and nobody compiles either.
 
-**A value written in pieces.** Some values are not spelled contiguously in the
-source. A path assembled by the language — `os.path.join(ROOT, "a", "b")`,
-`ROOT / "a" / "b"` — has separators, quotes and commas between its pieces, and a
-single capture can only take the whole block, punctuation included. That block
-is not a path: compared with the file system it is missing on every run. `parts`
-reads the pieces **inside** what `select` captured, and `join` puts them back
-together:
-
-```json
-"left": {
-  "from": "regex",
-  "select": "os[.]path[.]join\\(ROOT, ((?:\"[^\"]+\", )*\"[^\"]+\")\\)",
-  "parts": "\"([^\"]+)\"",
-  "join": "/"
-}
-```
-
-`select` captures `"a", "b"`; `parts` captures `a` and `b` from it; `join` makes
-`a/b`. `parts` carries exactly one capture group — it is *one* piece — and empty
-pieces are dropped, so an optional group that did not match cannot produce
-`a//b`.
-
-**`join` is written, never guessed.** The two pieces of a path are `a/b` in one
-project and `ab` in another, and both are real: a directory separator and a name
-built by concatenation. An engine that picked one would silently point at
-something that does not exist, so `parts` and `join` are required together —
-`"join": ""` is a valid answer, an unwritten `join` is not. If `parts` matches
-nothing inside the block, the value comes out empty and is reported: a pattern
-that read a block and could not take anything out of it must not shrink the set
-quietly.
-
-**One block, many values.** `parts` only *finds* the pieces; what to do with
-them is a separate question with two answers. `join` says the pieces are one
-value written in pieces. `each` says the block carries **many** values, one per
-piece — and the difference is not cosmetic. A rulebook line that reads
-`go test ./services/site/ ./core/web/` names **two** packages. Joined, they
-become `services/site/core/web`, a path that is missing on every run and that
-measures neither of the two names it was built from:
+**A value written in pieces.** A path assembled by the language —
+`os.path.join(ROOT, "a", "b")` — has punctuation between its pieces, and a single
+capture takes the whole block. `parts` reads the pieces **inside** what `select`
+captured; `join` puts them back (`"a", "b"` → `a/b`), while `each` says the block
+carries **many** values, one per piece. A line reading
+`go test ./web/site/ ./internal/core/` names two packages, and joined they become
+a path missing on every run:
 
 ```json
-"left": {
-  "from": "regex",
-  "select": "go test((?:\s+\./[A-Za-z0-9_./-]+)+)",
-  "parts": "\./([A-Za-z0-9_/-]+?)/?(?:\s|$)",
-  "each": true
-}
+"left": { "from": "regex", "select": "go test((?:\\s+\\./[A-Za-z0-9_./-]+)+)",
+          "parts": "\\./([A-Za-z0-9_/-]+?)/?(?:\\s|$)", "each": true }
 ```
 
-`select` captures ` ./services/site/ ./core/web/`; `parts` captures
-`services/site` and `core/web` from it; `each` puts both into the set on their
-own, and each is checked separately. The reason a repeated group cannot do this
-alone is that RE2 keeps only the **last** match of a repeated group, so the
-number of pieces is not something a fixed set of capture groups can hold.
+Exactly one of `join` and `each` is written. RE2 keeps only the **last** match of
+a repeated group, which is why capture groups alone cannot do this.
 
-Exactly one of `join` and `each` is written next to `parts`. Both at once gives
-the same block two meanings and the mistake only surfaces when the gate prints
-the wrong colour; neither leaves the engine guessing. Under `each` a block whose
-`parts` match nothing contributes nothing — there is no single value to report
-empty, and a blank string would be the same false member added by every block.
-
-**Prose is not code.** A rule usually asks *"does the code know this name?"*,
-and a name written in a comment never runs. Counting it turns the rule into
-something worse than useless: the cheapest way to go green becomes deleting a
-correct explanation, so the gate starts rewarding the opposite of what it exists
-for. `comments: "exempt"` makes the pattern read code only — comment text is
-blanked before `select` runs (blanked, not deleted, so every line keeps its
-number and `^`/`$` still bind to the line they always did).
-
-```json
-"left": {
-  "from": "regex",
-  "select": "(shared_[a-z_]+)",
-  "comments": "exempt"
-}
-```
-
-The syntax comes from the file's extension, and the built-in table knows the
-usual languages. What it deliberately does **not** know is which *other*
-language a string carries. A raw string holding SQL carries SQL's comments too,
-and a `--` line inside it runs exactly as often as a `//` line does — never.
-Whether a backtick in this project holds SQL, HTML or nothing at all is the
-project's knowledge, not the language's, so it is declared rather than guessed:
-
-```json
-"comments": "exempt",
-"syntax": {
-  ".go": {
-    "line": ["//"],
-    "block": [{ "open": "/*", "close": "*/" }],
-    "quoted": [
-      { "open": "\"", "close": "\"", "escape": "\\" },
-      { "open": "`",  "close": "`", "line": ["--"] }
-    ]
-  }
-}
-```
-
-`quoted` is where comments **stop**: without it, the `//` in `"https://x"` would
-end the line. `quoted[].line` is where a comment starts **again**, inside that
-string, in the embedded language. The closing delimiter always wins over an
-embedded comment — the compiler reading the file does not know the embedded
-language either. A declaration **replaces** the built-in entry for that
-extension rather than merging with it: inheriting half a language's syntax would
-make it unreadable which half is in force. An extension nobody declared and the
-table does not know stops the run with exit `2`; saying "this is code" about a
-language whose comments are unknown is pretending to cut without cutting.
-
-`comments` belongs to the `regex` extractor. The `go` reader already works from
-a syntax tree and never sees a comment, and JSON has none; writing `syntax`
-without `comments: "exempt"` is refused, because a declaration that changes
-nothing convinces its author otherwise.
-
-**A value that is not a subject.** An extractor sees every text its pattern
-matches, and not all of them are members of the set. A list of path constants
-also holds `"logs/*.txt"` — a glob, which names a shape and not a target — and
-`"_tmp/scratch.sql"`, a scratch path that is deliberately absent. Read whole,
-both turn the rule red for something it was never able to measure, and a false
-red closes a gate as fast as a silent green does. `skip` is a
-**pattern → reason** map, and a value matching any of its patterns never enters
-the set:
-
-```json
-"left": {
-  "from": "regex",
-  "select": "\"([A-Za-z0-9_.*/-]+)\"",
-  "skip": {
-    "\*": "a glob names a shape, not a target that can be looked for",
-    "/_tmp/": "a scratch path is deliberately absent; the gate does not own it"
-  }
-}
-```
-
-The pattern is read against **the value**, not against a file, so `^` and `$`
-are the ends of the value; [line mode](#how-a-pattern-is-read) is not turned on
-here, because what is being matched is one token and not a document. That
-separation is what makes the filter expressible at all. RE2 has no look-behind,
-so *"capture this, unless it contains that"* cannot be folded into `select`, and
-folding it into `parts` drops the offending piece and leaves a path nobody ever
-wrote — `ops/_tmp/x.sql` comes out as `ops/x.sql`, which is a different file and
-may well exist.
-
-`skip` belongs to the extractor, not to the comparison, so each side carries its
-own: what is noise on the side read from source is not noise on the side read
-from a dictionary. It works wherever the extractor does, `freeze` baselines
-included.
-
-**Every pattern is judged against the whole set**, before anything is dropped.
-Two filters that both match the same value are therefore both alive — sifted in
-turn, whichever ran second would look dead. A filter that matches nothing is
-`dead_filter` and **red**, a reason is required, and a `skip` written as `{}`
-stops the run: a filter nobody explained is a set quietly shrunk, and a filter
-with nothing left to sift reads as though the set were still being narrowed.
-
-`compare` is `left-subset-of-right` (everything produced has a counterpart),
-`equals` (and nothing is declared that is never produced), or
-[`left-exists-on-disk`](#left-exists-on-disk--does-the-path-still-point-at-something)
-(the other side is the file system). Each difference is one finding, named.
-
-**An empty side is `empty_scope`, not agreement.** A set that could not be read
-— a renamed type, a moved dictionary — would otherwise agree with everything.
+**Prose is not code.** A name in a comment does not run, so `comments: "exempt"`
+drops comment text before the pattern reads (`checked` is the default); `syntax`
+declares per-extension markers, and `quoted[].line` reaches the comment of a
+language embedded in a string — the `--` inside a raw SQL literal.
 
 ### `left-exists-on-disk` — does the path still point at something?
 
-The third `compare` has no right side: the other side is the **file system**.
-Every extracted value is read as a path, and the question is whether that path
-still leads anywhere.
+**Catches:** a gate carrying a path constant that keeps working after the path
+moves — it finds nothing, reports nothing and **exits `0`**. The most expensive
+form is a criterion phrased as an absence: once the root is gone it is true
+forever, and work that was never done reads as finished.
 
-It answers a failure the two set comparisons cannot see. A gate that carries a
-path constant — the root it walks, the file it reads, the directory a criterion
-names — keeps working after that path moves. It just stops finding anything,
-reports nothing, and **exits `0`**. Nobody looks at a gate that is green. The
-most expensive form is a criterion phrased as an absence (*"this must appear
-nowhere under `X`"*): once `X` is gone the criterion is true forever, and work
-that was never done reads as finished.
-
-This is not [`containment`](#containment---a-components-parts-stay-under-its-root).
-There the question is where a file that exists belongs; here it is whether the
-thing pointed at exists at all.
+Not [`containment`](#containment---a-components-parts-stay-under-its-root): there
+the question is where an existing file belongs, here whether the thing pointed at
+exists at all.
 
 ```json
-{ "name": "every-root-a-gate-names-is-still-there",
-  "kind": "consistency",
-  "sources": ["ops/gates/**/*.py", "ops/gates/**/*.go"],
+{ "kind": "consistency", "sources": ["scripts/gates/**/*.py"],
   "left": { "from": "regex", "select": "\"((?:internal|cmd|docs)/[A-Za-z0-9_./-]+)\"" },
   "compare": "left-exists-on-disk",
-  "absent": {
-    "internal/legacy/importer": "deleted in the migration; the gate keeps the name until the next release"
-  } }
+  "absent": { "internal/legacy/importer": "deleted in the migration" } }
 ```
 
-A value that names nothing on disk is `missing_target`, and the finding names
-the value. `./` at the front and a trailing `/` are trimmed before the lookup;
-a blank capture is a finding of its own, because a path that names nothing
-points at nothing.
+A value naming nothing is `missing_target`. Values resolve against the
+**repository root** unless `relativeTo: "source"` resolves each against the
+directory of the file carrying it, which is what a test reading `"../../x.go"`
+needs; the same text in two files is **two targets**. `absent` is a
+**path → reason** map, and an exemption with no reason is refused.
 
-**What the path is relative to.** By default every value is resolved against
-the **repository root**, and that default does not move. But a path is not
-always written from the root: a test that reads its fixture writes
-`"../../user/user.go"`, and that only means something from the directory of the
-file it is written in. Read from the root it leads nowhere, and the rule reports
-a file that is sitting exactly where it belongs. `relativeTo: "source"` resolves
-each value against the directory of the file that carries it:
+| Hatch | What it takes out | When it goes stale |
+|---|---|---|
+| `exclude` | the **file** that would have been read | `dead_exclusion` |
+| `skip` | a **value**, before any verdict | `dead_filter` |
+| `absent` | the **verdict** on a measured value | `dead_exemption` |
 
-```json
-{ "name": "what-a-test-reads-is-still-there",
-  "kind": "consistency",
-  "sources": ["**/*_test.go"],
-  "left": { "from": "regex", "select": "\"((?:[.][.]/)+[A-Za-z0-9_./-]+[.]go)\"" },
-  "compare": "left-exists-on-disk",
-  "relativeTo": "source" }
-```
-
-The same text in two files is **two targets**, and each is checked where it was
-written; one of them missing is enough to turn the rule red, and the finding
-names the value together with what it resolved to. `absent` still excuses the
-**value as written**, not the resolved path — the exemption is read where the
-reader will look for it. `relativeTo` belongs to this comparison only: two sets
-compared with each other are texts, and a text has no directory.
-
-`absent` is the exemption, and it is a **path → reason** map, not a list. Some
-targets are meant to be missing: a file whose deletion is the very thing being
-measured, a temporary artefact of a control experiment, an output that is
-generated rather than committed. An exemption with no reason is refused —
-a silenced gate that nobody can explain later is worse than a red one.
-
-**Three escape hatches, three axes.** None of them stands in for another:
-
-| Hatch | What it takes out | What the value is | When it goes stale |
-|---|---|---|---|
-| `exclude` | the **file** that would have been read | never seen at all | `dead_exclusion` |
-| `skip` | a **value** that was read | not a subject; no verdict is reached about it | `dead_filter` |
-| `absent` | the **verdict** on a value | a subject, measured, and forgiven with a reason | `dead_exemption` |
-
-Dropping the file to excuse one of its paths would blind the rule to every other
-path in that file. Filtering a value that really is a subject would hide the day
-it goes missing: that is what `absent` is for, and it is also why `absent` can
-bite back when the path comes home while `skip` cannot — a value the filter
-removed is not measured, so there is no verdict to outlive.
-
-Two kinds of exemption die, and both are reported as `dead_exemption`:
-
-- The excused path **is on disk again**. The exemption outlived what it excused.
-- The excused path **is named nowhere any more**. Nothing is being excused, and
-  the list now says only that somebody once needed it.
-
-A dead exemption is red for the same reason a dead `exclude` pattern is: an
-exemption list that grows without ever shrinking is a gate carrying its own
-silencer, and the next person to read it cannot tell which entries still matter.
+`dead_exemption` is raised both when the excused path is on disk again and when
+it is named nowhere any more: an exemption list that only grows is a gate
+carrying its own silencer.
 
 ### `from: "x3"` — the engine's own roster
 
-A rulebook says *"this one is guarded"*, and names the guard. That sentence is
-a **claim**, and it rots in a way nothing else in the project does: the guard is
-deleted, downgraded or never wired up, and the sentence stays. Somebody reads
-the rule, sees that it is guarded, and moves on. Nobody is looking.
-
-Checking the claim needs the two halves of *guarded* — the name is written
-where guards are declared, and the thing that runs guards actually runs. A
-`regex` over the settings file answers only the first half, and answers it
-badly: it finds the name in a rule that was turned down to `policy: "warn"`
-last month, which is exactly the day the claim became false. `from: "x3"` reads
-the same file as **a configuration**, the way the engine does, and the sets it
-produces carry the engine's own verdict rather than the file's text.
+**Catches:** a rulebook sentence saying *"this one is guarded"* after the guard
+was deleted, downgraded or never wired up. A `regex` over the settings file finds
+the name in a rule turned down to `policy: "warn"` last month, which is exactly
+the day the claim became false. `from: "x3"` reads the file **as a
+configuration**, so the set carries the engine's verdict rather than the text.
 
 ```json
-{ "name": "what-the-rulebook-claims-is-in-force",
-  "kind": "consistency",
-  "left":  { "from": "regex", "file": "RULES.md", "select": "`x3: ([a-z-]+)`" },
+{ "left":  { "from": "regex", "file": "RULES.md", "select": "`x3: ([a-z-]+)`" },
   "right": { "from": "x3", "file": "x3.json", "select": "in-force" },
   "compare": "left-subset-of-right" }
 ```
 
-| `select` | The set |
-|---|---|
-| `in-force` | every name this configuration puts **in force**: each rule, baseline, pattern, guard and expectation by its `name`, each section by its own key, and a mechanism that has no name by its **path in the configuration** (`boxes.markdown.criterion`) |
-| `commands` | the subcommands this configuration configures — `freeze` for a `freeze` section, `guard` for `live`, `scan` for `expect`. Sections that describe the engine's own workings (`x3`, `update`, `baseline`, `cache`) configure no check and are not in the set |
-
-**`policy: "warn"` is not in force.** A rule set to warn is written in the file
-and stops nobody, so it never enters the `in-force` set, and neither does
-anything nested under it. This is the whole reason the extractor exists: a
-grep would keep saying *"guarded"* the day the guard stopped guarding.
-
-**Named things are known by their name, unnamed ones by their address.** A rule
-with a `name` contributes that name and nothing deeper — its identity is the
-name, and the fields under it are its body, not more claims. A mechanism that
-carries no name is real all the same, and a document points at it too; it
-enters the set as the path it is written at, so the day it is deleted from the
-settings the claim that named it goes red.
-
-**The second half is a rule of its own.** `in-force` says the name is
-configured and blocking; it cannot say that anybody runs the engine. That is a
-comparison between the configuration and the run list, and it is written the
-other way round — every checker the settings configure must appear in the file
-that runs them:
-
-```json
-{ "name": "every-checker-the-settings-configure-is-in-the-run-list",
-  "kind": "consistency",
-  "left":  { "from": "x3", "file": "x3.json", "select": "commands" },
-  "right": { "from": "regex", "file": "ops/check.ps1", "select": "x3 ([a-z]+)",
-             "comments": "exempt" },
-  "compare": "left-subset-of-right" }
-```
-
-`comments: "exempt"` is load-bearing here, not decoration. A run list carries
-its own history in comments — steps that were retired, commands somebody meant
-to add — and a command named in a comment runs exactly as often as a name in
-prose does. Read with comments, the rule goes green on a checker nobody has
-ever run.
-
-**Red and green, same tree.** The green side claims a blocking rule and runs
-every checker it configures. The red side changes two things and nothing else:
-
-| Claim | Settings | Run list | Verdict |
-|---|---|---|---|
-| `` `x3: the-core-knows-no-application` `` | `"policy"` unwritten, so `block` | `x3 arch` in a step | green |
-| `` `x3: a-rule-that-only-warns` `` | `"policy": "warn"` | `x3 arch` in a step | `set_mismatch` — the name is in the file and not in force |
-| — | a `secrets` section | `x3 secrets` only in a comment | `set_mismatch` — `secrets` is configured and nobody runs it |
-
-Both reds are `set_mismatch`, and the finding names the value: the rule cannot
-say which of the two halves failed, and it does not need to — either way the
-document is promising something the run does not do.
-
-**It reads one file, not a file set.** `file` is required and `sources` is
-refused: a roster is what one configuration puts in force, and merging two
-configurations would produce a set no single run ever has. `parts`, `join`,
-`each` and `comments` belong to the `regex` extractor and are refused here for
-the same reason they are refused on `go` — this reader is not looking at text.
+`in-force` is every name the configuration puts in force — each rule, baseline,
+pattern, guard and expectation by its `name`, each section by its key, and a
+nameless mechanism by its **path in the configuration**. `commands` is the
+subcommands it configures; sections describing the engine's own workings (`x3`,
+`update`, `baseline`, `cache`) configure no check and are in neither.
+**`policy: "warn"` is not in force**, and neither is anything nested under it.
 
 ### Fields a rule has
 
 | Field | Required | Meaning |
 |---|---|---|
-| `name` | yes | unique in the file; what the report and the stderr lines call this rule |
-| `kind` | yes | every kind except `containment`, which stops the run |
+| `name`, `kind` | yes | unique in the file; one of the nine kinds |
 | `match` | `deps` only | `import`, `literal` or `symbol` |
-| `from` + `deny` | import | the outward question |
-| `to` + `allowFrom` | import | the inward question |
-| `pattern` + `owner` | literal | only the owner may spell this name |
-| `pattern` + `from` | literal | this component may not spell it |
-| `from` + `deny` | symbol | this component may not use these names |
+| `from`+`deny` / `to`+`allowFrom` | deps | the outward / inward question |
+| `pattern`+`owner` / `pattern`+`from` | literal | ownership / prohibition |
 | `marker` | required | the mark every file in `sources` must carry |
-| `counterpart` + `requires` | pairing | the file that must name this one |
-| `value` + `allow` | flow | the value to follow, and the places it may appear |
-| `surface` + `fields` + `carrier` | exposure | where to watch, which names, written how |
-| `across` + `minLines` | duplication | the component to compare with itself, and the shortest body worth comparing |
-| `in` + `terms` + `comments` | vocabulary | the layer, the words it must not know, and whether prose counts |
-| `left` + `right` + `compare` | consistency | the two sets and how they must agree |
-| `left.from` / `right.from` | consistency | `go`, `json`, `regex`, or [`x3`](#from-x3--the-engines-own-roster): the settings file read as a configuration, so a `warn` rule counts as written and not as in force |
-| `left` + `compare: left-exists-on-disk` (+ `absent`) | consistency | one set read as paths, checked against the file system, and the paths meant to be missing with the reason each one is |
-| `left.parts` + `left.join` | consistency | a value spelled in pieces: the pattern that captures one piece, and the separator that puts them back together |
-| `left.skip` / `right.skip` | consistency | values the extractor must not put in the set: a **pattern → reason** map read against the value itself. A pattern that sifts nothing is `dead_filter` |
-| `left.comments` / `right.comments` | consistency | `checked` (**default**) or `exempt`: whether the pattern reads comment text as well as code |
-| `left.syntax` / `right.syntax` | consistency | per-extension comment syntax, replacing the built-in entry; `quoted[].line` is the comment of a language embedded in a string |
+| `counterpart`+`requires` | pairing | the file that must name this one |
+| `value`+`allow` | flow | the value to follow, and where it may appear |
+| `surface`+`fields`+`carrier` | exposure | where to watch, which names, written how |
+| `across`+`minLines` | duplication | the component compared with itself |
+| `in`+`terms`+`comments` | vocabulary | the layer, the words, whether prose counts |
+| `keys` | containment | the ownership prefix per component |
+| `left`+`right`+`compare` | consistency | the two sets and how they must agree |
+| `parts`+`join`/`each`, `skip`, `comments`, `syntax` | consistency | extractor details |
+| `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
 | `except` | no | `self` only, next to `from` + `deny` |
-| `relativeTo` | no | `left-exists-on-disk` only: `repo` (**default**) or `source`, the directory of the file that carries the value |
-| `minimum` | no | the fewest subjects the rule must see; below it the run is `scope_below_minimum`. No `minimum` means no floor |
-| `policy` | no | `warn` or `block`; **defaults to `block`**, the same law as live guards |
-| `sources` | no | the file set this rule reads; defaults to `arch.sources`, and that to `["**/*.go"]`. The `import` matcher reads Go only; `literal` reads whatever the globs name |
-| `exclude` | no | files taken back out of `sources`; defaults to `arch.exclude`. A rule's own list replaces the inherited one. See [Narrowing the source set](#narrowing-the-source-set) |
+| `minimum` | no | the fewest subjects the rule must see |
+| `policy` | no | `warn` or `block`; **defaults to `block`** |
+| `sources` / `exclude` | no | this rule's file set; its own list replaces the inherited one |
 
-Configuration is validated **strictly and up front**, as `live` already is: an
-unknown key, a key belonging to another kind, a missing required key, a
-duplicate `name`, an undeclared component name, an unknown `policy` or an empty
-`rules` list stops the run with exit `2` before any rule executes. An empty list
-is an error on purpose — a check with nothing in it is a silent pass.
+Configuration is validated **strictly and up front**: an unknown key, a key
+belonging to another kind, a missing required key, a duplicate `name`, an
+undeclared component, an unknown `policy` or an empty `rules` list stops the run
+with exit `2`. An empty list is an error on purpose — a check with nothing in it
+is a silent pass.
 
 ### Exemptions
 
-`arch` adds no directive type. A violation is silenced with the one the
-dictionary already has:
+`arch` adds no directive type; a violation is silenced with the dictionary's own:
 
 ```go
 import (
@@ -2014,241 +1116,108 @@ import (
 )
 ```
 
-- **`skip` does not silence `arch`.** Say what you are silencing by name, or a
-  broad `//x3:skip:` would one day switch off the architecture too.
-- **An exemption binds a line, not a tree.** It is written above a single import
-  (it covers that import) or above the `package` clause (it covers the file).
-  Above a parenthesised `import (` block it binds nothing and shows up dead: a
-  block-wide silence is a deleted rule.
-- **A reason is required.** `//x3:allow:arch` with nothing after it is malformed
-  for `x3 scan` and silences nothing here.
-- **Exemptions are listed in the report**, separately from violations. A silence
-  nobody can see is not a silence, it is a loss.
-- **A dead exemption is red.** An `allow:arch` that no violation needed reports
-  `dead_exemption`. A stale exemption is how a gate goes quietly blind.
+**`skip` does not silence `arch`** — say what you are silencing by name. **An
+exemption binds a line, not a tree**: above one import it covers that import,
+above the `package` clause the file, and above a parenthesised `import (` block
+it binds nothing and shows up dead, because a block-wide silence is a deleted
+rule. A reason is required, exemptions are listed in the report separately from
+violations, and a dead exemption is red.
 
 ### Scope integrity
 
-A rule that matched nothing is red — `empty_scope` — and this is engine
-behavior, not a rule you can choose to write. A gate holding a path constant
-says "clean" and exits `0` the day the file it guards moves; it never saw it.
+A rule that matched nothing is `empty_scope` and red — engine behavior, not
+something you choose. Every component the rule names is measured, the object side
+included: a `deny` list pointing at a component with no files can never turn red.
+`empty_scope` and `dead_exemption` are always `block` whatever the `policy` says;
+a policy grades how bad a violation is, and neither of these is a violation —
+they are the measurement failing.
 
-Every component the rule names is measured, the object side included: a `deny`
-list pointing at a component with no files can never turn red, and that is a
-silent pass wearing a green shirt. `empty_scope` and `dead_exemption` are always
-`block`, whatever the rule's `policy` says — a policy grades how bad a violation
-is, and neither of these is a violation. They are the measurement failing.
-
-**`minimum` — the floor a scan must reach.** `empty_scope` catches zero, and
-zero is only the last step of a fall. A rule that read a hundred paths still
-reports green after a rename leaves it three: nobody deleted the rule, nobody
-saw the loss, and the gate goes on being green about almost nothing. A rule may
-declare how many subjects it expects to see at the least:
-
-```json
-{ "name": "every-root-a-gate-names-is-still-there",
-  "kind": "consistency",
-  "sources": ["ops/gates/**/*.py"],
-  "left": { "from": "regex", "select": "\"((?:internal|cmd|docs)/[A-Za-z0-9_./-]+)\"" },
-  "compare": "left-exists-on-disk",
-  "minimum": 40 }
-```
-
-Below the floor the rule is `scope_below_minimum` and says what it counted:
+**`minimum` is the floor a scan must reach.** Zero is only the last step of a
+fall: a rule that read a hundred paths still reports green after a rename leaves
+it three.
 
 ```
 BLOCK scope_below_minimum: every-root-a-gate-names-is-still-there
   the rule saw 3 subjects and 40 were declared; a scan that shrank is a gate that stopped looking
 ```
 
-`minimum` belongs to **every kind** — what is counted is the rule's own subject:
-values in a set for `consistency`, files for `required` and `pairing`, instances
-for `duplication`, and so on, the same number the report already carries as
-`subjects`. Writing no `minimum` declares no floor, and only zero is red.
-
-This is not [`expect`](#expectations), and the two never overlap: `expect`
-counts **verified directives in a scan**, so that deleting `//x3:guard` lines
-cannot go green. `minimum` counts **what one arch rule looked at**. Same
-disease, two organs; a single mechanism could not name either honestly.
+`minimum` belongs to **every kind**, counting the rule's own subject. This is not
+[`expect`](#expectations), which counts verified directives in a scan; this counts
+what one arch rule looked at. Same disease, two organs.
 
 ### What a run looks like
 
-The planted violation in `internal/arch/testdata/red`, where `beta` reaches into
-`alpha`:
-
 ```
-BLOCK internal/arch/testdata/red/modules/beta/beta.go:3 (modules-must-not-know-each-other): forbidden_dependency
+BLOCK …/modules/beta/beta.go:3 (modules-must-not-know-each-other): forbidden_dependency
 	component "modules" must not import another instance of itself
-	internal/arch/testdata/red/modules/beta -> internal/arch/testdata/red/modules/alpha
+	…/modules/beta -> …/modules/alpha
 x3 arch: 5 file(s) - 3 rule(s) - 1 block, 0 warn, 0 exempted
 ```
 
-The same tree with the rule set to `policy: "warn"` prints `WARN` and exits `0`.
-The same tree with the exemption in place prints the silence and exits `0`:
-
-```
-ALLOW core-must-not-know-modules internal/arch/testdata/exempt/core/ledger.go:4: the ledger is wired to alpha here, and only here
-x3 arch: 2 file(s) - 1 rule(s) - 0 block, 0 warn, 1 exempted
-```
+The same tree with `policy: "warn"` prints `WARN` and exits `0`; with the
+exemption in place it prints `ALLOW …` and exits `0`.
 
 ### The arch report
 
-No timestamp, and violations sorted by rule, then file, then line: the same
-source produces the same bytes, so a later ledger never raises a red over a
-clock tick.
+No timestamp, and violations sorted by rule, then file, then line.
 
 ```json
-{
-  "version": 1,
-  "root": "internal/arch/testdata/red",
-  "config": "internal/arch/testdata/arch-red.json",
-  "files": 5,
-  "rules": [
-    { "name": "modules-must-not-know-each-other", "kind": "deps", "match": "import",
-      "policy": "block", "subjects": 4, "violations": 1 }
-  ],
-  "violations": [
-    { "rule": "modules-must-not-know-each-other", "kind": "deps",
-      "file": "internal/arch/testdata/red/modules/beta/beta.go", "line": 3,
-      "subject": "internal/arch/testdata/red/modules/beta",
-      "object": "internal/arch/testdata/red/modules/alpha",
-      "code": "forbidden_dependency", "policy": "block",
-      "message": "component \"modules\" must not import another instance of itself" }
-  ],
-  "exemptions": [],
-  "summary": { "rules": 3, "violations": 1, "warned": 0, "exempted": 0 }
-}
+{ "version": 1, "files": 5,
+  "rules": [ { "name": "modules-must-not-know-each-other", "kind": "deps",
+               "policy": "block", "subjects": 4, "violations": 1 } ],
+  "violations": [ { "rule": "…", "file": "…", "line": 3, "subject": "…",
+                    "object": "…", "code": "forbidden_dependency",
+                    "policy": "block", "message": "…" } ],
+  "exemptions": [], "summary": { "rules": 3, "violations": 1, "warned": 0, "exempted": 0 } }
 ```
 
 `subject` and `object` are the packages; the message names the components.
-`summary.violations` counts only `block` findings — those are what turn the run
-red — while `warned` counts the rest.
+`summary.violations` counts only `block` findings, `warned` the rest.
 
 ### Error codes
 
-The `code` field is the stable part; the `message` text may be reworded.
-
 | Code | Raised by | Meaning |
 |---|---|---|
-| `forbidden_dependency` | `deps` | a forbidden import edge, or a component spelling or using a name it may not |
-| `foreign_resource` | `deps:literal` | a component spelled a name another component owns |
-| `escaped_value` | `flow` | the value appeared in a place it may not |
+| `forbidden_dependency` | `deps` | a forbidden import edge, or a name a component may not spell or use |
+| `foreign_resource` | `deps:literal` | a component spelled a name another owns |
+| `escaped_value` | `flow` | the value appeared where it may not |
 | `exposed_field` | `exposure` | a hidden name reached the surface |
-| `duplicate_body` | `duplication` | the same body in two instances of a component |
-| `foreign_term` | `vocabulary` | a layer let a word through that it must not know |
+| `duplicate_body` | `duplication` | the same body in two instances |
+| `foreign_term` | `vocabulary` | a layer let through a word it must not know |
+| `part_outside_its_root` | `containment` | a part sits outside its component's root |
 | `set_mismatch` | `consistency` | the two sets drifted; each difference is named |
-| `missing_target` | `consistency` | a value read as a path leads nowhere on disk; the rule that names it can no longer fail |
+| `missing_target` | `consistency` | a value read as a path leads nowhere |
 | `missing_marker` | `required` | a file of the class does not carry the mark |
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
-| `empty_scope` | every rule | a component the rule names, its own source set, or the field it follows, matched nothing |
-| `scope_below_minimum` | every rule | the rule saw fewer subjects than its `minimum`; the scan shrank without anybody deleting it |
-| `dead_exemption` | exemptions, `absent` | an `allow:arch` that no violation needed or that binds to no import; an `absent` path that came back or that nothing names any more |
-| `dead_exclusion` | `exclude` | a pattern that takes no file out of the rule's sources |
-| `dead_filter` | `skip` | a pattern that sifts no value out of the set it filters |
-
-The remaining nine codes in [ROADMAP-ARCH.md](ROADMAP-ARCH.md) belong to rule
-kinds that do not exist yet.
-
-### The control experiment
-
-`check.ps1`, step `arch control experiment`, runs the same binary three times:
-
-| Run | Wants |
-|---|---|
-| `testdata/green` with `arch-green.json` | `0` |
-| `testdata/red` with `arch-red.json` | `1` — one planted violation, one finding |
-| `testdata/literal-green` with its configuration | `0` — the owner spelling its own name is not a violation |
-| `testdata/literal-red` with its configuration | `1` — three findings, one of them from a `.sql` file |
-| `testdata/symbol-green` with its configuration | `0` |
-| `testdata/symbol-red` with its configuration | `1` — four findings: an import path, two calls through it, and a retry |
-| `testdata/required-green` / `-red` with theirs | `0` / `1` — a script that lost its mark |
-| `testdata/pairing-green` / `-red` with theirs | `0` / `1` — two findings: a file with no counterpart, and one whose counterpart names it nowhere |
-| `testdata/flow-green` / `-red` with theirs | `0` / `1` — three findings: the handle as an argument, as a result, and under another name |
-| `testdata/exposure-green` / `-red` with theirs | `0` / `1` — the same field is red on the tenant surface and green under the excluded path |
-| `testdata/duplication-green` / `-red` with theirs | `0` / `1` — the copy carries an extra comment and an extra blank line, so a run that only compared raw text would miss it |
-| `testdata/vocabulary-green` / `-red` with theirs | `0` / `1` — two findings, one in an identifier and one in a `.json` file, while the same word in a comment stays green |
-| `testdata/consistency-green` / `-red` with theirs | `0` / `1` — a code the dictionary lost, named in the finding |
-| `testdata/ondisk` with `arch-ondisk-green.json` | `0` — one root is there, the other is written as `absent` with a reason |
-| `testdata/ondisk` with `arch-ondisk-red.json` | `1` — the same tree with no exemption: the moved root is `missing_target` |
-| `testdata/ondisk` with `arch-ondisk-dead.json` | `1` — two `dead_exemption` findings: one path came back, the other is named nowhere |
-| `testdata/skip` with `arch-skip-off.json` | `1` — read unfiltered, a glob and a scratch path are looked for on disk: two `missing_target` findings about things the rule cannot measure |
-| `testdata/skip` with `arch-skip-on.json` | `0` — the same tree with `skip`: one value is left, and it is there |
-| `testdata/skip` with `arch-skip-dead.json` | `1` — the same filter plus a pattern that matches no value: `dead_filter` |
-| `testdata/prose` with `arch-prose-read.json` | `1` — three findings: a name in a line comment, one in a block comment, and one in the SQL comment inside a raw string. None of them runs |
-| `testdata/prose` with `arch-prose-exempt.json` | `1` — the language's own comments are gone and **one** finding is left: the embedded SQL comment, which Go's syntax has no reason to know about |
-| `testdata/prose` with `arch-prose-embedded.json` | `0` — the same tree with the raw string's embedded `--` declared: only the call that really runs is left, and it is on the declared surface |
-| `testdata/relative` with `arch-relative-source.json` | `0` — the value is resolved against the file that carries it and the target is there |
-| `testdata/relative` with `arch-relative-repo.json` | `1` — the same tree read from the repository root: `missing_target` on a file that never moved |
-| `testdata/ondisk` with `arch-minimum-met.json` | `0` — the scan reached its declared floor |
-| `testdata/ondisk` with `arch-minimum-short.json` | `1` — the same scan, one higher floor: `scope_below_minimum` |
-| `testdata/exclude` with `arch-exclude-red.json` | `1` — the rule reads the test file and the planted import is red |
-| `testdata/exclude` with `arch-exclude-green.json` | `0` — the same tree, with `**/*_test.go` excluded |
-| `testdata/exclude` with `arch-exclude-dead.json` | `1` — **two** findings: the pattern that excludes nothing, and the import it therefore failed to hide |
-| `testdata/exclude` with `arch-exclude-all.json` | `1` — `**/*.go` empties the rule; both components report `empty_scope` |
-| this repository with its own `x3.json` | `0` |
-| the same three rules split across three files | `1` — the parts carry the rules |
-
-The Go tests carry the rest of the table: `warn` counts but does not stop the
-run, an exemption silences and is listed, a dead exemption is red, an empty
-component is red, two runs produce identical bytes, and fifteen broken
-configurations are all refused before a rule executes.
-
-A hand-written gate elsewhere is retired only after the `arch` rule has been
-seen to go red on the **same** injected violation. Retiring without that double
-red is forbidden.
+| `empty_scope` | every rule | a component, source set or followed field matched nothing |
+| `scope_below_minimum` | every rule | fewer subjects than `minimum` |
+| `dead_exemption` / `dead_exclusion` / `dead_filter` | escape hatches | an exemption, exclusion or filter that took nothing out |
 
 ## `x3 freeze`
 
-Some lists are only allowed to get shorter: the exported surface of a core
-package, the symbols a binary depends on, the debt somebody promised to pay
-down. Hand-written gates for these are always the same three parts — a
-measurement, a baseline kept in a file, and a comparison — and the only thing
-that differs is what gets measured. The engine carries all three.
+**What it catches:** a list that was only ever allowed to get shorter, growing —
+the exported surface of a core package, the symbols a binary needs, the debt
+somebody promised to pay down.
 
 ```
 x3 freeze [-config <file>] [-out <file>] [-update] [dir]
 ```
 
-Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
-
 ```json
-{
-  "freeze": {
-    "baselines": [
-      { "name": "core-surface",
-        "sources": ["internal/core/**/*.go"],
-        "exclude": ["**/*_test.go"],
-        "set": { "from": "go", "select": "exported" },
-        "file": "ops/baselines/core-surface.json" }
-    ]
-  }
-}
+{ "freeze": { "baselines": [
+    { "name": "core-surface",
+      "sources": ["internal/core/**/*.go"], "exclude": ["**/*_test.go"],
+      "set": { "from": "go", "select": "exported" },
+      "file": "baselines/core-surface.json" } ] } }
 ```
 
-`exclude` takes files back out of `sources`, and it is read **first**: an
-exclusion only ever narrows a scope. It is the same escape hatch `arch` rules
-carry, held to the same law by the same code — a pattern that takes no file out
-of the baseline's sources is `dead_exclusion` and **red**, a pattern that takes
-every file out leaves the baseline with nothing to measure and is `empty_scope`
-and red, and `"exclude": []` stops the run with exit `2`. External documents a
-project keeps but does not write are the usual reason: nobody is going to split
-a statute into thirds to satisfy a line count, and without an exclusion the only
-way to keep that green is to raise the limit for everybody.
-
-Unlike `arch`, a baseline's exclusions are **not inherited** from the section.
-Baselines in one file rarely read the same tree — a debt list over every
-document and a cap over one of them sit side by side — and an inherited pattern
-would be dead for the narrow ones, which is to say red.
-
-`set` is the same extractor the `consistency` rule uses — `go` (`exported`, or
-`const-set:<Type>`), `json` (`keys:<pattern>`), or `regex` with one capture
-group — so a baseline can freeze anything a set can be read from. `file` is
-where the frozen set lives; the repository keeps it, and a reviewer reads it. It
-carries the extractor's value filter too: `skip` keeps a value out of the
-measurement before it can ever be frozen, and a `skip` pattern that sifts
-nothing is `dead_filter` and red here as well. The
-`comments` and `syntax` fields travel with it as well, so a baseline can be
-measured over code alone.
+`set` is the same extractor `consistency` uses — `go`, `json` or `regex` — so a
+baseline can freeze anything a set can be read from, and it carries the same
+`skip`, `comments` and `syntax` fields. `exclude` is read **first** and held to
+the same law as everywhere else (`dead_exclusion`, `empty_scope`, `[]` is exit
+`2`). Unlike `arch`, a baseline's exclusions are **not inherited**: baselines in
+one file rarely read the same tree, and an inherited pattern would be dead — and
+therefore red — for the narrow ones.
 
 ### The direction is the whole point
 
@@ -2258,260 +1227,106 @@ measured over code alone.
 | a frozen value that is gone | green, counted as **shrunk** |
 | nothing measured at all | **red** — `empty_scope` |
 
-`-update` rewrites the baselines to the measured set, and **refuses to write a
-set that grew**. That refusal is the gate: an update that accepted growth would
-zero the baseline on every run, and no growth would ever be seen again. Shrink
-is recorded, because punishing somebody for deleting dead code is how a gate
+`-update` rewrites the baselines and **refuses to write a set that grew**. That
+refusal is the gate: an update that accepted growth would zero the baseline on
+every run. Shrink is recorded, because punishing somebody for deleting dead code
 teaches people to keep it.
 
 `-update` then **measures again and reports what is left**, so its exit code
-carries the same meaning as a plain run: `0` only when the tree is green. This
-matters because recording a baseline is not the same as passing the gate. A
-document above a `cap` is never written to a baseline — there is nowhere for the
-number to go — so an update has nothing to write and nothing to refuse, and
-before the second measurement it ended with `0 baseline(s) rewritten, 0 refused`
-and exit `0` while the plain run was red on the very same tree. Anyone who runs
-`-update` as their check saw green on a red tree. Findings an update *can* clear
-— a dead key, a shrink not yet recorded — are cleared by the write and the
-second measurement then passes them, so the flag stays useful.
+means what a plain run's does. Recording a baseline is not the same as passing:
+a document above a `cap` is never written anywhere, so an update had nothing to
+refuse and used to exit `0` on a tree the plain run called red. An update keeps
+its report off stdout; pass `-out` for the post-update JSON.
 
-Because an update is a run that **writes**, it keeps its report off stdout: pass
-`-out` to get the post-update JSON report, otherwise only the human summary goes
-to stderr.
-
-A missing baseline file measures against an empty set, so every value is new and
-the run is red until `-update` writes the first one. A baseline that cannot be
-measured — a moved directory, a renamed type — is `empty_scope` rather than a
-quiet pass.
-
-### The control experiment
-
-`check.ps1`, step `freeze control experiment`, runs the binary three times:
-
-| Run | Wants |
-|---|---|
-| `testdata/surface` against its baseline | `0` |
-| `testdata/grown` — one name added to the surface | `1`, the new name reported |
-| `-update` on the grown tree | `1`, and the baseline file **unchanged** |
-
-The third row is the one that matters. Without it, a `-update` that quietly
-accepted growth would look exactly like a working gate.
+A missing baseline file measures against an empty set — red until the first
+`-update`. A baseline that cannot be measured is `empty_scope`, not a quiet pass.
 
 ### The count mode
 
-Some baselines do not hold a set of values but a **number per key**: how many
-lines a document runs, how many files a directory holds, how many places still
-reach past a boundary. Freezing the *set* of keys is the wrong gate for those —
-it says "this document was already on the list", not "this document grew", and
-1471 lines turning into 1499 would pass in silence.
+**What it catches:** a number growing where freezing the *set* of keys would say
+only "this document was already on the list", and 1471 lines turning into 1499
+would pass in silence.
 
 ```json
-{
-  "freeze": {
-    "baselines": [
-      { "name": "document-length",
-        "sources": ["docs/**/*.md"],
-        "count": { "of": "lines", "min": 1000, "max": 1500 },
-        "file": "ops/baselines/document-length.json" }
-    ]
-  }
-}
+{ "freeze": { "baselines": [
+    { "name": "document-length", "sources": ["docs/**/*.md"],
+      "count": { "of": "lines", "min": 1000, "max": 1500 },
+      "file": "baselines/document-length.json" } ] } }
 ```
 
-A baseline writes `set` or `count`, never both. Three measurements are built in:
+A baseline writes `set` or `count`, never both.
 
 | `of` | The key | The number |
 |---|---|---|
 | `lines` | the file | how many lines it has |
-| `matches` | the file | how many times `match` occurs in it, counting **every line** ([how a pattern is read](#how-a-pattern-is-read)) |
+| `matches` | the file | how many times `match` occurs, counting **every line** |
 | `files` | the directory | how many files it holds |
 
-`min` is where the gate starts looking: a key at or below it is not measured and
-never enters the baseline. Without it the baseline would be a list of every file
-in the repository. `max` is a **cap that takes no debt** — a key above it is red
-whatever the baseline says, and `-update` leaves it out rather than freezing it.
-A cap that could be frozen would be a request, not a limit.
-
-The frozen file carries the numbers, so a reviewer reads the debt instead of
-counting it:
-
-```json
-{
-  "name": "document-length",
-  "count": 2,
-  "counts": {
-    "docs/architecture.md": 1471,
-    "docs/protocol.md": 1215
-  }
-}
-```
+`min` is where the gate starts looking — without it the baseline would list every
+file in the repository. `max` is a **cap that takes no debt**: a key above it is
+red whatever the baseline says, and `-update` leaves it out. A cap that could be
+frozen would be a request, not a limit. The frozen file carries the numbers, so
+a reviewer reads the debt instead of counting it.
 
 | Measured against the baseline | Result |
 |---|---|
 | a key the baseline does not hold | **red** — `baseline_grew` |
 | a number above the frozen one | **red** — `count_grew`, both numbers named |
-| a number below the frozen one | green, counted as **shrunk**; `-update` records it |
-| a number above `max` | **red** — `above_cap`, and never written |
+| a number below the frozen one | green, **shrunk**; `-update` records it |
+| a number above `max` | **red** — `above_cap`, never written |
 | a key the baseline holds and nothing measures | **red** — `dead_key` |
 | nothing measured at all | **red** — `empty_scope` |
 
-The last of those reds is where the two modes part. In the set mode a value
-that is gone *is* the shrink — the set is the measurement. Here the measurement
-is the number, and a key without one leaves a ceiling standing for a file that
-may come back at its old size. `-update` clears the dead keys in the same run
-that records the shrinks.
+The last two are where the modes part: in the set mode a value that is gone *is*
+the shrink, but here a key without a number leaves a ceiling standing for a file
+that may come back at its old size.
 
 ### A cap with no baseline
 
-`count` answers "this may not grow". Some documents want the other sentence:
-**"this may not pass 300 lines, and it owes nothing"** — a status page, a
-handover note, a plan whose whole value is that it stays short. With `count`
-that sentence cannot be written. Putting the cap above `min` freezes every file
-between the two at whatever size it happens to have today, so the document that
-was supposed to be free under the limit is instead pinned to its current length,
-and one `-update` quietly pins it again a line lower. Putting `min` above the
-cap measures nothing at all and the baseline reports `empty_scope`.
-
-So a cap is its own form, and it keeps no file:
+**What it catches:** a document that must stay short and owes nothing — a status
+page, a handover note. With `count` that sentence cannot be written: putting the
+cap above `min` freezes every file between the two at today's size.
 
 ```json
-{
-  "freeze": {
-    "baselines": [
-      { "name": "status-page",
-        "sources": ["docs/status.md"],
-        "cap": { "of": "lines", "max": 300 } }
-    ]
-  }
-}
+{ "freeze": { "baselines": [
+    { "name": "status-page", "sources": ["docs/status.md"],
+      "cap": { "of": "lines", "max": 300 } } ] } }
 ```
 
-A baseline writes exactly one of `set`, `count` and `cap`.
-
-| Written | Result |
-|---|---|
-| a key at or below `max` | green, and nothing is recorded anywhere |
-| a key above `max` | **red** — `above_cap`, both numbers named |
-| nothing measured at all | **red** — `empty_scope` |
-| `-update` | the cap is skipped; there is no file to write, and the run stays **red** |
-
-The measurements are the count mode's — `lines`, `matches`, `files` — and the
-red is the same `above_cap`, because a cap is a cap whether it stands beside a
-baseline or alone. What a cap does not have is a memory, and the fields it
-refuses say so: `file` is refused because nothing is frozen, `min` is refused
-because a cap already reports only what is above `max`, and `policy` is refused
-because a cap that can be downgraded to a warning is not a limit. A cap is
-always `block`.
-
-That absence is the whole point. `-update` lowers every other number in this
-gate to what is measured, and it cannot reach a cap, because there is nowhere
-for the number to go. What it therefore must not do is call the run green: a cap
-it cannot record is still a cap it violated, and `-update` reports it like any
-other run.
-
-#### The count control experiment
-
-`check.ps1`, step `freeze count control experiment`, runs one baseline over four
-trees that differ only in what they measure:
-
-| Run | Wants |
-|---|---|
-| `count-held` — the numbers the baseline holds | `0`, and the file below `min` not measured at all |
-| `count-grown` — one number up, one key gone, one over the cap | `1`, all three named |
-| `count-grown`, `-update` | `1`, and the baseline file **unchanged** |
-| `count-shrunk` — one number down | `0`, and `-update` writes the smaller number |
-| `count-cap`, plain | `1` — the document above the cap, named |
-| `count-cap`, `-update` | the capped key still **out** of the baseline, **and the update itself exits `1`** |
-| `count-shrunk`, `-update` | `0` — an update that fixes the tree still reports green |
-
-The fourth row is what makes a baseline shrink at all; the sixth is what keeps
-the cap out of reach of the flag that lowers every other number, *and* keeps the
-update honest about it. That sixth row used to read "the run still `1`" while
-only the plain run of the fifth row was ever measured — the update was exiting
-`0` on the same red tree, unmeasured. The last row is the other direction: the
-rule is not "an update is always red", it is "an update reports what it leaves
-behind".
-
-The `-update` in those rows really runs, so the step writes the baseline files back
-afterwards, byte for byte - an experiment that changed what it measures would
-be measuring itself by the second run.
-
-#### The scope control experiment
-
-`check.ps1`, step `freeze scope control experiment`, runs one tree five ways.
-The tree holds a 25-line external report under a cap of 20, so the report is red
-unless something takes it out of scope:
-
-| Run | Wants |
-|---|---|
-| `narrowed` with `exclude` written properly | `0` — the exclusion really narrowed the scope |
-| the same intent written as `"!**/external/**"` inside `sources` | `2`, and the message names the line and points at `exclude` |
-| an exclusion that takes no file out | `1`, `dead_exclusion` |
-| an exclusion that takes every file out | `1`, `empty_scope` |
-| `capped`, then `capped` with `-update` | `1`; the update writes the debt baseline's shrink and leaves the capped document out of it |
-
-The first row is the one that is easy to get wrong. A gate that finds nothing
-looks the same green as a gate that was told to look away, so the tree is built
-to be red without the exclusion: the `0` is the exclusion working, not the
-absence of anything to find.
-
-The second row is the reason this section exists. Before it, that pattern was
-read as an ordinary name, matched nothing, excluded nothing, and said nothing —
-the document went on being measured while the person who wrote the line believed
-it had been taken out.
-
+A baseline writes exactly one of `set`, `count` and `cap`. A key at or below
+`max` is green and nothing is recorded; above it is `above_cap` with both
+numbers named; nothing measured is `empty_scope`. A cap refuses `file` (nothing
+is frozen), `min` (it already reports only what is above `max`) and `policy` (a
+limit that can be downgraded to a warning is not a limit). **A cap is always
+`block`**, and `-update` cannot reach it — but it must not therefore call the
+run green, so an update reports a violated cap like any other run.
 
 ## The finding baseline
 
-`freeze` holds a set of values still. Most gates measure something else: they
-produce *findings*, and a project that switches one on for the first time meets
-a thousand of them in one run. Nobody clears a thousand findings in an
-afternoon, so that gate gets switched off again, and a gate that is off measures
-nothing. The way out is the one `freeze` already takes, applied one level up:
-write down what the tree owes today, and demand that no new debt appear.
+**What it catches:** the thousand findings a new gate produces on its first run,
+which get it switched off by the afternoon. The way out is `freeze`'s, one level
+up: write down what the tree owes today, and demand that no new debt appear.
 
 ```json
-{
-  "baseline": { "dir": "ops/baselines" }
-}
+{ "baseline": { "dir": "baselines" } }
 ```
 
 The configuration declares a **directory**; the file name comes from the
-command, so `x3 comments` reads `ops/baselines/comments.json` and `x3 secrets`
-reads `ops/baselines/secrets.json`. That is the rule the cache already follows,
-and it means a project turns baselines on once rather than command by command.
-Declare nothing and there is no baseline: every finding is red, exactly as in
-every version before this one.
+command, so `x3 comments` reads `baselines/comments.json` and `x3 secrets` reads
+`baselines/secrets.json`. Declare nothing and there is no baseline: every
+finding is red.
 
 | Flag | What it does |
 |---|---|
-| `-baseline <file>` | read this file instead of the one the configuration derives |
-| `-update-baseline` | rewrite the baseline to the findings of this run; growth is never written |
-
-Six commands read a baseline: `comments`, `secrets`, `arch`, `lang`, `syntax`
-and `boxes`. The first five measure the state of a tree, which is where
-standing debt lives. `docs` and `scope` read a diff — a finding there describes
-the change in front of you, not a debt somebody is paying down, and freezing it
-would silence the next change instead of the last one. `freeze` keeps its own
-baselines, of values rather than findings.
-
-`boxes` is the one with a **split**: a work list holds both kinds of finding at
-once. How the list is *written* today — items with no criterion, records that
-never got their fields, checkboxes drawn in a form nothing collects — is
-standing debt, and freezes. What the list *claims* — finished work left open,
-a box closed with nothing to show — is the change in front of you and can
-never be frozen. The list of codes that may enter is in
-[`x3 boxes`](#a-list-that-is-adopted-gradually).
+| `-baseline <file>` | read this file instead of the derived one |
+| `-update-baseline` | rewrite to this run's findings; growth is never written |
 
 ### The identity carries no line number
 
-A baseline keyed by line number moves the day somebody adds an import. The
-finding is the same finding, the file shifted under it, and the gate reports a
-violation nobody introduced. Two of those and the baseline is refreshed out of
-irritation rather than out of work done, which is the same as not having one.
-
-So a finding is identified by **what it is, where it is, and what it says** —
-never by where it sits in the file:
+A baseline keyed by line number moves the day somebody adds an import: the same
+finding, the file shifted under it, and a violation nobody introduced. Two of
+those and the baseline is refreshed out of irritation. So a finding is
+identified by **what it is, where it is, and what it says**:
 
 | Command | A finding is identified by |
 |---|---|
@@ -2521,22 +1336,12 @@ never by where it sits in the file:
 | `lang` | the code, the file, and the token with the place it sits in |
 | `syntax` | the code, the file and the name of the check |
 
-The identity is stored as a digest, and the entry beside it carries the parts a
-reviewer needs to read:
-
 ```json
-{
-  "version": 1,
-  "command": "comments",
-  "count": 2,
-  "findings": [
-    { "id": "4ace75caf575", "rule": "block_too_long", "path": "a.go" },
-    { "id": "243c6ff993db", "rule": "block_too_long", "path": "b.go" }
-  ]
-}
+{ "version": 1, "command": "comments", "count": 2,
+  "findings": [ { "id": "4ace75caf575", "rule": "block_too_long", "path": "a.go" } ] }
 ```
 
-The digest, not the text, is what the run compares — a baseline that stored the
+The **digest**, not the text, is what the run compares — a baseline storing the
 matched text would put the very value `secrets` masks into a file the repository
 keeps.
 
@@ -2544,151 +1349,86 @@ keeps.
 
 | Measured against the baseline | Result |
 |---|---|
-| a finding the baseline holds | green, held, counted in `baselined` |
+| a finding the baseline holds | green, counted in `baselined` |
 | a finding the baseline does not hold | **red** — this is the gate |
 | a baseline entry the run no longer produces | **red** — `dead_baseline` |
 
-`-update-baseline` writes the measured findings and **refuses to write a set
-that grew**, naming every finding that blocked it. Without that refusal the flag
-would be a way of turning any red run green, and the baseline would reset itself
-on every run.
-
-A missing baseline file measures against an empty set: the run is red and the
-first `-update-baseline` writes it. A file that exists and holds nothing is a
-different thing — it is a project declaring that it owes nothing — and it can
-only shrink. An empty file is a statement, a missing file is a beginning.
+`-update-baseline` **refuses to write a set that grew**, naming every finding
+that blocked it; without that refusal the flag would turn any red run green. A
+missing baseline file measures against an empty set; a file that exists and
+holds nothing is a project declaring it owes nothing, and can only shrink. **An
+empty file is a statement, a missing file is a beginning.**
 
 ### What can never enter a baseline
 
-- **Warnings.** A `warn` finding does not fail the run; it is an observation,
-  not a debt. Freezing one would buy nothing and would later turn into a
-  `dead_baseline` red the moment somebody fixed it.
-- **Scope-integrity findings.** `empty_scope` says the rule measured nothing.
-  Freezing it would take a gate that checks nothing and paint it green — which
-  is precisely the failure the baseline is supposed to make impossible.
-- **Dead markers.** `dead_exemption`, `dead_exclusion` and a parser that is not
-  installed belong to the gate's own health, not to the source. A stale
-  exemption that could be baselined would never have to be removed.
-
-### The control experiment
-
-`check.ps1`, step `baseline control experiment`, runs one command seven times
-over four trees that differ only in the debt they carry:
-
-| Run | Wants |
-|---|---|
-| `tree`, no baseline yet | `1` |
-| `tree`, `-update-baseline` | the baseline file written |
-| `tree`, with the baseline | `0` |
-| `shifted` — the same debt, moved down the file | `0` |
-| `grown` — one file added to the debt | `1`, only the new one named |
-| `grown`, `-update-baseline` | `1`, and the baseline file **unchanged** |
-| `fixed` — one debt paid, the entry still in the baseline | `1`, `dead_baseline` |
-
-The fourth row is what separates an identity from a line number, and the sixth
-is what separates a baseline from a switch that turns the gate off.
+- **Warnings** — an observation is not a debt, and freezing one turns into a
+  `dead_baseline` red the moment somebody fixes it.
+- **Scope-integrity findings** — `empty_scope` says the rule measured nothing;
+  freezing it paints a gate that checks nothing green.
+- **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
+  They belong to the gate's own health, not to the source.
 
 ## `x3 docs`
 
-Some changes must not travel alone: code without its documentation, a migration
-without its release note, a public surface without its changelog line. The rule
-is the project's, the question is general — *if you touched here, you touch
-there too.*
+**What it catches:** a change that travelled alone — code without its
+documentation, a migration without its release note.
 
 ```
 x3 docs [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [dir]
 ```
 
-Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
-
 ```json
-{
-  "docs": {
-    "rules": [
-      { "name": "code-changes-carry-documentation",
-        "when": ["internal/**", "cmd/**"],
-        "then": ["docs/**"] }
-    ]
-  }
-}
+{ "docs": { "rules": [
+    { "name": "code-changes-carry-documentation",
+      "when": ["internal/**", "cmd/**"], "then": ["docs/**"] } ] } }
 ```
 
-That is this repository's own section. Its own gate runs this command against
-itself on every `check.ps1`.
+That is this repository's own section, and its own gate runs this command
+against itself on every `check.ps1`.
 
 ### What counts as changed
 
 | `-scope` | Reads |
 |---|---|
 | `auto` (default) | the working tree when it is dirty, the last commit when it is clean |
-| `working` | `git status`, including untracked files; a rename counts as its new name |
+| `working` | `git status`, untracked files included; a rename counts as its new name |
 | `head` | the files in `HEAD`, with the commit body as the place a reason may live |
 
-The default is not a convenience. Checking the last commit while the tree is
-dirty would count documentation that has not been written yet — the easiest way
-there is to blind this gate.
-
-**A directory that is not a repository is red**, not green: a gate that cannot
-read what changed cannot say anything about it.
+The default is not a convenience: checking the last commit while the tree is
+dirty would count documentation that has not been written yet. **A directory
+that is not a repository is red**, not green.
 
 ### Exemption, with a reason
-
-A rule may be skipped by writing its `exempt` marker — `docs: none` unless the
-rule says otherwise — followed by an actual reason:
 
 ```
 docs: none - wording of one stderr line; the capabilities document does not quote it
 ```
 
-In `head` scope the marker lives in the commit body, where it stays readable
-afterwards. In `working` scope it is passed with `-reason`, for the run before
-the commit exists.
-
-**The marker alone is red.** `exemption_without_reason` is a separate code from
-the missing change itself, because an exemption nobody had to justify becomes
-the only path within a month.
-
-### The control experiment
-
-`check.ps1`, step `docs gate`, runs the binary twice: this repository with its
-own configuration (`0`), and a rule whose counterpart directory does not exist
-(`1`). Without the second run, a gate that silently matched everything would
-look exactly like a gate that passes.
-
-The Go tests carry the rest: a code-only commit is red and a code-and-docs
-commit is green, a marker without a reason is red and the same marker with one
-is green, a dirty tree is read instead of the commit under it, and a directory
-with no repository is red.
+The marker is `docs: none` unless the rule says otherwise; in `head` scope it
+lives in the commit body, in `working` scope it is passed with `-reason`. **The
+marker alone is red** — `exemption_without_reason` is a separate code from the
+missing change, because an exemption nobody had to justify becomes the only path
+within a month.
 
 ## `x3 secrets`
 
-A credential in the source is the one mistake that cannot be taken back: it is
-in the history, and the history is shared. The patterns ship with the engine and
-the project adds its own.
+**What it catches:** a credential in the source — the one mistake that cannot be
+taken back, because it is in the history and the history is shared.
 
 ```
 x3 secrets [-config <file>] [-out <file>] [dir]
 ```
 
-Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
 **No `secrets` section is not an error** — the builtin patterns apply. A leak
 scan is not a check somebody skips by not configuring it.
 
 ```json
-{
-  "secrets": {
-    "sources": ["**"],
-    "exclude": ["internal/secrets/testdata/**"],
-    "patterns": [
-      { "name": "internal-service-token", "match": "svc_[0-9a-f]{32}" }
-    ]
-  }
-}
+{ "secrets": { "sources": ["**"], "exclude": ["internal/secrets/testdata/**"],
+    "patterns": [ { "name": "internal-service-token", "match": "svc_[0-9a-f]{32}" } ] } }
 ```
 
-Paths are relative to the directory being scanned. `builtin: false` turns the
-shipped patterns off, and then the project must write its own — a scan with no
-patterns is refused rather than passed.
+`builtin: false` turns the shipped patterns off, and then the project must write
+its own — a scan with no patterns is refused rather than passed.
 
 ### The report carries no secret
 
@@ -2701,80 +1441,50 @@ BLOCK config.go:7: secret_found
 ```
 
 A report is written to a log, pasted into a ticket, shared on a screen. A tool
-that found a leak and then printed it would be a second leak. What survives is
-enough to recognise the finding and useless to anybody who reads it.
+that found a leak and then printed it would be a second leak.
 
 ### The shipped patterns
 
-| Name | Catches |
-|---|---|
-| `private-key-block` | a PEM private key header of any kind |
-| `aws-access-key` | an `AKIA`/`ASIA` access key id |
-| `google-api-key` | an `AIza` API key |
-| `slack-token` | an `xox[baprs]-` token |
-| `github-token` | a `gh[pousr]_` token |
-| `json-web-token` | a three-part JWT |
-| `url-with-password` | a password inside a connection string |
+`private-key-block` (a PEM header of any kind), `aws-access-key`
+(`AKIA`/`ASIA`), `google-api-key` (`AIza`), `slack-token` (`xox[baprs]-`),
+`github-token` (`gh[pousr]_`), `json-web-token` (a three-part JWT), and
+`url-with-password` (a password inside a connection string).
 
 **Every pattern is a recognisable format, not an entropy score.** A value that
 looks random is not thereby a secret, and a gate that reds every random-looking
 string is switched off within a week. Binary files are skipped for the same
-reason: random bytes match anything eventually.
+reason.
 
 ### Excluding what the pattern also catches
 
-A credential format is easy to describe and hard to describe *exactly*. A
-pattern for an IPv4 address also matches a private range, a documentation
-address reserved by RFC 5737, a browser version string like `126.0.0.0`, and a
-date written with dots. Measured on a real production Go application, the bare
-patterns for its own credential shapes returned **530 findings where 63 were
-real** — and a gate running at eight times noise is switched off within a week.
-
-The exclusion belongs next to the pattern it corrects, one entry per reason:
+**What it catches:** the noise that gets a real gate switched off. A pattern for
+an IPv4 address also matches a private range, an RFC 5737 documentation address,
+a browser version like `126.0.0.0`, and a date written with dots. Measured on a
+real production Go application, the bare patterns for its own credential shapes
+returned **530 findings where 63 were real**.
 
 ```json
-{
-  "secrets": {
-    "patterns": [
-      { "name": "ipv4-address",
-        "match": "(?:^|[^0-9.])((?:[0-9]{1,3}[.]){3}[0-9]{1,3})(?:[^0-9.]|$)",
-        "ignore": [
-          { "match": "^(?:0|10|127)[.]", "reason": "this host and the private range" },
-          { "match": "^(?:192[.]0[.]2|198[.]51[.]100|203[.]0[.]113)[.]", "reason": "RFC 5737 documentation addresses" },
-          { "match": "[.]0$", "reason": "a network block or a version string, not a host" },
-          { "value": "255.255.255.255", "reason": "the broadcast address" }
-        ] }
-    ]
-  }
-}
+{ "name": "ipv4-address",
+  "match": "(?:^|[^0-9.])((?:[0-9]{1,3}[.]){3}[0-9]{1,3})(?:[^0-9.]|$)",
+  "ignore": [
+    { "match": "^(?:0|10|127)[.]", "reason": "this host and the private range" },
+    { "value": "255.255.255.255", "reason": "the broadcast address" } ] }
 ```
 
-- An entry writes **`match`** (a second expression) or **`value`** (one exact
-  value), never both, and always a **`reason`**: an exclusion nobody explained
-  is never questioned again. A literal dot reads better as `[.]` than as an
-  escape the JSON has to carry twice.
-- It reads the **value that was found**, not the line. Excluding by line would
-  hide every other value that shares it.
-- `"on": "match"` hands it the whole match instead, for the case where the
-  surroundings decide rather than the value: an extension is a secret when the
-  address around it names a real host, and not when it names a documentation
-  one.
-- An exclusion that excluded nothing is `dead_ignore` and **red** — the law that
-  covers dead exemptions and dead exclusions everywhere else in the engine. A
-  stale exclusion is how a gate goes blind quietly.
+An entry writes **`match`** or **`value`**, never both, and always a **`reason`**.
+It reads the **value that was found**, not the line — excluding by line would
+hide every other value sharing it; `"on": "match"` hands it the whole match
+instead, for when the surroundings decide rather than the value. An exclusion
+that excluded nothing is `dead_ignore` and **red**.
 
-**A capture group is the value.** A pattern usually has to match the characters
-around a value to find it — a separator, a boundary, a prefix — and those
-characters are not part of the secret. When the pattern has a capture group, the
-mask covers the group and the exclusions read the group; without that rule the
-mask sits one character off and every exclusion reads the wrong text. Every
-match on a line is examined, not only the first: an excluded value must not hide
-the real one beside it.
+**A capture group is the value.** A pattern usually matches the characters
+around a value — a separator, a boundary — and those are not part of the secret,
+so the mask covers the group and the exclusions read the group. Every match on a
+line is examined, not only the first.
 
-**Lookaround does not exist here.** Go's regexp engine is RE2, so a pattern
-written with `(?<!...)` comes back as `invalid named capture`, which sends the
-reader looking for a named group nobody wrote. The engine names the real gap and
-points at what replaces it:
+**Lookaround does not exist here.** Go's engine is RE2, so `(?<!...)` comes back
+as `invalid named capture`, which sends the reader hunting for a group nobody
+wrote. The engine names the real gap and points at what replaces it:
 
 ```
 patterns[0]: match: error parsing regexp: invalid named capture: `(?<![0-9.])[0-9]{15,17}`;
@@ -2782,26 +1492,7 @@ patterns[0]: match: error parsing regexp: invalid named capture: `(?<![0-9.])[0-
 ```
 
 Exclusions belong to the pattern that carries them, so the shipped patterns
-cannot take one; a project that needs a narrower rule writes its own pattern
-with `builtin: false`, or exempts the line where the value sits.
-
-#### The ignore control experiment
-
-`check.ps1`, step `secrets ignore control experiment`, runs the same tree
-against two configurations and then two more:
-
-| Run | Wants |
-|---|---|
-| the noisy tree, pattern with no exclusions | `1`, five findings |
-| the same tree, exclusions written | `0` |
-| the same tree plus one real address | `1`, that one finding, masked to the capture group |
-| an exclusion that excludes nothing in this tree | `1`, `dead_ignore` |
-| a pattern written with a lookaround | `2`, a configuration error |
-
-The second row alone would prove nothing — an exclusion that swallowed
-everything would also be green. The third is what says the exclusions removed
-noise rather than sight.
-
+cannot take one.
 
 ### Exemption, with a reason
 
@@ -2810,47 +1501,26 @@ noise rather than sight.
 const example = "AKIAJ4EXAMPLEKEY9ABC"
 ```
 
-The directive covers **its own line and the one below it**, and it must be the
+The directive covers **its own line and the one below it**, and must be the
 first thing on its line after the comment opener — `#`, `--`, `/*`, `*`,
-`<!--`, `;` — so a sentence that merely *mentions* the directive is not one.
-That distinction is not theoretical: this package's own comments describe the
-directive, and the first version of the scanner read them as exemptions.
-
-An exemption nobody needed is `dead_exemption` and red, the same law as
-everywhere else in the engine — and it applies here too. The example above
-carries a real-shaped key on purpose: written with an ellipsis instead, the
-exemption over it would cover nothing and this document would fail the scan it
-describes.
-
-### The control experiment
-
-`check.ps1`, step `secrets control experiment`, runs the binary five times:
-
-| Run | Wants |
-|---|---|
-| `testdata/clean` | `0` |
-| `testdata/leaky` | `1` — three findings, one of them in a shell script |
-| `testdata/exempt` | `0`, and the exemption listed |
-| `testdata/dead` | `1` — `dead_exemption` |
-| this repository | `0` |
-
-Seeing only the red would not be enough: a scanner that says no to every value
-would also exit `1`. The clean and exempted rows are what separate a gate from
-a noise generator. The repository's own run is green because three test fixtures
-carry reasoned exemptions — which is the feature being used, not worked around.
+`<!--`, `;` — so a sentence that merely *mentions* it is not one. That is not
+theoretical: this package's own comments describe the directive, and the first
+scanner read them as exemptions. An exemption nobody needed is `dead_exemption`
+and red; the example above carries a real-shaped key on purpose, because written
+with an ellipsis the exemption over it would cover nothing and this document
+would fail the scan it describes.
 
 ## `x3 comments`
 
-A comment block that grew past reading length is not documentation, it is a
-document in the wrong place. This gate measures two things and treats them
-differently on purpose.
+**What it catches:** a comment block that grew past reading length — not
+documentation, but a document in the wrong place.
 
 ```
 x3 comments [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [dir]
 ```
 
 **Block length is red.** Consecutive comment lines form a block; a blank line or
-a line of code closes it. Over the limit, the block is a finding:
+a line of code closes it.
 
 ```
 BLOCK internal/source/glob.go:10: block_too_long
@@ -2859,118 +1529,74 @@ BLOCK internal/source/glob.go:10: block_too_long
 ```
 
 **The ratio only warns.** When a file carries more comment lines than code
-lines, the run says so and stays green. The asymmetry is deliberate: the measure
-is *necessity*, not count, and a gate that failed on a ratio would make people
-delete comments that were needed. It speaks only above a floor, because a
-three-line file with four comment lines is not a finding.
+lines, the run says so and stays green. The measure is *necessity*, not count,
+and a gate that failed on a ratio would make people delete comments that were
+needed. It speaks only above `ratioFloor`, because a three-line file with four
+comment lines is not a finding.
 
 ```json
-{ "comments": { "block": 10, "doc": 20, "ratio": "warn", "ratioFloor": 30 } }
+{ "comments": { "block": 10, "doc": 20, "ratio": "warn", "ratioFloor": 30,
+                "docByExtension": { ".go": 20 }, "openers": { ".ts": "//" } } }
 ```
 
-The **opening block** - everything before the first line of code - has its own
-limit, twice the ordinary one by default. It is read once and describes the
-whole file, so it may say more. "The first block" would have been the wrong
-rule: the first block *inside* the code is an ordinary block.
+The **opening block** — everything before the first line of code — has its own
+limit, twice the ordinary one by default: it is read once and describes the
+whole file. "The first block" would have been the wrong rule, because the first
+block *inside* the code is an ordinary block. Not every language earns the same
+allowance, so `docByExtension` writes it per language.
 
-Not every language earns the same opening block. A Go package comment documents
-the whole package and is worth its twenty lines; handing the same allowance to
-every extension is the same as having no ceiling. A limit can be written per
-language, and the general one applies wherever nothing is:
-
-```json
-{ "comments": { "doc": 10, "docByExtension": { ".go": 20 } } }
-```
-
-Lines that talk to a tool rather than to a reader are neither prose nor code:
+Lines that talk to a tool rather than a reader are neither prose nor code —
 `//go:...`, `// Deprecated:`, `//nolint`, `#!`, `// +build`, and x3's own
 directives. They close a block and count for nothing.
 
 Ten languages are built in (`.go`, `.js`, `.java`, `.cpp`, `.py`, `.ps1`,
-`.yaml`, `.yml`, `.sql`, `.lua`); a file whose extension is not among them is
-skipped rather than guessed at. A project adds its own:
+`.yaml`, `.yml`, `.sql`, `.lua`); an extension that is not among them is skipped
+rather than guessed at, and a project adds its own with `openers`.
 
-```json
-{ "comments": { "openers": { ".ts": "//", ".rb": "#" } } }
-```
-
-An exemption carries a reason, as everywhere else, and a dead one is red:
+An exemption carries a reason and a dead one is red. It may sit **above or
+below** the block it covers: above is natural, but `gofmt` moves directives to
+the end of a Go doc comment, and a rule accepting only one side would break
+itself on the next format.
 
 ```go
 //x3:allow:comments: the glob syntax table is the contract itself
 ```
-
-It may sit **above or below** the block it covers. Above is the natural place,
-but `gofmt` moves directives to the end of a Go doc comment, and a rule that
-accepted only one side would break itself on the next format.
-
-### The comment control experiment
-
-Four trees: a block inside the limit (green), the same block one line over
-(red), the long block with a reasoned exemption (green), and an exemption that
-silences nothing (red). The fifth run is this repository itself - the diet is a
-house rule here, so the gate that enforces it runs against the house.
-
-
 ## `x3 boxes`
 
-An open-work list is a document, and documents drift: work finishes and the box
-stays open, or a box is closed by somebody who meant to finish it. This makes
-the list **machine-readable** — each box carries the criteria that would prove
-it done — and asks both questions.
+**What it catches:** a work list drifting — work that finished while the box
+stayed open, and a box closed by somebody who only meant to finish it. Each box
+carries the criteria that would prove it done, and the gate asks both questions.
 
 ```
 x3 boxes [-config <file>] [-out <file>] [dir]
 ```
 
-Exit codes are scan's: `0` green, `1` red, `2` usage or configuration error.
-
 ```json
-{ "boxes": { "file": "docs/OPEN-WORK.json" } }
+{ "boxes": [
+    { "id": "arch-containment", "title": "the containment rule kind", "state": "open",
+      "done": [ { "when": "file", "path": "internal/arch/containment.go" },
+                { "when": "pattern", "sources": ["docs/CAPABILITIES.md"],
+                  "match": "### `containment`" } ] } ] }
 ```
 
-The list lives in its own file — it changes weekly, while the configuration
-changes yearly:
-
-```json
-{
-  "boxes": [
-    { "id": "arch-containment",
-      "title": "the containment rule kind, the last of the nine",
-      "state": "open",
-      "done": [
-        { "when": "file", "path": "internal/arch/containment.go" },
-        { "when": "pattern", "sources": ["docs/CAPABILITIES.md"], "match": "### `containment`" }
-      ] }
-  ]
-}
-```
-
-That is this repository's own list, and `check.ps1` runs this command against
-it.
+The list lives in its own file (`{ "boxes": { "file": "docs/OPEN-WORK.json" } }`)
+because it changes weekly while the configuration changes yearly. That is this
+repository's own list, and `check.ps1` runs this command against it.
 
 ### A box that is not needed yet
 
-Some work is owed only once something else happens: a second tenant, a second
-voice application, a version bump that has not landed. Such a box is open and
-*should* be, even when the thing that would prove it done happens to exist
-already. `when` says what makes it due:
+Some work is owed only once something else happens — a second tenant, a version
+bump that has not landed. `when` says what makes it due:
 
 ```json
-{ "id": "second-voice-application",
-  "title": "the billing migration a second voice application would need",
-  "state": "open",
+{ "id": "second-voice-application", "state": "open",
   "when": [{ "when": "pattern", "sources": ["apps/*/kind.json"], "match": "\"voice\"" }],
   "done": [{ "when": "file", "path": "docs/migration-b.md" }] }
 ```
 
-While the condition does not hold, the box waits: it stays open without being
-red, and the run counts it. The moment the condition holds, the box is measured
-like any other - if the work is already done, leaving it open is red.
-
-The rule that does **not** relax is the other one: a conditional box still
-cannot be closed without proof. A box closes because the work was done, never
-because it stopped being needed.
+While the condition does not hold the box waits: open without being red, and
+counted. The rule that does **not** relax is the other one — **a box closes
+because the work was done, never because it stopped being needed.**
 
 ### Both directions, or neither
 
@@ -2981,177 +1607,84 @@ because it stopped being needed.
 | `open` | some unmet | green |
 | `done` | all met | green |
 
-Asking only the second question lets a list fill up with finished work. Asking
-only the first leaves closing without proof free. The value is in asking both.
+Asking only the second lets a list fill with finished work; asking only the first
+leaves closing without proof free.
 
 ### The criteria
-
-Three of them read the **tree**, because the proof is a file:
 
 | `when` | Fields | Holds when |
 |---|---|---|
 | `file` | `path` | `path` exists |
-| `pattern` | `sources`, `match` | `match` is found in any file under `sources` |
+| `pattern` | `sources`, `match` | `match` is found under `sources` |
 | `absent` | `sources`, `match` | `match` is found **nowhere** under `sources` |
-
-`match` is a regular expression read against the **whole file**, and its `^`
-and `$` bind to a **line**, not to the file. A criterion is written about a line
-- "an import that starts the line", "a setting that ends it" - so that is what
-the two signs mean:
-
-| The pattern | Holds when |
-|---|---|
-| `^func main` | some line in the file starts with `func main` |
-| `\Apackage ` | the **file** starts with `package ` |
-| `(?-m)^package ` | the same thing, said by turning the mode off |
-
-This is the engine's reading everywhere a pattern meets a file, and
-[How a pattern is read](#how-a-pattern-is-read) sets out why and what it costs
-when it is read the other way. Here the sharp edge is `absent`: a `pattern`
-criterion that stops matching goes loudly red, but an `absent` criterion that
-stops matching goes **green without measuring anything**, and that is the worse
-of the two because nobody looks at green.
-
-A criterion whose answer depends on that reading says so on its own line:
-
-```
-unmet: absent "^the parser is here$" in PROOF.md - ^ and $ read a line here,
-       not the whole file; read the other way this criterion would have
-       answered the other way
-```
-
-`absent` is the one that makes deletion provable: "the old call site is gone"
-is exactly the sentence that becomes true when that work finishes, and nothing
-else in the engine can state it.
-
-Two read the **running system**, because most work is not finished when a file
-appears but when something starts behaving:
-
-| `when` | Fields | Holds when |
-|---|---|---|
 | `sql` | `dsnEnv`, `query`, `equals`, `driver`, `timeoutMs` | the query's first cell equals `equals` |
-| `command` | `command`, `args`, `output`, `timeoutMs` | the command exits `0` **and** its output meets `output` |
-
-`sql` is how "the migration ran" and "no row is left in the old state" become
-measurable; `command` is how "the test suite is green" does. `equals` is
-required, because a query that only has to *run* is answered by an empty table.
-The DSN is read from the environment by name and never written in the list.
-`timeoutMs` defaults to 60 seconds — a criterion may run a whole test suite.
-
-`driver` names a database driver this binary has registered, and a name it does
-not know is a **configuration error** (exit `2`), not a criterion that quietly
-could not be measured. The difference matters: a misspelled driver name would
-otherwise turn every query in the list into "the query did not run" — hundreds
-of criteria unmeasured, and not one line of warning anywhere. The error prints
-the names that are registered.
-
-The last one is for work no machine can see:
-
-| `when` | Fields | Holds when |
-|---|---|---|
+| `command` | `command`, `args`, `output`, `timeoutMs` | it exits `0` **and** its output meets `output` |
 | `manual` | `by`, `seen`, `signed` | `signed` is written |
 
-A manual criterion is not forbidden — some work really is "somebody looked at
-the screen" — but it may not hide. `by` says who looks and `seen` says what they
-must see, both required, because a criterion without them is an intention. It
-holds only once `signed` records that the looking happened, which keeps the law
-that closes a box: **a box closes because the work was done, not because it
-stopped being needed**. Every run prints how many criteria are manual; a ratio
-that grows is a list drifting back to nobody checking.
+`match` is read with `^` and `$` bound to a **line**
+([how](#how-a-pattern-is-read)). The sharp edge is `absent`: a `pattern` that
+stops matching goes loudly red, but an `absent` that stops matching goes **green
+without measuring anything**. It is also what makes deletion provable — "the old
+call site is gone" is exactly the sentence that becomes true when that work
+finishes.
 
-Fields belong to exactly one criterion and writing a foreign one is refused. A
-`match` on a `sql` criterion would otherwise be ignored in silence, and the
-person who wrote it would believe the query was filtered.
+`equals` is required on `sql`, because a query that only has to *run* is answered
+by an empty table; the DSN is read from the environment by name and never written
+in the list, and a `driver` this binary never registered is a configuration error
+(exit `2`) rather than a criterion that quietly could not be measured. On
+`manual`, `by` and `seen` are required because a criterion without them is an
+intention, and every run prints how many criteria are manual — a ratio that grows
+is a list drifting back to nobody checking. Fields belong to exactly one
+criterion, and a foreign one is refused rather than ignored in silence.
 
 #### The exit code is half a command criterion
 
-A command that finds nothing to do usually exits `0`. A test runner asked for a
-test that was never written says so and exits `0`; a suite whose every case
-skipped itself because a resource was missing prints `PASS` and exits `0`. Both
-are read as "the work is finished", which means **writing the criterion is
-enough to close the box** — the work itself is optional.
-
-So a `command` criterion may state what the output has to say:
+A runner asked for a test that was never written exits `0`; a suite whose every
+case skipped itself prints `PASS` and exits `0`. Both read as "finished", which
+means **writing the criterion is enough to close the box**.
 
 ```json
-{ "when": "command", "command": "go",
-  "args": ["test", "-v", "./..."],
-  "output": {
-    "must": ["--- PASS"],
-    "mustNot": ["no tests to run", "no test files"],
-    "retry": { "when": ["no tests to run", "no test files"],
-               "args": ["-tags", "integration"] } } }
+{ "when": "command", "command": "go", "args": ["test", "-v", "./..."],
+  "output": { "must": ["--- PASS"], "mustNot": ["no tests to run"],
+              "retry": { "when": ["no tests to run"], "args": ["-tags", "integration"] } } }
 ```
 
-`must` and `mustNot` are plain substrings searched in the command's output,
-both streams together — a runner's "I found nothing to run" is usually on
-stderr, and an expectation that reads only stdout never sees it. Every `must`
-has to appear and no `mustNot` may; the exit code still has to be `0`. The
-reason a criterion failed is printed beside it, so "the output never says
-`--- PASS`" is what the person fixing it reads.
-
-`retry` runs the same criterion **once** more with extra arguments appended,
-and only when the first output says one of `when`. The second run *replaces*
-the first — a rule of "either attempt may hold" would be an escape hatch — and
-its output faces the same `must` and `mustNot`. This is how a project whose
-tests hide behind a build tag states "look again with the tag on" without the
-engine knowing what a build tag is.
-
-Nothing here is specific to any runner: no command name, no output sentence and
-no flag is compiled in. The project writes what its own tools print.
+`must` and `mustNot` are plain substrings searched in **both streams together** —
+a runner's "I found nothing to run" is usually on stderr. `retry` runs the
+criterion **once** more, only when the first output says one of `when`, and the
+second run *replaces* the first: "either attempt may hold" would be an escape
+hatch. Nothing here is specific to any runner.
 
 #### A criterion that cannot run
 
-A `sql` criterion whose DSN variable is empty, or a `command` that cannot start,
-is **unmet** — never met — and the reason is printed beside it. Treating what
-could not be measured as proof is how a gate stops being one. Those criteria are
-also counted in the report (`summary.unmeasured`) and on the human line, because
-a count that is always above zero is a gate that never actually runs: closed
-boxes stay red, but nobody notices *why* unless the number is on the screen.
-
-A list with no boxes is `empty_scope`. A list that says nothing does not say
-everything is finished.
+A `sql` criterion whose DSN is empty, or a `command` that cannot start, is
+**unmet** — never met — with the reason beside it, and counted in
+`summary.unmeasured` and on the human line, because a count that is always above
+zero is a gate that never actually runs. A list with no boxes is `empty_scope`: a
+list that says nothing does not say everything is finished.
 
 ### A list written as a document
 
-Most projects do not keep their open work in one machine-written file. They
-keep it in their documents, as Markdown checkboxes, spread across every note
-that describes a piece of work — and those checkboxes usually have more than
-two states. `sources` reads the list that way:
+Most projects keep their open work in their documents, as Markdown checkboxes
+with more than two states. `sources` reads the list that way — and `file` and
+`sources` cannot both be written.
 
 ```json
-{ "boxes": {
-    "sources": ["docs/**/*.md"],
-    "markdown": {
-      "states": [
-        { "mark": " ", "name": "open",  "means": "open" },
-        { "mark": "~", "name": "doing", "means": "open", "requires": ["done-so-far", "left"] },
-        { "mark": ">", "name": "held",  "means": "open", "requires": ["waiting-on"] },
-        { "mark": "x", "name": "done",  "means": "done" }
-      ],
-      "criterion": { "key": "criterion", "kinds": {
-        "exists":  { "when": "file" },
-        "contains":{ "when": "pattern" },
-        "gone":    { "when": "absent" },
-        "asks":    { "when": "sql", "dsnEnv": "TEST_DSN", "driver": "pgx" },
-        "passes":  { "when": "command", "prefix": ["go", "test", "-v"],
-                     "output": { "must": ["--- PASS"],
-                                 "mustNot": ["no tests to run", "no test files"],
-                                 "retry": { "when": ["no tests to run", "no test files"],
-                                            "args": ["-tags", "integration"] } } },
-        "by-hand": { "when": "manual", "separator": " - ", "signed": " - signed " }
-      } },
-      "minLength": 4
-    } } }
+{ "boxes": { "sources": ["docs/**/*.md"], "markdown": {
+    "states": [
+      { "mark": " ", "name": "open",  "means": "open" },
+      { "mark": "~", "name": "doing", "means": "open", "requires": ["done-so-far", "left"] },
+      { "mark": "x", "name": "done",  "means": "done" } ],
+    "criterion": { "key": "criterion", "kinds": {
+      "exists":   { "when": "file" },
+      "contains": { "when": "pattern" },
+      "passes":   { "when": "command", "prefix": ["go", "test", "-v"],
+                    "output": { "must": ["--- PASS"] } },
+      "by-hand":  { "when": "manual", "separator": " - ", "signed": " - signed " } } },
+    "minLength": 4 } } }
 ```
 
-`file` and `sources` cannot both be written: one list or the other, never two.
-
-Which reads a note like this one:
-
 ```markdown
-- [x] the reader that takes a checkbox
-      criterion: contains internal/boxes the checkbox reader
 - [~] the report that names a state
       done-so-far: the reader is written
       left: the report still prints only the mark
@@ -3160,517 +1693,239 @@ Which reads a note like this one:
 
 #### The engine does not know what "in progress" means
 
-There is no built-in vocabulary of states. A mark gets a `name`, which is what
-the report calls it, and a `means`, which is the only thing the engine acts on:
-
-| `means` | The law for that state |
-|---|---|
-| `open` | all criteria met is **red** — the work is done, the list is stale |
-| `done` | any criterion unmet is **red** — closed with nothing to show |
-| `silent` | neither direction is asked |
-
-So whether "waiting on somebody" should go red when its proof already stands is
-a decision the project makes in one line, not a decision baked into the engine.
-The control experiment runs the same tree twice, changing only that line: red
-with `open`, green with `silent`.
-
-`silent` is an escape hatch, and every escape hatch in this engine shouts when
-it dies: a `silent` state no box carries is `dead_state`, red. A silence
-nothing uses is either a list that quietly emptied or a mark that was mistyped,
-and both should be said out loud. The count of silenced boxes is on the human
-line of every run for the same reason.
+A mark gets a `name`, which the report uses, and a `means`, which is the only
+thing the engine acts on: `open` (all criteria met is red), `done` (any unmet is
+red), `silent` (neither direction is asked). So whether "waiting on somebody"
+goes red when its proof already stands is one line of the project's
+configuration. `silent` is an escape hatch, and a `silent` state no box carries
+is `dead_state` and red.
 
 #### The record a state must carry
 
-An in-between state is a claim, not a condition: "in progress" says nothing on
-its own. `requires` names the fields that must sit in the item's body, and the
-names are the project's own words — the engine never learns them:
-
-```markdown
-- [>] the second reader
-      waiting-on: a decision about the format
-```
-
-A missing field is `box_record`. So is a field so short it is a way of not
-answering — `minLength` sets the floor, and `left: -` does not clear it.
-
-A field line may carry any leading decoration (indentation, quoting, an arrow,
-a bullet, bold marks); what counts is a name, a colon and something after it.
-The body of a list item is everything indented under it; the body of an item
-written as a heading (`### - [~] …`) runs to the next heading, because a
-heading's body is not indented. Checkboxes inside a fenced code block are
-examples, not work, and are not collected.
+An in-between state is a claim, not a condition. `requires` names the fields that
+must sit in the item's body, in the project's own words; a missing one is
+`box_record`, and so is a field so short it is a way of not answering —
+`minLength` sets the floor, and `left: -` does not clear it. A field line may
+carry any leading decoration; what counts is a name, a colon and something after
+it. The body of an item is everything indented under it, or — for an item written
+as a heading — everything to the next heading. Checkboxes inside a fenced code
+block are examples, not work.
 
 #### Writing a criterion in prose
 
-`criterion.key` is the word that opens a criterion line and `kinds` maps the
-project's word for a kind onto one of the six criteria. Everything a criterion
-needs but a document should not repeat lives in the kind, not in the line: the
-name of the DSN variable, the test runner that goes in front (`prefix`), the
-separator between who looks and what they see. Writing those beside every item
-would make a hundred work items carry the same three lines and turn the note
-into a configuration file.
+`criterion.key` opens a criterion line and `kinds` maps the project's word onto
+one of the six criteria. Everything a criterion needs but a document should not
+repeat — the DSN variable, the runner `prefix`, the separators — lives in the
+kind, not in the line.
 
 | `when` | The rest of the line is read as |
 |---|---|
 | `file` | a path |
-| `pattern`, `absent` | a place, then the expression — the place matches the file **and** everything under it |
+| `pattern`, `absent` | a place, then the expression; the place matches the file **and** everything under it |
 | `sql` | the query, `==`, the value it must give |
 | `command` | arguments appended to `prefix` |
 | `manual` | who looks, the separator, what they must see |
 
-The place and the expression are separated by the first space, so a path that
-carries one is written in quotes and stays a single piece:
+Place and expression split at the first space, so a path containing one is
+quoted, and **a quote that never closes is a configuration error** on that line
+rather than a path quietly split in two:
 
 ```
 criterion: contains "docs/design notes/READER.md" the parser is here
 ```
 
-A quote that never closes is a **configuration error** on that line, not a path
-quietly split in two. Split, the criterion would measure a place that does not
-exist, never hold, and never say why.
-
-A kind declaration is checked the same way a criterion is: a `prefix` on a
-`file` kind, or a `dsnEnv` on a `command`, is refused rather than ignored.
-
 #### What the reader refuses
 
-| Code | The writing it refuses |
-|---|---|
-| `box_unknown_state` | a mark the configuration never declared — a box nobody can read |
-| `box_unlisted` | `* [ ]`, `+ [ ]`, `1. [ ]` — drawn like a checkbox, collected by nothing |
-
-The second is the quiet one. The work was written down and it is in no list, so
-nobody will ever come looking for it; a loud error is the only way it surfaces.
+`box_unknown_state` is a mark the configuration never declared. `box_unlisted` is
+`* [ ]`, `+ [ ]` or `1. [ ]` — drawn like a checkbox, collected by nothing, which
+is the quiet one: the work was written down and is in no list, so nobody will
+come looking for it.
 
 #### Regions that are not work
 
-Documents explain themselves. A note that keeps a work list usually also shows
-**how an item is written** - a filled-in example, a template to copy, a quoted
-passage - and those examples are drawn with the same checkboxes as the work.
-Collected, they inflate the list with its own illustrations: the count reports
-work nobody has, and the reds it produces belong to no one.
-
-Fenced code blocks are skipped by the engine, because that is Markdown's own
-writing. Every other "this part is an example" marker is written differently in
-every project, so it is **declared**, not built in:
+A note that keeps a work list usually also shows **how an item is written**, drawn
+with the same checkboxes. Fenced code blocks are skipped because that is
+Markdown's own writing; every other marker is declared:
 
 ```json
-"markdown": {
-  "examples": [
-    { "open": "^<!-- EXAMPLE -->", "close": "^<!-- /EXAMPLE -->" }
-  ]
-}
+"markdown": { "examples": [ { "open": "^<!-- EXAMPLE -->", "close": "^<!-- /EXAMPLE -->" } ] }
 ```
 
-`open` and `close` are patterns matched against a line; both are required, and
-the marker lines themselves are skipped along with everything between them.
-
-Because this is an escape hatch, it obeys the law every escape hatch in the
-engine obeys - it may not go stale in silence:
-
-| Code | The declaration it refuses |
-|---|---|
-| `example_unclosed` | a region opens in a document and never closes; every box below it would leave the list without a word |
-| `dead_example` | a declared region opens in no document at all - a marker that skips nothing, written by someone who believes it skips something |
+Both are required, and the marker lines are skipped with everything between them.
+A region that opens and never closes is `example_unclosed`; one that opens in no
+document at all is `dead_example`.
 
 ### A list that is adopted gradually
 
-A list does not become machine-readable in a day. Turning the gate on against a
-list of two thousand items would produce a thousand reds on the first run, and
-a gate that reds a thousand times on its first run is switched off on its
-second. So `boxes` reads a **baseline**, exactly like `comments` or `secrets`:
-today's shortcomings freeze, and a new one is red.
+A gate that reds a thousand times on its first run is switched off on its second,
+so `boxes` reads a baseline exactly like `comments` or `secrets`:
 
 ```
-x3 boxes -baseline ops/x3/boxes.json                    # today's debt is silent
-x3 boxes -baseline ops/x3/boxes.json -update-baseline   # freeze what stands now
+x3 boxes -baseline baselines/boxes.json -update-baseline   # freeze what stands now
 ```
 
-The law is the baseline's own, unchanged: the list only shrinks, `-update-baseline`
-never writes growth, and an entry the run no longer produces is `dead_baseline`.
-
-What may be frozen is **how the list is written today**:
-
-| Code | Why it may freeze |
-|---|---|
-| `box_uncovered` | an item with no criterion; the ordinary state of a list nobody has converted yet |
-| `box_record` | a state whose fields were never written, or a criterion line that cannot be read |
-| `box_unlisted` | a checkbox drawn in a form nothing collects |
-| `box_unknown_state` | a mark from before the states were declared |
-| `box_owner` | a manual criterion left on an owner the list may not wait on |
-| `box_moved` | a move written down before the place it names existed |
-| `box_suspect` | a criterion that stopped measuring; the debt is the writing, not the claim |
-
-What may **never** be frozen is what the list *claims*:
-
-| Code | Why it may not |
-|---|---|
-| `box_finished` | freezing it lets finished work sit open forever |
-| `box_unproven` | freezing it makes closing without proof free |
-| `empty_scope` | freezing it paints a gate that measures nothing green |
-| `dead_state`, `dead_baseline`, `dead_exclusion` | the gate's own health, never the list's debt |
-
-That split is the whole point. A baseline here buys time to write the criteria;
-it does not buy permission to stop asking the two questions. The control
-experiment proves it in the same run: with the baseline in place the uncovered
-items are silent **and** `summary.findings` is still zero only because no box
-lies about its state.
+What may be frozen is **how the list is written today** — `box_uncovered`,
+`box_record`, `box_unlisted`, `box_unknown_state`, `box_owner`, `box_moved`,
+`box_suspect`. What may **never** be frozen is what the list *claims*:
+`box_finished` and `box_unproven` (freezing them makes finished work sit open
+forever and closing without proof free), `empty_scope`, and the gate's own health
+codes. A baseline buys time to write the criteria; it does not buy permission to
+stop asking the two questions.
 
 ### A list that is finished, and where it goes next
 
 Every criterion so far reads one **item**. This one reads a whole **document**,
-because a work list can fail as a list while every item in it is written
-correctly: a file whose work is done sits among the ones that are not, and each
-one of those makes the list a little less worth opening. Nobody notices, because
-no single box is wrong.
+because a list can fail as a list while every item in it is written correctly.
 
 ```json
-{
-  "boxes": {
-    "sources": ["docs/**/*.md"],
-    "markdown": {
-      "retire": {
-        "from": "ongoing",
-        "to": "done",
-        "bare": true,
-        "empty": true,
-        "few": [
-          { "open": 2, "finished": 1 },
-          { "open": 5, "percent": 75 }
-        ]
-      }
-    }
-  }
-}
+{ "markdown": { "retire": { "from": "ongoing", "to": "done",
+    "bare": true, "empty": true,
+    "few": [ { "open": 2, "finished": 1 }, { "open": 5, "percent": 75 } ] } } }
 ```
 
-`from` is the part of a path that says "this document is open work", `to` is
-what replaces it, and the finding writes the destination out. **Both are the
-project's words** - the engine knows no directory named `ongoing`, `done`,
-`todo` or anything else, and a project that keeps its lists somewhere else says
-so here.
+`from` is the part of a path that says "this document is open work", `to` is what
+replaces it, and **both are the project's words**. `bare` finds a document among
+the open lists carrying no box at all (`list_has_no_box`), `empty` one where
+nothing is open any more (`list_finished`), and `few` one where a threshold holds
+(`list_nearly_finished`).
 
-| Written | The finding | What it means |
-|---|---|---|
-| `bare` | `list_has_no_box` | the document sits among the open lists and carries no box at all |
-| `empty` | `list_finished` | nothing is open here any more |
-| `few` | `list_nearly_finished` | one of the thresholds holds |
+`bare` is why the rule walks **documents** rather than boxes: a file with no box
+produces nothing to walk past, so the one failure that leaves work completely
+invisible is exactly the one a box-by-box gate cannot see — and its finding does
+not say "move this", because what it needs is boxes. Each `few` threshold is "at
+most this many open, and this much finished", and **the finished half is
+required**: `open` alone would retire a one-item plan nobody has started, filing
+work nobody has begun under work that is done.
 
-`bare` is the quiet one and it is the reason the rule walks **documents**
-rather than boxes: a file with no box produces nothing to walk past, so the one
-failure that leaves work completely invisible is exactly the one a box-by-box
-gate cannot see. Its finding does **not** say "move this" - a document with no
-box does not belong among the finished ones either; what it needs is boxes.
-
-Each `few` threshold is "at most this many open, and this much finished", and
-**the finished half is required**: `open` alone is refused as a configuration
-error. A threshold that only counted what is left would retire a one-item plan
-nobody has started yet - filing work nobody has begun under work that is done, which is the
-one thing this whole command exists to prevent. Write `finished` (at least this
-many boxes closed) or `percent` (at least this share of them), and any threshold
-that holds is enough.
-
-**The engine does not write the list out.** The report already names every open
-box, every document and every finding; turning that into a page somebody reads
-over breakfast is formatting, and formatting is where a project's own voice
-belongs. A gate that also published documents would own two contracts and break
-on the day one of them changed.
+**The engine does not write the list out.** Turning the report into a page
+somebody reads over breakfast is formatting, and a gate that also published
+documents would own two contracts.
 
 ### Work that moved rather than finished
 
-An item is sometimes closed because it was written down somewhere else. The
-work did not finish; its **place** changed, and its criterion went with it. If
-the gate kept measuring that criterion it would say "closed and unproven"
-forever, and it would be wrong every time.
+An item is sometimes closed because it was written down somewhere else: the work
+did not finish, its **place** changed.
 
 ```json
-{ "boxes": { "markdown": {
-    "moved": { "match": "^\\s*moved to `([^`]+)`\\s*$", "roots": ["docs"] } } } }
+{ "markdown": { "moved": { "match": "^\\s*moved to `([^`]+)`\\s*$", "roots": ["docs"] } } }
 ```
 
-```markdown
-- [x] the reader that took the old format
-      moved to `docs/FORMAT.md`
-```
-
-An item whose body carries that line is outside **both** directions: its
-criteria are not run, and it is not `box_uncovered` either. The pattern is the
-project's own — how a document says "this moved" is that document's language,
-not the engine's — and its **first capture group** is where the work went.
-
-This does not loosen the two-direction law; it names a case that law never
-covered. A moved item is not closed work, so asking closed work's question of
-it produces a red nobody can fix. Everything else stays exactly as it was: an
-item that is genuinely done still needs its proof.
-
-It is not free, either. Saying "moved" would otherwise be the cheapest way to
-silence a criterion, so the place the work went to has to **exist**: `roots`
-lists where to look for it (the scanned root is always tried first), and a
-target nothing can be found at is `box_moved` — a move nobody can follow is a
-loss, not a move. Every run prints how many items moved, because a quietly
-growing list of moves is the long way out of a gate.
-
-A marker that matches nothing is **not** red, and that is the same limit
-`manual.denyBy` carries: a move nobody wrote silences nothing, so the failure
-is loud rather than blind — the item keeps its criteria and the gate keeps
-asking. An exemption is only dangerous when it succeeds.
+An item whose body carries that line is outside **both** directions — its criteria
+are not run, and it is not `box_uncovered` either. The pattern is the project's
+own and its **first capture group** is where the work went. It is not free: saying
+"moved" would otherwise be the cheapest way to silence a criterion, so the target
+has to **exist**, and one nothing can be found at is `box_moved`. A marker that
+matches nothing is **not** red — the item simply keeps its criteria, so the
+failure is loud rather than blind.
 
 ### A scope that can be narrowed
-
-`sources` says which documents hold the list. On its own that is a blunt
-instrument: a new folder under the same tree is collected whether anyone meant
-it to be or not, and a folder that must stay out cannot be taken out.
 
 ```json
 { "boxes": { "sources": ["docs/**/*.md"], "exclude": ["docs/external/**"] } }
 ```
 
 The law is `arch`'s and `freeze`'s, shared in one place: a pattern that takes no
-document out of the scope is `dead_exclusion`, an `exclude` written as an empty
-list is refused (it cannot be told from an unwritten one), and a scope that ends
-up holding no box at all is `empty_scope`. `exclude` narrows documents, so it
-may not be written beside `file` — a machine-written list has no scope to narrow.
+document out is `dead_exclusion`, an empty list is refused, and a scope holding no
+box is `empty_scope`. `exclude` narrows documents, so it may not be written beside
+`file` — a machine-written list has no scope to narrow.
 
 ### A document that can carry a signature
 
-A `manual` criterion holds when `signed` records that the looking happened. In
-a document the criterion is one line of prose, and until now that line had a
-place for who looks and what they see but **nowhere to write the signature** —
-which meant a project keeping its list in documents could never close a manual
-item at all. Every one of them stayed `box_unproven`, forever.
-
-```json
-{ "by-hand": { "when": "manual", "separator": " - ", "signed": " - signed " } }
-```
+A `manual` criterion holds when `signed` records that the looking happened.
 
 ```markdown
 - [x] the installer works on a clean machine
       criterion: by-hand the release owner - the installer runs on a clean machine - signed 2026-09-07
 ```
 
-A `command` kind carries its `output` expectation the same way, and for the same
-reason `prefix` lives there: what a runner prints is a property of that runner,
-not of the item. Writing it beside a hundred checkboxes means updating it in
-ninety-nine places on the day the runner changes its wording.
-
 `separator` splits who looks from what they see; `signed` splits what they see
-from the record that they did. Both markers are the project's own words. If the
-kind declares no `signed` marker, a manual criterion in a document can never
-hold — which is correct rather than convenient: an unsigned manual criterion
-does not close a box in any list form.
+from the record that they did. Both are the project's own words, and if the kind
+declares no `signed` marker a manual criterion can never hold — correct rather
+than convenient.
 
 ### A criterion that stopped measuring
 
-The quietest way a work list dies is not boxes being closed wrongly. It is
-criteria that cannot fail. Three writings do it, all three go green, and none of
-them measures anything:
+The quietest way a work list dies is criteria that cannot fail. Three writings do
+it, all three go green, and none measures anything:
 
 ```json
-{ "boxes": { "suspect": {
-    "repeat": 3,
-    "always": ["go.mod", "README.md"],
-    "selfProof": true } } }
+{ "boxes": { "suspect": { "repeat": 3, "always": ["go.mod", "README.md"],
+                          "selfProof": true } } }
 ```
 
-| Field | Finds |
-|---|---|
-| `repeat` | one criterion carried by that many items or more — a single proof cannot be the end of many different pieces of work |
-| `always` | a criterion pointing at a path the project carries in **every** state; a criterion that cannot fail is not a criterion |
-| `selfProof` | a criterion whose scope is the very document the item is written in — writing the sentence would close the box |
-
-Each is `box_suspect`. `repeat` counts distinct items, not lines, and skips
-`manual` criteria: asking the same person to see the same thing twice is the
-nature of that work, not a copy. `selfProof` asks the scope matcher rather than
-comparing names, so it sees a glob that reaches the document as clearly as a
-path that names it.
-
-The section is optional and, when written, must ask for at least one of the
-three — a rule that asks nothing cannot be told from an unwritten one. `repeat`
-below `2` is refused, because at `1` every criterion in the list is a repeat.
+`repeat` finds one criterion carried by that many items or more; `always` a
+criterion pointing at a path the project carries in **every** state; `selfProof` a
+criterion whose scope is the very document the item is written in. Each is
+`box_suspect`. `repeat` counts distinct items and skips `manual` criteria, and is
+refused below `2`; `selfProof` asks the scope matcher, so a glob that reaches the
+document is as visible as a path that names it. The section must ask for at least
+one of the three.
 
 ### Who a manual criterion may wait on
-
-A work list cannot wait on somebody the machine cannot reach. An item that says
-"somebody should try it and see" sits in the list forever, because everybody
-who reads it assumes somebody else will look.
 
 ```json
 { "boxes": { "manual": { "denyBy": ["the person who owns this project"] } } }
 ```
 
-A `manual` criterion whose `by` matches one of those names (case-insensitive,
-whole value) is `box_owner`: write a criterion the machine can measure, or move
-the item to that person's own list. This is a **prohibition**, not an escape
-hatch, so it does not shout when it matches nothing — a rule that catches
-nothing is good news, unlike an exemption that silences nothing.
-
-### The control experiment
-
-`check.ps1`, step `boxes control experiment`, runs the binary against one tree
-with several lists:
-
-| List | Wants |
-|---|---|
-| matches the tree | `0` |
-| finished work left open | `1` |
-| unfinished work closed | `1` |
-| a condition not yet met / met | `0` / `1` |
-| a `command` and a `manual` criterion, both closed **with** proof | `0` |
-| the same two boxes closed **without** proof | `1` |
-| the same two boxes, proof complete, left **open** | `1` |
-| a `sql` criterion whose DSN is empty, box closed | `1`, and `summary.unmeasured` is `1` |
-| this repository's own list | `0` |
-
-The middle three are one experiment in three directions on the same two boxes.
-Without the second, a `manual` criterion would close a box for free; without the
-third, proven work could sit open forever. The fourth is the fail-closed law: a
-criterion that could not run does not turn a closed box green.
-
-A `sql` criterion needs a database to be *met*, so the step proves the direction
-that no environment can fake — it stays red and it is counted. The reading
-itself is the same shared probe the live guard uses.
-
-A second step, `boxes document list control experiment`, does the same for a
-list kept as documents. It writes nothing: the baseline it reads is in the
-repository and only ever read.
-
-| Run | Wants |
-|---|---|
-| four states, records complete, criteria consistent | `0` |
-| finished work left open / unfinished work closed | `1` / `1` |
-| an in-between state with no `left:` line | `1` |
-| `* [ ]` — a checkbox nothing collects | `1` |
-| a mark the configuration never declared | `1` |
-| **the same tree**, the held state declared `open` / `silent` | `1` / `0` |
-| a `silent` state no box carries | `1` |
-| a manual criterion on a denied owner / the same tree without the rule | `1` / `0` |
-| an item with no criterion, no baseline / held by one | `1` / `0` |
-| a **new** item with no criterion, same baseline | `1` |
-| a baseline entry the run no longer produces | `1` |
-| the frozen run: `baselined` is 1 **and** `findings` is 0 | — |
-
-The sixth row is the one that matters most: one line of configuration decides
-whether an in-between state goes red, and nothing else in the tree changes. The
-last row is the other one — it proves the baseline silenced the debt without
-silencing the two questions.
-
-A third step, `boxes criterion fidelity control experiment`, asks whether the
-criteria themselves still measure. Every red in it has a **control**: take the
-line that produced it out of the configuration and the same tree goes green
-again, which is the only way to prove what the red was about.
-
-| Run | Wants |
-|---|---|
-| a test that runs and passes | `0` |
-| a test that **skipped itself** — prints `PASS`, exits `0` | `1` |
-| a test that was **never written** — exits `0` | `1` |
-| **the same run** measured by the exit code alone, no `output` | `0` |
-| a test behind a build tag, with a second attempt / without one | `0` / `1` |
-| a `driver` name this binary never registered | `2` |
-| moved work, with the rule / without it / moved to nowhere | `0` / `1` / `1` |
-| the moved item is counted: `summary.moved` is 1 | — |
-| a narrowed scope / the same tree unnarrowed / an exclusion that takes nothing out | `0` / `1` / `1` |
-| a signature the document can carry / nowhere to sign | `0` / `1` |
-| criteria that cannot fail / the same tree without the rule | `1` / `0` |
-| a document list stating what its runner must print / stating nothing | `1` / `0` |
-
-The fourth row is the one worth reading twice. It is the same command, the same
-tree and the same zero exit code as the row above it, and it is **green** — that
-is the hole, kept in the experiment on purpose so the rows around it prove what
-closes it. A gate whose green cannot be reproduced without the rule has not been
-tested; it has been trusted.
+A `manual` criterion whose `by` matches one of those names is `box_owner`. This is
+a **prohibition**, not an escape hatch, so it does not shout when it matches
+nothing — a rule that catches nothing is good news.
 
 ## `x3 syntax`
 
-A compiler tells you when a file does not parse. Nobody compiles a template, a
-settings file, or a script the browser will read at run time - so those go out
-broken, the server still answers 200, and the screen is simply blank.
+**What it catches:** a file no compiler reads going out broken — a template, a
+settings file, a script the browser loads at run time. The server still answers
+200 and the screen is simply blank.
 
 ```
 x3 syntax [-config <file>] [-out <file>] [dir]
 ```
 
-The gate does not guess which parser a file wants; a project declares it. There
-are three kinds of check, and each check is exactly one of them:
+The gate does not guess which parser a file wants; a project declares it, and
+each check is exactly one of three kinds:
 
 ```json
-{
-  "syntax": {
-    "checks": [
-      { "name": "every-settings-file-parses",
-        "sources": ["**/*.json"], "as": "json" },
-
-      { "name": "browser-scripts-parse",
-        "sources": ["ui/**/*.js"], "run": ["node", "--check"] },
-
-      { "name": "no-escaped-quote-in-an-attribute",
-        "sources": ["ui/**/*.html"], "deny": "=\"[^\"]*\\\\'",
-        "reason": "a backslash escape inside an attribute is not valid here" }
-    ]
-  }
-}
+{ "syntax": { "checks": [
+    { "name": "every-settings-file-parses", "sources": ["**/*.json"], "as": "json" },
+    { "name": "browser-scripts-parse", "sources": ["ui/**/*.js"], "run": ["node", "--check"] },
+    { "name": "no-escaped-quote-in-an-attribute", "sources": ["ui/**/*.html"],
+      "deny": "=\"[^\"]*\\\\'",
+      "reason": "a backslash escape inside an attribute is not valid here" } ] } }
 ```
 
-`as` names a parser the engine carries - `json` is the only one, because a
-format half-understood is worse than a format not understood at all. `run` names
-an external parser: the file path is appended to the command, and a non-zero
-exit is a finding with the parser's own first line of output. `deny` is the
-other half of the same problem - text that parses but means nothing in this
-format, and it needs a reason, like every other silence-or-refusal in the
-engine.
+`as` names a parser the engine carries — `json` is the only one, because a
+format half-understood is worse than one not understood at all. `run` names an
+external parser: the path is appended, and a non-zero exit is a finding carrying
+the parser's own first line. `deny` is the other half of the same problem — text
+that parses but means nothing in this format — and it needs a `reason`.
 
-**A parser that is not installed is red.** That is the default, and it is the
-point: a gate that quietly skips its check on a machine without the tool is a
-gate that reports green having verified nothing. A project that genuinely wants
-the check optional says so:
-
-```json
-{ "name": "browser-scripts-parse", "sources": ["ui/**/*.js"],
-  "run": ["node", "--check"], "missing": "warn" }
-```
-
-Files are independent, so each check runs its files on every core. A check whose
-sources match nothing is red with `empty_scope`, for the reason every other gate
-here has that rule.
-
-### The syntax control experiment
-
-Four runs. A tree whose files parse (green), the same tree with one file broken
-(red), a check naming a parser that is not installed (red), and the same check
-with `missing: "warn"` (green, and the skip is still printed). The third and
-fourth are the pair that matters: without them, a missing tool would look
-exactly like a clean run.
+**A parser that is not installed is red.** A gate that quietly skips its check
+on a machine without the tool reports green having verified nothing. A project
+that genuinely wants it optional writes `"missing": "warn"`. A check whose
+sources match nothing is `empty_scope`.
 
 ## `x3 scope`
 
 The other half of the coupled-change problem. `x3 docs` asks what a change must
-bring **with** it; this one asks what a change must **stay away from**. A part
-that ships on its own stops shipping on its own the day it rides in the same
-commit as something else.
+bring **with** it; this one asks what it must **stay away from**. A part that
+ships on its own stops shipping on its own the day it rides in the same commit
+as something else.
 
 ```
 x3 scope [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [dir]
 ```
 
-A lane is a set of paths, plus the paths that are allowed to travel with them:
+A lane is a set of paths, plus the paths allowed to travel with them:
 
 ```json
-{
-  "scope": {
-    "lanes": [
-      { "name": "site",
-        "paths": ["services/site/**"],
-        "also":  ["docs/site/**"],
-        "exempt": "lane: crossed" }
-    ]
-  }
-}
+{ "scope": { "lanes": [
+    { "name": "site", "paths": ["web/site/**"], "also": ["docs/site/**"],
+      "exempt": "lane: crossed" } ] } }
 ```
 
-A change that touches nothing in `paths` is none of this lane's business. A
-change that does touch it must stay inside `paths` and `also`; anything else is
-named, file by file:
+A change that touches nothing in `paths` is none of this lane's business; one
+that does must stay inside `paths` and `also`, and anything else is named file
+by file:
 
 ```
 BLOCK site: outside_the_lane
@@ -3679,223 +1934,147 @@ BLOCK site: outside_the_lane
         outside: internal/core/money.go
 ```
 
-Crossing a lane is allowed when it is said out loud. The exemption goes in the
-commit message (or `-reason` for a working-tree run), and a marker with nothing
-after it is red - the same rule `docs` has, for the same reason: a marker
-anybody can type without saying why is a marker everybody types.
-
+Crossing is allowed when it is said out loud — in the commit message, or
+`-reason` for a working-tree run — and a marker with nothing after it is red.
 `-scope auto` reads the working tree when it is dirty and `HEAD` when it is
-clean, so a developer before the commit and a gate after it type the same
-command. Both this gate and `x3 docs` read the diff through the same code
-(`internal/changed`), because two gates that disagreed about what a commit
-touched would each be right about a different commit.
+clean. Both this gate and `x3 docs` read the diff through the same code, because
+two gates disagreeing about what a commit touched would each be right about a
+different commit.
 
 ### A lane a branch declares
 
-The lane above is opened by the **files**: touch nothing in `paths` and the rule
-is none of your business. That is the right reading for a part that ships on its
-own. It is the wrong reading for a working lane — a branch that exists so that
-two people can work at the same time without landing on each other. There the
-promise is not "if you touch the site, stay in the site"; it is **"this branch
-only ever works here"**, and a commit on it that touches nothing inside the lane
-and everything outside it is the violation itself.
-
-`branch` says so:
+The lane above is opened by the **files**. That is the wrong reading for a
+working lane — a branch that exists so two people can work without landing on
+each other. There the promise is **"this branch only ever works here"**, and a
+commit that touches nothing inside the lane and everything outside it is the
+violation itself.
 
 ```json
-{ "name": "site",
-  "branch": "work/site*",
-  "base": "main",
-  "paths": ["services/site/**"],
-  "exempt": false }
+{ "name": "site", "branch": "work/site*", "base": "main",
+  "paths": ["web/site/**"], "exempt": false }
 ```
 
-Three things change when `branch` is written:
+Three things change: **the branch opens the lane, not the files**, so on any
+other branch the lane is silent; **the whole branch is measured**,
+`merge-base(base, HEAD)..HEAD`, so a violation in the first commit does not go
+out of sight once a clean commit is put on top of it; and **reading the range is
+part of the answer** — if git cannot be read, or the base is not there, the run
+is red.
 
-- **The branch opens the lane, not the files.** The rule runs when the checked
-  out branch matches the pattern, and then every changed path must be inside
-  `paths` (and `also`). On any other branch the lane is silent, so the branches
-  that *build* the lane — the move, the gates, the ledger — are outside it by
-  name rather than by exception.
-- **The whole branch is measured**, `merge-base(base, HEAD)..HEAD`, not the last
-  commit. A violation that landed in the first commit does not go out of sight
-  once a clean commit is put on top of it. `base` defaults to `main`.
-- Reading the range is part of the answer. If git cannot be read, or the base is
-  not there, the run is **red** — a boundary that could not be measured is not a
-  boundary that held.
-
-`exempt: false` closes the lane: the marker is not even looked for, and the
-finding offers no way out.
-
-```
-BLOCK site: outside_the_lane
-        this change is in the "site" lane (1 file(s)) and also touches 1 file(s)
-        outside it; this lane cannot be crossed; the work outside it belongs to
-        another branch
-        outside: docs/NOTES.md
-```
-
-That is a deliberate hole in the rule everywhere else in the engine — an
-exemption must be sayable, with a reason. It is sayable here too, by leaving
-`exempt` out. Write `false` only when the boundary is somebody's stated
-condition rather than a convention: an exemption anybody can type is an
-exemption everybody types, and the day it is typed the guarantee the branch was
-cut for is gone. `base` without `branch` is refused; it would name a comparison
-nothing performs.
-
-### The lane control experiment
-
-A temporary repository and three commits: one inside the lane (green), one that
-touches the lane and a file outside it (red, naming the file), and one that
-crosses with a reason in the message (green, counted as an exemption). The
-middle one is what the gate is for; the outer two are what keep it from being a
-gate that refuses everything.
-
-The branch lane is asked the same both ways, on a repository with a branch cut
-from `main`: silent on a branch whose name does not match · green when the
-branch stayed inside · red, naming the file, on a change that **never enters**
-the lane — and the same commit is handed to a path lane, which stays silent, so
-the difference between the two forms is measured rather than asserted · red when
-the violation sits in the first commit of the branch and a clean commit is on
-top of it · red on a closed lane even with a reason in the commit body, while
-the same commit is green on an open one · red when the base branch is not there.
+`exempt: false` closes the lane: the marker is not even looked for. That is a
+deliberate hole in the rule everywhere else in the engine, that an exemption
+must be sayable. Write it only when the boundary is somebody's stated condition
+rather than a convention. `base` without `branch` is refused.
 
 ## `x3 test`
 
-A suite that grows with the repository stops being run. `x3 test` hands the
-runner only the units a change can reach, so the cost of a run follows the
-**change**, not the size of the tree.
+**What it catches:** a suite that grows with the repository until nobody runs
+it. `x3 test` hands the runner only the units a change can reach, so the cost of
+a run follows the **change**, not the size of the tree.
 
 ```
 x3 test [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [-scope auto|working|head] [-reason <text>] [-full] [dir]
 ```
 
-The engine knows no test runner. The command, the way a unit is written on the
-command line, and the way a dependency is read out of a file all come from the
-configuration:
+The engine knows no test runner: the command, the way a unit is written on the
+command line, and the way a dependency is read all come from the configuration.
 
 ```json
-{
-  "test": {
+{ "test": {
     "units": ["cmd/*/*.go", "internal/*/*.go"],
     "tests": ["**/*_test.go"],
-    "ignore": {
-      "docs/**": "the published documentation is compiled into nothing a test exercises",
-      "*.md": "the handover ledgers are prose; no test reads them"
-    },
+    "ignore": { "docs/**": "the published documentation is compiled into nothing a test exercises" },
     "module": "x3",
-    "imports": {
-      "from": "regex",
-      "select": "^\\s*(?:[\\w.]+\\s+)?\"(x3/[^\"]+)\"",
-      "comments": "exempt"
-    },
-    "run": { "command": ["go", "test"], "package": ["./{unit}"], "all": ["./..."] }
-  }
-}
+    "imports": { "from": "regex", "select": "^\\s*(?:[\\w.]+\\s+)?\"(x3/[^\"]+)\"",
+                 "comments": "exempt" },
+    "run": { "command": ["go", "test"], "package": ["./{unit}"], "all": ["./..."] } } }
 ```
 
-`units` declares which files **define** a unit; the unit is the directory that
-holds them. `package` is that unit's argument list — a list, because one runner
-takes `./pkg` in one word and another takes `-p pkg` in two. `{unit}` must
-appear somewhere in it, or every unit would render the same argument and the
-selection would be a lie.
-
-`imports` is the ordinary extractor (`from: "regex"`, one capture group), so the
-value it captures is the dependency key and the files it came from are the other
-end of the edge. `module` is the prefix that means *this repository*; anything
-outside it is a third party and never enters the graph. Writing
-`comments: "exempt"` is worth the line: an import inside a commented-out block
-never runs, and an edge drawn from it would drag a unit into every run for
-nothing.
+`units` declares which files **define** a unit; the unit is the directory
+holding them. `package` is that unit's argument list — a list, because one runner
+takes `./pkg` in one word and another takes `-p pkg` in two — and `{unit}` must
+appear in it, or every unit would render the same argument and the selection
+would be a lie. `imports` is the ordinary extractor with one capture group;
+`module` is the prefix meaning *this repository*, and anything outside it never
+enters the graph. `comments: "exempt"` earns its line: an import inside a
+commented-out block never runs, and an edge drawn from it would drag a unit into
+every run for nothing.
 
 ### A test's import does not travel
 
-`tests` is the field that decides whether the selection is a selection at all.
 A test file's dependency belongs to **that unit alone**: a test binary links it,
 the package does not, so an importer of that package never sees it.
 
-This is not a detail. In the pilot, `database`'s test imports a shared test
-helper, that helper imports the AI engine package, and `ledger` imports
-`database`. With test edges travelling, touching one leaf of the AI engine
-reached **54 of 85 packages**. With `tests` declared, the same change reaches
-**17** — and the 37 packages that were being run had no path to the change at
-all.
+This is not a detail. In the pilot, `database`'s test imports a shared helper,
+that helper imports the engine package, and `ledger` imports `database`. With
+test edges travelling, touching one leaf reached **54 of 85 packages**; with
+`tests` declared, **17** — and the 37 others had no path to the change at all.
 
-A `tests` pattern that matches nothing is *not* red, and that asymmetry is
+A `tests` pattern that matches nothing is *not* red, and the asymmetry is
 deliberate: a dead `ignore` makes a run **narrower** than the tree justifies, a
-dead `tests` pattern only makes it **wider**. The engine's dead-escape-hatch law
-guards the direction that can hide a failure.
+dead `tests` pattern only makes it **wider**. The dead-escape-hatch law guards
+the direction that can hide a failure.
 
 ### Which unit a file belongs to
 
 | The file | Its unit |
 |---|---|
 | matches `units` | its own directory |
-| does not match `units` | the nearest unit **above** it — a fixture next to the package it feeds belongs to that package |
+| does not match `units` | the nearest unit **above** it |
 | has no unit above it | none: the run goes **full** |
 
-The search upward never reaches the repository root, even when the root itself
-holds source files. If it did, the root unit would be every file's ancestor, a
-change to a README would narrow the whole tree down to one package, and the
-quietest possible narrowing would happen exactly where we set out to prevent it.
+The search upward never reaches the repository root. If it did, the root would
+be every file's ancestor, and a change to a README would narrow the whole tree
+down to one package — the quietest possible narrowing, exactly where we set out
+to prevent it.
 
 ### Fail-closed: when the run goes full, it says so
 
 | Reason | What happened |
 |---|---|
 | `orphan` | a changed file is in no unit and no `ignore` covers it |
-| `graph` | a dependency resolves inside `module` but to no unit: the graph has a hole |
+| `graph` | a dependency resolves inside `module` but to no unit |
 | `diff` | the change could not be read from git |
 | `units` | the `units` patterns match no file |
 | `forced` | `-full` was written |
 
 A full run is not a fault and does not turn the command red — the engine says it
 could not narrow, and does the work anyway. What *is* red is a dead `ignore`
-pattern or a dead `skip` inside `imports`: an escape hatch that takes nothing
-out leaves the reader believing the run is smaller than it is.
-
-`ignore` is measured against the whole tracked tree, not against this run's
-changed files — not having been touched today does not make a pattern dead.
-Every entry carries a reason, because "this path cannot change behavior" is a
-claim and a claim wants an owner.
+pattern or a dead `skip` inside `imports`. `ignore` is measured against the whole
+tracked tree, not this run's changed files: not having been touched today does
+not make a pattern dead. Every entry carries a reason, because "this path cannot
+change behavior" is a claim and a claim wants an owner.
 
 ### The cache
 
 Each unit's result is stored under a digest of **everything its test binary
-links**: its own files, everything it imports transitively, and what its own
-test files import. Selection and digest read the same set, so a unit that was
-not run can never be sitting on a stale green.
+links** — its own files, everything it imports transitively, and what its test
+files import. Selection and digest read the same set, so a unit that was not run
+can never be sitting on a stale green.
 
-Only green is stored. Which unit failed inside a batched run can only be read
+**Only green is stored.** Which unit failed inside a batched run can only be read
 out of the runner's output, and that output is specific to one language; a red
 result simply runs again, which is what happens anyway while it is being fixed.
-
-A **full** run does not consult the cache at all. The reason it went full is
-that the effect of the change could not be computed — and an effect that cannot
-be computed cannot be looked up either: the thing that was touched may be in no
-unit's digest.
-
-The engine never adds `-count=1`. Doing so would defeat the runner's own cache,
-and for Go that cache is not a detail — see the measurement below.
+A **full** run does not consult the cache at all: the reason it went full is that
+the effect of the change could not be computed, and what cannot be computed
+cannot be looked up. The engine never adds `-count=1`, which would defeat the
+runner's own cache.
 
 ### A monorepo with more than one module
 
-`run.dir` launches the runner somewhere other than the run root, and unit names
-are then written relative to it:
-
 ```json
-"run": { "dir": "vtcore", "command": ["go", "test"], "package": ["./{unit}"], "all": ["./..."] }
+"run": { "dir": "backend", "command": ["go", "test"], "package": ["./{unit}"], "all": ["./..."] }
 ```
 
-Units still carry their repository-relative names (`vtcore/internal/auth`), so
-the changed set and the graph stay in one coordinate system, and only the
-command line is rewritten. Every module gets its own `test` section, run with
-its own `-config`.
+`run.dir` launches the runner somewhere other than the run root. Units still
+carry their repository-relative names (`backend/internal/auth`), so the changed
+set and the graph stay in one coordinate system and only the command line is
+rewritten. Every module gets its own `test` section.
 
 ### The measurement — and what it honestly shows
 
-Pilot: a production Go repository, one module of 85 packages, read-only, on a
-clone so the source tree was never written to. One leaf package touched.
+Pilot: a production Go repository, one module of 85 packages, read-only. One
+leaf package touched; 17 of 85 affected.
 
 | Case | the runner alone | `x3 test` | ratio |
 |---|---|---|---|
@@ -3904,440 +2083,265 @@ clone so the source tree was never written to. One leaf package touched.
 | nothing changed since the last run | 4.15 s | **0.34 s** | **12×** |
 | everything, `-count=1` | 17.8 s | same under `-full` | 1.0× |
 
-Selection: 1 unit touched → 17 of 85 affected.
-
-**Read the table honestly.** For a Go project, `go test ./...` is *already*
-incremental: the toolchain caches per package, at the same granularity this
-command selects at. So narrowing the package list buys almost nothing on top of
-it — the 12 s is compiling, linking and running the packages that genuinely
-changed, and both approaches pay it in full.
-
-The one place it wins outright is the run where nothing changed. There the
-runner still walks all 85 packages to decide it has nothing to do, and that
-walk is the part that grows with the number of packages. x3 answers it out of
-its own cache in a third of a second, and that answer does not get slower as the
-repository grows.
-
-For a runner **without** a cache of its own — most of them — the first three
-rows would look very different, and the selection is the whole win. The engine
-does not assume either case; it measures.
-
-### The selective control experiment
-
-A temporary repository with five units, wired the way the pilot is: `b` imports
-`a`; `kit` imports `a`; `c`'s **test** imports `kit`; `d` imports `c`. Six
-directions, one tree:
-
-1. touch `a` → `a`, `b`, `c`, `kit` run and **`d` does not** — a test-only
-   dependency did not travel to an importer;
-2. touch a fixture inside `a` → the same four, because a file with no unit of
-   its own belongs to the one above it;
-3. touch a file in no unit → **full run**, `orphan` named, exit 0: widening is
-   not a fault;
-4. the same file with a reason in `ignore` → nothing runs at all;
-5. an `ignore` pattern that matches nothing → exit 1 while the tests are green;
-6. run twice → the second run runs nothing and is served from the cache, then
-   the same file changed once more → it runs again.
-
-Direction 1 without direction 3 would leave a narrowing gate unable to prove it
-ever refuses to narrow; direction 6 without its second half would leave a cache
-that cannot be told from a gate that stopped measuring.
+**Read the table honestly.** For Go, `go test ./...` is *already* incremental at
+the same granularity this command selects at, so narrowing the package list buys
+almost nothing on top of it. The one place it wins outright is the run where
+nothing changed: the runner still walks all 85 packages to decide it has nothing
+to do, and that walk grows with the repository. For a runner **without** a cache
+of its own — most of them — the first three rows would look very different. The
+engine does not assume either case; it measures.
 
 ## `x3 record`
 
-Every other checker here reads the project **at rest**: files, imports, names,
-sets. This one reads it **in motion**. x3 stands in front of the running
-application as a reverse proxy, passes the traffic through untouched, and
-writes down what went by.
+**What it catches:** nothing on its own — it produces the source a later run is
+compared against. Every other checker here reads the project **at rest**; this
+one reads it **in motion**, standing in front of the running application as a
+reverse proxy, passing traffic through untouched and writing down what went by.
 
 ```
 x3 record [-config <file>] -listen <addr> -target <url> -ledger <file>
 ```
 
-```
-x3 record -listen :9100 -target http://localhost:8080 -ledger x3/ledger/api.jsonl
-```
-
 The application is not modified, not rebuilt and not linked against x3 — no
-middleware, no import, no build tag. That follows the standing rule that a
-project never carries a bridge script for the engine, and it makes the
-capability language-independent from the first line: the recorder does not know
-or care what the application behind it is written in.
-
-The command listens until it is interrupted, then reports how many interactions
-it wrote. Exit codes: `0` when it shut down cleanly, `2` for usage,
-configuration or I/O errors. There is no `1` — recording is not a gate. It
-produces the source a later run is compared against, and that comparison
-(`x3 replay`) is **not built yet**; the specification it will be measured
-against is `docs/ROADMAP-X4.md`.
+middleware, no import, no build tag — which makes the capability
+language-independent from the first line. Exit codes: `0` on a clean shutdown,
+`2` for usage, configuration or I/O errors. **There is no `1`**: recording is not
+a gate.
 
 ### The ledger
 
 One file per suite, JSON Lines, one interaction per line:
 
 ```json
-{"n":1,"req":{"method":"POST","path":"/orders","query":{},"headers":{"Content-Type":["application/json"]},"body":{"name":"a cup"}},"res":{"status":201,"headers":{"Content-Type":["application/json"]},"body":{"id":"17","state":"created"}},"ms":34}
+{"n":1,"req":{"method":"POST","path":"/orders","headers":{"Content-Type":["application/json"]},"body":{"name":"a cup"}},"res":{"status":201,"body":{"id":"17","state":"created"}},"ms":34}
 ```
 
 One line per interaction is deliberate: a behavior change then shows up as a
-**diff a human can read** in review, which a single re-serialised document would
-not. `n` is the recorded order, and replay will follow it. Header and query
-values are kept as lists, because a header folded into one string comes back
-different when it is sent again.
+**diff a human can read** in review. `n` is the recorded order, and replay
+follows it. Header and query values are kept as lists, because a header folded
+into one string comes back different when it is sent again. A JSON body is
+stored parsed, so a change inside it reads as one changed field; anything else is
+text. `ms` is written for the reader — nothing compares it.
 
-A JSON body is stored parsed, so a change inside it reads as one changed field
-rather than one changed string; anything else is stored as text. `ms` is written
-for the reader — nothing compares it.
-
-The ledger is a source file: it is committed, it is reviewed, and it is the
-thing that shrinks a pile of hand-written behavior tests. Which is exactly why
-nothing secret may reach it.
+The ledger is a source file: committed, reviewed, and the thing that shrinks a
+pile of hand-written behavior tests. Which is exactly why nothing secret may
+reach it.
 
 ### Redaction happens before the disk
 
-A secret that was never written cannot leak from a ledger later, so redaction
-sits between reading the response and writing the line — not in a cleanup pass
-afterwards. Three layers run over every interaction, and the first two need no
-configuration at all:
+A secret that was never written cannot leak later, so redaction sits between
+reading the response and writing the line. Three layers, the first two needing no
+configuration:
 
 1. **Credential headers**, always: `Authorization`, `Cookie`, `Set-Cookie`,
    `Proxy-Authorization`. What they carry is identity, not behavior.
-2. **The `secrets` pattern set** — the same patterns `x3 secrets` searches the
-   source with, applied to every recorded value.
-3. **The project's own field paths**, declared under `record.redact`.
+2. **The `secrets` pattern set**, applied to every recorded value.
+3. **The project's own field paths**, under `record.redact`.
 
 ```json
-{
-  "record": {
-    "redact": [
-      { "path": "res.body.token",         "reason": "session token" },
-      { "path": "res.body.items.*.email", "reason": "personal data" },
-      { "path": "req.headers.X-Api-Key",  "reason": "customer key" }
-    ]
-  }
-}
+{ "record": { "redact": [
+    { "path": "res.body.token", "reason": "session token" },
+    { "path": "res.body.items.*.email", "reason": "personal data" } ] } }
 ```
 
-A rule without a reason is refused, in the house style: whoever reads the ledger
-sees *why* a field is hidden next to the fact that it is hidden.
-
-A path starts with `req` or `res`, then `headers`, `query` or `body`; the rest
-walks into the body, where `*` means every element of an array or every field of
-an object. A path that reaches nothing is not an error — that field simply did
-not appear in this run. A path that cannot mean anything (`res.query.page`, a
-`headers` without a name) is a configuration error, because a misspelled rule
-would otherwise look exactly like a rule that had nothing to hide.
+A rule without a reason is refused. A path starts with `req` or `res`, then
+`headers`, `query` or `body`; `*` means every element of an array or field of an
+object. A path that reaches nothing is not an error — that field did not appear
+in this run — but a path that **cannot mean anything** (`res.query.page`) is a
+configuration error, because a misspelled rule would otherwise look exactly like
+a rule with nothing to hide.
 
 Hidden values are written as `"<redacted:reason>"`, so a reader can tell a masked
-field from an absent one:
-
-```json
-{"headers":{"Authorization":["<redacted:credential-header>"]},
- "body":{"key":"<redacted:secret:aws-access-key>","name":"a cup"}}
-```
-
-The proxy itself stays transparent: the client receives the application's answer
-exactly as it was sent, cookies and all. Redaction applies to what is written
+field from an absent one. **The proxy stays transparent**: the client receives
+the application's answer exactly as sent. Redaction applies to what is written
 down, never to what is served.
 
 ### What is recorded, and what is not
 
-**Inbound HTTP**, by decision. In-process middleware would require the project
-to import x3 and tie the capability to one language; recording what the
-application asks of *other* services needs a stand-in for the far side;
-function-level capture needs instrumentation. Each is a later version rather
-than a v0 shortcut, and each is a box in `docs/OPEN-WORK.json`.
-
-Connection headers (`Connection`, `Keep-Alive`, `Transfer-Encoding` and the
-rest) are neither forwarded nor recorded: the ledger holds the request as it was
-*forwarded*, so replaying it cannot send a proxy's own connection settings on to
-the application.
-
-When the target does not answer, the client is told so with `502` and **no line
-is written**. There is no behavior to record — that answer came from the proxy,
-not from the application.
-
-### The control experiment
-
-`check.ps1` starts a small application (`internal/record/testdata/echo`), puts
-the recorder in front of it, sends real traffic through, and then asks four
-questions of the ledger: the credential header is hidden, a planted key in the
-shape of a real one is hidden, the raw key appears nowhere in the file, and an
-ordinary undeclared field is **still there**. The last one is the half that is
-easy to skip — without it, a recorder that masked every field would pass just as
-well.
+**Inbound HTTP**, by decision — in-process middleware would require the project
+to import x3 and tie the capability to one language. Connection headers are
+neither forwarded nor recorded, so replaying cannot send a proxy's own settings
+on to the application. When the target does not answer the client is told so with
+`502` and **no line is written**: that answer came from the proxy, not from the
+application.
 
 ## `x3 replay`
 
-`record` writes a run down; this one sends it again and compares. The behavior
-test is not a file somebody wrote — it is a recording the machine took.
+**What it catches:** a behavior change. `record` writes a run down; this sends it
+again and compares. The behavior test is not a file somebody wrote — it is a
+recording the machine took.
 
 ```
 x3 replay [-config <file>] -target <url> -ledger <file> [-out <file>]
 ```
 
-```
-x3 replay -target http://localhost:8080 -ledger x3/ledger/api.jsonl
-```
-
-The recorded requests go out in the recorded order against a freshly started
-application, and each answer is compared with the one on file. Exit codes are
-the usual: `0` green, `1` red, `2` usage, configuration or I/O error.
-
 Three things are compared: the **status code**, the **headers named in
-configuration**, and the **body, field by field**. Every field that is not named
-in a rule is compared exactly — the default is fail-closed, the direction every
-other gate here points.
+configuration**, and the **body, field by field**. Every field not named in a
+rule is compared exactly — fail-closed, the direction every other gate points.
 
 ```
 DIFF 2 res.body.state: value_differs
-        the value is not the one that was recorded
         recorded: created
         received: queued
 ```
 
 ### What is allowed to differ
 
-A recording that compares timestamps fails on the second run. `normalize` names
-the fields that may differ, and how:
+A recording that compares timestamps fails on the second run.
 
 ```json
-{
-  "replay": {
-    "headers": ["Content-Type"],
-    "normalize": [
-      { "path": "res.body.created_at", "as": "time" },
-      { "path": "res.body.id",         "as": "uuid" },
-      { "path": "res.body.items.*.n",  "as": "number" },
-      { "path": "res.headers.Date",    "as": "any" }
-    ]
-  }
-}
+{ "replay": { "headers": ["Content-Type"], "normalize": [
+    { "path": "res.body.created_at", "as": "time" },
+    { "path": "res.body.id",         "as": "uuid" },
+    { "path": "res.body.items.*.n",  "as": "number" },
+    { "path": "res.headers.Date",    "as": "any" } ] } }
 ```
 
 `time`, `uuid`, `number` and `any` are the four kinds. A normalized field is not
-compared by value — but its **presence and kind still are**. Dropping the field
-entirely, or returning a string where a time was recorded, is a difference:
-
-```
-DIFF 2 res.body.created_at: kind_differs
-        the answer is not a time any more
-```
-
-`headers` lists the response headers that take part; it defaults to
-`Content-Type`, because the shape of a body is behavior while `Date` and
-`Content-Length` are not. This is the one place where the comparison is opt-in
-rather than fail-closed, and the reason is that a full header comparison is red
-on every run — a gate that is always red is a gate somebody switches off.
+compared by value — but its **presence and kind still are**, so dropping it or
+returning a string where a time was recorded is `kind_differs`. `headers`
+defaults to `Content-Type`, because the shape of a body is behavior while `Date`
+and `Content-Length` are not. This is the one place the comparison is opt-in
+rather than fail-closed: a full header comparison is red on every run, and a gate
+that is always red is a gate somebody switches off.
 
 ### Exemptions, and the dead ones
-
-An exemption is declared in `x3.json`, never inside the ledger, always with a
-reason — and an exemption that silenced nothing is **red**:
 
 ```json
 { "replay": { "ignore": [ { "path": "res.headers.X-Request-Id",
                             "reason": "per-request id, not behavior" } ] } }
 ```
 
-```
-DIFF res.headers.X-Request-Id: dead_exemption
-        no difference needed this exemption
-```
-
-A stale exemption is how a gate goes quietly blind, so it is treated the same
-way `secrets` treats one. `normalize` rules are not held to this: a rule for a
-field that did not appear in this run says nothing about whether the rule is
-still needed.
-
-Paths are the ones `record.redact` uses — `req`/`res`, then `headers`, `query`
-or `body`, then into the body, where `*` matches one segment (an array element
-or a field name).
+Declared in `x3.json`, never inside the ledger, always with a reason — and an
+exemption that silenced nothing is `dead_exemption` and **red**. `normalize`
+rules are not held to this: a rule for a field that did not appear says nothing
+about whether it is still needed.
 
 ### Carrying a session
 
 Recording masks credentials, so a suite behind a login cannot simply be sent
-again: the `Authorization` header on file says `<redacted:credential-header>`,
-and sending that back would come home as `401`. The way out is not to unmask the
-recording - it is to take a **fresh** value from the run itself:
+again — the `Authorization` header on file says `<redacted:credential-header>`.
+The way out is not to unmask the recording but to take a **fresh** value from the
+run itself:
 
 ```json
-{ "replay": { "carry": [
-    { "from": "res.body.token",
-      "into": "req.headers.Authorization",
-      "as":   "Bearer {value}" } ] } }
+{ "replay": { "carry": [ { "from": "res.body.token",
+                           "into": "req.headers.Authorization",
+                           "as": "Bearer {value}" } ] } }
 ```
 
-Every answer is read for `from`; whatever it yields is poured into `into` on the
-requests that follow, through the `as` template. The login in the recording
-issues a new token on replay, and the requests after it carry that one. A value
-may also come from the environment - `"from": "env:X3_TOKEN"` - for a credential
-no answer contains.
-
-A value is carried **into a request only**: writing into a response would mean
-editing the thing being compared. The template must have a `{value}` in it, and
-a `from` that is neither a path nor `env:` is a configuration error.
-
-If the field is not in the recorded request at all, it is added. That is the
-common case: the header was masked away, and what replaces it is not the old
-value but a live one.
+Every answer is read for `from`, and whatever it yields is poured into `into` on
+the requests that follow. A value may also come from the environment
+(`"from": "env:X3_TOKEN"`). A value is carried **into a request only** — writing
+into a response would mean editing the thing being compared. The template must
+contain `{value}`. If the field is not in the recorded request at all it is
+added, which is the common case: the header was masked away, and what replaces it
+is a live value.
 
 ### Replaying in parallel
-
-Requests go out one at a time in the recorded order by default. Where the
-interactions are independent, `workers` sends them on several connections at
-once:
 
 ```json
 { "replay": { "workers": 8 } }
 ```
 
-Measured against a target that waits 20 ms per call, the way a real service
-does - 60 interactions:
+Against a target that waits 20 ms per call, 60 interactions: sequential 1.28 s,
+8 workers **0.21 s**. Against a local application answering instantly the two are
+the same, because what parallelism buys is the waiting, not the work. The report
+is identical either way — findings are collected in interaction order.
 
-| Run | Time |
-|---|---|
-| sequential | 1.28 s |
-| 8 workers | **0.21 s** |
-
-Against a local application answering instantly the two are the same, because
-what parallelism buys is the waiting, not the work. The report is identical
-either way: findings are collected in interaction order, so the same ledger
-produces the same bytes whatever the worker count.
-
-Parallelism is declared, never assumed. Only the project knows whether its
-recorded interactions are independent - two orders posted at once are, a login
-and the request after it are not. **`workers` and `carry` together are a
-configuration error**, refused before the run: a carried session needs the
+Parallelism is declared, never assumed: only the project knows whether its
+interactions are independent. **`workers` and `carry` together are a
+configuration error**, refused before the run — a carried session needs the
 recorded order, and going faster while getting a different answer is not going
 faster.
 
 ### A database of its own
 
-`testdb` and `replay` need no new feature to pair; the existing commands
-compose:
+`testdb` and `replay` need no new feature to pair:
 
 ```
 x3 testdb run -- ./start-app-and-replay.sh
 ```
 
-`testdb run` clones a template database for the run, exports its DSN as
-`X3_TESTDB_DSN`, runs the command, and drops the database afterwards. The
-script starts the application against that DSN and calls `x3 replay`. What the
-engine deliberately does not do is start the application itself - it does not
-know how, and a wrong guess would be worse than the two lines of script.
+`testdb run` clones a template database, exports its DSN, runs the command and
+drops the database afterwards. What the engine deliberately does not do is start
+the application itself — it does not know how, and a wrong guess would be worse
+than the two lines of script.
 
 ### What a recording cannot send back
 
-A masked value is not sent to the application. `<redacted:credential-header>` as
-an `Authorization` header would arrive as a real credential and come back `401`,
-and a reader would file an identity error as a behavior change. Those values
-are counted instead, and the count is on the last line of every run:
+A masked value is not sent to the application: `<redacted:credential-header>` as
+an `Authorization` header would come back `401`, and a reader would file an
+identity error as a behavior change. Those values are counted instead:
 
 ```
 x3 replay: 2 interaction(s) - 0 difference(s) - 0 exempted - 1 value(s) could not be sent back
 ```
 
-This is the honest edge of v0: a suite behind authentication is recorded fine,
-and replays as an unauthenticated one. Sessions — a login whose token the
-following requests carry — are a box in `docs/OPEN-WORK.json`, not a promise
-made here.
-
-The report is JSON, like every other command's, and carries no timestamp: the
-same ledger against the same application must produce the same bytes. Recorded
-and received values are truncated and run through the `secrets` pattern set
-before they are printed — the report that finds a leak must not become one.
+The report carries no timestamp, and recorded and received values are truncated
+and run through the `secrets` pattern set before they are printed — the report
+that finds a leak must not become one.
 
 ### Calls the application makes
 
 `x3 record` sees what the world asks of the application. This sees what the
-application asks of the world - the rate service, the mail gateway, the payment
-provider - and later answers those calls itself, so a replay does not reach
+application asks of the world — the rate service, the mail gateway, the payment
+provider — and later answers those calls itself, so a replay does not reach
 anybody outside.
 
 ```
-x3 outbound record -listen :9101 -ledger x3/ledger/out.jsonl
-x3 outbound serve  -listen :9101 -ledger x3/ledger/out.jsonl
+x3 outbound record -listen :9101 -ledger out.jsonl
+x3 outbound serve  -listen :9101 -ledger out.jsonl
 ```
 
-This one is a **forward** proxy, not a reverse one: the application is told
-about it the way every HTTP client already understands, with `HTTP_PROXY`. Once
-again nothing is imported and no code changes.
+This one is a **forward** proxy: the application is told about it the way every
+HTTP client already understands, with `HTTP_PROXY`. In `record` mode the call
+goes out and is written down with the same redaction. In `serve` mode nothing
+goes out at all — the answer comes from the ledger, matched on method plus
+scheme, host and path, in recorded order, so an application calling the same
+endpoint twice gets the first answer first.
 
-In `record` mode the call goes out, comes back, and is written down with the
-same redaction the inbound ledger gets. In `serve` mode nothing goes out at all:
-the answer comes from the ledger, matched on method plus scheme, host and path,
-in recorded order - so an application that calls the same endpoint twice gets
-the first answer first.
-
-A call the ledger never saw is refused with `502` and counted. That is the point
-of the mode: during a replay, a *new* outbound call is new behavior, and a
-proxy that quietly let it through would hide exactly what the replay is for. The
-command exits `1` when the count is above zero.
-
-**Encrypted calls are refused, not tunnelled.** A `CONNECT` gets `501` and a
-line on stderr. Recording HTTPS would mean terminating TLS with a certificate of
-x3's own, and believing you recorded a call you did not is worse than knowing
-you did not record it.
-
-### The control experiment
-
-`check.ps1` records two requests against a small application
-(`internal/record/testdata/echo`) whose answers carry a fresh id and timestamp
-every time, and then replays the same ledger three times:
-
-- **without a `normalize` rule** — red, because the id and the timestamp differ;
-- **with the rule** — green, on the very same ledger and the very same run;
-- **against the application started with `-drift`**, which answers `queued`
-  where it answered `created` — red, and the report names `res.body.state`.
-
-The first run is the one that is easy to leave out, and it is the one that
-proves the rule is doing something. The third proves the gate can still see a
-real change while the rule is in force.
+A call the ledger never saw is refused with `502` and counted, and the command
+exits `1` when the count is above zero: during a replay a *new* outbound call is
+new behavior, and a proxy that quietly let it through would hide exactly what the
+replay is for. **Encrypted calls are refused, not tunnelled** — a `CONNECT` gets
+`501`, because recording HTTPS would mean terminating TLS with a certificate of
+x3's own, and believing you recorded a call you did not is worse than knowing you
+did not.
 
 ## `x3 guard`
+
+**What it catches:** a long run started against the wrong live environment. The
+guards run first, and the command after `--` starts only if they pass — one
+process, one decision, no wrapper script.
 
 ```
 x3 guard [-config <file>] [-report <file>] [-only <tags>] [-skip <tags>] [-stamp] -- <command> [args...]
 ```
 
-Runs the **live guards** declared in a configuration file, then decides whether
-the command after `--` may start. This is the *guard-then-launch* shape: one
-process, one decision, no wrapper script.
-
-| Part | Meaning |
-|---|---|
-| `-config <file>` | configuration file holding the guards; defaults to `x3.json` |
-| `-report <file>` | write the JSON report here. **Without it no report is written** — stdout belongs to the launched command |
-| `-only <tags>` | run only the guards carrying one of these comma separated tags. See [Choosing which guards run](#choosing-which-guards-run) |
-| `-skip <tags>` | skip the guards carrying one of these comma separated tags |
-| `-stamp` | put a wall-clock start time in the report (off by default; see [The guard report](#the-guard-report)) |
-| `--` | everything after it is the command and its arguments |
-| (always) | the reason for every red guard, and the decision, go to **stderr** |
-
-The command is started with x3's **own environment and working directory** —
-nothing added, removed or rewritten — and its exit code is returned verbatim.
-Its stdin, stdout and stderr are x3's own, so a launched test run or server
-behaves exactly as it would without the guard in front of it.
+`-report` is the only way a report is written: **stdout belongs to the launched
+command**. The command is started with x3's **own environment and working
+directory** — nothing added, removed or rewritten — and its exit code is
+returned verbatim, so a launched test run behaves exactly as it would without
+the guard in front of it.
 
 ### The decision rule
 
 | Guards | Decision | What happens |
 |---|---|---|
-| all pass | `launch` | the command runs; x3 exits with the command's exit code |
+| all pass | `launch` | the command runs; x3 exits with its exit code |
 | red, all of them `policy: warn` | `launch` | the command runs; each red is printed as `WARN` first |
-| at least one red with `policy: block` | `blocked` | **the command is never started**; reasons go to stderr, x3 exits `1` |
+| at least one red with `policy: block` | `blocked` | **the command is never started**; x3 exits `1` |
 
-A guard that could not run at all — missing environment variable, unreachable
-host, unknown driver — counts as red. That is deliberate: a live guard whose
-answer is unknown is not an answer, and the switch is **fail-closed**.
+A guard that could not run at all — missing variable, unreachable host, unknown
+driver — counts as red. **A live guard whose answer is unknown is not an
+answer**, and the switch is fail-closed.
 
 ### Choosing which guards run
 
-One configuration file usually holds every live guard a project has, but not
-every gate needs all of them: the one that starts a worker has no business
-waiting on the guard that belongs to a different binary. `tags` on a guard and
-`-only` / `-skip` on the command pick a subset **out of the same file**, so a
+One file usually holds every guard a project has, but the gate that starts a
+worker has no business waiting on a guard belonging to a different binary.
+`tags` plus `-only` / `-skip` pick a subset **out of the same file**, so a
 narrower run is still the file everybody reviews rather than a second copy that
 drifts.
 
@@ -4346,36 +2350,20 @@ drifts.
   "dsnEnv": "APP_DSN", "query": "select 1", "equals": "1" }
 ```
 
-```
-x3 guard -only db   -- ./worker      # the database guards, and every untagged one
-x3 guard -skip slow -- go test ./...  # everything except the slow ones
-```
-
 | Written | What runs |
 |---|---|
-| neither flag | **every guard in the file** — the behavior a project already had, unchanged |
+| neither flag | **every guard in the file** |
 | `-only a,b` | guards carrying `a` or `b`, **plus every guard with no tags at all** |
 | `-skip a` | everything except the guards carrying `a` |
 | both | `-skip` wins on a guard that matches both |
 
-**A guard with no tags always runs.** Narrowing a set must not drop the check
-nobody got round to classifying; that is the same fail-closed reading the engine
-gives an unwritten `policy`. It also means `-only` narrows only *among tagged
-guards* — to run exactly one guard and nothing else, every guard in the file
-needs a tag.
-
-Three ways to write a selection are refused outright, with exit `2` and before
-any guard runs:
-
-| Written | Why it is refused |
-|---|---|
-| a tag no guard carries | a misspelled `-skip` would otherwise skip nothing and read as if it had — and a misspelled `-only` would quietly run the wrong set |
-| a selection that leaves no guard | an empty run is a silent pass, the same reason an empty rule list is an error |
-| `"tags": [""]` on a guard | an empty tag selects nothing |
-
-Whatever a selection dropped is named in the report's `skipped` list and in the
-stderr summary (`2 guard(s), 1 skipped`). A check that did not run must never
-look like a check that passed.
+**A guard with no tags always runs**: narrowing a set must not drop the check
+nobody got round to classifying. Three selections are refused outright with exit
+`2`, before any guard runs — a tag no guard carries (a misspelled `-skip` would
+otherwise skip nothing and read as if it had), a selection that leaves no guard,
+and an empty tag. Whatever a selection dropped is named in the report's
+`skipped` list and in the stderr summary: **a check that did not run must never
+look like a check that passed.**
 
 ### Exit codes
 
@@ -4383,77 +2371,53 @@ look like a check that passed.
 |---|---|
 | the command's own | the guards allowed the launch |
 | `1` | a `block` guard was red, and the command was never started |
-| `2` | the configuration could not be read or validated, the report could not be written, or the command could not be started at all |
+| `2` | the configuration or report could not be read or written, or the command could not start |
 
-`1` therefore carries two meanings — "blocked" and "the command itself exited
-1". The report separates them: `decision` is `blocked` in the first case, and
-`launch` with an `exit` field in the second. A gate that needs the distinction
-passes `-report` and reads it.
+`1` carries two meanings — "blocked" and "the command itself exited 1". The
+report separates them: `decision` is `blocked` in the first case, and `launch`
+with an `exit` field in the second.
 
 ## Live guards in `x3.json`
 
-Guards are **declared, not coded**. There is no Go file per guard and no plugin
-to write: the engine knows three general source kinds — `sql`, `http`, `exec` —
-and everything project-specific (the query, the address, the expected value, the
-policy) is data in the configuration file.
+Guards are **declared, not coded**. There is no Go file per guard and no plugin:
+the engine knows three general source kinds — `sql`, `http`, `exec` — plus
+`steps`, and everything project-specific is data.
 
-```json
-{
-  "$schema": "https://x3.example/x3.schema.json",
-  "live": {
-    "guards": [
-      { "name": "...", "kind": "sql", "policy": "block", "...": "..." }
-    ]
-  }
-}
-```
+Validation inside `live` is **strict and up front**: an unknown key, a key
+belonging to a different kind, a missing required key, a duplicate name, an
+unknown policy or an empty guard list stops the run *before any guard executes*.
 
-Keys outside `live` are left untouched — `x3.json` is one file with several
-sections: `language` (above) is read by `x3 lang`, and `settings`/`policies` are
-waiting for later stages. Inside `live` the check is
-**strict and up-front**: an unknown key, a key that belongs to a different kind,
-a missing required key, a duplicate name, an unknown policy or an empty guard
-list stops the run *before any guard is executed*. An empty list is an error on
-purpose — a guard run with nothing in it would otherwise be a silent pass.
-
-**Two surfaces, one law.** `//x3:live` written in source code is a *marker*:
-this code talks to a real provider, keep it out of automated runs. The `live`
-section here is where runnable guards are *defined*. Both are declared in a
-dictionary inside the engine, and in both an entry the dictionary does not know
-turns the run red. Invented kinds cannot survive, exactly as invented directive
-types cannot.
+**Two surfaces, one law.** `//x3:live` in source code is a *marker* — this code
+talks to a real provider. The `live` section is where runnable guards are
+*defined*. Both are declared in a dictionary inside the engine, and in both an
+entry the dictionary does not know turns the run red.
 
 ### Fields every guard has
 
 | Field | Required | Meaning |
 |---|---|---|
-| `name` | yes | unique within the file; what the report and the stderr lines call this guard |
+| `name` | yes | unique within the file |
 | `kind` | yes | `sql`, `http`, `exec` or `steps` |
 | `policy` | no | `warn` or `block`; **defaults to `block`** |
-| `tags` | no | names `-only` and `-skip` select on; a guard with none always runs. See [Choosing which guards run](#choosing-which-guards-run) |
-| `timeoutMs` | no | time limit for this guard; defaults to `10000` (`steps`: `600000`). A dead dependency must not hang the gate forever |
+| `tags` | no | what `-only` and `-skip` select on; a guard with none always runs |
+| `timeoutMs` | no | defaults to `10000` (`steps`: `600000`); a dead dependency must not hang the gate forever |
 
 ### `kind: "sql"`
 
 | Field | Required | Meaning |
 |---|---|---|
-| `dsnEnv` | yes | **name** of the environment variable holding the DSN. The DSN itself never appears in the file |
-| `query` | yes | the query; its first row, first column is the observed value |
-| `driver` | no | `database/sql` driver name; defaults to `pgx`. A name this binary has not registered is a **configuration error** (exit `2`) - the run never opens |
+| `dsnEnv` | yes | **name** of the variable holding the DSN; the DSN never appears in the file |
+| `query` | yes | its first row, first column is the observed value |
+| `driver` | no | defaults to `pgx`; a name this binary has not registered is a configuration error (exit `2`) |
 | `equals` / `contains` | one of them | what the observed value must be |
 
-`equals` or `contains` is mandatory here: a query with no expectation asserts
-nothing, so the configuration is rejected rather than quietly passing.
+An expectation is mandatory here: a query with no expectation asserts nothing,
+because it is answered by an empty table.
 
 ```json
-{
-  "name": "schema-current",
-  "kind": "sql",
-  "policy": "block",
+{ "name": "schema-current", "kind": "sql", "policy": "block",
   "dsnEnv": "APP_DATABASE_URL",
-  "query": "select max(version)::text from schema_migrations",
-  "equals": "0117"
-}
+  "query": "select max(version)::text from schema_migrations", "equals": "0117" }
 ```
 
 ### `kind: "http"`
@@ -4462,21 +2426,15 @@ nothing, so the configuration is rejected rather than quietly passing.
 |---|---|---|
 | `url` | yes | the address; the request is always a `GET` |
 | `status` | yes | the expected status code |
-| `headerEnv` | no | header name → **name** of the environment variable holding its value |
-| `jsonPath` | no | [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901) JSON Pointer into the response body, e.g. `/agent/permissions/0`. Without it the observed value is the whole body |
-| `equals` / `contains` | no | what the observed value must be. With only `status`, the status code alone is the assertion |
+| `headerEnv` | no | header name → **name** of the variable holding its value |
+| `jsonPath` | no | an RFC 6901 JSON Pointer into the body; without it the whole body is the value |
+| `equals` / `contains` | no | with only `status`, the status code alone is the assertion |
 
 ```json
-{
-  "name": "provider-agent-enabled",
-  "kind": "http",
-  "policy": "warn",
-  "url": "https://api.provider.example/v1/agents/self",
-  "status": 200,
+{ "name": "provider-agent-enabled", "kind": "http", "policy": "warn",
+  "url": "https://api.provider.example/v1/agents/self", "status": 200,
   "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
-  "jsonPath": "/agent/permissions/0",
-  "equals": "outbound"
-}
+  "jsonPath": "/agent/permissions/0", "equals": "outbound" }
 ```
 
 ### `kind: "exec"`
@@ -4485,279 +2443,112 @@ nothing, so the configuration is rejected rather than quietly passing.
 |---|---|---|
 | `command` | yes | executable to run |
 | `args` | no | its arguments |
-| `equals` / `contains` | no | what its trimmed stdout must be. Without either, **exit code 0** is the assertion |
-
-```json
-{
-  "name": "toolchain-present",
-  "kind": "exec",
-  "command": "go",
-  "args": ["env", "GOOS"]
-}
-```
+| `equals` / `contains` | no | what its trimmed stdout must be; without either, **exit code 0** is the assertion |
 
 ### `kind: "steps"` — a trial, not a reading
 
-The three kinds above ask their question with **one** call. Some questions
-cannot be asked that way. *"Does this module still compile once the application
-is removed from the tree?"* is not a fact you can read; it is an experiment —
-copy the tree, take the application out, build what is left, and put everything
-back. So is *"does the binary this build produces name a released version of the
-library it links, or the working copy?"*: build first, then read the identity
-out of the artefact the build left behind.
-
-A single command cannot say either of those. Without a multi-step kind the only
-way to write such a check is a script inside the project — and a script is what
-x3 exists to remove: it is reviewed by nobody, it drifts when a path moves, and
-whether it can still turn red is never measured.
+**What it catches:** a question that is not a fact you can read but an
+experiment — *"does this module still compile once the application is removed
+from the tree?"* Copy the tree, take the application out, build what is left,
+put everything back. Without a multi-step kind the only way to write that is a
+script inside the project, and a script is what x3 exists to remove: reviewed by
+nobody, drifting when a path moves, never measured for whether it can still turn
+red.
 
 | Field | Required | Meaning |
 |---|---|---|
-| `steps` | yes | the steps, run **in order**; the first one that does not hold ends the trial and names itself in the red |
-| `workspace` | no | a temporary working area the steps run in (below). Without it the steps run in the caller's own directory |
-| `equals` / `contains` | no | what the **last** step's output must be. Without either, every step holding is the assertion |
+| `steps` | yes | run **in order**; the first that does not hold ends the trial and names itself |
+| `workspace` | no | a temporary working area: `copy` (required within it), `remove`, `write` |
+| `equals` / `contains` | no | what the **last** step's output must be; without either, every step holding is the assertion |
 
-A step:
-
-| Field | Required | Meaning |
-|---|---|---|
-| `name` | yes | unique within the trial; the red says which step fell |
-| `command` | yes | executable to run |
-| `args` | no | its arguments |
-| `dir` | no | where to run it, relative to the working area (or to the caller's directory). Absolute paths and `..` are rejected |
-| `env` | no | environment variables **added to** the inherited environment for this step only |
-| `output` | no | what the step's output must and must not say — the same `must` / `mustNot` / `retry` expectation the [work list](#the-criteria) writes, read against both streams together |
-| `timeoutMs` | no | ceiling for this step; without it the guard's own ceiling applies |
-
-Without an `output`, a step's assertion is its **exit code**: anything but zero
-ends the trial there.
-
-The working area:
-
-| Field | Required | Meaning |
-|---|---|---|
-| `copy` | yes | paths copied out of the **working tree** — files or directories. A path written here and missing on disk is an **error**, not a skip |
-| `remove` | no | paths deleted from the copy: the absence the trial is built on |
-| `write` | no | path → body, written into the copy |
+A step takes `name`, `command`, `args`, `dir`, `env` (added to the inherited
+environment for that step only), `output` (the same `must` / `mustNot` / `retry`
+expectation the [work list](#the-criteria) writes, read against both streams) and
+`timeoutMs`. Without an `output`, a step's assertion is its **exit code**.
 
 ```json
-{
-  "name": "the core still builds once the application is removed",
-  "kind": "steps",
-  "policy": "block",
-  "workspace": {
-    "copy": ["go.mod", "go.sum", "cmd", "internal", "core"],
-    "remove": ["internal/app"]
-  },
+{ "name": "the core still builds once the application is removed",
+  "kind": "steps", "policy": "block",
+  "workspace": { "copy": ["go.mod", "go.sum", "cmd", "internal", "core"],
+                 "remove": ["internal/app"] },
   "steps": [
     { "name": "the core compiles with no application in the tree",
       "dir": "core", "command": "go", "args": ["build", "./..."],
       "env": { "GOWORK": "off" } },
     { "name": "the binary names a released core, not the working copy",
       "command": "go", "args": ["version", "-m", "out/service"],
-      "output": { "must": ["example.com/core v0."], "mustNot": ["(devel)"] } }
-  ]
-}
+      "output": { "must": ["example.com/core v0."], "mustNot": ["(devel)"] } } ] }
 ```
 
 The copy is taken from the **working tree**, not from the last commit: if an
 uncommitted change crossed the boundary, the trial should see it in the same
-run.
+run. Three things are refused rather than run, each closing a way to a silent
+green: a trial with **no steps** (it would pass every time), a `copy` path that
+is **not on disk** (a build that fell because a source was missing is red for
+the wrong reason), and a `remove` path that is **not there** (a trial measuring
+an absence it never created is green by construction).
 
-Three things are refused rather than run, and each one closes a way to a silent
-green:
-
-- **A trial with no steps.** It would pass every time.
-- **A `copy` path that is not on disk.** A build that fell because a source was
-  missing is red for the wrong reason, and its red points at the wrong place.
-- **A `remove` path that is not there.** Removing nothing establishes nothing;
-  a trial that measures the absence it never created is green by construction.
-
-Absolute paths and paths containing `..` are refused everywhere in a trial — in
-`dir`, in `copy`, in `remove`, in `write`. A `remove` that climbs out of the
-copy would delete from the working tree, and no gate may damage the thing it
-measures.
-
-**The working area is removed in every case**: when the trial passes, when a
-step fails in the middle, and when the setup itself fails half-way. Otherwise
-every red would leave a copy of the tree on the disk and nobody would notice.
-The paths inside the area are also stripped out of the output that reaches the
-report — the person reading the red opens the file **in the repository**, not a
-copy that no longer exists.
+Absolute paths and `..` are refused everywhere in a trial — a `remove` that
+climbed out of the copy would delete from the working tree, and no gate may
+damage the thing it measures. **The working area is removed in every case**,
+including when a step fails mid-way, and the paths inside it are stripped out of
+the output that reaches the report: the person reading the red opens the file
+**in the repository**, not a copy that no longer exists.
 
 `write` is what makes the control experiment possible from the configuration
-alone: the same trial, with one file written into the copy, has to go red. That
-is how you find out whether the trial can still fail — and a trial whose red
-has never been seen is not a trial.
+alone: the same trial with one file written into the copy has to go red, and a
+trial whose red has never been seen is not a trial.
 
 ### Secrets never enter the report
 
-A live guard needs credentials, and a report is a file people paste into
-tickets. So:
-
-- Credentials are referenced **by environment variable name only** (`dsnEnv`,
-  `headerEnv`). A DSN or a token written literally in `x3.json` is the caller's
-  own mistake — x3 never asks for one.
-- Before anything is written, the values of those variables are stripped out of
-  the observed value **and out of the error text**. Driver errors routinely
-  quote the DSN they failed on; that string is replaced with `[redacted]`.
-- An empty environment variable is an error, not an empty credential: the guard
-  goes red instead of asking anonymously and reporting a misleading `401`.
-
-`TestSecretNeverLeaves` holds this line — it makes the fake driver fail with the
-DSN inside its own error message and then asserts the password is nowhere in the
-marshalled result.
+Credentials are referenced **by environment variable name only**. Before
+anything is written, those values are stripped out of the observed value **and
+out of the error text** — driver errors routinely quote the DSN they failed on,
+and that string is replaced with `[redacted]`. An empty variable is an error,
+not an empty credential: the guard goes red instead of asking anonymously and
+reporting a misleading `401`. `TestSecretNeverLeaves` makes a fake driver fail
+with the DSN inside its own error message and asserts the password is nowhere in
+the marshalled result.
 
 ## The guard report
 
 ```json
-{
-  "version": 1,
-  "config": "internal/live/testdata/guard-block-red.json",
+{ "version": 1, "config": "…/guard-block-red.json",
   "guards": [
-    {
-      "name": "toolchain-present",
-      "kind": "exec",
-      "policy": "block",
-      "status": "pass",
-      "expected": "exit code 0",
-      "observed": "windows"
-    },
-    {
-      "name": "impossible-platform",
-      "kind": "exec",
-      "policy": "block",
-      "status": "fail",
-      "expected": "equals \"there-is-no-such-platform\"",
-      "observed": "windows",
-      "detail": "observed value is not equal to the expected value"
-    }
-  ],
+    { "name": "impossible-platform", "kind": "exec", "policy": "block",
+      "status": "fail", "expected": "equals \"there-is-no-such-platform\"",
+      "observed": "windows", "detail": "observed value is not equal to the expected value" } ],
   "summary": { "pass": 1, "warned": 0, "blocked": 1 },
-  "decision": "blocked",
-  "command": ["x3", "scan", "internal"]
-}
+  "decision": "blocked", "command": ["x3", "scan", "internal"] }
 ```
 
 | Field | Notes |
 |---|---|
-| `version` | schema version of this report; it goes up when a field's meaning changes |
-| `guards[].status` | `pass`, `fail` (it ran and disagreed) or `error` (it could not run). Both non-`pass` values are red |
-| `guards[].policy` | the policy that was applied to **this** guard — always present, so the report explains its own decision |
-| `guards[].expected` / `observed` / `detail` | what was wanted, what was seen, and why it counted as red. Secrets are already redacted |
+| `guards[].status` | `pass`, `fail` (it ran and disagreed) or `error` (it could not run); both non-`pass` values are red |
+| `guards[].policy` | the policy applied to **this** guard — always present, so the report explains its own decision |
+| `expected` / `observed` / `detail` | what was wanted, what was seen, why it was red; secrets already redacted |
 | `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`) |
-| `skipped` | the guards a `-only` / `-skip` selection left out, by name; absent when nothing was dropped. A check that did not run must not look like one that passed |
+| `skipped` | the guards a selection left out, by name; absent when nothing was dropped |
 | `decision` | `launch` or `blocked` |
-| `command` | the command as given after `--`; absent when none was given |
 | `exit` | the command's exit code. **Absent when `decision` is `blocked`** — that absence is the proof the command never ran |
 | `startedAt` | present **only** with `-stamp` |
 
-**No timestamp unless you ask for one**, the same rule as the scan report: the
-same configuration and the same answers must produce the same bytes, so that a
-later ledger comparing two runs never raises a red over a clock tick.
-`TestReportIsDeterministic` holds that line.
-
-### The control samples
-
-Three configurations in `internal/live/testdata/` differ **only** in the guard
-declaration; the launched command is identical in all three, and it proves it
-ran by writing a file:
-
-| Sample | Guards | Expected |
-|---|---|---|
-| `guard-green.json` | one passing `exec` guard | exit `0`, file written |
-| `guard-block-red.json` | the same guard plus a red one, `policy: block` | exit `1`, **file not written** |
-| `guard-warn-red.json` | the same pair, the red one `policy: warn` | exit `0`, file written, `WARN` on stderr |
-
-`check.ps1` runs all three as the `guard control experiment` step and asserts
-both the exit code and the presence of the file:
-
-```
-== guard control experiment
-  green:     exit=0 ran=True (want 0/True)
-  block-red: exit=1 ran=False (want 1/False)
-  warn-red:  exit=0 ran=True (want 0/True)
-```
-
-Selection gets its own step, and it is the sharper experiment: **one** file,
-`guard-tagged.json`, holding an untagged guard, a `fast` one and a red `slow`
-one. Only the flags change, so anything that moves is the selection's doing:
-
-```
-== guard selection control experiment
-  no selection: exit=1 ran=False (want 1/False - every guard runs, the red one decides)
-  -skip slow:   exit=0 ran=True (want 0/True)
-  -only fast:   exit=0 ran=True (want 0/True)
-  mistyped tag: exit=2 ran=False (want 2/False)
-```
-
-The first line is the one that matters to a project already using `x3 guard`:
-with no flags all three guards run and the decision is what it always was. The
-last line is the one that matters to the gate: a tag nobody carries stops the
-run instead of skipping nothing, so `-skip` can never be the quiet way to turn a
-red gate green.
-
-A trial gets a third step, and it moves **one thing** between the samples: the
-working area. `steps-green.json` copies a two-package tree, removes the
-application half and builds what is left; `steps-red.json` is the same trial
-with one file *written* into the copy — an import that pulls the removed half
-back in. `steps-empty-removal.json` removes a directory that is not there.
-
-```
-== multi-step trial control experiment
-  green:          exit=0 ran=True (want 0/True)
-  red:            exit=1 ran=False (want 1/False - the written import breaks the build)
-  empty removal:  exit=1 ran=False (want 1/False)
-  working areas left behind: 0 (want 0 - every trial cleans up, the red ones too)
-```
-
-The last line is the one that cannot be argued with: the step counts the
-temporary working areas before and after, and the two reds are in the middle of
-that count. A trial that leaves its copy behind on failure would show up here
-and nowhere else.
-
-And the stderr of the blocked run — one block per red guard, then the decision:
-
-```
-BLOCK impossible-platform (exec): observed value is not equal to the expected value
-	want: equals "there-is-no-such-platform"
-	got:  windows
-x3 guard: 2 guard(s) - 1 pass, 0 warn, 1 block - command not started
-```
-
-The `sql` and `http` kinds are control-tested in `internal/live/live_test.go`
-rather than in `check.ps1`, because the gate must not need a database or a
-network: `TestSQLGuard` runs the real `database/sql` path against a fake driver
-registered by the test, and `TestHTTPGuard` runs the real HTTP path against an
-`httptest` server — each green, then each turned red by changing only the
-expectation.
+**No timestamp unless you ask for one**: the same configuration and the same
+answers must produce the same bytes.
 
 ## `x3 guard:effective`
+
+**What it catches:** a setting whose two lives have drifted apart. One is the
+**record** — a row in a table, a field in a remote endpoint. The other is what is
+**in force** — the value the running process actually loaded, and the value the
+provider actually applies. They drift quietly, because every side is internally
+consistent.
 
 ```
 x3 guard:effective [-config <file>] [-out <file>] [-stamp]
 ```
 
-A setting has two lives. One is the **record**: a row in a table, a field in a
-remote configuration endpoint — the value somebody wrote down. The other is what
-is **in force**: the value the running process actually loaded, and the value the
-provider it talks to actually applies. The two drift apart quietly — a process
-that was never reloaded, a remote setting edited by hand, a half-applied
-migration — and nothing in the system complains, because every side is
-internally consistent. This command reads the same setting from all of those
-places at once and turns the disagreement red.
-
-| Part | Meaning |
-|---|---|
-| `-config <file>` | configuration file holding the checks; defaults to `x3.json` |
-| `-out <file>` | write the JSON report here; **stdout when empty** |
-| `-stamp` | put a wall-clock start time in the report (off by default) |
-| (always) | every divergent check, with what each source said, goes to **stderr** |
-
-Unlike `x3 guard` this command launches nothing, so stdout is free for the
-report — the same arrangement as `x3 scan` and `x3 lang`.
-
-### The decision rule
+Unlike `x3 guard` this launches nothing, so stdout is free for the report.
 
 | Checks | Exit | What it means |
 |---|---|---|
@@ -4766,69 +2557,27 @@ report — the same arrangement as `x3 scan` and `x3 lang`.
 | at least one divergent `policy: block` | `1` | the record and the world disagree |
 | a source could not be read at all | as above | **red** — an unknown answer is not an answer |
 
-A check that could not read one of its sources is `error`, not a silent pass: if
-the process endpoint is down, nobody can say whether it is running the recorded
-model. That is the same fail-closed switch the live guards use.
-
-### Exit codes
-
-| Code | Meaning |
-|---|---|
-| `0` | every `block` check agreed (a `warn` divergence still exits `0`) |
-| `1` | at least one `block` check found a divergence or could not read a source |
-| `2` | the configuration could not be read or validated, or the report could not be written |
-
 ## Effective checks in `x3.json`
 
-Like the live guards, checks are **declared, not coded**, and they are built out
-of the same three general source kinds — `sql`, `http`, `exec`. What changes is
-the *role* a source plays: one is the record, the rest are the world.
+Built out of the same three source kinds; what changes is the *role* a source
+plays — one is the record, the rest are the world.
 
 ```json
-{
-  "effective": {
-    "checks": [
-      {
-        "name": "assistant-model",
-        "policy": "block",
-        "attempts": 3,
-        "retryDelayMs": 500,
-        "recorded": {
-          "label": "database",
-          "kind": "sql",
-          "dsnEnv": "APP_DSN",
-          "query": "select model from settings where id = 1"
-        },
-        "effective": [
-          {
-            "label": "process",
-            "kind": "http",
-            "url": "${APP_BASE}/internal/settings",
-            "status": 200,
-            "jsonPath": "/model"
-          },
-          {
-            "label": "provider",
-            "kind": "http",
-            "urlEnv": "PROVIDER_SETTINGS_URL",
-            "status": 200,
-            "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
-            "jsonPath": "/model",
-            "map": { "engine-2-2026-01-31": "engine-2" }
-          }
-        ]
-      }
-    ]
-  }
-}
+{ "effective": { "checks": [
+    { "name": "assistant-model", "policy": "block",
+      "attempts": 3, "retryDelayMs": 500,
+      "recorded": { "label": "database", "kind": "sql", "dsnEnv": "APP_DSN",
+                    "query": "select model from settings where id = 1" },
+      "effective": [
+        { "label": "process", "kind": "http", "url": "${APP_BASE}/internal/settings",
+          "status": 200, "jsonPath": "/model" },
+        { "label": "provider", "kind": "http", "urlEnv": "PROVIDER_SETTINGS_URL",
+          "status": 200, "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
+          "jsonPath": "/model", "map": { "engine-2-2026-01-31": "engine-2" } } ] } ] } }
 ```
 
-The `effective` section is read only by this command; `live`, `language` and
-`dist` are untouched next to it. Validation is **strict and up-front**, with the
-same fail-closed rules the `live` section has: an unknown key, a key belonging to
-another kind, an unknown kind, a duplicate name, an empty check list, a check
-with no `recorded` side or an empty `effective` list all stop the run before a
-single source is read.
+Validation is strict and up front, the same fail-closed rules the `live` section
+has.
 
 ### Fields a check has
 
@@ -4836,119 +2585,53 @@ single source is read.
 |---|---|---|
 | `name` | yes | unique within the file |
 | `policy` | no | `warn` or `block`; **defaults to `block`** |
-| `attempts` | no | how many times the comparison is retried while it disagrees; defaults to `1` |
-| `retryDelayMs` | no | wait between attempts; defaults to `250`. Only used when `attempts` is more than one |
+| `attempts` | no | retries while the comparison disagrees; defaults to `1` |
+| `retryDelayMs` | no | wait between attempts; defaults to `250` |
 | `recorded` | yes | one reading: the setting as it was written down |
-| `effective` | yes | one or more readings: the setting as it is in force. All of them must equal `recorded` |
+| `effective` | yes | one or more readings: the setting as it is in force; all must equal `recorded` |
 
-**Retries exist because the world lags the record.** A process reloads its
-configuration a moment after the row changes; a provider propagates a change
-through a cache. One attempt is the default precisely so that a retry is a
-deliberate statement about how long the lag may be — never a way to wait out a
+**Retries exist because the world lags the record** — a process reloads a moment
+after the row changes. One attempt is the default precisely so a retry is a
+deliberate statement about how long the lag may be, never a way to wait out a
 red.
 
 ### Fields a reading has
 
-A reading is a `sql`, `http` or `exec` source — every field documented under
-[Live guards in `x3.json`](#live-guards-in-x3json) applies unchanged, including
-`timeoutMs`, `${ENV}` placeholders in `url`, `headerEnv` and `jsonPath`. Two
-fields are added, and two are **not allowed**:
+A reading is a `sql`, `http` or `exec` source, and every field documented under
+[Live guards in `x3.json`](#live-guards-in-x3json) applies unchanged. Two are
+added and two are **not allowed**:
 
 | Field | Meaning |
 |---|---|
-| `label` | the name this source carries in the report; defaults to `recorded` and `effective[0]`, `effective[1]`, … |
-| `map` | value mapping applied before the comparison. A value the map does not mention is compared as it came |
-| ~~`equals`~~ / ~~`contains`~~ | **rejected here.** A reading has no expectation of its own; its expectation is the other readings |
+| `label` | the name this source carries in the report |
+| `map` | value mapping applied before the comparison; a value the map does not mention is compared as it came |
+| ~~`equals`~~ / ~~`contains`~~ | **rejected here** — a reading has no expectation of its own; its expectation is the other readings |
 
-`map` is what makes two spellings of the same setting comparable: a provider that
-answers `engine-2-2026-01-31` and a database row that says `engine-2` are the
-same setting, and writing that down once is honest. A value the map does not
-cover is *not* an error — it goes into the comparison unchanged, so an
-incomplete mapping produces an explainable red, never a false green. The report
-keeps the raw value next to the mapped one, so nobody has to guess what the
-source actually said.
+`map` is what makes two spellings of the same setting comparable. A value the
+map does not cover is *not* an error — it goes into the comparison unchanged, so
+an incomplete mapping produces an explainable red, never a false green, and the
+report keeps the raw value next to the mapped one.
 
 ## The effective report
 
 ```json
-{
-  "version": 1,
-  "config": "internal/live/testdata/effective-block-red.json",
-  "checks": [
-    {
-      "name": "platform",
-      "policy": "block",
-      "status": "fail",
-      "attempts": 1,
+{ "version": 1, "checks": [
+    { "name": "platform", "policy": "block", "status": "fail", "attempts": 1,
       "recorded": { "label": "record", "kind": "exec", "value": "windows" },
-      "effective": [
-        { "label": "world", "kind": "exec", "value": "amd64" }
-      ],
-      "detail": "record says \"windows\", but world says \"amd64\""
-    }
-  ],
-  "summary": { "pass": 0, "warned": 0, "blocked": 1 }
-}
+      "effective": [ { "label": "world", "kind": "exec", "value": "amd64" } ],
+      "detail": "record says \"windows\", but world says \"amd64\"" } ],
+  "summary": { "pass": 0, "warned": 0, "blocked": 1 } }
 ```
 
-| Field | Notes |
-|---|---|
-| `checks[].status` | `pass`, `fail` (the sources disagreed) or `error` (a source could not be read). Both non-`pass` values are red |
-| `checks[].attempts` | how many attempts the answer actually needed; a `2` here says the world was late, not wrong |
-| `recorded` / `effective[]` | `label`, `kind`, the compared `value`, the `raw` value when a mapping changed it, and `error` when that source could not be read. Secrets are already redacted |
-| `detail` | the difference, source by source: `record says "windows", but world says "amd64"` |
-| `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`); `blocked` above zero is exit `1` |
-| `startedAt` | present **only** with `-stamp`, the same determinism rule as the guard report |
+`status` is `pass`, `fail` (the sources disagreed) or `error` (a source could not
+be read); both non-`pass` values are red. `attempts` says how many the answer
+actually needed — a `2` here says the world was late, not wrong. Each reading
+carries its `label`, `kind`, compared `value`, the `raw` value when a mapping
+changed it, and `error` when it could not be read. `startedAt` appears **only**
+with `-stamp`.
 
-Secrets follow the same law as the guards: credentials and addresses are named
-by environment variable only, and their values are stripped out of every
-observed value and every error message before anything is written.
-`TestEffectiveSecretNeverLeaves` holds that line for this report specifically —
-it points a reading at an address that only exists in the environment, lets the
-transport error quote it, and asserts the address is nowhere in the marshalled
-result.
-
-### The control samples
-
-Three configurations in `internal/live/testdata/` differ **only** in the
-effective side of one comparison — the recorded side and the policy are the
-knobs, the sources are the same two commands:
-
-| Sample | Comparison | Expected |
-|---|---|---|
-| `effective-green.json` | both sides read `go env GOOS` | exit `0` |
-| `effective-block-red.json` | the world side reads `go env GOARCH`, `policy: block` | exit `1` |
-| `effective-warn-red.json` | the same divergence under `policy: warn` | exit `0`, `WARN` on stderr |
-
-`check.ps1` runs all three as the `effective control experiment` step:
-
-```
-== effective control experiment
-  green:     exit=0 (want 0)
-  block-red: exit=1 (want 1)
-  warn-red:  exit=0 (want 0)
-```
-
-And the stderr of the blocked run names every source, not just the verdict:
-
-```
-BLOCK platform: record says "windows", but world says "amd64"
-	record (exec): "windows"
-	world (exec): "amd64"
-x3 guard:effective: 1 check(s) - 0 pass, 0 warn, 1 block
-```
-
-**Mapping and retries are control-tested in `internal/live/effective_test.go`**,
-because both need answers the gate cannot arrange with a shell command:
-
-- `TestEffectiveMapping` — the same two sources, one answering `engine-2` and the
-  other `engine-2-2026-01-31`. Without `map` the check is **red**; with `map` it
-  is **green**. A mapping whose removal changes nothing is doing nothing.
-- `TestEffectiveRetry` — a server that answers with the stale value once and the
-  fresh value afterwards. `attempts: 1` is **red**, `attempts: 2` is **green**,
-  and the report says it took two.
-- `TestEffectiveUnreadableSourceIsRed` — one source pointed at an address nobody
-  answers; the check is `error`, not a pass.
+Secrets follow the guards' law, and `TestEffectiveSecretNeverLeaves` holds it
+for this report specifically.
 
 ## `x3 version`
 
@@ -4956,235 +2639,122 @@ because both need answers the gate cannot arrange with a shell command:
 x3 version
 ```
 
-Prints the release tag embedded in the binary at build time, and exits `0`:
-
-```
-v0.1.0
-```
-
-One line, nothing else, so a gate can compare it with the version it pinned
-without parsing anything. A binary that was not produced by a release run has
-no tag to embed and prints `unreleased`; an untagged binary is not a published
-one, and a gate that pins versions should treat it as red.
+Prints the release tag embedded at build time and exits `0` — one line, nothing
+else, so a gate can compare it without parsing. A binary not produced by a
+release run prints `unreleased`; an untagged binary is not a published one, and
+a gate that pins versions should treat it as red.
 
 ## `x3 update`
+
+**What it catches:** nothing — it removes the downloader every consuming project
+would otherwise write for itself. The binary replaces itself with a published
+one, after verifying its SHA256.
 
 ```
 x3 update [-config <file>] [-version <tag>] [-source <address|dir|owner/repo>] [-check]
 ```
 
-The binary replaces itself with a published one, after verifying its SHA256.
-This exists so that a project using x3 does not have to carry a downloader of
-its own: reading the release layout, checking the sum and putting the new file
-in place are the engine's job, and a project that repeats them writes a script
-that only its author can vouch for.
+The order is fixed: resolve the tag (`-version`, else the release pointer); find
+the checksum this platform's binary must have (from
+[`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for) when the
+project wrote one, else the release's `SHA256SUMS.txt`); download; compute and
+compare; put it in place.
 
-The order is fixed:
+**A sum that does not match stops before step 5 and the running binary is left
+exactly as it was**, as is a release listing no binary for this platform — both
+exit `1` and name the file left in place. Not being able to *reach* the source
+exits `2`: "the release refused me" and "the network refused me" are not the
+same event and must not wear the same colour.
 
-1. resolve the tag - `-version` if given, otherwise the one named in the
-   release pointer;
-2. find the checksum this platform's binary must have — from
-   [`update.pin`](#updatepin--the-checksum-the-project-itself-vouches-for) when
-   the project wrote one, otherwise from the release's `SHA256SUMS.txt`;
-3. download the binary;
-4. compute its SHA256 and compare it with the expected one;
-5. put it in place of the running file.
+**The layout.** Every source, remote or local, is read as `<source>/<ref>/<file>`:
+`main/LATEST` (one line, the newest tag), `<tag>/SHA256SUMS.txt`, and
+`<tag>/x3-<goos>-<goarch>[.exe]`. `LATEST` is written by the same run that builds
+the binaries — a separate step would drift, and a pointer naming a release nobody
+published is the quietest way to break an update.
 
-**A sum that does not match stops at step 4 and the running binary is left
-exactly as it was.** The same is true when the release lists no binary for this
-platform: a missing file is treated like a wrong one. Both exit `1` and name the
-file that was left in place. Not being able to *reach* the source is a
-different answer - that exits `2`, because "the release refused me" and "the
-network refused me" are not the same event and must not wear the same colour.
+**Where it downloads from**, first answer wins: `-source`, `X3_UPDATE_SOURCE`,
+`update.source`, then the engine's own public repository. Outside in, on
+purpose: pointing one run at a mirror should not require editing a tracked file.
+A source may be an address, an `owner/repository` shorthand, or **a local
+directory** — the directory case is not a test fixture but how an air-gapped or
+mirrored environment publishes the same three files onto a share. An existing
+directory wins over the shorthand.
 
-**The layout.** Every source, remote or local, is read the same way:
-
-```
-<source>/<ref>/<file>
-```
-
-- `<source>/main/LATEST` - one line, the newest release tag
-- `<source>/<tag>/SHA256SUMS.txt` - the checksum list, in `sha256sum -c` format
-- `<source>/<tag>/x3-<goos>-<goarch>[.exe]` - the binary for one platform
-
-`LATEST` is written by the same run that builds the binaries. A separate step
-would drift, and a pointer naming a release nobody published is the quietest
-way to break an update.
-
-**Where it downloads from**, first answer wins: `-source`, then the
-`X3_UPDATE_SOURCE` environment variable, then `update.source` in the
-configuration, then the engine's own public repository. The order runs from
-outside in on purpose - pointing one run at a mirror should not require editing
-a tracked file.
-
-A source may be an address (`https://...`), an `owner/repository` shorthand
-(read from `raw.githubusercontent.com`), or **a local directory**. The
-directory case is not a test fixture: an air-gapped or mirrored environment
-publishes the same three files onto a share and every machine updates from it
-with no code path of its own. An existing directory wins over the shorthand
-reading - if you have a folder called `mirror/x3`, you meant the folder.
-
-**`-check` changes nothing.** It prints the tag the source publishes and exits
-`1` if that tag is newer than the running binary, `0` if it is not. Use it in a
-gate that wants to report drift without installing anything.
-
-Output is split so a script can read it: the tag goes to stdout on a line of
-its own, everything written for a human goes to stderr.
+**`-check` changes nothing**: it prints the published tag and exits `1` if that
+tag is newer than the running binary. The tag goes to stdout on a line of its
+own; everything written for a human goes to stderr.
 
 **Replacing a running file.** The new bytes are written next to the target
 first, because a rename is only atomic within one filesystem. On Windows a
 running executable cannot be overwritten but can be renamed, so the sequence is
-three steps - write, move the old one aside, put the new one in place - and if
-the last step fails the old name is given back. The old file is then deleted; if
-the running process still holds it, it stays and the next update removes it,
-which is not a reason to call a finished update red.
-
-Configuration is optional. The section is:
+write, move the old one aside, put the new one in place — and if the last step
+fails the old name is given back.
 
 ```json
-{
-  "update": {
-    "source": "owner/repository",
-    "latestRef": "main",
-    "timeoutMs": 120000
-  }
-}
+{ "update": { "source": "owner/repository", "latestRef": "main", "timeoutMs": 120000 } }
 ```
 
 An unknown key in it is an error, not a silent skip.
 
 ### `update.pin` — the checksum the project itself vouches for
 
-Step 4 above compares the download against `SHA256SUMS.txt`, and that list ships
-**inside the release it describes**. It catches a truncated download, a mirror
-that fell behind, a corrupted file. It cannot catch a compromised release:
-whoever can replace the binary can replace the list beside it, and the update
-goes green. A release that vouches for itself is not a supply chain guarantee.
-
-`update.pin` moves the expected checksum into the project's own repository,
-where it is reviewed, versioned and diffed like any other line:
+`SHA256SUMS.txt` ships **inside the release it describes**. It catches a
+truncated download, a mirror that fell behind, a corrupted file. It cannot catch
+a compromised release: whoever can replace the binary can replace the list
+beside it. **A release that vouches for itself is not a supply chain guarantee.**
 
 ```json
-{
-  "update": {
-    "pin": {
-      "v0.33.0": {
-        "x3-windows-amd64.exe": "e2c2bd46...",
-        "x3-linux-amd64":       "b21f4cc9..."
-      }
-    }
-  }
-}
+{ "update": { "pin": { "v0.33.0": {
+      "x3-windows-amd64.exe": "e2c2bd46...",
+      "x3-linux-amd64":       "b21f4cc9..." } } } }
 ```
 
-**When a pin is written, `SHA256SUMS.txt` is not read at all.** There is nothing
-for it to add: the only checksum that binds anything is the one the project
-already agreed to. The stderr line says which authority it obeyed, so a run
-never leaves that ambiguous:
-
-```
-x3 update: v0.32.0 -> v0.33.0 (x3-linux-amd64, 12905472 bytes, sha256 b21f4cc9..., verified against update.pin)
-```
-
-The pin is keyed by **release tag**, not by binary name alone. That is what lets
-the engine tell two different refusals apart — "these are not the bytes I
-pinned" and "this is a release I never pinned" are different events, and a flat
-list would have reported the second as a checksum mismatch and sent the reader
-looking for corruption that was not there:
+**When a pin is written, `SHA256SUMS.txt` is not read at all.** The stderr line
+says which authority it obeyed, so a run never leaves that ambiguous. The pin is
+keyed by **release tag**, not by binary name alone, which is what lets the engine
+tell two refusals apart:
 
 | Situation | Result |
 |---|---|
 | the tag is pinned and the bytes match | installed |
-| the tag is pinned and the bytes differ | exit `1`, **the running binary is left in place**, and the message names `update.pin` as the source of the expectation |
-| the tag is not in `pin` | exit `1`, naming the tags that *are* pinned. Upgrading is a deliberate act: pin the release, then install it |
-| the tag is pinned but not for this platform | exit `1` — a machine whose binary nobody pinned gets no weaker guarantee than the others |
-| no `pin` at all | unchanged: `SHA256SUMS.txt` decides, exactly as before |
+| the tag is pinned and the bytes differ | exit `1`, binary left in place, message names `update.pin` |
+| the tag is not in `pin` | exit `1`, naming the tags that *are* pinned |
+| the tag is pinned but not for this platform | exit `1` — a machine nobody pinned gets no weaker guarantee |
+| no `pin` at all | `SHA256SUMS.txt` decides, exactly as before |
 
 Because an unpinned tag is refused, a pinned project does not follow `LATEST` by
-accident. `x3 update` with no `-version` resolves the newest tag, finds it
-unpinned and stops — which is the point. A new release enters the project the
-day somebody writes its checksum down.
-
-A malformed pin is a **configuration error** (exit `2`) rather than a mismatch:
-an empty `pin`, a key that is not a release tag, a tag pinning no binary, an
-empty binary name, or a checksum that is not 64 hexadecimal characters. Reported
-as a mismatch, a mistyped checksum would leave a project unable to update and
-unable to see why. Upper case is accepted and lowered — `sha256sum` writes lower
-case, but not every tool does.
-
-The checksums to write are the ones a release run prints, and they are also in
-the published `SHA256SUMS.txt`; copying them from there is fine, since the
-question a pin answers is not "were these bytes ever right" but "are these still
-the bytes we reviewed".
+accident: a new release enters the project the day somebody writes its checksum
+down. A malformed pin is a **configuration error** (exit `2`) rather than a
+mismatch — reported as a mismatch, a mistyped checksum would leave a project
+unable to update and unable to see why.
 
 ### The minimum version gate
 
-A project can state the oldest engine it is willing to be checked by:
-
 ```json
-{
-  "x3": { "min_version": "v0.30.0" }
-}
+{ "x3": { "min_version": "v0.30.0" } }
 ```
 
-This runs **before every command**. If the binary's own tag is older, the
-command does not start:
+This runs **before every command**:
 
 ```
 x3: RED - this binary is v0.29.0, the project requires v0.30.0 or newer
 	run: x3 update
 ```
 
-`x3 update` is the one command exempt from the gate - it is the answer the gate
-points at, and a red with no way out is a wall, not a gate.
-
-Details that matter:
-
-- **An untagged binary satisfies nothing.** A build produced outside a release
-  prints `unreleased`, and the gate treats that as failing any requirement. A
-  binary nobody published cannot prove which code it carries.
-- **A `git describe` suffix is ignored.** `v0.30.0-3-gabc1234` and
-  `v0.30.0-dirty` both count as `v0.30.0`: those commits come *after* the tag,
-  so such a binary is at least as new as the tag it names.
-- **A requirement that is written must parse.** A missing file, a missing
-  section or an empty field means no requirement and no warning. A value that
-  is not a release tag, or an unknown key beside it, is an error - a misspelled
-  requirement that is silently ignored leaves its author believing a gate is
-  running.
-- **It reads the configuration the way every other section is read**, so the
-  requirement may live in an included part rather than in the root file.
-
-### The update control experiment
-
-`check.ps1`, step `update control experiment`, publishes two local releases into
-a temporary directory — one whose `SHA256SUMS.txt` is correct, one whose entry
-is deliberately wrong — and updates a binary built as `v0.0.1`. The claim
-"it was replaced" is never taken from a filename: it is read back out of the
-binary by running `x3 version` on it afterwards.
-
-```
-== update control experiment
-  installed:         exit=0 now v9.9.9 (want 0 / v9.9.9)
-  planted checksum:  exit=1 still v0.0.1 (want 1 / v0.0.1)
-  below min_version: exit=1 (want 1)
-  meets min_version: exit=0 (want 0)
-  pin matches:       exit=0 now v9.9.9 (want 0 / v9.9.9)
-  pin disagrees with a SOUND release: exit=1 still v0.0.1 (want 1 / v0.0.1)
-  tag not pinned:    exit=1 still v0.0.1 (want 1 / v0.0.1)
-```
-
-The sixth line is the one that earns `update.pin` its place. The release it runs
-against is the **good** one — binary and `SHA256SUMS.txt` agree perfectly, which
-is also exactly how a compromised release looks. Only the project's own pin
-disagrees, and the update is refused. Without that direction the pin could have
-been doing nothing but repeating what the release already said.
-
-`internal/release/release_test.go` carries the rest: a pin that matches installs
-and reports `update.pin` as the authority, an unpinned tag and an unpinned
-platform are refused separately, and five malformed pins are all rejected when
-the configuration is read rather than when the download is compared.
+`x3 update` is the one command exempt — it is the answer the gate points at, and
+a red with no way out is a wall, not a gate. **An untagged binary satisfies
+nothing.** A `git describe` suffix is ignored (`v0.30.0-3-gabc1234` counts as
+`v0.30.0`, since those commits come after the tag). A requirement that is written
+must parse: no file and no section means no requirement, but a value that is not
+a release tag is an error — a misspelled requirement silently ignored leaves its
+author believing a gate is running.
 
 ## `x3 testdb`
+
+**What it catches:** tests that serialise on one shared database, and tests that
+pay for the migrations every time. `x3 testdb` gives a run its own PostgreSQL
+database by **cloning a prepared template**, hands the command a DSN through the
+environment, and drops the database when the command is done.
 
 ```
 x3 testdb create [-config <file>]
@@ -5193,141 +2763,67 @@ x3 testdb list   [-config <file>] [-stale]
 x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
 ```
 
-Tests that share one database serialise on it, and tests that build their own
-schema pay for the migrations every time. `x3 testdb` gives a run its own
-PostgreSQL database, cheaply: it **clones a prepared template** instead of
-replaying the migrations, hands the command a DSN through the environment, and
-drops the database when the command is done.
-
-| Subcommand | What it does |
-|---|---|
-| `create` | makes a database and prints its **DSN on stdout**, one line and nothing else, so a shell can capture it |
-| `drop -name <db>` | drops one database. The name must be one x3 created — see below |
-| `drop -stale` | drops every leftover older than `maxAgeMinutes` |
-| `list` / `list -stale` | prints `name` and age, one per line, for the databases x3 created |
-| `run -- <command>` | creates, runs, drops. The command's exit code is returned verbatim |
-
-`run` is the shape most projects want: one process, a fresh database, automatic
-cleanup even when the command fails. `-keep` leaves the database behind for
-inspection, which is exactly what `drop -stale` later collects.
+`create` prints its **DSN on stdout**, one line and nothing else, so a shell can
+capture it. `run` is the shape most projects want: one process, a fresh
+database, automatic cleanup even when the command fails; `-keep` leaves it
+behind, which is exactly what `drop -stale` later collects.
 
 ### Two invariants
 
-**Speed.** A database per test package is only worth having if creating one costs
-milliseconds, so the intended setup is a template database that already carries
-the schema, cloned with `CREATE DATABASE … TEMPLATE …`. Measured on PostgreSQL
-18.2 over a loopback connection, averaged over five runs of a 40-table,
+**Speed.** Measured on PostgreSQL 18.2 over loopback, five runs of a 40-table,
 40-index schema: **238–263 ms** to clone the template against **275–292 ms** to
-create an empty database and replay the same DDL. End to end — process launch,
-connection, `CREATE DATABASE` — `x3 testdb create` took **409 ms**. The gap
-widens with the schema: cloning is one directory copy whatever the migration
-count, while replaying grows with it.
+create an empty database and replay the same DDL; end to end `x3 testdb create`
+took **409 ms**. The gap widens with the schema — cloning is one directory copy
+whatever the migration count.
 
-**Safety.** Every name this command touches has to be one x3 made. Two rules,
-both checked before a single byte reaches the server:
-
-1. the name matches `^[a-z_][a-z0-9_]{0,62}$` — `CREATE DATABASE` takes no bound
-   parameters, so the name is text inside a statement, and this pattern is the
-   injection gate, not a style rule;
-2. the name carries the configured `prefix` **and** the creation stamp x3 writes
-   into it.
-
-A name that fails either rule exits **1** — the gate refused it — while a name
-that passes and then cannot be reached exits **2**. That difference is what makes
-the gate observable from outside, and `check.ps1` measures exactly it.
+**Safety.** Every name this command touches has to be one x3 made, checked
+before a byte reaches the server: the name matches `^[a-z_][a-z0-9_]{0,62}$`
+(`CREATE DATABASE` takes no bound parameters, so this is the injection gate, not
+a style rule), and it carries the configured `prefix` **and** the creation stamp
+x3 writes into it. A name that fails either rule exits **1** — the gate refused
+it — while a name that passes and then cannot be reached exits **2**. That
+difference is what makes the gate observable from outside.
 
 ### `testdb` in `x3.json`
 
 ```json
-{
-  "testdb": {
-    "adminDsnEnv": "APP_ADMIN_DSN",
-    "template": "app_test_template",
-    "prefix": "apptest_",
-    "dsnEnv": "APP_TEST_DSN",
-    "maxAgeMinutes": 120,
-    "migrate": { "command": "./migrate", "args": ["up"], "timeoutMs": 60000 }
-  }
-}
+{ "testdb": { "adminDsnEnv": "APP_ADMIN_DSN", "template": "app_test_template",
+    "prefix": "apptest_", "dsnEnv": "APP_TEST_DSN", "maxAgeMinutes": 120,
+    "migrate": { "command": "./migrate", "args": ["up"], "timeoutMs": 60000 } } }
 ```
 
 | Field | Required | Meaning |
 |---|---|---|
-| `adminDsnEnv` | yes | **name** of the environment variable holding the maintenance DSN. Point it at a maintenance database (`postgres`), never at the template: a template with an open connection cannot be cloned |
-| `driver` | no | `database/sql` driver name; defaults to `pgx`. A name this binary has not registered is a **configuration error** (exit `2`) - the run never opens |
-| `prefix` | no | name prefix, defaults to `x3test_`. It is also the **authority boundary**: nothing outside it is listed or dropped, so an empty prefix is rejected |
-| `template` | no | template database to clone. Without it an empty database is created and the migration hook does the work |
-| `dsnEnv` | no | name of the variable the new DSN is exported as, for the hook and for `run`; defaults to `X3_TESTDB_DSN` |
-| `maxAgeMinutes` | no | age past which a leftover counts as stale; defaults to `120` |
-| `migrate` | no | `command`, `args`, `timeoutMs`. Run after creation with the DSN in the environment |
+| `adminDsnEnv` | yes | **name** of the variable holding the maintenance DSN. Point it at a maintenance database, never at the template: a template with an open connection cannot be cloned |
+| `driver` | no | defaults to `pgx`; an unregistered name is a configuration error (exit `2`) |
+| `prefix` | no | defaults to `x3test_`, and it is the **authority boundary** — nothing outside it is listed or dropped, so an empty prefix is rejected |
+| `template` | no | without it an empty database is created and the migration hook does the work |
+| `dsnEnv` | no | the variable the new DSN is exported as; defaults to `X3_TESTDB_DSN` |
+| `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
+| `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
 The DSN handed to the command is the maintenance DSN with **only the database
-name changed**, so credentials and connection options carry over. Both PostgreSQL
-spellings are understood — the URL form (`postgres://…`) and unquoted
-`key=value` pairs.
-
-**The creation time is in the name.** PostgreSQL does not record when a database
-was created, so x3 encodes the moment into the name it generates
-(`<prefix><base36 seconds>_<random>`). That is what lets `list -stale` and
-`drop -stale` work on any server with no extra table and no privileges beyond
-creating databases — and it is also why a database x3 did not name has no age
-and is therefore never touched.
-
-**If the migration hook fails, the database is dropped.** A half-built schema is
-worse than none: the run would fail somewhere further along and blame the wrong
-thing.
+name changed**, so credentials and options carry over; both PostgreSQL spellings
+are understood. **The creation time is in the name** — PostgreSQL does not record
+it — which is what lets `-stale` work on any server with no extra table and no
+privileges, and it is also why a database x3 did not name has no age and is
+never touched. **If the migration hook fails, the database is dropped**: a
+half-built schema is worse than none.
 
 ### Secrets and errors
 
-The maintenance DSN is named by environment variable only, and its value —
-together with the password inside it — is stripped out of every error message
-before it is printed; drivers routinely quote the connection string they failed
-on. `TestAdminSecretNeverLeaves` holds that line. The DSN of the *created*
-database is deliberately printed by `create`, because that is the whole point of
-the subcommand; under `run` it is never printed, only passed through the
-environment. What the launched command itself prints is its own business.
-
-### The control experiment
-
-The gate must run without a database, so the sample that runs in `check.ps1` is
-the safety gate, proven in both directions with the server deliberately
-unreachable:
-
-```
-== testdb control experiment
-  foreign name refused at the gate: exit=1 (want 1)
-  own name reached the server:      exit=2 (want 2)
-```
-
-A gate that refused *every* name would also exit `1` on the first line; the
-second line is what rules that out.
-
-The rest is control-tested in `internal/testdb/testdb_test.go` against a fake
-`database/sql` driver that records the statements it is given — because for
-these invariants it is not enough that a call returned an error, it has to be
-seen that **nothing reached the server**:
-
-- `TestDropRefusesForeignNames` — our own generated name produces a
-  `DROP DATABASE`; `postgres`, `production`, a name with a semicolon in it and
-  four other shapes produce **no statement at all**.
-- `TestCreateClonesTheTemplate` — with `template` configured the statement
-  carries `TEMPLATE`, without it the statement does not.
-- `TestListIgnoresForeignNames` — a catalogue holding two x3 names and two
-  hand-made ones yields two databases, and the ages come out of the names.
-- `TestMigrationFailureDropsTheDatabase` — a hook that exits non-zero leaves no
-  database behind.
-- `TestRunDropsAfterTheCommand` — the drop happens after the command, and
-  `-keep` suppresses it.
+The maintenance DSN is named by environment variable only, and its value is
+stripped out of every error message before it is printed. The DSN of the
+*created* database is deliberately printed by `create` — that is the point of the
+subcommand — but under `run` it is never printed, only passed through the
+environment.
 
 ## Speed
 
-A gate that takes a minute is a gate somebody stops running. Files are
-independent of each other, so reading and parsing them is done on every core and
-the results are put back in file order — the report is byte-identical whatever
-the core count.
-
-Measured on a real Go application of **1174 Go files** (2040 files in total),
-sixteen cores:
+Files are independent, so reading and parsing them is done on every core and the
+results are put back in file order — the report is byte-identical whatever the
+core count. Measured on a real Go application of **1174 Go files** (2040 in
+total), sixteen cores:
 
 | Command | Before | After |
 |---|---|---|
@@ -5335,35 +2831,28 @@ sixteen cores:
 | `x3 scan` | — | **0.12 s** |
 | `x3 secrets` (all 2040 files) | — | **0.54 s** |
 
-The same run produced the same bytes before and after the change, which is the
-part worth checking: a parallel walk that reordered its findings would turn
-every later comparison into noise.
+The same run produced the same bytes before and after, which is the part worth
+checking: a parallel walk that reordered its findings would turn every later
+comparison into noise.
 
 ### The incremental cache
 
-Since v0.20.0 a run can remember what it measured. The cache is keyed on the
-**content** of each file, so a file that did not change is not measured again —
-and one that did is measured whatever the cache says.
+A run can remember what it measured, keyed on the **content** of each file.
 
 ```json
 { "cache": { "dir": ".x3cache" } }
 ```
 
 A directory, not a file: the file name comes from the command, because two
-commands sharing one file would each delete the other's entries on every run.
-Nothing is written unless the section is there — a tool does not leave files on
-disk uninvited — and the directory belongs in `.gitignore`, since a cache is
-something a machine can rebuild. `x3 scan`, `x3 lang` and `x3 secrets` read it;
-`-cache <file>` points one run somewhere else, and `-no-cache` measures
-everything again.
+commands sharing one file would each delete the other's entries. Nothing is
+written unless the section is there, and the directory belongs in `.gitignore`.
+`x3 scan`, `x3 lang` and `x3 secrets` read it; `-cache <file>` points one run
+elsewhere and `-no-cache` measures everything again.
 
 An entry is used only when three things match: the **engine version**, a
-**fingerprint of the whole configuration**, and the file's **content hash**. Any
-of them changing empties the cache. Guessing which configuration section affects
-which checker would be cheaper and would eventually be wrong; measuring again is
-never wrong.
-
-Measured on the same 1174-file application, second run against the first:
+**fingerprint of the whole configuration**, and the file's **content hash**.
+Guessing which section affects which checker would be cheaper and would
+eventually be wrong.
 
 | Command | Full scan | Cached | Cache size |
 |---|---|---|---|
@@ -5371,47 +2860,35 @@ Measured on the same 1174-file application, second run against the first:
 | `x3 scan` (1174 Go files) | 0.13 s | **0.09 s** | 145 KB |
 | `x3 lang` (1174 Go files) | 0.17 s | 0.18 s | 5.8 MB |
 
-`lang` is the honest row: on that application the language gate is red on
-thousands of lines, and reading 5.8 MB of stored findings costs as much as
-parsing the files again. **The cache pays off when a checker's output is much
-smaller than its input** — which is why it is declared per project rather than
-switched on for everybody.
-
-Every one of those runs produced a report byte-identical to the uncached one.
-That is the property the cache is worth having only if it holds.
+`lang` is the honest row: on that application the gate is red on thousands of
+lines, and reading 5.8 MB of stored findings costs as much as parsing the files
+again. **The cache pays off when a checker's output is much smaller than its
+input** — which is why it is declared per project rather than switched on for
+everybody. Every one of those runs produced a report byte-identical to the
+uncached one.
 
 ## Files the engine reads back
 
 Some of what a gate reads is not source but state the project keeps beside it:
-the frozen baselines, a findings baseline, the open-work list, the cache. Those
-are JSON, they live in the repository, and people edit them.
-
-They are read through one reader, the same one that reads `x3.json`, and it
-**drops a leading byte order mark**. Windows tools write one — PowerShell 5.1's
-`Set-Content -Encoding utf8` and Notepad both do — while Go's JSON decoder calls
-it an invalid character. Having the settings file forgive it and a baseline
-refuse it meant that two files written by the same editor behaved differently,
-and the error named a character nobody typed. It is not a decision a project
-should have to make, so it is not one it is asked about.
+the frozen baselines, a findings baseline, the open-work list, the cache. They
+are read through one reader — the same one that reads `x3.json` — and it **drops
+a leading byte order mark**. Windows tools write one while Go's JSON decoder
+calls it an invalid character, so having the settings file forgive it and a
+baseline refuse it meant two files written by the same editor behaved
+differently, and the error named a character nobody typed.
 
 ## Splitting the configuration
 
-One `x3.json` is enough for a small repository and wrong for a large one. A code
-base with dozens of gates puts thousands of lines into one file, and the rules
-that belong to a module end up far from the module — so removing the module
+One `x3.json` is enough for a small repository and wrong for a large one: the
+rules that belong to a module end up far from the module, so removing the module
 leaves its rules behind, guarding nothing.
 
-The root file declares its parts:
-
 ```json
-{
-  "include": ["x3/*.json", "apps/*/x3.json"],
-  "language": { "allowed": "en" }
-}
+{ "include": ["x3/*.json", "apps/*/x3.json"], "language": { "allowed": "en" } }
 ```
 
-Every command reads the merged result. There is one merge law, and it knows
-nothing about any section's schema:
+Every command reads the merged result, under one merge law that knows nothing
+about any section's schema:
 
 | Both sides are | Result |
 |---|---|
@@ -5419,418 +2896,259 @@ nothing about any section's schema:
 | objects | merged key by key, recursively |
 | anything else | **refused** — the run stops and names both files and the key |
 
-So `arch.rules` from four files become one list, `arch.components` from two
-files become one object, and two files setting `language.allowed` stop the run.
 Nothing is silently overwritten: a setting that quietly loses to another file is
-a setting whose author believes it is in force.
-
-Four more refusals, all of them fail-closed:
-
-- **A pattern that matches no file.** An `include` that was written and does not
-  work is a set of rules nobody notices is missing.
-- **A part that includes.** Parts are one level deep, so the whole configuration
-  is readable from the root file. Nesting hides where a rule came from.
-- **Discovery.** Parts are declared, never found by scanning a directory: a file
-  dropped into a folder must not add a rule nobody reviewed.
-- **A missing section** is still an error for the command that needs it, exactly
-  as with a single file.
-
-Ordering is by file name, so the merged configuration is the same on every run
-and on every machine.
-
-A project that does not split pays nothing: without an `include` key the file is
-read exactly as before.
+a setting whose author believes it is in force. Four more refusals, all
+fail-closed: **a pattern that matches no file** (an `include` that does not work
+is a set of rules nobody notices is missing); **a part that includes** (parts are
+one level deep, so the whole configuration is readable from the root);
+**discovery** (parts are declared, never found by scanning — a file dropped into
+a folder must not add a rule nobody reviewed); and **a missing section**, still
+an error for the command that needs it. Ordering is by file name, so the merged
+configuration is the same on every run and machine. A project that does not
+split pays nothing.
 
 ## Pilot: a real `x3.json`
 
 x3 is piloted inside a real production application. Nothing about that
 application is encoded in the engine; what follows is its configuration file,
-with generic names, as an example of what live guards are actually for.
-
-The pilot's problem is the one every deployment has: a long test or migration
-run that starts against a **wrong live environment** wastes an hour and can
-corrupt state. Four questions must be answered before it starts.
+with generic names, as an example of what live guards are actually for. The
+pilot's problem is the one every deployment has: a long test or migration run
+that starts against a **wrong live environment** wastes an hour and can corrupt
+state.
 
 ```json
-{
-  "live": {
-    "guards": [
-      {
-        "name": "schema-current",
-        "kind": "sql",
-        "policy": "block",
-        "dsnEnv": "APP_DATABASE_URL",
-        "query": "select max(version)::text from schema_migrations",
-        "equals": "0117"
-      },
-      {
-        "name": "catalog-engine-address",
-        "kind": "sql",
-        "policy": "block",
-        "dsnEnv": "APP_DATABASE_URL",
-        "query": "select engine_ref from capability_catalog where tier = 'standard'",
-        "equals": "provider:engine-v3"
-      },
-      {
-        "name": "provider-agent-permission",
-        "kind": "http",
-        "policy": "warn",
-        "url": "https://api.provider.example/v1/agents/self",
-        "status": 200,
-        "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
-        "jsonPath": "/agent/permissions/0",
-        "equals": "outbound"
-      }
-    ]
-  }
-}
+{ "live": { "guards": [
+    { "name": "schema-current", "kind": "sql", "policy": "block",
+      "dsnEnv": "APP_DATABASE_URL",
+      "query": "select max(version)::text from schema_migrations", "equals": "0117" },
+    { "name": "catalog-engine-address", "kind": "sql", "policy": "block",
+      "dsnEnv": "APP_DATABASE_URL",
+      "query": "select engine_ref from capability_catalog where tier = 'standard'",
+      "equals": "provider:engine-v3" },
+    { "name": "provider-agent-permission", "kind": "http", "policy": "warn",
+      "url": "https://api.provider.example/v1/agents/self", "status": 200,
+      "headerEnv": { "Authorization": "PROVIDER_TOKEN" },
+      "jsonPath": "/agent/permissions/0", "equals": "outbound" } ] } }
 ```
 
-| Guard | The question it answers | Why that policy |
+| Guard | The question | Why that policy |
 |---|---|---|
-| `schema-current` | is the **migration ledger** at the schema version this code expects? | `block` — running against an older schema produces failures that look like code bugs and are not |
-| `catalog-engine-address` | does the **catalog row for this tier** still point at the engine address the run assumes? | `block` — a stale row silently routes the whole run somewhere else |
-| `provider-agent-permission` | does the **provider still grant this agent the permission** the run needs? | `warn` — an external provider having a bad minute should not stop local work, but nobody should discover it an hour in |
+| `schema-current` | is the migration ledger at the schema version this code expects? | `block` — an older schema produces failures that look like code bugs and are not |
+| `catalog-engine-address` | does the catalog row for this tier still point at the engine the run assumes? | `block` — a stale row silently routes the whole run somewhere else |
+| `provider-agent-permission` | does the provider still grant this agent the permission the run needs? | `warn` — an external provider having a bad minute should not stop local work, but nobody should discover it an hour in |
 
-The gate then becomes one line, and there is no shell logic deciding anything:
+The gate is then one line, with no shell logic deciding anything:
 
 ```
 x3 guard -config x3.json -report build/guards.json -- go test ./...
 ```
 
-**The red that made this worth building.** When `PROVIDER_TOKEN` holds a rotated
-key, the external endpoint answers `401`, and the run says so before anything
-starts:
-
-```
-WARN  provider-agent-permission (http): want status 200, got 401
-	want: status 200 and equals "outbound"
-	got:  status 401
-x3 guard: 3 guard(s) - 2 pass, 1 warn, 0 block - starting go
-```
-
-The token itself appears nowhere — not in the config, not on stderr, not in
-`build/guards.json`. Change that guard's policy to `block` and the same
-situation stops the run instead of warning about it; that one word is the whole
-difference.
+**The red that made this worth building.** When the token holds a rotated key the
+endpoint answers `401`, and the run says so before anything starts. The token
+itself appears nowhere — not in the config, not on stderr, not in the report.
+Change that guard's policy to `block` and the same situation stops the run
+instead of warning about it; that one word is the whole difference.
 
 ## Releases and reproducible builds
 
-The engine is published as binaries — one per platform — into a public
-repository that carries nothing else: the two binaries, `SHA256SUMS.txt` and a
-generated `README.md`. The source repository is private, so the binary and its
-documentation are the whole public surface.
+The engine is published as binaries into a public repository carrying nothing
+else: two binaries, `SHA256SUMS.txt` and a generated `README.md`. The source
+repository is private, so the binary and its documentation are the whole public
+surface.
 
-One command produces a release, and if any step of it fails nothing is
-published:
+One command produces a release, and if any step fails nothing is published:
 
 1. it builds `windows/amd64` and `linux/amd64` with
    `-trimpath -buildvcs=false -ldflags "-s -w -buildid= -X main.version=<tag>"`
    and `CGO_ENABLED=0`, so the binary carries no build path, no build id and no
    VCS stamp — only the tag;
-2. it builds **each target a second time** and compares the SHA256 of the two
-   passes. A build that does not reproduce is not published, and that
-   comparison happens on every release rather than in a one-off experiment;
+2. it builds **each target a second time** and compares the two SHA256s. A build
+   that does not reproduce is not published, and that comparison happens on every
+   release rather than in a one-off experiment;
 3. it writes `SHA256SUMS.txt` and generates the public `README.md` from this
-   document plus a template, stamping the release tag and the SHA256 of both
-   sources into the generated file;
+   document plus a template, stamping the tag and the SHA256 of both sources into
+   the generated file;
 4. it re-reads what it just wrote and runs the staleness gate against it.
 
-**The staleness gate.** The gate recomputes the SHA256 of this document and of
-the README template and compares them with the stamp in the published README.
-Either one changing after the last release run turns the step **red**: the
-binaries do one thing and the README describes another. A publish directory
-that is not configured, or configured and missing, is red as well and says
-`NOT GENERATED` — deliberately not a green skip, because "nobody has published
-yet" and "the publication is current" are not the same answer. The step carries
-its own control experiment: it asks the same question again with a deliberately
-wrong document hash and requires a red answer.
+**The staleness gate** recomputes the SHA256 of this document and of the template
+and compares them with the stamp in the published README. Either changing after
+the last release run turns the step **red**: the binaries do one thing and the
+README describes another. A publish directory that is not configured, or
+configured and missing, is red as well and says `NOT GENERATED` — deliberately
+not a green skip, because "nobody has published yet" and "the publication is
+current" are not the same answer. The step carries its own control experiment: it
+asks the same question with a deliberately wrong document hash and requires a
+red.
 
-The publish directory is configuration and never a constant in the code: the
-`-DistDir` argument wins, then the `X3_DIST_DIR` environment variable, then
-`dist.dir` in `x3.json`, resolved relative to the repository root.
+Two further gates stand between this document and the public repository. **The
+leak gate** reads the generated README against a list of patterns the project
+keeps privately — real module and directory names, project and customer names,
+local paths, account names — and a single match stops the publication; the
+finding names the pattern and masks the value, because a gate that printed what
+it found would be a second leak. **The size gate** is the engine's own `freeze`
+cap over the generated README: it takes no debt, cannot be lowered by `-update`,
+and a document above it is red. Both run in `check.ps1` as well, each with a
+two-way control experiment.
 
-**Checking a downloaded binary.** The published `SHA256SUMS.txt` is in the
-format `sha256sum -c` reads. A consuming project pins the tag and the checksum,
-not a path (see below).
+The publish directory is configuration and never a constant in the code:
+`-DistDir` wins, then `X3_DIST_DIR`, then `dist.dir` in `x3.json`.
 
 ## Using x3 from another project
 
-x3 is being piloted inside a real production Go application. The engine stays
-general: nothing about that application is encoded in the engine or in this
-document. What follows is how the integration works in practice, and it is the
-same for any project.
-
 **Integration is by binary, not by import.** The consuming project does not add
-x3 to its `go.mod`, does not use a `replace`, and does not put x3 in a
-`go.work`. It builds the binary and calls it:
+x3 to its `go.mod`, does not use a `replace`, and does not put it in a `go.work`.
+The directives are plain comments, so the consuming project's compiler never sees
+them and its dependency graph never learns that x3 exists.
 
-```
-go build -o <path> ./cmd/x3      # in the x3 checkout
-<path> scan <package-or-tree>    # from the consuming project's gate
-```
-
-The directives are plain comments, so the consuming project's compiler never
-sees them and its dependency graph never learns that x3 exists.
-
-**Pin a version, and let the engine fetch itself.** The consuming project
-writes the version it requires into its own `x3.json`
+**Pin a version, and let the engine fetch itself.** The project writes the
+version it requires into its own `x3.json`
 ([the minimum version gate](#the-minimum-version-gate)) and calls
 [`x3 update`](#x3-update) to obtain that binary. Nothing else about x3 is
-tracked in the project: no downloader, no checksum file, no path.
+tracked: no downloader, no checksum file, no path.
 
 This corrects earlier advice, and the reason is worth keeping. The first
 integration had the project carry its own script to read a pinned version,
-download the binary and verify the sum. That script was correct and it was
-still wrong: every project using the engine would write the same one, each with
-its own bugs, and the engine could fix none of them. Fetching and verifying a
-release is the engine's own subject. A checked-in path (or an environment
-variable holding one) is worse still - green on the machine that wrote it,
-unmeasured everywhere else, and unable to say *which* build ran.
+download the binary and verify the sum. That script was correct and still wrong:
+every project using the engine would write the same one, each with its own bugs,
+and the engine could fix none of them. A checked-in path is worse still — green
+on the machine that wrote it, unmeasured everywhere else, and unable to say
+*which* build ran.
 
 **A missing or mismatched binary is red, not skipped.** The pilot's gate was
 fail-open at first: no binary meant a warning and a normal start. That is the
-failure this engine exists to prevent, so it now refuses — no binary, wrong
-version, wrong checksum, all three stop the run and print the command that
-fetches the pinned release. "The tool was not there" and "the tool found
-nothing" must never produce the same colour.
+failure this engine exists to prevent. **"The tool was not there" and "the tool
+found nothing" must never produce the same colour.**
 
-**The counts are the engine's job, not yours.** This was measured on the pilot:
-a scan of a tree with no directives in it exits `0` and reports `0 red`, so a
-gate that trusts the exit code alone turns "delete the directives" into a way to
-go green. The first answer was to have the consuming project read the report and
-assert on it - which worked, and meant every project wrote the same counter with
-its own bugs. The count now belongs to the configuration and the engine measures
-it: see [Expectations](#expectations).
+**The counts are the engine's job, not yours.** A scan of a tree with no
+directives exits `0` and reports `0 red`, so a gate trusting the exit code alone
+turns "delete the directives" into a way to go green. The first answer was to
+have the project read the report and assert on it — which worked, and meant every
+project wrote the same counter with its own bugs. The count now belongs to the
+configuration: see [Expectations](#expectations).
 
-**Directives arrive next to the existing tests, not instead of them.** In the
-pilot the existing test file was kept untouched and the directives were added
-alongside it. Nothing is migrated until its x3 equivalent has been seen to go
-red on a deliberately broken input.
+**Directives arrive next to the existing tests, not instead of them.** Nothing is
+migrated until its x3 equivalent has been seen to go red on a deliberately broken
+input.
 
 ## Gaps we know about
 
 Stated plainly, because a capabilities document that lists only strengths is a
 sales page.
 
-- **A baseline is coarser than the finding it holds.** `comments` identifies a
-  finding by rule and file, so a file that already owes one over-long block can
-  grow a second one without the gate seeing it; the debt is cleared per file,
-  which is also how it is paid. Two identical findings in one file collapse into
-  one entry everywhere for the same reason: an identity that counts occurrences
-  would move again the moment one of them was fixed.
-- **An exclusion is only as narrow as somebody wrote it.** `ignore` entries are
-  regular expressions over the matched value, and nothing checks that one of
-  them is not swallowing a real credential — only that it swallows *something*.
-  The dead-exclusion red catches the rule nobody needed; it cannot catch the
-  rule that was written too wide.
-- **Exclusions apply to the scan, not to redaction.** The same patterns decide
-  what a recorded ledger masks, and that path deliberately ignores `ignore`: a
-  value nobody has to hide is cheap to mask, and a value that should have been
-  hidden is not.
-- **`of: files` counts one directory, not a subtree.** A directory that splits
-  its files into new subdirectories shrinks by that measure even though the same
-  files are still there; the count says how crowded one folder is, which is the
-  question it was written for.
-- **Nothing checks that a baseline was reviewed.** `-update-baseline` refuses
-  growth, but the first write accepts whatever the tree owes that day. The file
-  is in the repository and shows up in a diff; that review is the only control
-  there is.
-- **Expectations count directives, and only from `scan`.** They say a minimum,
-  never a maximum, and they cannot say "these two exact directives" - a file
-  carrying three guards satisfies a `min: 2` that was written for two other
-  ones. The other checkers report findings rather than directives and have
-  their own `empty_scope` protection instead.
-- **`update` verifies a checksum, not a signature.** It proves the file it
-  installed is the file somebody expected; it cannot prove who wrote the
-  release. Without `update.pin` that expectation comes from `SHA256SUMS.txt`,
-  which ships inside the release it describes — a source that can rewrite the
-  binary can rewrite the list beside it. `update.pin` moves the expectation into
-  the project's own repository and closes that particular hole, but it opens no
-  identity: it binds *bytes*, and it is worth exactly as much as the review of
-  the commit that introduced the line. Nothing here checks a key.
-- **A pin has to be maintained by hand.** No command writes or refreshes one,
-  and the engine cannot tell a deliberate upgrade from a mistake, so every new
-  release is refused until somebody writes its checksum down. That friction is
-  the feature; it is still friction, and a project that pins must budget for it.
-- **The minimum version gate is enforced from v0.30.0 on.** An older binary
-  reads the same configuration file and never sees the requirement, so pinning
-  a minimum protects you from binaries newer than the gate itself, not from
-  every old one.
-- **The cache is per file, not per project.** A checker whose answer depends on
-  more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not
-  use it, and a change in one file still costs a full pass for those. `lang`
-  can be slower with the cache than without it on a project where it finds
-  thousands of findings; the Speed section gives the numbers.
-- **Parallel replay is opt-in and all-or-nothing.** `workers` applies to the
-  whole ledger; there is no way to say that these five interactions are
-  independent and those two are not. A suite with any ordering constraint runs
-  sequentially or declares `carry` and is refused parallelism.
-- **A masked value cannot be sent back.** Recording redacts credentials, so
-  replaying an authenticated suite sends the requests without them. The count
-  is printed, but the run behind an authorisation wall is not the run that was
-  recorded.
-- **Outbound recording is plain HTTP only.** `x3 outbound` refuses `CONNECT`
-  rather than terminating TLS, so a service reached over HTTPS cannot be
-  recorded yet. Matching is on method, host and path: two calls to the same
-  path with different bodies are told apart only by their order.
-- **A recording is as good as the traffic it saw.** Nothing measures coverage: a
-  ledger of two requests looks exactly as green as a ledger of two hundred.
-- **The language gate speaks one language.** `en` is the only embedded
-  dictionary, so `allowed` accepts nothing else today. A dictionary is also a
-  blunt instrument: an English word the list does not have (a rare technical
-  term) is red until it is allow-listed, and a foreign word that happens to be
-  an English word (`kilim`, `sultan`) passes. The non-ASCII rule is what catches
-  most of the second case.
-- **An output expectation is a substring, not an understanding.** `must` and
-  `mustNot` search text. A runner that changes its wording in a new version
-  turns a green criterion red, and one that prints the expected sentence while
-  failing at something else stays green. The exit code is still asked for; the
-  expectation is the half the exit code cannot see, not a replacement for
-  reading what a tool actually did.
-- **A command criterion runs where the gate runs.** Neither `command` nor its
-  `retry` changes directory: the working directory is the process's, not the
-  scanned tree's, so a criterion meant for another tree has to say so in its own
-  arguments.
-- **A move is trusted once its target exists.** `moved` checks that the place
-  named is *there*, not that the work is written down in it — a document that
-  exists and never mentions the item passes. The check catches the move to
-  nowhere, which is the failure that actually happens; it cannot read intent.
-- **`suspect` finds shapes, not lies.** A criterion legitimately shared by two
-  items trips `repeat`, and a criterion pointing at a file that is present
-  today but need not be tomorrow is invisible to `always`. It names three
-  writings that cannot measure; it cannot tell a weak criterion from a strong
-  one.
-- **A lane is paths, not intent.** `scope` can see that a commit touched two
-  places; it cannot see whether the second one had to move with the first.
-  That judgement is the reasoned crossing, and the gate only insists the
-  reason be written down.
-- **`syntax` carries one parser.** JSON, and nothing else. Everything beyond it
-  is an external command the project installs and names, which means a machine
-  without that command cannot run that check - it says so rather than passing.
-- **A long block is a proxy, not a judgement.** The gate counts lines; it cannot
-  tell a necessary table from a paragraph nobody needed. That is what the
-  reasoned exemption is for, and why the ratio only warns.
-- **`containment` reads paths, not contents.** A part is recognised by a key at
-  the start of a path segment, so a table name inside a file, or a part whose
-  name nobody prefixed, is invisible to it. `deps` with `match: "literal"` is
-  the kind that reads names inside files.
-- **`consistency` reads four shapes and no more.** Typed string constants, JSON
-  keys, one regular-expression capture, and the engine's own settings file. A
-  set that lives anywhere else — a database table, a generated file, a YAML
-  document — cannot be compared yet.
-- **`vocabulary` reads words, not meaning.** A term that is also an ordinary
-  word turns every innocent use red, and a term under three letters is never
-  read at all.
-- **`duplication` compares text, not meaning.** Two bodies that differ by one
-  renamed variable are two different bodies to it. That is deliberate — the
-  alternative catches deliberately separate code and turns the gate into noise —
-  but it means a copy is easy to hide.
-- **`exposure` sees tags, not serialization.** An untagged field written out by
-  a marshaller is invisible to it, and a tagged field in a type nobody
-  serializes is still read.
-- **`flow` does not follow a copy.** Once the value is assigned to another name,
-  what happens to that name is invisible — the assignment itself is the finding.
-  Following it would need type resolution over the whole program. The `import` and `symbol` matchers read Go only,
-  so pointing their `sources` at a text glob leaves them with nothing to read.
-- **`symbol` reads names, not types.** It sees `client.Retry` without knowing
-  what `client` is, so a forbidden call reached through an interface, a function
-  value or a wrapper is invisible to it, and two different types with the same
-  method name are the same name to it. Type resolution would need the whole
-  program; this reads one file at a time.
-- **`pairing` reads names, not meaning.** `references-a-declaration` is a text
-  search for a declared name, so a counterpart that merely mentions the name in
-  a comment counts, and a short name that occurs by accident counts too.
-- **A text file cannot carry an exemption.** `//x3:allow:arch:` is a Go comment.
-  A `literal` finding in SQL or JSON is answered by fixing it, by `alsoAllow`,
-  or by narrowing `sources` — not by silencing that one line.
-- **The inward form does not see a component's inside.** `to` + `allowFrom`
-  answers "who reaches in from outside", so one checker importing another
-  checker inside the same component passes. Splitting them into instances needs
-  a single star in the pattern, which a list of fixed directories cannot have;
-  until the pattern language grows, that rule is written as one `deny` rule per
-  component or not at all.
-- **`boxes` measures evidence, not completion.** A criterion is a file or a
-  pattern, so a box whose criteria are weak passes while the work is half done.
-  What the gate guarantees is that the list and the repository agree, not that
-  the criteria were well chosen.
-- **`secrets` reads formats, not meaning.** A credential with no recognisable
-  shape - a long random password in a variable - is invisible to it, and a
-  string that happens to match a shape is red even when it is an example. The
-  exemption exists for the second case; nothing covers the first.
-- **An example is one call, not a scenario.** `x3 case` calls a declaration
-  once with the arguments written down and compares what comes back. A test
-  that builds a fixture, mutates state and then reads it, or that needs a stub
-  the production package does not carry, has no shape here: the arguments are
-  expressions the package can already compile, and there is nowhere to put a
-  helper. Nothing measures how much of a suite that leaves behind, either —
-  the gate counts the examples that exist, not the tests that could become
-  examples.
-- **An example cannot expect a panic, and cannot read a value it mutated.** A
-  declaration that returns nothing is red rather than callable, because there
-  would be nothing to compare; the receiver an example passes in is not read
-  back out after the call.
-- **Only one of the four components exists as behavior.** Recorder and Ledger
-  are interfaces in `internal/engine` with no implementation, so the "nothing
-  unchanged is ever re-checked" property described in the README is not real
-  yet. Live guards are outside that picture: they check the environment, and
-  nothing about them is remembered between runs.
-- **The gate's guard control experiment covers `exec` only.** `sql` and `http`
-  are proven red and green in `internal/live/live_test.go`, against a fake
-  driver and an `httptest` server. Neither has ever been seen red against real
-  infrastructure inside `check.ps1`, because the gate must run without a
-  database or a network.
-- **Effective checks compare strings too**, through the same `equals` machinery
-  in reverse: two sources agree when their mapped values are byte-identical. A
-  value that differs only in case, in whitespace inside the text, or in numeric
-  formatting (`1` against `1.0`) needs a `map` entry, and a setting that is a
-  list or an object cannot be compared at all — only the single value a
-  `jsonPath` or a query cell yields.
-- **`map` is a lookup table, not a rule.** Every spelling a source may answer has
-  to be written down; there is no pattern, prefix or version-range form, so a
-  provider that appends a fresh date to its identifier needs a new entry each
-  time. The failure mode is a red that names both spellings, which is the safe
-  direction.
-- **`x3 testdb` speaks PostgreSQL only.** `CREATE DATABASE … TEMPLATE`,
-  `DROP DATABASE … WITH (FORCE)` (PostgreSQL 13 and later) and `pg_database` are
-  written into the commands, so another engine needs another implementation, not
-  another `driver` value.
-- **Nothing prevents two runs from sharing a template.** The template is read
-  concurrently, which PostgreSQL allows, but a template being *rebuilt* while a
-  clone starts is a race x3 does not arbitrate.
-- **`testdb` keeps no record of its own.** Its whole memory is the name it
-  generates, so a run killed between `CREATE` and the drop leaves a database
-  that only `drop -stale` will notice, and only after `maxAgeMinutes`.
-- **Effective checks never remember.** Each run compares the present answers;
-  nothing is stored, so "this drifted three hours ago" is not a question the
-  command can answer.
-- **Guard expectations are string comparisons.** `equals` and `contains`, and
-  nothing else: no regular expressions, no numeric or version ordering, so
-  "schema at least 0117" cannot be written today — only "schema is 0117".
-- **`http` guards are `GET` only**, with no request body and no redirect or
-  TLS policy of their own.
-- **Guards run one after another**, in file order, each with its own timeout.
-  Ten slow guards take the sum of their times.
-- **The guard report is written once, after the command finishes.** If x3 is
-  killed while the launched command is running, no report file is produced,
-  even though the guards did run.
+**Baselines and exclusions.** A baseline is coarser than the finding it holds —
+`comments` identifies a finding by rule and file, so a file already owing one
+over-long block can grow a second unseen. An exclusion is only as narrow as
+somebody wrote it: nothing checks that an `ignore` is not swallowing a real
+credential, only that it swallows *something*. Exclusions apply to the scan, not
+to redaction. `of: files` counts one directory, not a subtree. Nothing checks
+that a baseline was reviewed — `-update-baseline` refuses growth, but the first
+write accepts whatever the tree owes that day.
+
+**Expectations count directives, and only from `scan`.** They say a minimum,
+never a maximum, and cannot say "these two exact directives".
+
+**Updates verify a checksum, not a signature.** `update.pin` binds *bytes*, and
+is worth exactly as much as the review of the commit that introduced the line;
+nothing here checks a key. A pin has to be maintained by hand, and that friction
+is the feature — it is still friction. The minimum version gate is enforced from
+v0.30.0 on, so it protects you from binaries newer than the gate itself, not
+from every old one.
+
+**The cache is per file, not per project.** A checker whose answer depends on
+more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not use
+it.
+
+**Recording and replay.** Parallel replay is opt-in and all-or-nothing. A masked
+value cannot be sent back, so a suite behind authentication replays as an
+unauthenticated one unless a value is carried. Outbound recording is plain HTTP
+only — `CONNECT` is refused rather than tunnelled. And a recording is only as
+good as the traffic it saw.
+
+**Every matcher reads shapes, not meaning.** `symbol` and `pairing` read names,
+not types; `flow` does not follow a copy; `exposure` sees tags, not
+serialization; `duplication` and `vocabulary` compare text and words, not
+meaning; `containment` reads paths, not contents; `consistency` reads four
+extractor shapes and no more; `secrets` reads formats; `suspect` finds shapes,
+not lies; a lane is paths, not intent; an output expectation is a substring, not
+an understanding; and `syntax` carries one parser of its own. A text file cannot
+carry an exemption, and the inward `deps` form does not see a component's inside.
+
+**`boxes` measures evidence, not completion.** A command criterion runs where the
+gate runs, and a move is trusted once its target exists.
+
+**Examples are one call, not a scenario.** An example cannot expect a panic and
+cannot read a value it mutated.
+
+**Guards compare strings.** `http` guards are `GET` only, guards run one after
+another, and the guard report is written once, after the command finishes. The
+`sql` and `http` kinds are control-tested in Go rather than in the gate script,
+which covers `exec` only. Effective checks compare strings too, never remember,
+and `map` is a lookup table, not a rule.
+
+**`x3 testdb` speaks PostgreSQL only.** Nothing prevents two runs from sharing a
+template, and it keeps no record of its own beyond what it encodes in a name.
+
+**The language gate speaks one language** — `en` is the only embedded dictionary.
+
+## Control experiments
+
+**No gate here is trusted because it is green.** Every capability has a pair in
+`check.ps1` — one tree it must pass and one it must fail — and the pair is the
+evidence, because a green nobody has seen fail proves only that nothing ran. The
+step names below are the ones the gate prints.
+
+| Step | The pair, and what only the red half proves |
+|---|---|
+| `control experiment` | a well-formed sample `0`, a broken one `1` |
+| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists |
+| `language gate` | the repository `0`; a planted word `1`; a green tree with its allow list `0` **and without it `1`** — an allow list never seen to change an answer is decoration |
+| `docs gate` | this repository `0`; a rule whose counterpart directory cannot exist `1` |
+| `arch control experiment` | a green/red pair for every rule kind and every escape hatch: `absent` present, missing and dead; `skip` off, on and dead; `comments` read, exempt and embedded; `relativeTo` both ways; `minimum` met and short; `exclude` applying, dead and emptying the rule |
+| `freeze control experiment` | the surface green, one name added red, and **`-update` on the grown tree red with the file unchanged** |
+| `freeze count control experiment` | held, grown, shrunk and capped trees, each also under `-update`; the capped key stays out of the baseline **and the update itself exits `1`** |
+| `freeze scope control experiment` | one tree five ways; the exclusion written properly is `0` **on a tree built to be red without it**, and the same intent written as `"!…"` inside `sources` is `2` |
+| `baseline control experiment` | no baseline, written, re-run, **the same debt moved down the file** (`0`), grown, `-update-baseline` refused, and one debt paid leaving `dead_baseline` |
+| `secrets control experiment` | clean, leaky, exempted, a dead exemption, and this repository — the clean and exempted rows are what separate a gate from a noise generator |
+| `secrets ignore control experiment` | a noisy tree with and without its exclusions, **then a real address added back**, then a dead exclusion, then a lookaround (`2`) |
+| `comments control experiment` | inside the limit, one line over, exempted with a reason, an exemption that silences nothing |
+| `boxes control experiment` | finished work left open, unfinished work closed, a condition unmet then met, two boxes closed with and without proof, and a `sql` criterion whose DSN is empty — counted, never green |
+| `boxes document list control experiment` | the same for a document list, and **the same tree with one state declared `open` then `silent`** — one line of configuration decides, nothing else changes |
+| `boxes criterion fidelity control experiment` | criteria that stopped measuring, each red with a control that removes the rule and returns the tree to green. Its fourth row is deliberately **green**: a test that was never written, measured by exit code alone, with no `output` |
+| `syntax control experiment` | parsing, broken, a parser that is not installed (red), and the same check under `missing: "warn"` |
+| `scope control experiment` | inside the lane, crossing it, crossing with a reason; then the branch form both ways, including a violation in the first commit under a clean one, and a closed lane |
+| `test control experiment` | six directions on one tree, including **a full run when a file belongs to no unit** and a cache that answers, then measures again once the file changes |
+| `record` / `replay control experiment` | a ledger whose credential header and planted key are hidden **while an ordinary field is still there**; then a replay without a `normalize` rule (red), with it (green), and against a drifted application (red) |
+| `outbound control experiment` | a call recorded through the proxy, the same answer served **with the far side shut down**, and an unrecorded call refused `502` |
+| `guard control experiment` | green, blocked and warned — the launched command proves it ran by writing a file, and the blocked row proves it did not |
+| `guard selection control experiment` | one file, only the flags changing; a mistyped tag exits `2` rather than skipping nothing |
+| `multi-step trial control experiment` | the same trial green, red once an import is *written* into the copy, red on an empty removal — and **zero working areas left behind, the reds included** |
+| `effective control experiment` | agreement, divergence under `block`, the same divergence under `warn` |
+| `update control experiment` | installed, a planted checksum refused, the version gate both ways, and **a pin disagreeing with a release whose own checksum list is perfect** — which is exactly how a compromised release looks |
+| `testdb control experiment` | a foreign name refused at the gate (`1`) **and our own name reaching an unreachable server (`2`)** — a gate that refused every name would also exit `1` |
+| `expect control experiment` | the count met, one guard short, the directives deleted, and the same tree with no expectation |
+| `public leak gate` | the published documents clean, and a planted tree in which **every** forbidden pattern speaks |
+| `public size gate` | the published README under the cap, and a document one line over it |
+| `dist gate` | the publication current, and the same question asked with a deliberately wrong document hash |
+
+Whatever cannot be arranged from a shell — a database, a network, a fake driver,
+a mapping, a retry — is control-tested in Go instead, to the same rule: each
+green is shown next to the red that proves it was measured.
 
 ## The documentation gate
 
 This repository holds itself to the rule it ships: a change under `internal/` or
 `cmd/` must carry a change under `docs/` in the same diff. The gate is
-[`x3 docs`](#x3-docs) reading the `docs` section of this repository's own
-`x3.json` — the same command any project would run.
-
-A reasoned skip is written in the commit body:
+[`x3 docs`](#x3-docs) reading this repository's own `x3.json` — the same command
+any project would run.
 
 ```
 docs: none - <why the reader loses nothing>
 ```
 
-For the run before the commit exists, pass the same line with `-reason`. The
-marker with nothing after it is red, on purpose.
+A reasoned skip is written in the commit body; for the run before the commit
+exists, pass the same line with `-reason`. The marker with nothing after it is
+red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.52.0 capabilities=488df078eadbfef6fbbb24f6683d0a5474d90ac209f6613829ec03c3426083ff template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
+<!-- x3-dist version=v0.53.0 capabilities=a2f51222f40a21a6d5c9f5b8ce3d61d6c408d6fe7dfa0e7aad4f698834dfeb07 template=5bbbb0968201a6d754bde1437f2bf9deed7ae54460d6a519ca5b1344b66d0bc9 -->
