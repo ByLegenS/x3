@@ -40,6 +40,24 @@ example is the name the generated test binds, so a path whose package name is
 not its last path element still resolves. A name **no import of that file
 provides** stays red; carrying imports is not a licence to invent them.
 
+### A name the source file cannot import
+
+An example of an HTTP handler needs `net/http/httptest`, which no source file
+imports: **an unused import is a compile error in Go**. Such a name is not one
+the author forgot but one the file *cannot* carry — as with a project's own test
+helpers — so it is declared in the setting (`case.imports`, below) as a **pool
+of candidates**: only a package an example names is written into the test.
+
+```go
+//x3:case: given=(rec := httptest.NewRecorder(); req := httptest.NewRequest("GET", "/hi?name=ada", nil)) in=(&Desk{Greeting: "hello"}, rec, req) then=(rec.Body.String() == "hello ada")
+func (d *Desk) Greet(w http.ResponseWriter, r *http.Request) {
+```
+
+**The file's own imports win**, because the example is read against that file.
+**A declaration no example names is red** (`dead_import`) — including one the
+file already provides — and is measured against the scope that ran. It vouches
+for nothing: a declared import makes a name resolvable, never a value correct.
+
 The expected value is never assigned to a variable first, so an untyped constant
 takes the type it is measured against (`out=5` holds against `int64`). Errors
 compare with `errors.Is` and then by message, so a wrapped sentinel still
@@ -260,10 +278,10 @@ The first three are answers the toolchain gave; the last four are refusals made
 Optional — an example lives in the source, not the configuration:
 
 ```json
-{ "case": { "exclude": ["internal/legacy/**"], "timeout": "2m" } }
+{ "case": { "exclude": ["internal/legacy/**"], "imports": ["net/http/httptest"], "timeout": "2m" } }
 ```
 
-`timeout` (default `1m`) is applied to the test binary **and** to the toolchain
+`imports` is the pool above. `timeout` (default `1m`) is applied to the test binary **and** to the toolchain
 call around it; only the first would leave a run that hangs downloading a
 dependency waiting forever.
 
@@ -279,4 +297,4 @@ dependency waiting forever.
 `passed` is counted separately from `findings` on purpose: "no findings" and "no
 examples" are not the same sentence.
 
-<!-- x3-dist version=v0.64.0 capabilities=0592fe99902ea66a52fd5a7062b1450c02f4414b4fd621480e80f4db5af869b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
