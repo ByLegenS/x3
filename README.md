@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.56.0`**
+**Current version: `v0.57.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `25d0dc9078e61460b9acc2ba048f4ab7623cdc503ba0b41feea9d245a87e0235` |
-| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `838f6a5d8d6e23218447256c7d3aaeceb26e9484f7daec921fa670cc93b47e51` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `24a2f39df82b35ba1403fcdc6e153371a1cebf0c3a582a920bae9ed3221e089e` |
+| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `692897ba49701f5a8ca311aed3184b2d77d83e450d1ac9c15f38d2a5bab219c5` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -2855,10 +2855,37 @@ run-scoped path and calls it through a variable — `& $bin scan .` — and a
 measure that only knew `x3 scan` would report *"this project runs nothing"* on
 the very repository that runs everything. So the spelling is declared, and the
 default (`x3 <command>`) is only a default. A captured word is kept **only if
-the engine has a command by that name**, which is what keeps the sentence "the
-x3 binary is missing" in a comment from counting as a run — and comments are
-stripped before the pattern is applied, because a step that was deleted must
-not stay alive in the prose that described it.
+the engine has a command by that name**, and comments are blanked before the
+pattern is applied, because a step that was deleted must not stay alive in the
+prose that described it.
+
+**A gate script also prints.** The line a gate writes to the console — *"the
+upgrade is the engine's own work — x3 update"* — is not a comment. It is a
+string, it survives the comment pass, and a measure that reads it as a run
+reports a capability nobody uses as used. That is the worst mistake this gate
+can make: it exists to show what is **not** running, and a measure that goes
+blind exactly where it is needed is a fault, not a boundary.
+
+**The rule is not "drop strings."** Real calls carry the command name in quotes
+often enough — `Start-Process -ArgumentList 'record', '-listen', …` — and a
+blind rule would drop those as well, so the measure would lie in the other
+direction instead. What separates the two is **where the match begins**: a match
+that runs from its first character to its last inside one string is text; a
+match that begins in code is a call.
+
+That leaves the decision with whoever writes the pattern, which is where it
+belongs. `-ArgumentList '([a-z]+)'` begins at a flag, in code, so its quoted
+capture counts. A project that genuinely builds its command line as one string
+writes a pattern that begins before the quote — `[$]cmd\s*=\s*["']x3\s+([a-z]+)` —
+and that counts too.
+
+| Shape in the gate script | Counted as a run |
+|---|---|
+| `x3 scan .` | yes |
+| `& $bin scan .` | yes, when `invoke` declares `[$]bin` |
+| `-ArgumentList 'record', …` | yes, when `invoke` declares the flag |
+| `# the x3 scan step measures …` | no — a comment |
+| `Write-Host "  next: x3 update"` | no — a string, start to finish |
 
 ### Green
 
@@ -3439,4 +3466,4 @@ red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.56.0 capabilities=4a97e6e2295f0869c5effc815a8978e1ed315dbeb3f3cfe8080d9e92a7ee7825 template=557480518c2d751cf2629e1c3bd9268eb986f84aae65f429d747ff0ba8daab65 -->
+<!-- x3-dist version=v0.57.0 capabilities=d44af65ee950cd70efdb6e111ba2aa99ec05418c048f0b139de48b05a7a15e18 template=557480518c2d751cf2629e1c3bd9268eb986f84aae65f429d747ff0ba8daab65 -->
