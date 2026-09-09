@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.57.0`**
+**Current version: `v0.58.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `24a2f39df82b35ba1403fcdc6e153371a1cebf0c3a582a920bae9ed3221e089e` |
-| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `692897ba49701f5a8ca311aed3184b2d77d83e450d1ac9c15f38d2a5bab219c5` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `610e4723135c2489eef79b295cf7c612cc7cd1bf5467b360c86c4db68ab538e6` |
+| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `11081d9e64517aa522db272ee4fca9cdb84166918f01ccdbf728a0644a9f1c3a` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -157,6 +157,7 @@ is on the README roadmap and not in this file, it does not exist yet.
 - [Excluding what the pattern also catches](#excluding-what-the-pattern-also-catches)
 - [`x3 comments`](#x3-comments)
 - [`x3 boxes`](#x3-boxes)
+- [Asking many criteria in one process](#asking-many-criteria-in-one-process)
 - [A list that is finished](#a-list-that-is-finished-and-where-it-goes-next)
 - [`x3 syntax`](#x3-syntax)
 - [`x3 scope`](#x3-scope)
@@ -1837,6 +1838,35 @@ A `sql` criterion whose DSN is empty, or a `command` that cannot start, is
 zero is a gate that never actually runs. A list with no boxes is `empty_scope`: a
 list that says nothing does not say everything is finished.
 
+### Asking many criteria in one process
+
+A list's cost grows with the number of **processes**, not of criteria.
+
+```json
+"runs": { "when": "command", "prefix": ["go", "test", "-v"], "output": { "must": ["--- PASS"] },
+          "batch": { "select": "-run", "join": "|", "mark": "^\\s*(?:=== \\w+|--- \\w+:)\\s+(\\S+)" } }
+```
+
+Criteria differing only in `select`'s value are joined with `join` into one call.
+`mark`'s first capture group is the name a line belongs to, matched against a
+selector as an unanchored expression; **a line matching no name is shared**, so a
+compile error blinds the whole call, not one member of it.
+**Batching can only ever produce green:** a member is met when its *own* lines
+meet `output` in a call that exited `0`; every other verdict comes from the
+criterion's own process, the path a project declaring no batch already takes. A
+non-zero exit settles nothing, so the set narrows to the members that held and is
+asked again — one failing test costs one extra call, not a process each. `batch`
+needs `output.must`: nothing asked for is met by no lines at all, the hole
+`output` exists to close. Criteria in one call see each other.
+
+`{ "boxes": { "workers": 8 } }` runs those calls in parallel. On a real list —
+2297 boxes, 1307 criteria, 185 starting a process over 52 packages, sixteen
+cores — nothing declared is 129.6 s / 235 processes, `batch` 111.8 s / 205,
+`workers: 8` 54.1 s / 235, both **47.9 s / 205**, and all four reports are
+byte-identical. The honest row is the second: 30 processes fewer and no reliable
+time, because 71 of those criteria do not hold. **Parallelism buys the waiting;
+batching buys a process, only for the criteria that hold**; `sql` stays serial.
+
 ### A list written as a document
 
 Most projects keep their open work in their documents, as Markdown checkboxes
@@ -3429,6 +3459,7 @@ step names below are the ones the gate prints.
 | `boxes control experiment` | finished work left open, unfinished work closed, a condition unmet then met, two boxes closed with and without proof, and a `sql` criterion whose DSN is empty — counted, never green |
 | `boxes document list control experiment` | the same for a document list, and **the same tree with one state declared `open` then `silent`** — one line of configuration decides, nothing else changes |
 | `boxes criterion fidelity control experiment` | criteria that stopped measuring, each red with a control that removes the rule and returns the tree to green. Its fourth row is deliberately **green**: a test that was never written, measured by exit code alone, with no `output` |
+| `boxes batch control experiment` | one tree measured twice, batched and not, three times over: a package whose criteria all hold, **a test that was never written beside two that pass**, and one criterion holding while another in the same package does not. The evidence is not the exit code but the **reports being identical** with and without batching, and the unmet criterion being the one the report names |
 | `syntax control experiment` | parsing, broken, a parser that is not installed (red), and the same check under `missing: "warn"` |
 | `scope control experiment` | inside the lane, crossing it, crossing with a reason; then the branch form both ways, including a violation in the first commit under a clean one, and a closed lane |
 | `test control experiment` | six directions on one tree, including **a full run when a file belongs to no unit** and a cache that answers, then measures again once the file changes |
@@ -3466,4 +3497,4 @@ red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.57.0 capabilities=d44af65ee950cd70efdb6e111ba2aa99ec05418c048f0b139de48b05a7a15e18 template=557480518c2d751cf2629e1c3bd9268eb986f84aae65f429d747ff0ba8daab65 -->
+<!-- x3-dist version=v0.58.0 capabilities=536fab0c0992c7284c7cfd9fe6b23ba5aed0a368b0829947a486196bfcf89995 template=557480518c2d751cf2629e1c3bd9268eb986f84aae65f429d747ff0ba8daab65 -->
