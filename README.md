@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.55.0`**
+**Current version: `v0.56.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14 MB | `d51607fd79026ca4a6852907098a2a66c45705ad18826437d662acf7fa6df01a` |
-| `x3-linux-amd64` | linux/amd64 | 13.6 MB | `e1574c1f9d8b6d517f1fcb9b487c11cad796cc8801dbd9adc0963ff0a42f7fcd` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `25d0dc9078e61460b9acc2ba048f4ab7623cdc503ba0b41feea9d245a87e0235` |
+| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `838f6a5d8d6e23218447256c7d3aaeceb26e9484f7daec921fa670cc93b47e51` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -98,6 +98,7 @@ x3 outbound serve -listen :9101 -ledger out.jsonl                  # the far sid
 x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
+x3 adoption -config x3.json .   # how much of this engine the project actually runs
 ```
 
 Exit codes are the same for every command: **0** green, **1** red, **2** usage
@@ -112,7 +113,8 @@ the `boxes` section for the open-work list, the `record` section for
 what a recording must hide, the `replay` section for what may differ,
 the `cache` section for where a run may remember what it measured, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
-comparisons, the `testdb` section for run-lifetime databases. A large repository
+comparisons, the `testdb` section for run-lifetime databases, the `adoption` section for
+which of these the project is actually running. A large repository
 splits that file: the root declares its parts with `include`, lists are added
 and objects merged, and anything else set twice stops the run. All of them are documented below, with the schema and a worked
 example.
@@ -174,6 +176,8 @@ is on the README roadmap and not in this file, it does not exist yet.
 - [Effective checks in `x3.json`](#effective-checks-in-x3json)
 - [The effective report](#the-effective-report)
 - [`x3 testdb`](#x3-testdb)
+- [`x3 adoption`](#x3-adoption)
+- [How the engine is called](#how-the-engine-is-called)
 - [Speed](#speed)
 - [Files the engine reads back](#files-the-engine-reads-back)
 - [Splitting the configuration](#splitting-the-configuration)
@@ -213,6 +217,7 @@ evidence.
 | **Effective checks** (`internal/live`) | a setting as *recorded* against the same setting as it is *in force* |
 | **Test databases** (`internal/testdb`) | a template database cloned per run, migrated, dropped, and the leftovers collected |
 | **Incremental cache** (`internal/cache`) | keyed on engine version, configuration fingerprint and file content; off unless declared |
+| **Adoption** (`internal/adoption`) | how much of this engine the project actually runs, measured against the engine's own command table |
 
 What `x3 scan` itself implements is a **language check**, not a behavior check.
 It answers three questions about every `//x3:` line: is the type known, is the
@@ -2802,6 +2807,111 @@ with `-stamp`.
 Secrets follow the guards' law, and `TestEffectiveSecretNeverLeaves` holds it
 for this report specifically.
 
+## `x3 adoption`
+
+**What it catches:** an engine half used and nobody noticing — a capability no
+gate script runs, a settings section written but empty, a checksum vouching for
+a binary the version gate already refuses, and a pile of test files the inline
+examples were supposed to replace.
+
+```
+x3 adoption [-config <file>] [-out <file>] [dir]
+```
+
+**It is a mirror, not a fence.** Findings default to `warn`, so the run stays
+green and stops nobody: no project has to use every command, but a project that
+is not using one should be able to see that. `"policy": "block"` gives it teeth.
+
+**The list is the engine's own.** The commands measured are the entries of the
+binary's dispatch table, read at run time. A copy of that list kept beside the
+project would go stale the day a command is added, and a stale list reports its
+own blindness as full coverage — the measure fails exactly where it is needed.
+
+```json
+{ "adoption": {
+    "runners": ["check.ps1"],
+    "invoke": ["[$]bin ['\"]?([a-z]+(?::[a-z]+)?)"],
+    "tests": ["**/*_test.go"],
+    "token": 2, "split": 300,
+    "exempt": { "lang": "one language only; there is no prose to gate" },
+    "policy": "warn" } }
+```
+
+| Field | Meaning |
+|---|---|
+| `runners` | the gate scripts that call the engine; declared, not discovered |
+| `invoke` | how this project spells a call — one capture group, the command name |
+| `sources` / `exclude` | where `//x3:` directives are counted (default `**/*.go`) |
+| `tests` | the files whose number is supposed to be falling |
+| `token` | the ceiling under which a section is written rather than working |
+| `split` | the line count past which a configuration wants `include` |
+| `exempt` | command → **reason**; a reason is required and a dead one is a finding |
+| `policy` | `warn` (default) or `block` |
+
+### How the engine is called
+
+The engine's name cannot be assumed. x3's own gate compiles a binary to a
+run-scoped path and calls it through a variable — `& $bin scan .` — and a
+measure that only knew `x3 scan` would report *"this project runs nothing"* on
+the very repository that runs everything. So the spelling is declared, and the
+default (`x3 <command>`) is only a default. A captured word is kept **only if
+the engine has a command by that name**, which is what keeps the sentence "the
+x3 binary is missing" in a comment from counting as a run — and comments are
+stripped before the pattern is applied, because a step that was deleted must
+not stay alive in the prose that described it.
+
+### Green
+
+```
+  COMMANDS     [##################..]  20/22 run, 2 exempt
+  SECTIONS     1 in the configuration, 0 barely in force
+  TEST FILES   0 standing against 0 inline example(s)
+
+  EXEMPT, WITH A REASON (2): lang - version
+
+x3 adoption: 22 command(s) - 1 section(s) - 0 block, 0 warn
+```
+
+### Red
+
+```
+BLOCK docs section_token
+        puts 2 name(s) in force, the token ceiling is 2; the section is
+        written, not working
+BLOCK tests_remain
+        1 test file(s) still stand against 0 inline example(s); the engine's
+        claim is that the second replaces the first
+BLOCK dead_pin
+        update.pin carries 1 checksum(s) below min_version v0.10.0 (v0.9.0);
+        the version gate already refuses those binaries, so the record vouches
+        for nobody
+```
+
+**"The section exists" is not a measure.** A section putting one rule in force
+and a section putting thirty in force would otherwise read the same. Depth is
+counted the way the engine counts it — `policy: "warn"` is not in force, here or
+in a consistency rule — and it is only asked of a section that actually holds a
+list: a ceiling written as a number has no depth, and calling it empty would be
+a finding about nothing.
+
+**An exemption carries a reason, and a dead one speaks.** A command exempted and
+then actually run is a finding; a name exempted that the engine does not have
+stops the run with exit `2`, because an exemption for nothing hides the day the
+name changed. The sections describing the engine's own workings — `x3`,
+`update`, `baseline`, `cache`, and `adoption` itself — are counted in neither
+direction: they put no check in force.
+
+### Findings
+
+| Code | Meaning |
+|---|---|
+| `command_unused` | no runner calls it and no exemption says why not |
+| `section_token` | a section holding a list puts `token` or fewer names in force |
+| `dead_exemption` | exempted, and run anyway |
+| `tests_remain` | test files still stand where inline examples were meant to be |
+| `dead_pin` | `update.pin` vouches for a release below `x3.min_version` |
+| `config_one_file` | the configuration passed `split` lines and declares no `include` |
+
 ## `x3 version`
 
 ```
@@ -3329,4 +3439,4 @@ red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.55.0 capabilities=552b15a22b33bd1996bfb9a118fca86621835bb8ee777dcd07a9aabedf70626c template=d39ceed05561e7d5c8874f19061eeb1698c3333be2225a2394965ec91e7bcfe5 -->
+<!-- x3-dist version=v0.56.0 capabilities=4a97e6e2295f0869c5effc815a8978e1ed315dbeb3f3cfe8080d9e92a7ee7825 template=557480518c2d751cf2629e1c3bd9268eb986f84aae65f429d747ff0ba8daab65 -->
