@@ -14,14 +14,14 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.54.0`**
+**Current version: `v0.55.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14 MB | `b903caed7f72a28592d25c2fb1bba3545e4a0983c339ec138155351b783a7961` |
-| `x3-linux-amd64` | linux/amd64 | 13.6 MB | `3f41384366ef3ccb490824a66771ffc240b134e5115fc4bddfd4f2c4aaadcbac` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14 MB | `d51607fd79026ca4a6852907098a2a66c45705ad18826437d662acf7fa6df01a` |
+| `x3-linux-amd64` | linux/amd64 | 13.6 MB | `e1574c1f9d8b6d517f1fcb9b487c11cad796cc8801dbd9adc0963ff0a42f7fcd` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -533,10 +533,11 @@ the example says — and, just as important, an example that **nothing ran**.
 x3 case [-config <file>] [-out <file>] [dir]
 ```
 
-The engine collects every `//x3:case`, builds one test per package, runs it
-through the Go toolchain and compares each result. **Nothing is written into the
-project**: the generated test reaches the compiler through the toolchain's
-*overlay*, so an interrupted run leaves nothing behind.
+The engine collects every `//x3:case`, builds one test per **source file**,
+runs the file's tests together as their package through the Go toolchain and
+compares each result. **Nothing is written into the project**: the generated
+tests reach the compiler through the toolchain's *overlay*, so an interrupted
+run leaves nothing behind.
 
 ### The payload
 
@@ -552,9 +553,18 @@ compile, run, pass and prove nothing. **A method takes its receiver as the first
 argument**, so value and pointer receivers both work.
 
 Expressions compile **inside their own package**, so unexported names are in
-scope. The expected value is never assigned to a variable first, so an untyped
-constant takes the type it is measured against (`out=5` holds against `int64`).
-Errors compare with `errors.Is` and then by message, so a wrapped sentinel still
+scope. They also see **what the file they are written in imports**: an example
+above a declaration in a file that imports `strings` may say `strings.ToLower(…)`
+without importing anything itself. Only the imports the example actually names
+are carried — an unused import is a compile error in Go, so copying the whole
+list would break the package to save one example — and the name written in the
+example is the name the generated test binds, so a path whose package name is
+not its last path element still resolves. A name **no import of that file
+provides** stays red; carrying imports is not a licence to invent them.
+
+The expected value is never assigned to a variable first, so an untyped constant
+takes the type it is measured against (`out=5` holds against `int64`). Errors
+compare with `errors.Is` and then by message, so a wrapped sentinel still
 matches; everything else goes through `reflect.DeepEqual`.
 
 ### Green
@@ -568,6 +578,10 @@ func Withdraw(balance, amount int) (int, error) {
 
 //x3:case: in=(&Counter{Total: 2}, 3) out=5
 func (c *Counter) Plus(n int) int {
+
+// The file imports "time"; so does the example.
+//x3:case: in=(time.Second) out=1000
+func Millis(d time.Duration) int64 {
 ```
 
 ```
@@ -580,6 +594,30 @@ x3 case: 7 example(s) in 1 package(s) - 7 passed, 0 finding(s)
 wallet.go:8 (Add): example_failed
 	out[0] = 5, want 6
 ```
+
+### One broken example does not blind the package
+
+A compile error in Go is **package-wide**: the toolchain names the fault once
+and nothing in that package runs. Charged as it arrives, a single mistyped
+example would turn every sound example beside it red — and the table would say
+"all broken" where one is. So the engine reads the line number the compiler
+gives, charges the fault to the **example written on that line**, drops it, and
+runs the rest:
+
+```
+broken.go:11 (Half): does_not_build
+	undefined: missing
+```
+
+```
+x3 case: 4 example(s) in 1 package(s) - 3 passed, 1 finding(s)
+```
+
+This matters most where examples are written in parallel: one author's error
+must not hide another author's proof, because hidden work is done twice. A fault
+the compiler reports **outside** every example — the package's own source does
+not build — belongs to no single line and is charged to all of them, which is
+the honest answer in that case.
 
 ### An example nothing ran is not a green example
 
@@ -604,7 +642,7 @@ where it is.
 |---|---|
 | `example_failed` | the declaration was called and the result is not what the example says |
 | `never_ran` | no verdict was reported for it, or it was skipped |
-| `does_not_build` | the package carrying the example does not compile |
+| `does_not_build` | the example does not compile — charged to its own line when the compiler names one, and to every example in the package when the fault is in the package's own source |
 | `malformed` | the payload has no body, or does not parse |
 | `not_a_function` | the example sits above something that cannot be called |
 | `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
@@ -3239,7 +3277,7 @@ step names below are the ones the gate prints.
 | Step | The pair, and what only the red half proves |
 |---|---|
 | `control experiment` | a well-formed sample `0`, a broken one `1` |
-| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists |
+| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists; plus an example using its file's imports `0`, and a tree with one broken example `1` **whose three sound neighbours still passed** |
 | `language gate` | the repository `0`; a planted word `1`; a green tree with its allow list `0` **and without it `1`** — an allow list never seen to change an answer is decoration |
 | `docs gate` | this repository `0`; a rule whose counterpart directory cannot exist `1` |
 | `arch control experiment` | a green/red pair for every rule kind and every escape hatch: `absent` present, missing and dead; `skip` off, on and dead; `comments` read, exempt and embedded; `relativeTo` both ways; `minimum` met and short; `exclude` applying, dead and emptying the rule |
@@ -3291,4 +3329,4 @@ red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.54.0 capabilities=599160690a601bcf2df89a82c4612276082bde102f8457852ca37268c2fa9b39 template=d39ceed05561e7d5c8874f19061eeb1698c3333be2225a2394965ec91e7bcfe5 -->
+<!-- x3-dist version=v0.55.0 capabilities=552b15a22b33bd1996bfb9a118fca86621835bb8ee777dcd07a9aabedf70626c template=d39ceed05561e7d5c8874f19061eeb1698c3333be2225a2394965ec91e7bcfe5 -->
