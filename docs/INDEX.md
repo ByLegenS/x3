@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.61.0`**
+**Current version: `v0.62.0`**
 
 | Page | What it covers |
 |---|---|
@@ -25,6 +25,7 @@ describe a version that does not exist.
 | [Files no compiler reads](syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](test.md) | the unit graph, the cache, and what the measurement honestly shows |
+| [The test you forgot to write](mutate.md) | the code broken on purpose, and the behaviour no test noticed |
 | [Traffic, written down](record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
@@ -38,4 +39,4 @@ describe a version that does not exist.
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.62.0 capabilities=5d547e5d1468d10dcf3cde8e81331de887e52e005d41cf273ac2e67d2c9b1f06 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

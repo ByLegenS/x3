@@ -32,6 +32,18 @@ is the feature — it is still friction. The minimum version gate is enforced fr
 v0.30.0 on, so it protects you from binaries newer than the gate itself, not
 from every old one.
 
+**Mutation reaches the compiler, not the disk.** A mutated file is shown to the
+runner through the toolchain's overlay, so it covers source and anything read at
+**build** time, embedded queries and migrations included. A file the program
+opens at **run** time is untouched by it, and a text mutation aimed at one is
+reported the same as any other survivor while never having been applied — that
+case wants a copied tree, and no copy is made today. Two further bounds: an
+identifier names a spot rather than one mutation, so forgiving it forgives every
+mutation written there; and equivalent mutants (a break that cannot change any
+observable behaviour) are counted as survivors, because telling one apart from a
+missing test is undecidable in general and a reason in `allow` is the honest
+place to say which it was.
+
 **The cache is per file, not per project.** A checker whose answer depends on
 more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not use
 it.
@@ -76,4 +88,4 @@ template, and it keeps no record of its own beyond what it encodes in a name.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.62.0 capabilities=5d547e5d1468d10dcf3cde8e81331de887e52e005d41cf273ac2e67d2c9b1f06 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

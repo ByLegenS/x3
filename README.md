@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.61.0`**
+**Current version: `v0.62.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `f02b35043e7a5bdd0fb53ab0ce43c0a23cf204b5497fc6651547b50aff150539` |
-| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `404f978cd12b2dc9cd3bb9af47b647078f6122a683b11c26f18510055fc0ac15` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.2 MB | `1de9aa8989bbf9afbc88045e162621916ccf3ca7783b19d4ae5f134bf2bab20e` |
+| `x3-linux-amd64` | linux/amd64 | 13.8 MB | `84cc82c5b2d0096b582225b39b3250d4e78b2321ecf2da663126ede59c65e7ff` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -158,6 +158,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
+| [The test you forgot to write](docs/mutate.md) | the code broken on purpose, and the behaviour no test noticed |
 | [Traffic, written down](docs/record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](docs/replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
@@ -213,4 +214,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.62.0 capabilities=5d547e5d1468d10dcf3cde8e81331de887e52e005d41cf273ac2e67d2c9b1f06 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

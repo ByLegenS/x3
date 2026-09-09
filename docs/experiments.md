@@ -32,6 +32,7 @@ step names below are the ones the gate prints.
 | `scope control experiment` | inside the lane, crossing it, crossing with a reason; then the branch form both ways, including a violation in the first commit under a clean one, and a closed lane |
 | `test control experiment` | six directions on one tree, including **a full run when a file belongs to no unit** and a cache that answers, then measures again once the file changes |
 | `record` / `replay control experiment` | a ledger whose credential header and planted key are hidden **while an ordinary field is still there**; then a replay without a `normalize` rule (red), with it (green), and against a drifted application (red) |
+| `mutate control experiment` | one tree, nine directions: a well-tested package where every mutant is **caught**, a package whose test asserts nothing where every mutant **survives**, a package no test binary links (`no_test`, and **not one run launched**), an **embedded query** whose condition is caught while its `LIMIT` survives, the quick scope narrowed to the one changed file, a scope that produces **no mutant at all** (`empty_scope`, red — a gate that measured nothing would otherwise print a perfect score), a dead exclusion, survivors forgiven with a reason (green), and a forgiveness with nothing left to forgive (red) |
 | `outbound control experiment` | a call recorded through the proxy, the same answer served **with the far side shut down**, and an unrecorded call refused `502` |
 | `guard control experiment` | green, blocked and warned — the launched command proves it ran by writing a file, and the blocked row proves it did not |
 | `guard selection control experiment` | one file, only the flags changing; a mistyped tag exits `2` rather than skipping nothing |
@@ -64,4 +65,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.62.0 capabilities=5d547e5d1468d10dcf3cde8e81331de887e52e005d41cf273ac2e67d2c9b1f06 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
