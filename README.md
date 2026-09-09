@@ -14,14 +14,18 @@ published binaries can do is documented below, and this file is generated from
 the engine's own capability document at build time, so it can never describe a
 version that does not exist.
 
-**Current version: `v0.58.0`**
+The lookup tables — field names, error codes, exit codes — are not here but in
+[REFERENCE.md](REFERENCE.md) next to this file, written in the same run from
+the same document; every section below links to the table it uses.
+
+**Current version: `v0.59.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `610e4723135c2489eef79b295cf7c612cc7cd1bf5467b360c86c4db68ab538e6` |
-| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `11081d9e64517aa522db272ee4fca9cdb84166918f01ccdbf728a0644a9f1c3a` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `6d594685ebc3deb7f75cc3bcb714d52d7116771f89adaccd25ba5b94f87d6a35` |
+| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `e4e0895ad418ffcdbacdf1a55a20b7dd4686388ca8408a0c581919c6225b409c` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -244,11 +248,7 @@ reds stay on the terminal.
 
 ### Exit codes
 
-| Code | Meaning |
-|---|---|
-| `0` | green — every directive is well formed and in a legal scope |
-| `1` | red — at least one directive failed; each is printed with `file:line` |
-| `2` | usage error, or the run could not complete |
+See **scan exit codes** in [REFERENCE.md](REFERENCE.md#scan-exit-codes).
 
 Exit codes are the same for every command. A tree with **no directives at all**
 exits `0`, so an exit code alone cannot tell "everything passed" from "nothing
@@ -350,14 +350,7 @@ it is `unattached`, and red.
 wrong shape. **A type that is not in the dictionary has no verifier, and a
 directive with no verifier turns the run red.**
 
-| Directive | Valid scopes | Requires |
-|---|---|---|
-| `//x3:rule:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
-| `//x3:guard:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
-| `//x3:case: <payload>` | `decl` only | a payload that parses: `in=(...) out=...` |
-| `//x3:live` | `decl`, `file`, `pkg` | nothing |
-| `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
-| `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
+See **the directive dictionary** in [REFERENCE.md](REFERENCE.md#the-directive-dictionary).
 
 After the `//x3:` prefix the rest is split on `:` into a category and its
 sub-types. A **payload** is whatever follows a colon that is itself followed by
@@ -398,7 +391,8 @@ whole package. There is no `guard` red sample today — its shape check is
 function instead of in a test file. **`decl` scope only**: an example belongs to
 one declaration.
 
-The payload's shape is `in=(<args>) out=<want>`. The argument list may be empty,
+The payload's shape is `[given=(<statements>) ]in=(<args>) out=<want>`. The
+argument list may be empty,
 and the closing `)` is found by **counting** rather than by taking the last one
 on the line, so nested calls fit on both sides: `in=(f(1), 2) out=ErrX`.
 
@@ -457,12 +451,7 @@ const demoToken = "not-a-real-key"
 The JSON `code` field is the stable part of the output; `message` may be
 reworded at any time.
 
-| Code | Turns red when |
-|---|---|
-| `unknown_category` | the type is not in the dictionary — no verifier exists for it |
-| `malformed` | a required sub-type or reason is missing, a doubled colon left an empty sub-type, or a `case` payload does not parse |
-| `scope_not_allowed` | the type is known and well formed, but not legal in this scope |
-| `unattached` | the directive binds to nothing at all |
+See **scan error codes** in [REFERENCE.md](REFERENCE.md#scan-error-codes).
 
 The checks run in that order and stop at the first failure, so one directive
 reports exactly one code.
@@ -483,14 +472,7 @@ reports exactly one code.
 }
 ```
 
-| Field | Notes |
-|---|---|
-| `version` | schema version; it goes up when a field changes meaning |
-| `file`, `line` | relative to the scan root, always `/`-separated |
-| `raw` | the directive line exactly as written |
-| `category`, `segments`, `payload` | the parsed line; omitted when empty |
-| `scope`, `target` | resolved binding; `target` only for `decl` |
-| `status`, `code`, `message` | `ok` or `error`; the last two only on `error` |
+See **the scan report fields** in [REFERENCE.md](REFERENCE.md#the-scan-report-fields).
 
 Directives are sorted by file then line, and **there is no timestamp anywhere in
 the report, by design**: identical sources must produce identical bytes, so a
@@ -512,13 +494,7 @@ apart.
 }
 ```
 
-| Field | Meaning |
-|---|---|
-| `name` | required; the red names the expectation that was not met |
-| `min` | required, at least 1 — an expectation of zero verifies nothing |
-| `paths` | globs **relative to the scan root**; absent means the whole scan |
-| `category` | `guard`, `rule`, `case`, ...; absent means any |
-| `kind` | the first segment after the category; absent means any |
+See **expectation fields** in [REFERENCE.md](REFERENCE.md#expectation-fields).
 
 ```
 BLOCK expectation_not_met: the ledger package keeps its guards
@@ -594,6 +570,78 @@ func Millis(d time.Duration) int64 {
 x3 case: 7 example(s) in 1 package(s) - 7 passed, 0 finding(s)
 ```
 
+### The given state
+
+Some declarations read what nobody passed them: a row in a database, an entry in
+a registry, a file on disk. An example for one of those needs a **state**, and
+the state has to be there before the call.
+
+```
+//x3:case: given=(<statements>) in=(<arguments>) out=<expected>
+```
+
+`given=(...)` holds Go **statements**, run in order inside the example's own
+subtest, before the call; `in=` and `out=` may name what they bind. The section
+is optional, and an example that needs no setup writes none.
+
+```go
+//x3:case: given=(c := declare("apple", 40)) in=(c) out=40, nil
+//x3:case: given=(c := declare("pear", 7); retire(c)) in=(c) out=0, ErrUnknown
+func Price(code string) (int, error) {
+```
+
+That the binding is nameable in `out=` is the whole reason the section exists.
+Setup written *inside* an argument already worked — `in=(f(t))` compiles — but
+its value reaches only that argument, and the pattern this is for hands the
+identity back: the setup creates a row, and the call is measured against the
+identity of the row it created.
+
+The statements are carried **verbatim and unsplit**. A statement list is not an
+expression list: both separators — `;` and `,` — appear *inside* single
+statements (`if x := f(); err != nil`, `_, err := f()`), so any rule that cut the
+section on one of them would cut valid Go in half and call the remainder
+malformed. Unsplit, the only thing that reads the section is the compiler, and a
+fault in it is charged to the example's own line like any other.
+
+The engine binds one name: **`t`**, the subtest's `*testing.T`. Setup helpers
+take it, so a project's existing ones work unchanged — and because the generated
+test is part of the package's *test* build, helpers declared in `_test.go` files
+are in scope. Setup is test equipment; this is what keeps it out of production
+source.
+
+A setup that **cannot** run is the dangerous case, not one that breaks. A helper
+that cannot reach its server calls `t.Skip`, the toolchain exits `0`, and a gate
+that only looked for failures would report nothing on every machine without that
+server. The rule above covers it: a skipped example is `never_ran` and the run is
+red. So three directions are worth measuring separately, and the engine's own
+gate measures all three — the setup runs (`0`); the setup is **not applied** and
+the same expectation turns red (`1`); the setup is **skipped** and the finding is
+`never_ran` (`1`). Without the second, a setup the engine silently dropped would
+still look green; without the third, a missing server would.
+
+### A database as the given state
+
+Nothing above knows what a database is. `x3 testdb` hands a command a freshly
+cloned database through the environment and `x3 case` inherits it, so the two
+compose with nothing third to configure:
+
+```
+x3 testdb run -- x3 case ./...
+```
+
+The setup opens that connection the way the project's own tests do — from the
+variable named in `testdb.dsnEnv` — seeds what the example needs, and hands back
+the identity it created:
+
+```go
+//x3:case: given=(p := open(t); c := company(t, p)) in=(New(p), ctx, c) out=nil
+func (r *Repository) Charge(ctx context.Context, req Request) error {
+```
+
+The database is created before the run and dropped after it whatever the
+examples do; and when the environment names none, the setup skips and the run is
+red rather than quietly empty.
+
 ### Red
 
 ```
@@ -644,15 +692,7 @@ where it is.
 
 ### Findings
 
-| Code | Means |
-|---|---|
-| `example_failed` | the declaration was called and the result is not what the example says |
-| `never_ran` | no verdict was reported for it, or it was skipped |
-| `does_not_build` | the example does not compile — charged to its own line when the compiler names one, and to every example in the package when the fault is in the package's own source |
-| `malformed` | the payload has no body, or does not parse |
-| `not_a_function` | the example sits above something that cannot be called |
-| `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
-| `wrong_result_count` | the declaration returns a different number of values than the example expects, or a method was given no receiver |
+See **case finding codes** in [REFERENCE.md](REFERENCE.md#case-finding-codes).
 
 The first three are answers the toolchain gave; the last four are refusals made
 **before** anything runs.
@@ -722,11 +762,7 @@ non-ASCII letter outside a comment is red**, and `allow` cannot excuse it.
                 "allow": ["cfg", "ctx", "dsn", "omitempty"] } }
 ```
 
-| Field | Meaning |
-|---|---|
-| `allowed` | the language outside comments; `en` is the only embedded dictionary, and any other value is an error, not a silent pass |
-| `comments` | `any` (default) leaves comments alone; `en` holds them to the dictionary |
-| `allow` | project terms no dictionary has. One ASCII word, three letters or more — an entry that could never match is rejected rather than ignored |
+See **language settings** in [REFERENCE.md](REFERENCE.md#language-settings).
 
 No `language` section is not an error; the default is `en` / `any` / no list. A
 section that *is* written and is wrong stops the run — fail-closed.
@@ -807,11 +843,7 @@ That is this repository's own section; the engine holds itself to it on every
 A component is a name and a set of path patterns, declared here by path rather
 than labelled in the source, so the shape is reviewed in one place.
 
-| Pattern | Matches |
-|---|---|
-| `**` | zero or more path elements; at the end of a pattern, **at least one** |
-| `*` | a run inside one element, never crossing `/` |
-| `?` | one character inside one element |
+See **component path patterns** in [REFERENCE.md](REFERENCE.md#component-path-patterns).
 
 That is the whole syntax, and the omission is loud on purpose: a pattern starting
 with `!` is **refused, exit `2`**, in every section that takes patterns. In most
@@ -1127,26 +1159,7 @@ subcommands it configures; sections describing the engine's own workings (`x3`,
 
 ### Fields a rule has
 
-| Field | Required | Meaning |
-|---|---|---|
-| `name`, `kind` | yes | unique in the file; one of the nine kinds |
-| `match` | `deps` only | `import`, `literal` or `symbol` |
-| `from`+`deny` / `to`+`allowFrom` | deps | the outward / inward question |
-| `pattern`+`owner` / `pattern`+`from` | literal | ownership / prohibition |
-| `marker` | required | the mark every file in `sources` must carry |
-| `counterpart`+`requires` | pairing | the file that must name this one |
-| `value`+`allow` | flow | the value to follow, and where it may appear |
-| `surface`+`fields`+`carrier` | exposure | where to watch, which names, written how |
-| `across`+`minLines` | duplication | the component compared with itself |
-| `in`+`terms`+`comments` | vocabulary | the layer, the words, whether prose counts |
-| `keys` | containment | the ownership prefix per component |
-| `left`+`right`+`compare` | consistency | the two sets and how they must agree |
-| `parts`+`join`/`each`, `skip`, `comments`, `syntax` | consistency | extractor details |
-| `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
-| `except` | no | `self` only, next to `from` + `deny` |
-| `minimum` | no | the fewest subjects the rule must see |
-| `policy` | no | `warn` or `block`; **defaults to `block`** |
-| `sources` / `exclude` | no | this rule's file set; its own list replaces the inherited one |
+See **arch rule fields** in [REFERENCE.md](REFERENCE.md#arch-rule-fields).
 
 Configuration is validated **strictly and up front**: an unknown key, a key
 belonging to another kind, a missing required key, a duplicate `name`, an
@@ -1225,22 +1238,7 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 ### Error codes
 
-| Code | Raised by | Meaning |
-|---|---|---|
-| `forbidden_dependency` | `deps` | a forbidden import edge, or a name a component may not spell or use |
-| `foreign_resource` | `deps:literal` | a component spelled a name another owns |
-| `escaped_value` | `flow` | the value appeared where it may not |
-| `exposed_field` | `exposure` | a hidden name reached the surface |
-| `duplicate_body` | `duplication` | the same body in two instances |
-| `foreign_term` | `vocabulary` | a layer let through a word it must not know |
-| `part_outside_its_root` | `containment` | a part sits outside its component's root |
-| `set_mismatch` | `consistency` | the two sets drifted; each difference is named |
-| `missing_target` | `consistency` | a value read as a path leads nowhere |
-| `missing_marker` | `required` | a file of the class does not carry the mark |
-| `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
-| `empty_scope` | every rule | a component, source set or followed field matched nothing |
-| `scope_below_minimum` | every rule | fewer subjects than `minimum` |
-| `dead_exemption` / `dead_exclusion` / `dead_filter` | escape hatches | an exemption, exclusion or filter that took nothing out |
+See **arch error codes** in [REFERENCE.md](REFERENCE.md#arch-error-codes).
 
 ## `x3 freeze`
 
@@ -1787,14 +1785,7 @@ leaves closing without proof free.
 
 ### The criteria
 
-| `when` | Fields | Holds when |
-|---|---|---|
-| `file` | `path` | `path` exists |
-| `pattern` | `sources`, `match` | `match` is found under `sources` |
-| `absent` | `sources`, `match` | `match` is found **nowhere** under `sources` |
-| `sql` | `dsnEnv`, `query`, `equals`, `driver`, `timeoutMs` | the query's first cell equals `equals` |
-| `command` | `command`, `args`, `output`, `timeoutMs` | it exits `0` **and** its output meets `output` |
-| `manual` | `by`, `seen`, `signed` | `signed` is written |
+See **boxes criteria fields** in [REFERENCE.md](REFERENCE.md#boxes-criteria-fields).
 
 `match` is read with `^` and `$` bound to a **line**
 ([how](#how-a-pattern-is-read)). The sharp edge is `absent`: a `pattern` that
@@ -1922,13 +1913,7 @@ one of the six criteria. Everything a criterion needs but a document should not
 repeat — the DSN variable, the runner `prefix`, the separators — lives in the
 kind, not in the line.
 
-| `when` | The rest of the line is read as |
-|---|---|
-| `file` | a path |
-| `pattern`, `absent` | a place, then the expression; the place matches the file **and** everything under it |
-| `sql` | the query, `==`, the value it must give |
-| `command` | arguments appended to `prefix` |
-| `manual` | who looks, the separator, what they must see |
+See **boxes criteria written in prose** in [REFERENCE.md](REFERENCE.md#boxes-criteria-written-in-prose).
 
 Place and expression split at the first space, so a path containing one is
 quoted, and **a quote that never closes is a configuration error** on that line
@@ -2571,11 +2556,7 @@ look like a check that passed.**
 
 ### Exit codes
 
-| Code | Meaning |
-|---|---|
-| the command's own | the guards allowed the launch |
-| `1` | a `block` guard was red, and the command was never started |
-| `2` | the configuration or report could not be read or written, or the command could not start |
+See **guard exit codes** in [REFERENCE.md](REFERENCE.md#guard-exit-codes).
 
 `1` carries two meanings — "blocked" and "the command itself exited 1". The
 report separates them: `decision` is `blocked` in the first case, and `launch`
@@ -2598,22 +2579,11 @@ entry the dictionary does not know turns the run red.
 
 ### Fields every guard has
 
-| Field | Required | Meaning |
-|---|---|---|
-| `name` | yes | unique within the file |
-| `kind` | yes | `sql`, `http`, `exec` or `steps` |
-| `policy` | no | `warn` or `block`; **defaults to `block`** |
-| `tags` | no | what `-only` and `-skip` select on; a guard with none always runs |
-| `timeoutMs` | no | defaults to `10000` (`steps`: `600000`); a dead dependency must not hang the gate forever |
+See **guard fields every kind has** in [REFERENCE.md](REFERENCE.md#guard-fields-every-kind-has).
 
 ### `kind: "sql"`
 
-| Field | Required | Meaning |
-|---|---|---|
-| `dsnEnv` | yes | **name** of the variable holding the DSN; the DSN never appears in the file |
-| `query` | yes | its first row, first column is the observed value |
-| `driver` | no | defaults to `pgx`; a name this binary has not registered is a configuration error (exit `2`) |
-| `equals` / `contains` | one of them | what the observed value must be |
+See **guard fields for kind sql** in [REFERENCE.md](REFERENCE.md#guard-fields-for-kind-sql).
 
 An expectation is mandatory here: a query with no expectation asserts nothing,
 because it is answered by an empty table.
@@ -2626,13 +2596,7 @@ because it is answered by an empty table.
 
 ### `kind: "http"`
 
-| Field | Required | Meaning |
-|---|---|---|
-| `url` | yes | the address; the request is always a `GET` |
-| `status` | yes | the expected status code |
-| `headerEnv` | no | header name → **name** of the variable holding its value |
-| `jsonPath` | no | an RFC 6901 JSON Pointer into the body; without it the whole body is the value |
-| `equals` / `contains` | no | with only `status`, the status code alone is the assertion |
+See **guard fields for kind http** in [REFERENCE.md](REFERENCE.md#guard-fields-for-kind-http).
 
 ```json
 { "name": "provider-agent-enabled", "kind": "http", "policy": "warn",
@@ -2643,11 +2607,7 @@ because it is answered by an empty table.
 
 ### `kind: "exec"`
 
-| Field | Required | Meaning |
-|---|---|---|
-| `command` | yes | executable to run |
-| `args` | no | its arguments |
-| `equals` / `contains` | no | what its trimmed stdout must be; without either, **exit code 0** is the assertion |
+See **guard fields for kind exec** in [REFERENCE.md](REFERENCE.md#guard-fields-for-kind-exec).
 
 ### `kind: "steps"` — a trial, not a reading
 
@@ -2659,11 +2619,7 @@ script inside the project, and a script is what x3 exists to remove: reviewed by
 nobody, drifting when a path moves, never measured for whether it can still turn
 red.
 
-| Field | Required | Meaning |
-|---|---|---|
-| `steps` | yes | run **in order**; the first that does not hold ends the trial and names itself |
-| `workspace` | no | a temporary working area: `copy` (required within it), `remove`, `write` |
-| `equals` / `contains` | no | what the **last** step's output must be; without either, every step holding is the assertion |
+See **guard fields for kind steps** in [REFERENCE.md](REFERENCE.md#guard-fields-for-kind-steps).
 
 A step takes `name`, `command`, `args`, `dir`, `env` (added to the inherited
 environment for that step only), `output` (the same `must` / `mustNot` / `retry`
@@ -2726,16 +2682,7 @@ the marshalled result.
   "decision": "blocked", "command": ["x3", "scan", "internal"] }
 ```
 
-| Field | Notes |
-|---|---|
-| `guards[].status` | `pass`, `fail` (it ran and disagreed) or `error` (it could not run); both non-`pass` values are red |
-| `guards[].policy` | the policy applied to **this** guard — always present, so the report explains its own decision |
-| `expected` / `observed` / `detail` | what was wanted, what was seen, why it was red; secrets already redacted |
-| `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`) |
-| `skipped` | the guards a selection left out, by name; absent when nothing was dropped |
-| `decision` | `launch` or `blocked` |
-| `exit` | the command's exit code. **Absent when `decision` is `blocked`** — that absence is the proof the command never ran |
-| `startedAt` | present **only** with `-stamp` |
+See **the guard report fields** in [REFERENCE.md](REFERENCE.md#the-guard-report-fields).
 
 **No timestamp unless you ask for one**: the same configuration and the same
 answers must produce the same bytes.
@@ -2785,14 +2732,7 @@ has.
 
 ### Fields a check has
 
-| Field | Required | Meaning |
-|---|---|---|
-| `name` | yes | unique within the file |
-| `policy` | no | `warn` or `block`; **defaults to `block`** |
-| `attempts` | no | retries while the comparison disagrees; defaults to `1` |
-| `retryDelayMs` | no | wait between attempts; defaults to `250` |
-| `recorded` | yes | one reading: the setting as it was written down |
-| `effective` | yes | one or more readings: the setting as it is in force; all must equal `recorded` |
+See **effective check fields** in [REFERENCE.md](REFERENCE.md#effective-check-fields).
 
 **Retries exist because the world lags the record** — a process reloads a moment
 after the row changes. One attempt is the default precisely so a retry is a
@@ -2805,11 +2745,7 @@ A reading is a `sql`, `http` or `exec` source, and every field documented under
 [Live guards in `x3.json`](#live-guards-in-x3json) applies unchanged. Two are
 added and two are **not allowed**:
 
-| Field | Meaning |
-|---|---|
-| `label` | the name this source carries in the report |
-| `map` | value mapping applied before the comparison; a value the map does not mention is compared as it came |
-| ~~`equals`~~ / ~~`contains`~~ | **rejected here** — a reading has no expectation of its own; its expectation is the other readings |
+See **effective reading fields** in [REFERENCE.md](REFERENCE.md#effective-reading-fields).
 
 `map` is what makes two spellings of the same setting comparable. A value the
 map does not cover is *not* an error — it goes into the comparison unchanged, so
@@ -2867,16 +2803,7 @@ own blindness as full coverage — the measure fails exactly where it is needed.
     "policy": "warn" } }
 ```
 
-| Field | Meaning |
-|---|---|
-| `runners` | the gate scripts that call the engine; declared, not discovered |
-| `invoke` | how this project spells a call — one capture group, the command name |
-| `sources` / `exclude` | where `//x3:` directives are counted (default `**/*.go`) |
-| `tests` | the files whose number is supposed to be falling |
-| `token` | the ceiling under which a section is written rather than working |
-| `split` | the line count past which a configuration wants `include` |
-| `exempt` | command → **reason**; a reason is required and a dead one is a finding |
-| `policy` | `warn` (default) or `block` |
+See **the adoption report fields** in [REFERENCE.md](REFERENCE.md#the-adoption-report-fields).
 
 ### How the engine is called
 
@@ -2960,14 +2887,7 @@ direction: they put no check in force.
 
 ### Findings
 
-| Code | Meaning |
-|---|---|
-| `command_unused` | no runner calls it and no exemption says why not |
-| `section_token` | a section holding a list puts `token` or fewer names in force |
-| `dead_exemption` | exempted, and run anyway |
-| `tests_remain` | test files still stand where inline examples were meant to be |
-| `dead_pin` | `update.pin` vouches for a release below `x3.min_version` |
-| `config_one_file` | the configuration passed `split` lines and declares no `include` |
+See **adoption finding codes** in [REFERENCE.md](REFERENCE.md#adoption-finding-codes).
 
 ## `x3 version`
 
@@ -3128,15 +3048,7 @@ difference is what makes the gate observable from outside.
     "migrate": { "command": "./migrate", "args": ["up"], "timeoutMs": 60000 } } }
 ```
 
-| Field | Required | Meaning |
-|---|---|---|
-| `adminDsnEnv` | yes | **name** of the variable holding the maintenance DSN. Point it at a maintenance database, never at the template: a template with an open connection cannot be cloned |
-| `driver` | no | defaults to `pgx`; an unregistered name is a configuration error (exit `2`) |
-| `prefix` | no | defaults to `x3test_`, and it is the **authority boundary** — nothing outside it is listed or dropped, so an empty prefix is rejected |
-| `template` | no | without it an empty database is created and the migration hook does the work |
-| `dsnEnv` | no | the variable the new DSN is exported as; defaults to `X3_TESTDB_DSN` |
-| `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
-| `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
+See **testdb settings** in [REFERENCE.md](REFERENCE.md#testdb-settings).
 
 The DSN handed to the command is the maintenance DSN with **only the database
 name changed**, so credentials and options carry over; both PostgreSQL spellings
@@ -3497,4 +3409,4 @@ red, on purpose.
 
 ---
 
-<!-- x3-dist version=v0.58.0 capabilities=536fab0c0992c7284c7cfd9fe6b23ba5aed0a368b0829947a486196bfcf89995 template=557480518c2d751cf2629e1c3bd9268eb986f84aae65f429d747ff0ba8daab65 -->
+<!-- x3-dist version=v0.59.0 capabilities=968848656ec0819adb4b0ad67059f389596cf27aab557a89e18649c081d96a79 template=8a9a334bec36cb2a11ef09372d16aef92a6436a0c5c052d3a845046d87a89916 -->
