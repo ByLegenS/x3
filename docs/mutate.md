@@ -41,19 +41,21 @@ asking for one gets one. A ceiling that lives in a plea is not a ceiling.
 
 `-plan` then answers *what would this cost* without launching anything: how many
 mutants, how many are answered with no run at all, and two **bounds** on the
-launches — `least`, units + mutants, every mutant discarded at its compile pass;
-`most`, units + mutants + watchers, every mutant surviving everything. A priced
+launches — `least`, units + mutants, every mutant answered by a single run that
+stayed green; `most`, units + one **two-or-watchers** per mutant, whichever is
+larger, because a mutant that goes red costs its run plus the one compile pass
+that tells *caught* from *never built*. A priced
 run prints `PRICED`, launches nothing and **cannot be green**: it reports
 `planned` and exits 1, because a command that measured nothing must not read
 like one that measured everything — this gate's own subject, applied to itself.
 The control experiment prices the control tree, runs it, and asserts the real
-count landed between the bounds (13 <= 23 <= 23).
+count landed between the bounds (15 <= 21 <= 26).
 
-On this engine's own source: **10,589 mutants** across 57 files, 9,049 running,
-1,540 answered with no run at all, 26 units in the baseline, **9,075 to 32,410
-launches** at 16 workers — at the measured 0.108 s per launch, between half an
-hour and an hour. That is the number a person needs *before* deciding, and until
-now it could only be learnt by spending it.
+On this engine's own source: **10,601 mutants** across 57 files, 9,061 running,
+1,540 answered with no run at all, 26 units in the baseline, **9,087 to 30,307
+launches** at 16 workers — at the measured 0.108 s per launch, between a quarter
+of an hour and an hour. That is the number a person needs *before* deciding, and
+until now it could only be learnt by spending it.
 
 The only other ceiling is on a **single** run (`run.timeout`), and it has to
 exist — a broken loop never returns, and without it one mutant would be the end
@@ -119,6 +121,20 @@ Three consequences, in the order they save time:
    likely to catch, so most mutants are answered by one run.
 3. The first red **stops** the mutant. A second unit confirming the same verdict
    is the same answer bought twice.
+4. The compile pass is bought **only where it decides something**. A run that
+   passed has already proved the mutant builds, and asking the compiler again is
+   the same answer bought twice; only a mutant whose *first* run went red is
+   ambiguous — caught, or never built — and that difference cannot be read from
+   an exit code, so it is bought exactly there, at most once per mutant.
+
+Measured on this engine's own `comments` package, eight workers, the same tree:
+**305 launches in 36.8 s** where the compile-first order took **379 in 46.0 s** —
+a fifth of the run gone, and the verdict unchanged to the last count (196
+mutants, 94 caught, 88 survived, 14 discarded, score 0.516). The launch itself
+did not get cheaper; there is simply one less of it for every mutant that
+survives. The cost is in the other direction: a mutant that never builds now
+pays two launches instead of one, and that price is named in the measurement on
+the next page.
 
 Before any of it, the untouched tree runs once per unit. That pass does three
 jobs: it proves the suite is green (a survivor measured against a red suite says
@@ -126,126 +142,4 @@ nothing, so `baseline_red` stops the run), it fills the toolchain's build cache
 for everything that follows, and it **measures** each unit, so a slow unit gets
 a proportionally longer ceiling instead of being called caught for being slow.
 
-### What gets broken
-
-| Operator | The change | What its survival means |
-|---|---|---|
-| `comparison` | `<`↔`<=`, `<`↔`>=`, `==`↔`!=` | the boundary is never tested at the boundary |
-| `logic` | `&&`↔`\|\|` | one side of the condition is never exercised alone |
-| `arithmetic` | `+`↔`-`, `*`↔`/`, `%`→`*`, and their assignments | the arithmetic is never checked against a known answer |
-| `increment` | `++`↔`--` | the counter's value is never read back |
-| `constant` | a number to `0`, and to `(n + 1)` | the number could be anything |
-| `string` | a text to `""` (an empty one to a word) | the text is never compared |
-| `bool` | `true`↔`false` | the flag is never observed |
-| `condition` | `if c` to `if !(c)` | the branch is never taken both ways |
-| `return` | a returned error to `nil` | the failure path is never asserted |
-
-Three things are never touched, and none of it is a setting: **test files** (a
-broken test proving a test broke measures nothing), **import paths and struct
-tags** (text that carries no behaviour — breaking them yields a compile error,
-not a finding), and **declared names**. `operators` narrows the list; an
-operator named there that produces no mutant anywhere is `dead_operator`.
-
-### Files no compiler reads — the database included
-
-`text` mutations take a pattern and a replacement and apply to any file: a `SQL`
-condition, a migration's `NOT NULL`, a routing table. The replacement uses the
-regular expression's own expansion syntax (`$1`), so a condition can be carried
-across the rewrite.
-
-This reaches further than it looks. Where a query or a migration is **embedded**
-into the binary at build time, the overlay reaches it too — the toolchain reads
-the replacement, the embedded text changes, and the integration test that runs
-against a real database sees the altered query. That is measured, not assumed:
-in the control experiment, an embedded `SELECT … WHERE live AND ready LIMIT 10`
-has its `AND` turned into `OR` and the test goes red; the `LIMIT 10` becomes
-`LIMIT 0` and nothing notices, so it is reported as a survivor. **Both
-directions, one tree.** A file read from disk at *run* time is a different case
-and the overlay does not reach it; that bound is written in "Gaps we know about".
-
-### Fail-closed: a scope that breaks nothing cannot be green
-
-| Code | What happened |
-|---|---|
-| `empty_scope` | not one mutant was produced; the run proved nothing and is **red** |
-| `planned` | the run was priced and not run; nothing was measured, so it cannot be green |
-| `dead_exclusion` | an `exclude` pattern takes no file out of the scope |
-| `dead_exemption` | an `allow` entry forgives no surviving mutant any more |
-| `dead_operator` | a named operator produces no mutant anywhere in the tree |
-| `baseline_red` | the untouched tree is not green; nothing is measured against it |
-| `diff` | the change could not be read, so every file is mutated instead |
-
-The first line is the whole law in one row. A misconfigured scope produces no
-mutants, every mutant survives vacuously, and a gate that measured nothing would
-print a perfect score — which is exactly the failure this command exists to
-catch, committed by the command itself. `dead_exemption` and `dead_operator` are
-measured in the **full** mode only: a narrow run not having reached a pattern
-does not make it dead.
-
-### The findings
-
-| Code | What it says |
-|---|---|
-| `survivor` | the code was broken, the tests that could see it ran, and all stayed green |
-| `no_test` | no test binary links the mutated unit; nothing could have seen it |
-| `orphan` | the file belongs to no unit, so no test can even be named |
-| `unmeasured` | the runner never started, so this mutant proves nothing either way |
-
-A survivor may be forgiven — `allow` maps an identifier or a glob to a
-**reason**, and a forgiveness without one is refused. The identifier names the
-*spot* (`file:line:column:operator`), so forgiving it forgives every mutation
-the engine writes there; that is deliberate, and it keeps the list short enough
-to read. Forgiveness is spent: when the survivor is gone, the entry says so.
-
-The report also counts what is **not** a finding, because those numbers are how
-a score is read honestly: `caught`, `timedOut` (a run the mutation hung, counted
-as caught and shown separately), `invalid` (the mutant does not compile — it is
-discarded, never counted as caught, and kept apart from `unmeasured`, because a
-tree whose runner cannot start would otherwise call every mutant invalid and go
-green having measured nothing), `exempt`, and `runs`, the number of times
-the runner was actually launched. `score` is caught over what was measured.
-
-### The measurement
-
-The control experiment, on a five-file tree, in **3.1 s**: 14 mutants, 23 runs.
-A well-tested package gives 4 mutants and 4 catches; a package whose test calls
-the function and asserts nothing gives 4 survivors; a package with no test
-anywhere gives 4 `no_test` findings **and zero runs**; the embedded query gives
-one catch and one survivor.
-
-On this engine's own source, one package of 143 lines produced **85 mutants** in
-**68 s** (32 workers, 269 runs) and the answer was a real gap: that package has no
-test file of its own, 21 mutants survived — a comparison boundary, a `+` turned
-into a `-`, four swallowed errors — and the score was **0.738**. The finding is
-not "coverage is low"; it is twenty-one namings, each a behaviour that can be
-broken today with every gate still green.
-
-Then a production Go repository, read-only, one package: **1,347 lines across
-four files, carrying five test files**. Every file-name measure of coverage
-calls that package tested.
-
-| | |
-|---|---|
-| mutants | **380** |
-| caught | 42 |
-| **survived** | **256** |
-| did not compile, discarded | 82 |
-| runner launched | 679 times |
-| wall clock, 32 workers | **135 s** |
-| score | **0.141** |
-
-The survivors are not a percentage, they are a list: 78 comparison boundaries,
-64 constants that could be any number, **55 returned errors that could be `nil`
-without one test noticing**, 26 texts never compared, 13 conditions where one
-side is never exercised alone. Five test files stood over that package, and the
-question "did you forget a test" had never had an answer before this run.
-
-Two costs, said plainly. **21% of the mutants did not compile** — the generator
-works from the syntax tree without types, so a `+` on two strings becomes a `-`
-that no compiler accepts; those are discarded rather than counted, and the price
-of not resolving types is paid in that fifth of the run. And the number that
-matters for planning: **0.35 s of wall clock per mutant** on 32 processors,
-which puts a repository of twenty thousand lines at a few hours — a night, not
-a decision.
-
-<!-- x3-dist version=v0.63.0 capabilities=a0484fb18a4e3445ab00f48c5b92c5251d2618cdfeb285fde04ce82cf778a865 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.64.0 capabilities=0592fe99902ea66a52fd5a7062b1450c02f4414b4fd621480e80f4db5af869b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

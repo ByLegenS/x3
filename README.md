@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.63.0`**
+**Current version: `v0.64.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.2 MB | `55f041861a6a50b7b894bf918636edf07f8ffe4ca54558f756c09122657e14e2` |
-| `x3-linux-amd64` | linux/amd64 | 13.8 MB | `279eb0cdaf7dd6f99770d68cdc728ee2afff54e5b5a966edb25894ce499fceb8` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.2 MB | `a6930971423d4abf49ab2314bfed1397a0b1f01fae6eec56ff52cafc8d0ce7f4` |
+| `x3-linux-amd64` | linux/amd64 | 13.8 MB | `58ad06d5db0b3e87d5fa1c8a69e319a684f52e8d4ab5092425777ddf06c3ab09` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -159,6 +159,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
 | [The test you forgot to write](docs/mutate.md) | the code broken on purpose, and the behaviour no test noticed |
+| [What a mutation run breaks, and what it says](docs/mutate-findings.md) | the operators, the text mutations, the fail-closed codes, and the findings a run names |
 | [Traffic, written down](docs/record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](docs/replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
@@ -214,4 +215,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.63.0 capabilities=a0484fb18a4e3445ab00f48c5b92c5251d2618cdfeb285fde04ce82cf778a865 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.64.0 capabilities=0592fe99902ea66a52fd5a7062b1450c02f4414b4fd621480e80f4db5af869b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
