@@ -7,14 +7,16 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.65.0`**
+**Current version: `v0.69.0`**
 
 | Page | What it covers |
 |---|---|
 | [Directives in the source](scan.md) | the `//x3:` dictionary, the scopes a directive may sit in, the report and its expectations |
 | [Inline examples that run](case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
+| [What an example may name, and what a run says](case-findings.md) | the pool of importable names and the scope it is measured in, the finding codes, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
+| [The two sets a rule compares](sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -40,4 +42,4 @@ describe a version that does not exist.
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

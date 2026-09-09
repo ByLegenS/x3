@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.65.0`**
+**Current version: `v0.69.0`**
 
 ## scan exit codes
 
@@ -54,7 +54,7 @@ document in one run, so no two can describe different versions.
 |---|---|
 | `name` | required; the red names the expectation that was not met |
 | `min` | required, at least 1 — an expectation of zero verifies nothing |
-| `paths` | globs **relative to the scan root**; absent means the whole scan |
+| `paths` | globs **relative to the configuration**; absent means the whole scan |
 | `category` | `guard`, `rule`, `case`, ...; absent means any |
 | `kind` | the first segment after the category; absent means any |
 
@@ -69,7 +69,7 @@ document in one run, so no two can describe different versions.
 | `not_a_function` | the example sits above something that cannot be called |
 | `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
 | `wrong_result_count` | the declaration returns a different number of values than the example expects, or a method was given no receiver |
-| `dead_import` | a declared import (`case.imports`) that no example names |
+| `dead_import` | a declared import (`case.imports`) that no example names — asked only of a run whose tree contains the configuration |
 
 ## language settings
 
@@ -103,7 +103,7 @@ document in one run, so no two can describe different versions.
 | `in`+`terms`+`comments` | vocabulary | the layer, the words, whether prose counts |
 | `keys` | containment | the ownership prefix per component |
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
-| `parts`+`join`/`each`, `skip`, `comments`, `syntax` | consistency | extractor details |
+| `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
 | `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `minimum` | no | the fewest subjects the rule must see |
@@ -271,4 +271,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

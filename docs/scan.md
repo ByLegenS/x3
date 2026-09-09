@@ -278,4 +278,18 @@ exists to notice its removal. **A stale `paths` is red, not silent**: matching
 nothing gives zero, and zero meets no expectation. The report is read, never
 written, so identical sources still produce identical bytes.
 
-<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+**An expectation brings its subject into scope.** The scan does not walk into
+`testdata`, `vendor` or `node_modules`, so a count about a fixture tree could
+never be met from the root — and its red would read *"the directives were
+deleted"* when the truth is *"the run never looked there"*. A rule's `paths`
+therefore **open what they name**: the walk enters a skipped directory only for
+the files a rule declares, and reads nothing else in it.
+
+**Paths are written against the configuration and read against the run.** A run
+rooted at a subdirectory judges only the expectations reaching into it, with
+their paths taken relative to that root; one about somewhere else is not asked.
+The law does not slacken: a run rooted at the configuration's own directory
+judges **every** expectation, and each has already pulled its subject into
+scope. A run rooted **outside** that tree is an error, not a pass.
+
+<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

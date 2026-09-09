@@ -259,105 +259,13 @@ longer and it is a name, which brings the coincidence back — and two keys may 
 start alike. All are configuration errors. If no file carries any key the rule is
 `empty_scope`: a rule that matched nothing has not passed, it did not run.
 
-### `consistency` — two sets that must agree
+### Two sets that must agree
 
-**Catches:** two sets drifting — a set of codes produced in code and a dictionary
-giving each of them a message, so the user reads a raw key on screen.
-
-```json
-{ "kind": "consistency", "sources": ["internal/**/*.go"],
-  "left":  { "from": "go",   "select": "const-set:Code" },
-  "right": { "from": "json", "file": "i18n/en.json", "select": "keys:error.*" },
-  "compare": "left-subset-of-right" }
-```
-
-| `from` | Reads | `select` |
-|---|---|---|
-| `go` | string constants of a named type | `const-set:<Type>` |
-| `json` | the keys of one file, nested keys flattened to `a.b.c` | `keys:<pattern>` |
-| `regex` | one capture group, read **line by line** | the pattern itself |
-| `x3` | the settings file read as a **configuration** | `in-force` or `commands` |
-
-**What enters the set is what was captured**, not the whole key, so it can be
-compared with the constant that produced it. Because the extractor reads any text
-file, this kind reaches past Go — a template calling names a script has to
-define, and nobody compiles either.
-
-**A value written in pieces.** A path assembled by the language —
-`os.path.join(ROOT, "a", "b")` — has punctuation between its pieces, and a single
-capture takes the whole block. `parts` reads the pieces **inside** what `select`
-captured; `join` puts them back (`"a", "b"` → `a/b`), while `each` says the block
-carries **many** values, one per piece. A line reading
-`go test ./web/site/ ./internal/core/` names two packages, and joined they become
-a path missing on every run:
-
-```json
-"left": { "from": "regex", "select": "go test((?:\\s+\\./[A-Za-z0-9_./-]+)+)",
-          "parts": "\\./([A-Za-z0-9_/-]+?)/?(?:\\s|$)", "each": true }
-```
-
-Exactly one of `join` and `each` is written. RE2 keeps only the **last** match of
-a repeated group, which is why capture groups alone cannot do this.
-
-**Prose is not code.** A name in a comment does not run, so `comments: "exempt"`
-drops comment text before the pattern reads (`checked` is the default); `syntax`
-declares per-extension markers, and `quoted[].line` reaches the comment of a
-language embedded in a string — the `--` inside a raw SQL literal.
-
-### `left-exists-on-disk` — does the path still point at something?
-
-**Catches:** a gate carrying a path constant that keeps working after the path
-moves — it finds nothing, reports nothing and **exits `0`**. The most expensive
-form is a criterion phrased as an absence: once the root is gone it is true
-forever, and work that was never done reads as finished.
-
-Not [`containment`](#containment---a-components-parts-stay-under-its-root): there
-the question is where an existing file belongs, here whether the thing pointed at
-exists at all.
-
-```json
-{ "kind": "consistency", "sources": ["scripts/gates/**/*.py"],
-  "left": { "from": "regex", "select": "\"((?:internal|cmd|docs)/[A-Za-z0-9_./-]+)\"" },
-  "compare": "left-exists-on-disk",
-  "absent": { "internal/legacy/importer": "deleted in the migration" } }
-```
-
-A value naming nothing is `missing_target`. Values resolve against the
-**repository root** unless `relativeTo: "source"` resolves each against the
-directory of the file carrying it, which is what a test reading `"../../x.go"`
-needs; the same text in two files is **two targets**. `absent` is a
-**path → reason** map, and an exemption with no reason is refused.
-
-| Hatch | What it takes out | When it goes stale |
-|---|---|---|
-| `exclude` | the **file** that would have been read | `dead_exclusion` |
-| `skip` | a **value**, before any verdict | `dead_filter` |
-| `absent` | the **verdict** on a measured value | `dead_exemption` |
-
-`dead_exemption` is raised both when the excused path is on disk again and when
-it is named nowhere any more: an exemption list that only grows is a gate
-carrying its own silencer.
-
-### `from: "x3"` — the engine's own roster
-
-**Catches:** a rulebook sentence saying *"this one is guarded"* after the guard
-was deleted, downgraded or never wired up. A `regex` over the settings file finds
-the name in a rule turned down to `policy: "warn"` last month, which is exactly
-the day the claim became false. `from: "x3"` reads the file **as a
-configuration**, so the set carries the engine's verdict rather than the text.
-
-```json
-{ "left":  { "from": "regex", "file": "RULES.md", "select": "`x3: ([a-z-]+)`" },
-  "right": { "from": "x3", "file": "x3.json", "select": "in-force" },
-  "compare": "left-subset-of-right" }
-```
-
-`in-force` is every name the configuration puts in force — each rule, baseline,
-pattern, guard and expectation by its `name`, each section by its key, and a
-nameless mechanism by its **path in the configuration**. `commands` is the
-subcommands it configures; sections describing the engine's own workings (`x3`,
-`update`, `baseline`, `cache`) configure no check and are in neither.
-**`policy: "warn"` is not in force**, and neither is anything nested under it.
+**Catches:** two places that must say the same thing and drift apart — a
+generated list against the code that produced it, a rulebook against the settings
+that enforce it. The `consistency` kind, the extractors that read each side, the
+escape hatches they carry and the engine's own roster have a page of their own,
+*The two sets a rule compares*.
 
 ### Fields a rule has
 
@@ -442,4 +350,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

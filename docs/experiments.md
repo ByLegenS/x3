@@ -12,9 +12,12 @@ step names below are the ones the gate prints.
 | Step | The pair, and what only the red half proves |
 |---|---|
 | `control experiment` | a well-formed sample `0`, a broken one `1` |
-| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists; plus an example using its file's imports `0`, and a tree with one broken example `1` **whose three sound neighbours still passed** |
+| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists; plus an example using its file's imports `0`, and a tree with one broken example `1` **whose three sound neighbours still passed**; a declared import no example names `1` in the tree that declares it and `0` from a narrower scope — **same tree, same setting, only the scope moves**; and a red example whose code writes its own log, so the finding must still speak the gate's sentence |
 | `language gate` | the repository `0`; a planted word `1`; a green tree with its allow list `0` **and without it `1`** — an allow list never seen to change an answer is decoration |
 | `docs gate` | this repository `0`; a rule whose counterpart directory cannot exist `1` |
+| `roster control experiment` | one tree, seven readings, only the *question* changing: two configured checkers really called `0`; neither called `1`, the red naming **both** — a stale roster would have named neither. Then a script naming one of them **only in a help string**: the old reading `0` (the blindness), `strings: "exempt"` and `invocations` both `1`. Then a colon command genuinely called: the old reading `1` — a false red on a checker that runs — and `invocations` `0` |
+| `configuration section registry` | a settings section the engine reads and the roster claims `0`; the roster gone stale `1`, naming the section. The green half on this repository's own tree is the `arch gate` step |
+| `expectation scope control experiment` | an expectation naming a fixture tree `0` — the walk enters a skipped directory only because a rule declared it; the same tree with the expectation unnamed `1`, which is the blindness itself; the run started **inside** the named tree `0`; and the directive deleted `1` |
 | `arch control experiment` | a green/red pair for every rule kind and every escape hatch: `absent` present, missing and dead; `skip` off, on and dead; `comments` read, exempt and embedded; `relativeTo` both ways; `minimum` met and short; `exclude` applying, dead and emptying the rule |
 | `freeze control experiment` | the surface green, one name added red, and **`-update` on the grown tree red with the file unchanged** |
 | `freeze count control experiment` | held, grown, shrunk and capped trees, each also under `-update`; the capped key stays out of the baseline **and the update itself exits `1`** |
@@ -65,4 +68,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

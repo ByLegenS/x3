@@ -107,6 +107,34 @@ carry their repository-relative names (`backend/internal/auth`), so the changed
 set and the graph stay in one coordinate system and only the command line is
 rewritten. Every module gets its own `test` section.
 
+### Which unit is slow, and why
+
+The engine cannot time a unit with its own clock: the units share one runner
+process, and a process per unit would manufacture the cost it set out to
+measure. The runner reports the number, the configuration reads it.
+
+```json
+"timing": { "pattern": "^(?:ok|FAIL)\\s+(\\S+)\\s+([0-9.]+)s", "name": 1, "took": 2 }
+```
+
+`name` and `took` are capture groups — the unit and its duration; `in` reads `ms`
+instead of seconds, `slowest` (default 5) is how many units get named. The name
+is read as a dependency key first, so `module` strips the prefix and no second
+mapping table is born. **With no `timing` block nothing is timed and the report
+stays byte-for-byte what it was.** A `timing` block that matches nothing is red
+(`dead_timing`): a dead reader, judged like a dead exemption.
+
+The report then carries `wall_ms` (the engine's own clock), `units_ms`, `cores`,
+`overlap` (`units_ms / wall_ms`: how many units ran at once), the slowest units
+by name, the units that reported no time, and one `cause`: **`one_unit`** — one
+unit is over half the wall clock and *is* the run; **`outside`** — under half the
+wall clock is inside any unit, so the cost is build, link and process start, not
+the tests; **`overlapped`** — the runner ran units at once; **`spread`** — the
+units account for the time and none dominates. Whether a unit *waits* or
+*computes* is **not** measured: that needs the processor time of the whole tree,
+and a child's accounting excludes its own children — measured, a direct child
+reported 0.97 of its wall clock, one level deeper 0.01.
+
 ### The measurement — and what it honestly shows
 
 Pilot: a production Go repository, one module of 85 packages, read-only. One
@@ -127,4 +155,4 @@ to do, and that walk grows with the repository. For a runner **without** a cache
 of its own — most of them — the first three rows would look very different. The
 engine does not assume either case; it measures.
 
-<!-- x3-dist version=v0.65.0 capabilities=30f2211593ea62df95d9a529b650866118e447096978014873bc8ee488525447 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
