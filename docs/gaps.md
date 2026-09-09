@@ -42,7 +42,15 @@ identifier names a spot rather than one mutation, so forgiving it forgives every
 mutation written there; and equivalent mutants (a break that cannot change any
 observable behaviour) are counted as survivors, because telling one apart from a
 missing test is undecidable in general and a reason in `allow` is the honest
-place to say which it was.
+place to say which it was. And **which tests can see a mutation is answered per
+package, not per function** — a mutant runs against every unit whose test binary
+links its own (2.6 on average, measured) rather than the units that actually
+reach the mutated function; the narrower answer wants a call graph, because
+`fmt` calls a `String()` without writing the name and a watcher dropped by
+mistake would call a tested behaviour untested. The floor is elsewhere anyway:
+every mutant pays a compile pass *and* a test run, and a runner able to report a
+build failure in a form the configuration declares would remove half the
+launches. Nothing declares one today.
 
 **The cache is per file, not per project.** A checker whose answer depends on
 more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not use
@@ -88,4 +96,4 @@ template, and it keeps no record of its own beyond what it encodes in a name.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.62.0 capabilities=5d547e5d1468d10dcf3cde8e81331de887e52e005d41cf273ac2e67d2c9b1f06 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.63.0 capabilities=a0484fb18a4e3445ab00f48c5b92c5251d2618cdfeb285fde04ce82cf778a865 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

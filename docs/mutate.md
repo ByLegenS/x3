@@ -12,7 +12,7 @@ cannot be faked: **which test went red?** If none did, that behaviour is not
 tested, and the command says so by name.
 
 ```
-x3 mutate [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [-full] [-jobs <n>] [dir]
+x3 mutate [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [-full] [-workers <n>] [-plan] [dir]
 ```
 
 ### Two modes, and only one of them is in a hurry
@@ -22,11 +22,40 @@ x3 mutate [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <te
 | default | the files the change touched | every commit; as short as the change is small |
 | `-full` | every file in scope | called on purpose; **no ceiling, no sampling** |
 
-The full mode has no limit of any kind — not a mutant budget, not a sample, not
-a "that is enough looking". It runs until every mutation in scope has been tried
-and prints the whole list of what nothing caught. It burns processors, not
-attention: a run that takes all night costs the person who started it nothing.
-The only ceiling anywhere is on a **single** run (`run.timeout`), and it has to
+The full mode has no ceiling **on scope** — not a mutant budget, not a sample,
+not a "that is enough looking". It runs until every mutation in scope has been
+tried and prints the whole list of what nothing caught.
+
+### Time and heat are not the same permission, and the price is said first
+
+A run that takes all night spends hours the machine was idle anyway. A run that
+fills every processor spends the machine. Measured: the same scope, the same 379
+launches, at **8 / 16 / 32** workers took **48.4 s / 41.0 s / 41.1 s** — above
+half the processors the extra width buys **nothing**, because the toolchain
+already parallelises inside each run, while at full width the machine cannot be
+worked on (55 toolchain processes, against a peak of 26 at 16 workers). So
+`workers` defaults to **half the processors**, never below one, in the code
+rather than in a note; `-workers <n>` or `{ "mutate": { "workers": 8 } }` moves
+it deliberately, and the control experiment asserts the default is half and that
+asking for one gets one. A ceiling that lives in a plea is not a ceiling.
+
+`-plan` then answers *what would this cost* without launching anything: how many
+mutants, how many are answered with no run at all, and two **bounds** on the
+launches — `least`, units + mutants, every mutant discarded at its compile pass;
+`most`, units + mutants + watchers, every mutant surviving everything. A priced
+run prints `PRICED`, launches nothing and **cannot be green**: it reports
+`planned` and exits 1, because a command that measured nothing must not read
+like one that measured everything — this gate's own subject, applied to itself.
+The control experiment prices the control tree, runs it, and asserts the real
+count landed between the bounds (13 <= 23 <= 23).
+
+On this engine's own source: **10,589 mutants** across 57 files, 9,049 running,
+1,540 answered with no run at all, 26 units in the baseline, **9,075 to 32,410
+launches** at 16 workers — at the measured 0.108 s per launch, between half an
+hour and an hour. That is the number a person needs *before* deciding, and until
+now it could only be learnt by spending it.
+
+The only other ceiling is on a **single** run (`run.timeout`), and it has to
 exist — a broken loop never returns, and without it one mutant would be the end
 of the night.
 
@@ -70,6 +99,16 @@ the only cheap one. For each mutant the engine already knows the answer: the
 unit holding the mutated file, and every unit whose **test binary links** it.
 Anything else on the tree cannot observe the change, and running it is pure
 waste.
+
+Measured on this engine's own source, that selection is already narrow: of the
+9,049 mutants that run, **7,025 have exactly one watcher** and the widest has
+24, for 2.6 on average. Going finer would mean asking which *functions* a test
+reaches rather than which packages; the sound half of that was built, measured
+and removed — a declaration no exported symbol of its package can reach is
+unreachable from outside, and this tree has **not one**, because an unexported
+helper exists in order to be called by an exported one. The unsound half is
+refused: `fmt` calls a `String()` without ever writing the name, and a watcher
+dropped by mistake would have the gate call a tested behaviour untested.
 
 Three consequences, in the order they save time:
 
@@ -129,6 +168,7 @@ and the overlay does not reach it; that bound is written in "Gaps we know about"
 | Code | What happened |
 |---|---|
 | `empty_scope` | not one mutant was produced; the run proved nothing and is **red** |
+| `planned` | the run was priced and not run; nothing was measured, so it cannot be green |
 | `dead_exclusion` | an `exclude` pattern takes no file out of the scope |
 | `dead_exemption` | an `allow` entry forgives no surviving mutant any more |
 | `dead_operator` | a named operator produces no mutant anywhere in the tree |
@@ -174,7 +214,7 @@ anywhere gives 4 `no_test` findings **and zero runs**; the embedded query gives
 one catch and one survivor.
 
 On this engine's own source, one package of 143 lines produced **85 mutants** in
-**68 s** (32 jobs, 269 runs) and the answer was a real gap: that package has no
+**68 s** (32 workers, 269 runs) and the answer was a real gap: that package has no
 test file of its own, 21 mutants survived — a comparison boundary, a `+` turned
 into a `-`, four swallowed errors — and the score was **0.738**. The finding is
 not "coverage is low"; it is twenty-one namings, each a behaviour that can be
@@ -191,7 +231,7 @@ calls that package tested.
 | **survived** | **256** |
 | did not compile, discarded | 82 |
 | runner launched | 679 times |
-| wall clock, 32 jobs | **135 s** |
+| wall clock, 32 workers | **135 s** |
 | score | **0.141** |
 
 The survivors are not a percentage, they are a list: 78 comparison boundaries,
@@ -208,4 +248,4 @@ matters for planning: **0.35 s of wall clock per mutant** on 32 processors,
 which puts a repository of twenty thousand lines at a few hours — a night, not
 a decision.
 
-<!-- x3-dist version=v0.62.0 capabilities=5d547e5d1468d10dcf3cde8e81331de887e52e005d41cf273ac2e67d2c9b1f06 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.63.0 capabilities=a0484fb18a4e3445ab00f48c5b92c5251d2618cdfeb285fde04ce82cf778a865 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
