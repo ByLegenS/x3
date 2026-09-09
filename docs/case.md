@@ -1,0 +1,220 @@
+# Inline examples that run
+
+[The pages](INDEX.md) - [what x3 is](../README.md)
+
+## `x3 case`
+
+**What it catches:** an inline example whose declaration no longer returns what
+the example says — and, just as important, an example that **nothing ran**.
+
+```
+x3 case [-config <file>] [-out <file>] [dir]
+```
+
+The engine collects every `//x3:case`, builds one test per **source file**,
+runs the file's tests together as their package through the Go toolchain and
+compares each result. **Nothing is written into the project**: the generated
+tests reach the compiler through the toolchain's *overlay*, so an interrupted
+run leaves nothing behind.
+
+### The payload
+
+```
+//x3:case: in=(<arguments>) out=<expected>
+```
+
+`in=(...)` holds Go expressions separated by top-level commas — a nested call or
+a string containing a comma is one argument, not two. `out=...` holds one
+expression per result, in order; a result may be skipped with `_`, but an
+example whose expectations are *all* skipped is refused, because it would
+compile, run, pass and prove nothing. **A method takes its receiver as the first
+argument**, so value and pointer receivers both work.
+
+Expressions compile **inside their own package**, so unexported names are in
+scope. They also see **what the file they are written in imports**: an example
+above a declaration in a file that imports `strings` may say `strings.ToLower(…)`
+without importing anything itself. Only the imports the example actually names
+are carried — an unused import is a compile error in Go, so copying the whole
+list would break the package to save one example — and the name written in the
+example is the name the generated test binds, so a path whose package name is
+not its last path element still resolves. A name **no import of that file
+provides** stays red; carrying imports is not a licence to invent them.
+
+The expected value is never assigned to a variable first, so an untyped constant
+takes the type it is measured against (`out=5` holds against `int64`). Errors
+compare with `errors.Is` and then by message, so a wrapped sentinel still
+matches; everything else goes through `reflect.DeepEqual`.
+
+### Green
+
+```go
+//x3:case: in=(2, 3) out=5
+func Add(a, b int) int { return a + b }
+
+//x3:case: in=(0, 1) out=0, ErrEmpty
+func Withdraw(balance, amount int) (int, error) {
+
+//x3:case: in=(&Counter{Total: 2}, 3) out=5
+func (c *Counter) Plus(n int) int {
+
+// The file imports "time"; so does the example.
+//x3:case: in=(time.Second) out=1000
+func Millis(d time.Duration) int64 {
+```
+
+```
+x3 case: 7 example(s) in 1 package(s) - 7 passed, 0 finding(s)
+```
+
+### The given state
+
+Some declarations read what nobody passed them: a row in a database, an entry in
+a registry, a file on disk. An example for one of those needs a **state**, and
+the state has to be there before the call.
+
+```
+//x3:case: given=(<statements>) in=(<arguments>) out=<expected>
+```
+
+`given=(...)` holds Go **statements**, run in order inside the example's own
+subtest, before the call; `in=` and `out=` may name what they bind. The section
+is optional, and an example that needs no setup writes none.
+
+```go
+//x3:case: given=(c := declare("apple", 40)) in=(c) out=40, nil
+//x3:case: given=(c := declare("pear", 7); retire(c)) in=(c) out=0, ErrUnknown
+func Price(code string) (int, error) {
+```
+
+That the binding is nameable in `out=` is the whole reason the section exists.
+Setup written *inside* an argument already worked — `in=(f(t))` compiles — but
+its value reaches only that argument, and the pattern this is for hands the
+identity back: the setup creates a row, and the call is measured against the
+identity of the row it created.
+
+The statements are carried **verbatim and unsplit**. A statement list is not an
+expression list: both separators — `;` and `,` — appear *inside* single
+statements (`if x := f(); err != nil`, `_, err := f()`), so any rule that cut the
+section on one of them would cut valid Go in half and call the remainder
+malformed. Unsplit, the only thing that reads the section is the compiler, and a
+fault in it is charged to the example's own line like any other.
+
+The engine binds one name: **`t`**, the subtest's `*testing.T`. Setup helpers
+take it, so a project's existing ones work unchanged — and because the generated
+test is part of the package's *test* build, helpers declared in `_test.go` files
+are in scope. Setup is test equipment; this is what keeps it out of production
+source.
+
+A setup that **cannot** run is the dangerous case, not one that breaks. A helper
+that cannot reach its server calls `t.Skip`, the toolchain exits `0`, and a gate
+that only looked for failures would report nothing on every machine without that
+server. The rule above covers it: a skipped example is `never_ran` and the run is
+red. So three directions are worth measuring separately, and the engine's own
+gate measures all three — the setup runs (`0`); the setup is **not applied** and
+the same expectation turns red (`1`); the setup is **skipped** and the finding is
+`never_ran` (`1`). Without the second, a setup the engine silently dropped would
+still look green; without the third, a missing server would.
+
+### A database as the given state
+
+Nothing above knows what a database is. `x3 testdb` hands a command a freshly
+cloned database through the environment and `x3 case` inherits it, so the two
+compose with nothing third to configure:
+
+```
+x3 testdb run -- x3 case ./...
+```
+
+The setup opens that connection the way the project's own tests do — from the
+variable named in `testdb.dsnEnv` — seeds what the example needs, and hands back
+the identity it created:
+
+```go
+//x3:case: given=(p := open(t); c := company(t, p)) in=(New(p), ctx, c) out=nil
+func (r *Repository) Charge(ctx context.Context, req Request) error {
+```
+
+The database is created before the run and dropped after it whatever the
+examples do; and when the environment names none, the setup skips and the run is
+red rather than quietly empty.
+
+### Red
+
+```
+wallet.go:8 (Add): example_failed
+	out[0] = 5, want 6
+```
+
+### One broken example does not blind the package
+
+A compile error in Go is **package-wide**: the toolchain names the fault once
+and nothing in that package runs. Charged as it arrives, a single mistyped
+example would turn every sound example beside it red — and the table would say
+"all broken" where one is. So the engine reads the line number the compiler
+gives, charges the fault to the **example written on that line**, drops it, and
+runs the rest:
+
+```
+broken.go:11 (Half): does_not_build
+	undefined: missing
+```
+
+```
+x3 case: 4 example(s) in 1 package(s) - 3 passed, 1 finding(s)
+```
+
+This matters most where examples are written in parallel: one author's error
+must not hide another author's proof, because hidden work is done twice. A fault
+the compiler reports **outside** every example — the package's own source does
+not build — belongs to no single line and is charged to all of them, which is
+the honest answer in that case.
+
+### An example nothing ran is not a green example
+
+The dangerous state is not the wrong answer, it is **no answer**. A package
+whose test entry point returns without calling `m.Run` runs nothing, the
+toolchain exits `0`, and a gate that only looked for failures would call that
+green. The engine keeps the name of every example it generated and demands a
+verdict for each:
+
+```
+wallet.go:8 (Add): never_ran
+	nothing ran the example; the package reported no result for it
+```
+
+A skipped example is refused for the same reason — `t.Skip` is not a proof — and
+a package that does not compile is named as such, so the fault is looked for
+where it is.
+
+### Findings
+
+See **case finding codes** in [REFERENCE.md](../REFERENCE.md#case-finding-codes).
+
+The first three are answers the toolchain gave; the last four are refusals made
+**before** anything runs.
+
+### Settings
+
+Optional — an example lives in the source, not the configuration:
+
+```json
+{ "case": { "exclude": ["internal/legacy/**"], "timeout": "2m" } }
+```
+
+`timeout` (default `1m`) is applied to the test binary **and** to the toolchain
+call around it; only the first would leave a run that hangs downloading a
+dependency waiting forever.
+
+### The report
+
+```json
+{ "version": 1, "root": ".", "config": "x3.json",
+  "findings": [ { "file": "wallet.go", "line": 8, "target": "Add",
+                  "code": "example_failed", "message": "out[0] = 5, want 6" } ],
+  "summary": { "files": 1, "packages": 1, "cases": 1, "passed": 0, "findings": 1 } }
+```
+
+`passed` is counted separately from `findings` on purpose: "no findings" and "no
+examples" are not the same sentence.
+
+<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

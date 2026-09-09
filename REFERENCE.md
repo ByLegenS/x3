@@ -1,12 +1,13 @@
 # x3 reference
 
-The lookup tables behind [README.md](README.md): field names, error codes and
-exit codes, one section per table, in the order the guide uses them. Nothing
-here is new. The guide links to every section below, and both files are
-generated from one document in one run, so neither can describe a version the
-other does not.
+The lookup tables behind the guides: field names, error codes and exit codes,
+one section per table, in the order the guides use them. Nothing here is new.
+Every page links to the table it uses, and all of them are generated from one
+document in one run, so no two can describe different versions.
 
-**Current version: `v0.59.0`**
+[What x3 is](README.md) - [the pages](docs/INDEX.md)
+
+**Current version: `v0.60.0`**
 
 ## scan exit codes
 
@@ -269,4 +270,4 @@ other does not.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.59.0 capabilities=968848656ec0819adb4b0ad67059f389596cf27aab557a89e18649c081d96a79 template=8a9a334bec36cb2a11ef09372d16aef92a6436a0c5c052d3a845046d87a89916 -->
+<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

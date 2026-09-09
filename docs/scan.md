@@ -1,0 +1,279 @@
+# Directives in the source
+
+[The pages](INDEX.md) - [what x3 is](../README.md)
+
+## `x3 scan`
+
+**What it catches:** a directive that no verifier knows, is malformed, or sits
+in a scope where it is not legal.
+
+```
+x3 scan [-out <file>] [dir]
+```
+
+`dir` defaults to `.`. The JSON report goes to `-out` or **stdout**; findings
+and the summary always go to **stderr**, so the report can be piped while the
+reds stay on the terminal.
+
+### Exit codes
+
+See **scan exit codes** in [REFERENCE.md](../REFERENCE.md#scan-exit-codes).
+
+Exit codes are the same for every command. A tree with **no directives at all**
+exits `0`, so an exit code alone cannot tell "everything passed" from "nothing
+was checked" — read the counts too, see
+[Using x3 from another project](releases.md#using-x3-from-another-project).
+
+### What gets walked
+
+Only `.go` files. These directory **names** are skipped: `vendor`, `testdata`,
+`node_modules`, and any name starting with `.` or `_`. The skip applies to
+sub-directories only — a skipped name given *as the root* is still scanned,
+which is how the control samples are reached:
+
+```
+x3 scan internal/scan/testdata/green   # exit 0
+x3 scan internal/scan/testdata/red     # exit 1
+```
+
+### What a run looks like
+
+One block per red, then the summary line, on stderr:
+
+```
+bad.go:3: unknown_category: no verifier exists for kind "nope"
+	found: //x3:nope:whatever
+bad.go:22: unattached: the directive binds to no declaration
+	found: //x3:rule:idempotent
+x3 scan: 2 file(s) - 8 directive(s) - 8 red
+```
+
+Paths are relative to the scan root and always use `/`, on every operating
+system.
+
+## How a pattern is read
+
+**What it catches:** a pattern written about lines but read against a whole
+file, which silently measures almost nothing.
+
+Most settings match a regular expression against a **file's whole text**, and
+there `^` and `$` bind to a **line**:
+
+| The pattern | Holds when |
+|---|---|
+| `^func main` | some line starts with `func main` |
+| `\Apackage ` | the **file** starts with `package ` |
+| `(?-m)^package ` | the same thing, with the mode turned off |
+
+Line mode is the default because the cost of the other reading is not symmetric:
+
+| The measurement wants | A collapsed pattern gives | How it shows |
+|---|---|---|
+| something **found** | nothing found | loud: red over an absence |
+| something **absent** | nothing found | **silent: green without measuring** |
+| a **number** (`count`, `cap`) | a number near zero | **silent: debt reads as repaid** |
+
+Nobody looks at green, so the silent rows decide the default. Nothing is lost:
+`\A` and `\z` always mean the ends of the file. Where the answer depends on the
+reading, the finding says so rather than leaving the number unexplained:
+
+```
+"docs/list.md" counts 3, above the cap of 1; a cap takes no debt;
+^ and $ read a line here, not the whole file - read the other way it would count 1
+```
+
+**Four patterns are not read this way**, because their subject is one line or
+one value, not a file: `syntax` `deny`, `secrets` `patterns[].match` and
+`ignore[].match`, `boxes` `markdown.moved.match`, and `arch` `literal`
+`pattern`. The last is the one to read twice — a `literal` rule looks for a
+**name**, so `^name$` means "the whole literal is this name".
+
+## Scopes
+
+**What it catches:** a directive written where it binds to nothing.
+
+| Scope | Where you write it | Binds |
+|---|---|---|
+| `decl` | in the doc comment of a func, type, var, const or **import** | that one declaration; `target` names it |
+| `file` | above the `package` clause | that file |
+| `pkg` | above the `package` clause **in a file named `doc.go`** | the whole package |
+| `unattached` | anywhere else — inside a body, or a floating comment | nothing: always red |
+
+`pkg` is not a different syntax from `file`; the filename `doc.go` is the only
+thing that separates them.
+
+```go
+// wallet.go:15 → scope "decl", target "Wallet.Add"
+//x3:rule:math:commutative
+//x3:case: in=(1) out=1
+func (w *Wallet) Add(n int64) int64 {
+```
+
+A method's `target` is written `Receiver.Method` with pointer stars and generic
+brackets stripped: `*Wallet` and `Wallet[T]` both report `Wallet`. A directive
+inside a function body has nothing to attach to and is **not silently ignored** —
+it is `unattached`, and red.
+## The dictionary
+
+**What it catches:** an invented directive type, or a known type written in the
+wrong shape. **A type that is not in the dictionary has no verifier, and a
+directive with no verifier turns the run red.**
+
+See **the directive dictionary** in [REFERENCE.md](../REFERENCE.md#the-directive-dictionary).
+
+After the `//x3:` prefix the rest is split on `:` into a category and its
+sub-types. A **payload** is whatever follows a colon that is itself followed by
+a space — `: ` — and runs to the end of the line. The payload counts toward the
+required-segment count, which is what lets a reason contain spaces:
+`//x3:skip:legacy-generator` and `//x3:skip: legacy generator` are both
+accepted. A trailing `:` is trimmed before parsing, so `//x3:rule:` is the bare
+category and red; a doubled colon (`//x3:rule::idempotent`) is red as
+`empty subkind (a doubled colon)`.
+
+### `//x3:rule:<type>[:<subtype>...]`
+
+**Catches:** a semantic contract the code is expected to obey. Today x3 checks
+only that you named a rule, in a legal scope; nothing verifies that it holds.
+
+```go
+//x3:rule:math:commutative
+func (w *Wallet) Add(n int64) int64 {
+```
+
+### `//x3:guard:<type>[:<subtype>...]`
+
+**Catches:** an invariant — a never-condition. Same shape and scopes as `rule`;
+the difference is meaning, not mechanics.
+
+```go
+//x3:guard:output:non-negative
+func (w *Wallet) Withdraw(n int64) (int64, error) {
+```
+
+Written above the `package` clause of `doc.go`, the same guard binds to the
+whole package. There is no `guard` red sample today — its shape check is
+`rule`'s code path — see [Gaps we know about](gaps.md#gaps-we-know-about).
+
+### `//x3:case: <payload>`
+
+**Catches:** an inline example — one input and its expected output — next to the
+function instead of in a test file. **`decl` scope only**: an example belongs to
+one declaration.
+
+The payload's shape is `[given=(<statements>) ]in=(<args>) out=<want>`. The
+argument list may be empty,
+and the closing `)` is found by **counting** rather than by taking the last one
+on the line, so nested calls fit on both sides: `in=(f(1), 2) out=ErrX`.
+
+```go
+//x3:case: in=(1) out=1
+func (w *Wallet) Add(n int64) int64 {
+```
+
+`x3 scan` reads the shape, not the values; [`x3 case`](case.md#x3-case) calls the
+function and compares. Both use the **same parser** — a payload one accepted and
+the other read differently would be an example that goes green without running.
+The same directive at package level is well formed and still red:
+
+```
+doc.go:1: scope_not_allowed: scope pkg is not allowed; valid scopes: decl
+```
+
+### `//x3:live`
+
+**Catches:** code that talks to a real provider and costs money to exercise, so
+it can be kept out of automated runs.
+
+```go
+//x3:live
+
+package wallet
+```
+
+It takes no sub-type and no reason, so it has no shape to get wrong; its only
+failure modes are `unattached` and a doubled colon.
+
+### `//x3:skip:<reason>`
+
+**Catches:** a deliberate exemption. The **reason is mandatory** — a silent skip
+is the failure this engine exists to prevent, so a bare `//x3:skip` is red
+rather than a free pass.
+
+```go
+//x3:skip: legacy generator
+const legacyRate = 3
+```
+
+### `//x3:allow:<type>:<reason>`
+
+**Catches:** a justified silence for one specific finding — the counterpart of
+`skip` for scanners that flag things. It needs **two** parts: what is silenced,
+and why.
+
+```go
+//x3:allow:secret:example-only
+const demoToken = "not-a-real-key"
+```
+
+## Error codes
+
+The JSON `code` field is the stable part of the output; `message` may be
+reworded at any time.
+
+See **scan error codes** in [REFERENCE.md](../REFERENCE.md#scan-error-codes).
+
+The checks run in that order and stop at the first failure, so one directive
+reports exactly one code.
+
+## The JSON report
+
+```json
+{
+  "version": 1,
+  "root": "internal/scan/testdata/green",
+  "files": 2,
+  "directives": [
+    { "file": "bad.go", "line": 6, "raw": "//x3:skip", "category": "skip",
+      "scope": "decl", "target": "NoReason", "status": "error",
+      "code": "malformed", "message": "skip: expected shape //x3:skip:<reason>" }
+  ],
+  "summary": { "ok": 7, "errors": 1 }
+}
+```
+
+See **the scan report fields** in [REFERENCE.md](../REFERENCE.md#the-scan-report-fields).
+
+Directives are sorted by file then line, and **there is no timestamp anywhere in
+the report, by design**: identical sources must produce identical bytes, so a
+later comparison of two runs can never raise a false red over a clock tick.
+
+## Expectations
+
+**What it catches:** deleting the directives as a way to go green. A tree with
+no directives scans clean and exits `0` — correctly, because nothing in it is
+wrong; nothing in it is checked either, and the exit code cannot tell those
+apart.
+
+```json
+{
+  "expect": [
+    { "name": "the ledger package keeps its guards",
+      "paths": ["ledger/**"], "category": "guard", "kind": "lookup", "min": 2 }
+  ]
+}
+```
+
+See **expectation fields** in [REFERENCE.md](../REFERENCE.md#expectation-fields).
+
+```
+BLOCK expectation_not_met: the ledger package keeps its guards
+	0 verified guard directive(s), the configuration requires 2
+```
+
+**Only verified directives count.** A directive the scan marked red counts as
+zero — otherwise emptying a `//x3:guard` would satisfy the expectation that
+exists to notice its removal. **A stale `paths` is red, not silent**: matching
+nothing gives zero, and zero meets no expectation. The report is read, never
+written, so identical sources still produce identical bytes.
+
+<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
