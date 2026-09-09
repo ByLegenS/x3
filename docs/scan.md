@@ -160,8 +160,10 @@ whole package. There is no `guard` red sample today — its shape check is
 function instead of in a test file. **`decl` scope only**: an example belongs to
 one declaration.
 
-The payload's shape is `[given=(<statements>) ]in=(<args>) out=<want>`. The
-argument list may be empty,
+The payload's shape is
+`[given=(<statements>) ]in=(<args>) [out=<want> ][then=(<propositions>)]`. The
+argument list may be empty, **one of `out=` and `then=` is required** and both
+may be written,
 and the closing `)` is found by **counting** rather than by taking the last one
 on the line, so nested calls fit on both sides: `in=(f(1), 2) out=ErrX`.
 
@@ -276,4 +278,4 @@ exists to notice its removal. **A stale `paths` is red, not silent**: matching
 nothing gives zero, and zero meets no expectation. The report is read, never
 written, so identical sources still produce identical bytes.
 
-<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

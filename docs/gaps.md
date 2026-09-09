@@ -19,6 +19,12 @@ write accepts whatever the tree owes that day.
 **Expectations count directives, and only from `scan`.** They say a minimum,
 never a maximum, and cannot say "these two exact directives".
 
+**A proposition is checked for names, not for meaning.** `then=` refuses one
+that names nothing the call, the receiver or the setup produced, so `then=(true)`
+cannot pass — but a tautology written over a real name (`out0 == out0`) names
+something and is accepted. Telling those apart needs the types, and the payload
+is deliberately handed to the compiler rather than resolved here.
+
 **Updates verify a checksum, not a signature.** `update.pin` binds *bytes*, and
 is worth exactly as much as the review of the commit that introduced the line;
 nothing here checks a key. A pin has to be maintained by hand, and that friction
@@ -70,4 +76,4 @@ template, and it keeps no record of its own beyond what it encodes in a name.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

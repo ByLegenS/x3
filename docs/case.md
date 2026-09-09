@@ -45,6 +45,68 @@ takes the type it is measured against (`out=5` holds against `int64`). Errors
 compare with `errors.Is` and then by message, so a wrapped sentinel still
 matches; everything else goes through `reflect.DeepEqual`.
 
+### One aspect of the value, not the whole of it
+
+`out=` compares the **whole** returned value, and not everything a call produces
+can be written down. A declaration may return nothing at all and do its work in
+the receiver; a returned struct may carry an identity or a timestamp the call
+itself generated; and a test may say only *"an error came back"* without saying
+which one. For all of those, `then=` asserts an **aspect** of what happened:
+
+```
+//x3:case: in=(<arguments>) then=(<propositions>)
+```
+
+`then=(...)` holds Go boolean expressions separated by top-level commas, each
+evaluated after the call. Two names are bound for them: **`recv`** is the
+receiver — the first argument, when the example sits on a method — and
+**`out0`, `out1`, …** are the results in `out=`'s own order. Anything `given=`
+created is in scope too, and a result nothing measures is not bound to a name at
+all, because an unused variable is a compile error in Go.
+
+```go
+// The work is the side effect; there is no result to compare.
+//x3:case: in=(&Counter{Total: 2}, 3) then=(recv.Total == 5)
+func (c *Counter) Bump(n int)
+
+// The call generates the identity, so the whole value cannot be written.
+//x3:case: in=("apple") then=(out0.Name == "apple", out0.ID != "")
+func New(name string) Record
+
+// "An error came back" — which one is not what the test says.
+//x3:case: in=("nope") out=0, _ then=(out1 != nil)
+func Parse(s string) (int, error)
+```
+
+That last one is why this exists. The rule of the migration is that a
+`//x3:case` is derived from the **test**, never from the code. When a test says
+only that an error came back and the engine demands the exact value, whoever
+writes the example reads the error **out of the implementation** and copies it —
+and an example written that way no longer verifies the code, it repeats it.
+
+A proposition must be able to **fail**. One that names nothing the call
+returned, nothing the receiver holds and nothing the setup created — `then=(true)`,
+`then=(1 == 1)` — compiles, runs, passes and proves nothing, which is the very
+state [`never_ran`](#an-example-nothing-ran-is-not-a-green-example) exists to
+refuse. Those are `malformed`:
+
+```
+add.go:9 (Add): malformed
+	the proposition true names nothing the call returned, the receiver, or the
+	setup created; it cannot fail
+```
+
+The check reads names, so a tautology over a real name (`out0 == out0`) is not
+caught by it — see [Gaps we know about](gaps.md#gaps-we-know-about).
+
+When a proposition is false the finding carries its **text**, because an example
+may hold several and "then[0] does not hold" would not say which:
+
+```
+counter.go:8 (Bump): example_failed
+	then[0] recv.Total == 4 does not hold
+```
+
 ### Green
 
 ```go
@@ -217,4 +279,4 @@ dependency waiting forever.
 `passed` is counted separately from `findings` on purpose: "no findings" and "no
 examples" are not the same sentence.
 
-<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

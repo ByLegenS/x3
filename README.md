@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.60.0`**
+**Current version: `v0.61.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `10b8ceee49af5e22971c4845621a739091d7b97f6123b1a4b0d5da41a57cb862` |
-| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `5abd3f1e424d36984080ffcf8f6c5abdc2c2e16bb962eb2cbb44647d57861888` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.1 MB | `f02b35043e7a5bdd0fb53ab0ce43c0a23cf204b5497fc6651547b50aff150539` |
+| `x3-linux-amd64` | linux/amd64 | 13.7 MB | `404f978cd12b2dc9cd3bb9af47b647078f6122a683b11c26f18510055fc0ac15` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -145,7 +145,7 @@ markers that split this document, so a page cannot be missing from it.
 | Page | What it covers |
 |---|---|
 | [Directives in the source](docs/scan.md) | the `//x3:` dictionary, the scopes a directive may sit in, the report and its expectations |
-| [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it |
+| [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
@@ -213,4 +213,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

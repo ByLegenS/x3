@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.60.0`**
+**Current version: `v0.61.0`**
 
 ## scan exit codes
 
@@ -65,7 +65,7 @@ document in one run, so no two can describe different versions.
 | `example_failed` | the declaration was called and the result is not what the example says |
 | `never_ran` | no verdict was reported for it, or it was skipped |
 | `does_not_build` | the example does not compile — charged to its own line when the compiler names one, and to every example in the package when the fault is in the package's own source |
-| `malformed` | the payload has no body, or does not parse |
+| `malformed` | the payload has no body, does not parse, or holds a proposition that cannot fail |
 | `not_a_function` | the example sits above something that cannot be called |
 | `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
 | `wrong_result_count` | the declaration returns a different number of values than the example expects, or a method was given no receiver |
@@ -270,4 +270,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.60.0 capabilities=23faf1cfdd8b02292046cfa996c2be451bacdea706477e2cdc1fac0e3d0094f0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.61.0 capabilities=1f6808cc172ef8b2b2b963daa8347ee49cfc2c182847ac8d118aebcec0a9e1ea template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
