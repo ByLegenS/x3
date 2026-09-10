@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.69.0`**
+**Current version: `v0.70.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.2 MB | `b9dd0836ac092d1810ed9446616e7a2567103b0cd64878ef1425307d24ab3874` |
-| `x3-linux-amd64` | linux/amd64 | 13.8 MB | `75a7b8c989c1fcc36a05c1be639a1b21737d64af6f841bc6782ac92e8a74a0d9` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.2 MB | `b1e2b468c4e89932652dfbd8f0ac268fd9e58401723c168d3ed0e58e11df1a14` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `e0c65fd15f3afefd1463422587ef751760616cc50b76e777dbfd96a7878ee143` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -145,6 +145,7 @@ markers that split this document, so a page cannot be missing from it.
 | Page | What it covers |
 |---|---|
 | [Directives in the source](docs/scan.md) | the `//x3:` dictionary, the scopes a directive may sit in, the report and its expectations |
+| [Where a pattern binds](docs/patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
 | [What an example may name, and what a run says](docs/case-findings.md) | the pool of importable names and the scope it is measured in, the finding codes, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
@@ -157,6 +158,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
+| [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
@@ -217,4 +219,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

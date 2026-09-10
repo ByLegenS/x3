@@ -56,7 +56,7 @@ leaves closing without proof free.
 See **boxes criteria fields** in [REFERENCE.md](../REFERENCE.md#boxes-criteria-fields).
 
 `match` is read with `^` and `$` bound to a **line**
-([how](scan.md#how-a-pattern-is-read)). The sharp edge is `absent`: a `pattern` that
+([how](patterns.md#how-a-pattern-is-read)). The sharp edge is `absent`: a `pattern` that
 stops matching goes loudly red, but an `absent` that stops matching goes **green
 without measuring anything**. It is also what makes deletion provable — "the old
 call site is gone" is exactly the sentence that becomes true when that work
@@ -328,4 +328,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

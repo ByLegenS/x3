@@ -51,43 +51,6 @@ x3 scan: 2 file(s) - 8 directive(s) - 8 red
 Paths are relative to the scan root and always use `/`, on every operating
 system.
 
-## How a pattern is read
-
-**What it catches:** a pattern written about lines but read against a whole
-file, which silently measures almost nothing.
-
-Most settings match a regular expression against a **file's whole text**, and
-there `^` and `$` bind to a **line**:
-
-| The pattern | Holds when |
-|---|---|
-| `^func main` | some line starts with `func main` |
-| `\Apackage ` | the **file** starts with `package ` |
-| `(?-m)^package ` | the same thing, with the mode turned off |
-
-Line mode is the default because the cost of the other reading is not symmetric:
-
-| The measurement wants | A collapsed pattern gives | How it shows |
-|---|---|---|
-| something **found** | nothing found | loud: red over an absence |
-| something **absent** | nothing found | **silent: green without measuring** |
-| a **number** (`count`, `cap`) | a number near zero | **silent: debt reads as repaid** |
-
-Nobody looks at green, so the silent rows decide the default. Nothing is lost:
-`\A` and `\z` always mean the ends of the file. Where the answer depends on the
-reading, the finding says so rather than leaving the number unexplained:
-
-```
-"docs/list.md" counts 3, above the cap of 1; a cap takes no debt;
-^ and $ read a line here, not the whole file - read the other way it would count 1
-```
-
-**Four patterns are not read this way**, because their subject is one line or
-one value, not a file: `syntax` `deny`, `secrets` `patterns[].match` and
-`ignore[].match`, `boxes` `markdown.moved.match`, and `arch` `literal`
-`pattern`. The last is the one to read twice — a `literal` rule looks for a
-**name**, so `^name$` means "the whole literal is this name".
-
 ## Scopes
 
 **What it catches:** a directive written where it binds to nothing.
@@ -292,4 +255,4 @@ The law does not slacken: a run rooted at the configuration's own directory
 judges **every** expectation, and each has already pulled its subject into
 scope. A run rooted **outside** that tree is an error, not a pass.
 
-<!-- x3-dist version=v0.69.0 capabilities=44f4a32b16b6855267241a9b0e4b932e39cd1f724c4ca9dac5c300fe68a2d6bf template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
