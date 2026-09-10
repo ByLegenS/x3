@@ -1,3 +1,19 @@
+# Text is text everywhere: LF in the repository and in the working tree.
+#
+# Why a blanket rule and not one line per file: this repository is generated,
+# so the file list grows on its own. `LATEST` was already outside the list and
+# every `git add` warned about it. A rule that has to be extended by hand is a
+# rule that will be forgotten -- the project this engine pilots learned that
+# the expensive way (841 files converted on checkout, 814 of them reported as
+# unformatted, and gate criteria that matched on one machine and not another).
+#
+# `core.autocrlf` cannot do this job: it binds one machine, this file binds
+# everyone who clones, and it overrides that setting.
+#
+# The two `binary` lines below come AFTER this rule on purpose: they win, and
+# the published binaries keep the bytes their checksum was taken over.
+* text=auto eol=lf
+
 # The published binaries are bytes, not text: an end-of-line conversion on
 # checkout would change the file this repository publishes a checksum for.
 x3-windows-amd64.exe binary
