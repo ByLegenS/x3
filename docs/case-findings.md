@@ -44,6 +44,33 @@ stops is a narrow run answering a question nobody asked it.
 
 See **case finding codes** in [REFERENCE.md](../REFERENCE.md#case-finding-codes).
 
+`does_not_parse` is the one finding that is not about an example. A file the
+parser cannot read carries no examples the gate can see, and a package whose
+files were never read cannot be called green: the run would print *"0 example(s)
+in 0 package(s) - 0 passed, 0 finding(s)"* and exit `0` over a package that does
+not compile. **A gate does not lean on somebody else's red.** The compiler will
+say it too, and saying it twice is cheaper than a sentence that is not true.
+
+### Propositions stop at the first one that fails
+
+Propositions in one `then=(...)` are evaluated in order, and the first one that
+does not hold ends the example. Written in sequence they are each other's
+**precondition**:
+
+```
+//x3:case: in=("nope") then=(out0 != nil, out0.Error() == "not found")
+```
+
+The second is meaningful only while the first holds; without it, `out0.Error()`
+on a nil error is not a red, it is a **panic**. A panic ends the process that is
+running the package, and the results of every other example in that package are
+then never reported — the gate would be right that something is wrong and wrong
+about what. Short-circuiting is the same thing Go's own `&&` does.
+
+A panic that survives anyway — a single proposition that dereferences nothing —
+is caught and charged to **that** example as `example_failed`, saying it
+panicked. Its neighbours keep running.
+
 The first three are answers the toolchain gave; the last four are refusals made
 **before** anything runs.
 
@@ -71,4 +98,4 @@ dependency waiting forever.
 `passed` is counted separately from `findings` on purpose: "no findings" and "no
 examples" are not the same sentence.
 
-<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

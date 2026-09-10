@@ -47,11 +47,33 @@ HOLD  WORK.md:197005faf068: pattern
 	by: command go test -v ./... -run TheGatedWork
 	at: WORK.md:3
 	asked: src/gated_test.go
-x3 boxes: 1 asked, 2 name(s) - 1 held, 0 free - 3 criterion(s) in *.md
+x3 boxes: 1 asked, 2 name(s) - 1 held, 0 free - 3 criterion(s) in *.md, 0 declared place(s)
 ```
 
 Red when a name is held, green when none is. The summary counts the criteria it
 read, so a green answer from a list carrying **no** criteria can be told apart
 from a green that measured something.
 
-<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+### A selector only reaches where its criterion looks
+
+A selector is a pattern, and a pattern knows nothing about place. `-run Manifest`
+matches every `TestManifest…` in the tree, while the command it belongs to may
+run in one package:
+
+```
+criterion: runs ./service/ -run Manifest
+```
+
+A file under `src/` declaring `TestManifestIsWritten` is **not** held by that
+criterion: deleting it kills nothing, because the criterion never looked there.
+The place is read out of the **shape of the arguments** — one that carries a
+slash and nothing but path characters is a place, `./...` being the whole tree —
+never out of a runner's flag names, which would make the engine know one runner
+and not the next. A criterion that names no place reaches everywhere, as before.
+
+When a criterion names **several** places, any one of them holding the file is
+enough. The two mistakes are not equal: a wrong "held" leaves a file in the tree
+that could have gone, a wrong "free" is the silent green this whole mode exists
+to prevent.
+
+<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

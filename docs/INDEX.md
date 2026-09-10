@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.70.0`**
+**Current version: `v0.71.0`**
 
 | Page | What it covers |
 |---|---|
@@ -26,6 +26,7 @@ describe a version that does not exist.
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [Before a name is removed](holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
+| [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
 | [Files no compiler reads](syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](test.md) | the unit graph, the cache, and what the measurement honestly shows |
@@ -44,4 +45,4 @@ describe a version that does not exist.
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

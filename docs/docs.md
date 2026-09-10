@@ -35,13 +35,21 @@ that is not a repository is red**, not green.
 ### Exemption, with a reason
 
 ```
-docs: none - wording of one stderr line; the capabilities document does not quote it
+docs: none (code-changes-carry-documentation) - wording of one stderr line; the capabilities document does not quote it
 ```
 
-The marker is `docs: none` unless the rule says otherwise; in `head` scope it
-lives in the commit body, in `working` scope it is passed with `-reason`. **The
-marker alone is red** — `exemption_without_reason` is a separate code from the
-missing change, because an exemption nobody had to justify becomes the only path
-within a month.
+The marker **names the rule it excuses**: `docs: none (<rule>)` unless the rule
+says otherwise (`exempt`). In `head` scope it lives in the commit body, in
+`working` scope it is passed with `-reason`. **The marker alone is red** —
+`exemption_without_reason` is a separate code from the missing change, because an
+exemption nobody had to justify becomes the only path within a month.
 
-<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+The rule's name is in the marker because a commit body answers **one** gate. The
+person writing it saw one rule turn red and wrote a reason for that rule; a
+shared marker takes that one sentence and silences every other rule as well —
+including rules the writer never saw. Measured in this repository: with a shared
+marker, the `docs gate` step's own control experiment (a rule whose counterpart
+directory cannot exist, which must exit `1`) exited `0` instead. The exemption
+had excused the experiment.
+
+<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

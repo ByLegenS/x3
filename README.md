@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.70.0`**
+**Current version: `v0.71.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.2 MB | `b1e2b468c4e89932652dfbd8f0ac268fd9e58401723c168d3ed0e58e11df1a14` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `e0c65fd15f3afefd1463422587ef751760616cc50b76e777dbfd96a7878ee143` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `acb4486b0452d2a249ea122b4dbf5fb28331a2d481fd4bad0ccd5eaf02856289` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `6c2496c3d67dc00419e2c29f60357fdbfeed31c33e6bcb7f60566540168de381` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -159,6 +159,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
+| [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
@@ -219,4 +220,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

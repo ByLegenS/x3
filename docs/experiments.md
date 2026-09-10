@@ -12,9 +12,9 @@ step names below are the ones the gate prints.
 | Step | The pair, and what only the red half proves |
 |---|---|
 | `control experiment` | a well-formed sample `0`, a broken one `1` |
-| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists; plus an example using its file's imports `0`, and a tree with one broken example `1` **whose three sound neighbours still passed**; a declared import no example names `1` in the tree that declares it and `0` from a narrower scope — **same tree, same setting, only the scope moves**; and a red example whose code writes its own log, so the finding must still speak the gate's sentence |
+| `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists; plus an example using its file's imports `0`, and a tree with one broken example `1` **whose three sound neighbours still passed**; a declared import no example names `1` in the tree that declares it and `0` from a narrower scope — **same tree, same setting, only the scope moves**; and a red example whose code writes its own log, so the finding must still speak the gate's sentence; a file that does not parse `1` called `does_not_parse` and the same tree readable `0`; and a proposition its predecessor rules out `1` **whose two neighbours still ran** |
 | `language gate` | the repository `0`; a planted word `1`; a green tree with its allow list `0` **and without it `1`** — an allow list never seen to change an answer is decoration |
-| `docs gate` | this repository `0`; a rule whose counterpart directory cannot exist `1` |
+| `docs gate` | this repository `0`; a rule whose counterpart directory cannot exist `1`; and on a planted repository whose single commit excuses one rule by name, that rule `0` while a second rule the reason does not name stays `1` |
 | `roster control experiment` | one tree, seven readings, only the *question* changing: two configured checkers really called `0`; neither called `1`, the red naming **both** — a stale roster would have named neither. Then a script naming one of them **only in a help string**: the old reading `0` (the blindness), `strings: "exempt"` and `invocations` both `1`. Then a colon command genuinely called: the old reading `1` — a false red on a checker that runs — and `invocations` `0` |
 | `configuration section registry` | a settings section the engine reads and the roster claims `0`; the roster gone stale `1`, naming the section. The green half on this repository's own tree is the `arch gate` step |
 | `expectation scope control experiment` | an expectation naming a fixture tree `0` — the walk enters a skipped directory only because a rule declared it; the same tree with the expectation unnamed `1`, which is the blindness itself; the run started **inside** the named tree `0`; and the directive deleted `1` |
@@ -31,6 +31,7 @@ step names below are the ones the gate prints.
 | `boxes document list control experiment` | the same for a document list, and **the same tree with one state declared `open` then `silent`** — one line of configuration decides, nothing else changes |
 | `boxes criterion fidelity control experiment` | criteria that stopped measuring, each red with a control that removes the rule and returns the tree to green. Its fourth row is deliberately **green**: a test that was never written, measured by exit code alone, with no `output` |
 | `boxes batch control experiment` | one tree measured twice, batched and not, three times over: a package whose criteria all hold, **a test that was never written beside two that pass**, and one criterion holding while another in the same package does not. The evidence is not the exit code but the **reports being identical** with and without batching, and the unmet criterion being the one the report names |
+| `boxes holds control experiment` | one tree asked six ways, only the *question* moving: a file no criterion names `0` over a list that really carries criteria, a test only a **fragment selector** holds `1` while a search of the documents for its full name finds nothing, the same tree with no selector declared `0`; then a second tree where the criterion names a place — the same declaration outside that place `0`, inside it `1` — and the outside one `1` again once a gate script that calls it by name is declared |
 | `syntax control experiment` | parsing, broken, a parser that is not installed (red), and the same check under `missing: "warn"` |
 | `scope control experiment` | inside the lane, crossing it, crossing with a reason; then the branch form both ways, including a violation in the first commit under a clean one, and a closed lane |
 | `test control experiment` | six directions on one tree, including **a full run when a file belongs to no unit** and a cache that answers, then measures again once the file changes |
@@ -61,11 +62,11 @@ This repository holds itself to the rule it ships: a change under `internal/` or
 any project would run.
 
 ```
-docs: none - <why the reader loses nothing>
+docs: none (code-changes-carry-documentation) - <why the reader loses nothing>
 ```
 
 A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.70.0 capabilities=d6bca49b1ee20fb16cf56855193fb72748bc6213792c4f4e81682cf9ef31d4b0 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
