@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.79.0`**
+**Current version: `v0.80.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `86a41d3daf3fde0996ccab0f8d7ff8330d171a6a600be70f1b2d5194d396c2be` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `7f5099c288bfe2510b9ee9f280ccec81606dbfd138dbf5978fd4204814ddc53b` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `7a12844bedbf431a956387e494436c53e0378eb2821040822886642fe23cfd28` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `eed9525fe58e26a41157736faa17ab707f2373f80e675e2a608663cf397a6b1a` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -106,6 +106,7 @@ x3 guard -config x3.json -- go test ./...   # live checks, then the command
 x3 guard:effective -config x3.json          # the setting on paper vs in force
 x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
 x3 adoption -config x3.json .   # how much of this engine the project actually runs
+x3 published -config x3.json     # the release the pointer announces, tagged and pushed
 ```
 
 Exit codes are the same for every command: **0** green, **1** red, **2** usage
@@ -121,7 +122,8 @@ what a recording must hide, the `replay` section for what may differ,
 the `cache` section for where a run may remember what it measured, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases, the `adoption` section for
-which of these the project is actually running. A large repository
+which of these the project is actually running, the `published` section for the
+tags a release must carry. A large repository
 splits that file: the root declares its parts with `include`, lists are added
 and objects merged, and anything else set twice stops the run. All of them are documented below, with the schema and a worked
 example.
@@ -180,6 +182,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
+| [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
@@ -227,4 +230,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.79.0 capabilities=3c45ec9abee79b86bf9ba9bca65f118d2c089dfaf5d4502d319cba631f64e38a template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.80.0 capabilities=11beb0dad35efb30c2b7e14a0ead52c847982dcf9d923e8a2201d4350ac1c2ee template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -51,6 +51,7 @@ step names below are the ones the gate prints.
 | `public leak gate` | the published documents clean, and a planted tree in which **every** forbidden pattern speaks |
 | `public size gate` | every published document under its own cap, then **each cap in turn** asked with one line too many — one document over the line would leave the other caps unmeasured |
 | `public language gate` | the published documents in one language, and the template's **real** maintainer note planted; the plant is not invented text, so the experiment measures the assumption too — a note rewritten in English would leave the gate unable to prove itself, and it says so |
+| `published control experiment` | one planted world — a bare remote and a repository that knows it — asked three times as the one missing step is taken: the tag never created `1`, the tag created and not pushed `1`, the tag pushed `0`; then this repository's **own** publication `0`. The middle row is the release that was really made and could not be downloaded |
 | `dist gate` | the publication current, the same question asked with a deliberately wrong document hash, and a copy of the publication with one page missing |
 
 Whatever cannot be arranged from a shell — a database, a network, a fake driver,
@@ -72,4 +73,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.79.0 capabilities=3c45ec9abee79b86bf9ba9bca65f118d2c089dfaf5d4502d319cba631f64e38a template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.80.0 capabilities=11beb0dad35efb30c2b7e14a0ead52c847982dcf9d923e8a2201d4350ac1c2ee template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
