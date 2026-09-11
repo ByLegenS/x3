@@ -191,4 +191,29 @@ See **the guard report fields** in [REFERENCE.md](../REFERENCE.md#the-guard-repo
 **No timestamp unless you ask for one**: the same configuration and the same
 answers must produce the same bytes.
 
-<!-- x3-dist version=v0.97.0 capabilities=e600efd1d92bff25f5816e9f3d989f80c770f098167ab364e947e723d56fa25d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+## The command the run wraps
+
+Guards run **before** the command and can say nothing about it. What is left is
+the command's exit code — and that is half a criterion, because a runner that
+finds nothing to run also exits zero. A gate step narrowed with a selector
+(`go test -run Manifest`) keeps passing on the day its package empties out.
+
+So the wrapped command's output is weighed too, against `live.command`:
+
+```json
+"live": { "guards": [ … ],
+  "command": { "must": ["--- PASS"], "mustNot": ["no tests to run", "no test files"] } }
+```
+
+The engine does not know these sentences — **no runner is named in its source**;
+the project writes what a real run of *its* command must say, in the words
+work-list criteria already use (`must`, `mustNot`, `unmeasured`). The output
+still streams to the terminal untouched; the copy kept for weighing is capped,
+and a run that outgrows it is **not measured** rather than measured on half the
+text. The command's own red passes through unchanged — an expectation renames
+nothing — and `measured` carries the verdict: `pass`, `fail`, or `error` for a
+run that could not be measured. With nothing declared the exit code is still the
+whole answer and the run says so in one line; an expectation written where no
+command is wrapped is a dead expectation and stops the run.
+
+<!-- x3-dist version=v0.98.0 capabilities=e55750f3b910e41dadf46e901aef548835ac9180db5482e255c3ed851850993a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

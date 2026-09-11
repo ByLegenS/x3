@@ -155,4 +155,4 @@ to do, and that walk grows with the repository. For a runner **without** a cache
 of its own — most of them — the first three rows would look very different. The
 engine does not assume either case; it measures.
 
-<!-- x3-dist version=v0.97.0 capabilities=e600efd1d92bff25f5816e9f3d989f80c770f098167ab364e947e723d56fa25d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.98.0 capabilities=e55750f3b910e41dadf46e901aef548835ac9180db5482e255c3ed851850993a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

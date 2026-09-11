@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.97.0`**
+**Current version: `v0.98.0`**
 
 ## scan exit codes
 
@@ -217,6 +217,7 @@ document in one run, so no two can describe different versions.
 | `skipped` | the guards a selection left out, by name; absent when nothing was dropped |
 | `decision` | `launch` or `blocked` |
 | `exit` | the command's exit code. **Absent when `decision` is `blocked`** — that absence is the proof the command never ran |
+| `measured` | the wrapped command's output weighed against `live.command`; absent when nothing was declared |
 | `startedAt` | present **only** with `-stamp` |
 
 ## effective check fields
@@ -275,4 +276,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.97.0 capabilities=e600efd1d92bff25f5816e9f3d989f80c770f098167ab364e947e723d56fa25d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.98.0 capabilities=e55750f3b910e41dadf46e901aef548835ac9180db5482e255c3ed851850993a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
