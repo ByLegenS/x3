@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.107.1`**
+**Current version: `v0.108.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `2cad76839e495d6b07a75f1f1d832fc77c22c2b6562ee6becd617a2bee60b2b9` |
-| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `711a84c604dcd089391bf47088f36ee89e7f559c2c5e57b268eec048592d3c9e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `aaf08523a993c1f61b8f27676f6b47741ed6c7feca21788f7a12832fc6d9fe3d` |
+| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `87f5565fdac70696fc931b17f804338afc0b55086ca0e1af34f0caa5ab6fc885` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -185,6 +185,7 @@ markers that split this document, so a page cannot be missing from it.
 | [How the engine is called](docs/adoption-invoke.md) | the spelling a project calls the engine by, the prose and the printed lines that are not calls, and where the line between them is drawn |
 | [Binding the gate without a permanent red](docs/adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
+| [The program a command name means](docs/commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
@@ -237,4 +238,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.107.1 capabilities=a33d0a24b9931851dd74be101512bd0389f8cc3b6ca762f0a329588aad1acd05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.108.0 capabilities=6a7f8a4816aae0ad758d93568b8bc6011c91903ca5dd7c8ba29bdd601fedd3df template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
