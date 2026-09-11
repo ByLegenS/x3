@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.108.0`**
+**Current version: `v0.109.0`**
 
 | Page | What it covers |
 |---|---|
@@ -25,6 +25,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [A baseline belongs to the root it measured](baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
 | [A baseline two branches write](baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [Changes that must not travel alone](docs.md) | a change under one path that requires a change under another in the same diff |
 | [Credentials in the source](secrets.md) | credential formats in any text file, masked in the report that names them |
@@ -59,4 +60,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.108.0 capabilities=6a7f8a4816aae0ad758d93568b8bc6011c91903ca5dd7c8ba29bdd601fedd3df template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.109.0 capabilities=bf57ad24b30d732a9c603eb0a18c1076ec3086ba0bfe52fe1ecfbec19053907a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

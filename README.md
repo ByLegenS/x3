@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.108.0`**
+**Current version: `v0.109.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `aaf08523a993c1f61b8f27676f6b47741ed6c7feca21788f7a12832fc6d9fe3d` |
-| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `87f5565fdac70696fc931b17f804338afc0b55086ca0e1af34f0caa5ab6fc885` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `fa07241b54ff55fca5b1d854570a088e23bda99576107b9a753ec07a18da6b55` |
+| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `f68d8ba0fa6497cebbb6e0aca15aac4e0c53a1f3511db3dac1b3ac3f3da0cfbf` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -162,6 +162,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [A baseline belongs to the root it measured](docs/baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
 | [A baseline two branches write](docs/baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [Changes that must not travel alone](docs/docs.md) | a change under one path that requires a change under another in the same diff |
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
@@ -238,4 +239,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.108.0 capabilities=6a7f8a4816aae0ad758d93568b8bc6011c91903ca5dd7c8ba29bdd601fedd3df template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.109.0 capabilities=bf57ad24b30d732a9c603eb0a18c1076ec3086ba0bfe52fe1ecfbec19053907a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
