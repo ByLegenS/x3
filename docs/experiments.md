@@ -24,6 +24,7 @@ step names below are the ones the gate prints.
 | `surface control experiment` | six directions on one tree: **no baseline** (red, because growth is green here), recorded, untouched, a changed signature red **and naming its caller**, the same break allowed, a symbol *added* green, and the allow gone dead |
 | `freeze scope control experiment` | one tree five ways; the exclusion written properly is `0` **on a tree built to be red without it**, and the same intent written as `"!…"` inside `sources` is `2` |
 | `baseline control experiment` | no baseline, written, re-run, **the same debt moved down the file** (`0`), grown, `-update-baseline` refused, and one debt paid leaving `dead_baseline` |
+| `baseline shrink control experiment` | one tree carrying **both** a paid debt and a new one: locked (`1`, `dead_baseline` named), then `-update-baseline` — the drop lands and the growth does not, both named, the file holding one entry; the re-run keeps the real finding (`1`) and has no `dead_baseline` left. Then a `count` that disagrees with its own list (`2`) |
 | `secrets control experiment` | clean, leaky, exempted, a dead exemption, and this repository — the clean and exempted rows are what separate a gate from a noise generator |
 | `secrets ignore control experiment` | a noisy tree with and without its exclusions, **then a real address added back**, then a dead exclusion, then a lookaround (`2`) |
 | `comments control experiment` | inside the limit, one line over, exempted with a reason, an exemption that silences nothing |
@@ -42,6 +43,7 @@ step names below are the ones the gate prints.
 | `guard selection control experiment` | one file, only the flags changing; a mistyped tag exits `2` rather than skipping nothing |
 | `multi-step trial control experiment` | the same trial green, red once an import is *written* into the copy, red on an empty removal — and **zero working areas left behind, the reds included** |
 | `effective control experiment` | agreement, divergence under `block`, the same divergence under `warn` |
+| `adoption policy control experiment` | one tree, eight settings. The first two are the measurement: the same tree, the same `block` default, `0` with the known code excepted and `1` without — the exception is the only thing that moved. Then the escapes: no reason, a bare word, an unknown code, a missing `"*"`, and `dead_policy` excepted from itself, each `2`; and an exception matching nothing, `1`. The last two rows read the report itself — the silenced finding is **still there, named, with its reason**, and the exception is counted against what it touched |
 | `update control experiment` | installed, a planted checksum refused, the version gate both ways, and **a pin disagreeing with a release whose own checksum list is perfect** — which is exactly how a compromised release looks |
 | `testdb control experiment` | a foreign name refused at the gate (`1`) **and our own name reaching an unreachable server (`2`)** — a gate that refused every name would also exit `1` |
 | `expect control experiment` | the count met, one guard short, the directives deleted, and the same tree with no expectation |
@@ -69,4 +71,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

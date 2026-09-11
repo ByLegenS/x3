@@ -102,4 +102,4 @@ and red; the example above carries a real-shaped key on purpose, because written
 with an ellipsis the exemption over it would cover nothing and this document
 would fail the scan it describes.
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

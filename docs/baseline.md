@@ -20,7 +20,7 @@ finding is red.
 | Flag | What it does |
 |---|---|
 | `-baseline <file>` | read this file instead of the derived one |
-| `-update-baseline` | rewrite to this run's findings; growth is never written |
+| `-update-baseline` | drop what the run no longer finds; growth is never written |
 
 ### The identity carries no line number
 
@@ -60,6 +60,29 @@ missing baseline file measures against an empty set; a file that exists and
 holds nothing is a project declaring it owes nothing, and can only shrink. **An
 empty file is a statement, a missing file is a beginning.**
 
+### The two directions are refreshed separately
+
+Growth and shrink are not two halves of one decision, and joining them punishes
+the wrong person. A tree usually carries both at once: a file that owed
+something was deleted, and somewhere else a new finding appeared.
+
+| In one run | What `-update-baseline` does |
+|---|---|
+| a finding the baseline does not hold | never written — naming it, `GROWTH <id>` |
+| an entry the run no longer produces | **always dropped** — naming it, `DROPPED <id>` |
+| both at once | the drop lands, the growth stays out, the run still exits `1` |
+
+Dropping an entry can only make the gate **stricter** — the debt it excused is
+gone, so nothing can hide behind it — which is why it needs no permission from
+the other direction. Joined, the opposite happened: one unrelated finding froze
+the whole file, every deleted file left a permanent `dead_baseline` red, and the
+only way out was editing the JSON by hand.
+
+`count` is **derived**, written from the list it describes, and a file whose
+`count` disagrees with its own list is refused with exit `2` — that
+disagreement is the fingerprint of the hand-editing this flag exists to spare
+you, and a debt counted wrong is read wrong.
+
 ### What can never enter a baseline
 
 - **Warnings** — an observation is not a debt, and freezing one turns into a
@@ -69,4 +92,4 @@ empty file is a statement, a missing file is a beginning.**
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

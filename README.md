@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.74.0`**
+**Current version: `v0.75.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `09b0ef762f459f5745a22e3f9908a48c4462422bfdcb8f70851cc2fe1f390ded` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `39ffe07a3cdcef83e8715097c07e97b5a5fcc6a66f9e85c03e90a718fdcdd59a` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `765eaf6d091c540c2f17a120fddecb60df25b134b0466a11317070728f74b473` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `07a647f1e2bf8904c0474ad1627928fd5e4454e0ce245c80db2bd8665f8235ba` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -172,6 +172,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
 | [The setting on paper against the setting in force](docs/effective.md) | a recorded value compared with the value the running system actually uses |
 | [How much of this engine actually runs](docs/adoption.md) | the project measured against the engine's own command table |
+| [Binding the gate without a permanent red](docs/adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
@@ -223,4 +224,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

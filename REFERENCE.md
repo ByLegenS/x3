@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.74.0`**
+**Current version: `v0.75.0`**
 
 ## scan exit codes
 
@@ -247,7 +247,7 @@ document in one run, so no two can describe different versions.
 | `token` | the ceiling under which a section is written rather than working |
 | `split` | the line count past which a configuration wants `include` |
 | `exempt` | command → **reason**; a reason is required and a dead one is a finding |
-| `policy` | `warn` (default) or `block` |
+| `policy` | `warn` (default), `block`, or an object keyed by finding code |
 
 ## adoption finding codes
 
@@ -259,6 +259,7 @@ document in one run, so no two can describe different versions.
 | `tests_remain` | test files still stand where inline examples were meant to be |
 | `dead_pin` | `update.pin` vouches for a release below `x3.min_version` |
 | `config_one_file` | the configuration passed `split` lines and declares no `include` |
+| `dead_policy` | `policy` excepts a code this run does not produce — always a block |
 
 ## testdb settings
 
@@ -272,4 +273,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

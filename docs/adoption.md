@@ -15,7 +15,9 @@ x3 adoption [-config <file>] [-out <file>] [dir]
 
 **It is a mirror, not a fence.** Findings default to `warn`, so the run stays
 green and stops nobody: no project has to use every command, but a project that
-is not using one should be able to see that. `"policy": "block"` gives it teeth.
+is not using one should be able to see that. `"policy": "block"` gives it teeth,
+and an [object](adoption-policy.md#one-known-debt-without-a-permanently-red-gate) gives them to
+every code but the one you are working on.
 
 **The list is the engine's own.** The commands measured are the entries of the
 binary's dispatch table, read at run time. A copy of that list kept beside the
@@ -82,7 +84,19 @@ and that counts too.
 
   EXEMPT, WITH A REASON (2): lang - version
 
-x3 adoption: 22 command(s) - 1 section(s) - 0 block, 0 warn
+x3 adoption: 22 command(s) - 1 section(s) - 0 block, 0 warn, 0 allowed
+```
+
+The same tree with one finding excepted — green, and the debt still on the page:
+
+```
+  POLICY EXCEPTIONS (1) - each one named, with what it touched:
+    tests_remain     -> warn   1 finding(s)  the migration is under way
+
+ALLOW tests_remain
+        1 test file(s) still stand against 0 inline example(s); the engine's
+        claim is that the second replaces the first
+x3 adoption: 23 command(s) - 1 section(s) - 0 block, 0 warn, 1 allowed
 ```
 
 ### Red
@@ -118,4 +132,4 @@ direction: they put no check in force.
 
 See **adoption finding codes** in [REFERENCE.md](../REFERENCE.md#adoption-finding-codes).
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

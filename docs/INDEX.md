@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.74.0`**
+**Current version: `v0.75.0`**
 
 | Page | What it covers |
 |---|---|
@@ -39,6 +39,7 @@ describe a version that does not exist.
 | [The live world, before the command](guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
 | [The setting on paper against the setting in force](effective.md) | a recorded value compared with the value the running system actually uses |
 | [How much of this engine actually runs](adoption.md) | the project measured against the engine's own command table |
+| [Binding the gate without a permanent red](adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [The version, and how it updates itself](update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [A fresh database for this run](testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
 | [Speed, the cache, and what a run leaves behind](speed.md) | measured timings, the incremental cache, and the files the engine reads back |
@@ -48,4 +49,4 @@ describe a version that does not exist.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
