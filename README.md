@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.86.0`**
+**Current version: `v0.87.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `0010be12fd3340f185873f3a2d695af6cc7cb19d1388794c5231af7effc08c2c` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `252a7047ebd5ae59bc4faa25da9b2fa7caaee7fa7bbb081a17ace50d6deb5f2e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `b6336e6f843ed2da01a4d1c0c6fc7c8696a18a86d2602246890ddd3e2d0fae31` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `22aedca2d42d8577cb4a42406fa1c8cf7821d7bdcdebfb9202b08010b3e058a9` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -159,6 +159,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [A baseline two branches write](docs/baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [Changes that must not travel alone](docs/docs.md) | a change under one path that requires a change under another in the same diff |
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
@@ -230,4 +231,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.86.0 capabilities=fb2e0dc0d643ce64311e8f99200a6c696bc378776f11c7e1ade7bf6e8da13b7b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.87.0 capabilities=cc1dd6426e362f7b7e21d2e8a71f9f04fd6e63386565b7d322747bc4f8025941 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

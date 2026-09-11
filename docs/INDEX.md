@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.86.0`**
+**Current version: `v0.87.0`**
 
 | Page | What it covers |
 |---|---|
@@ -24,6 +24,7 @@ describe a version that does not exist.
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [A baseline two branches write](baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [Changes that must not travel alone](docs.md) | a change under one path that requires a change under another in the same diff |
 | [Credentials in the source](secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
@@ -53,4 +54,4 @@ describe a version that does not exist.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.86.0 capabilities=fb2e0dc0d643ce64311e8f99200a6c696bc378776f11c7e1ade7bf6e8da13b7b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.87.0 capabilities=cc1dd6426e362f7b7e21d2e8a71f9f04fd6e63386565b7d322747bc4f8025941 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

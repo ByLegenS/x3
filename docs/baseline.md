@@ -78,10 +78,8 @@ the other direction. Joined, the opposite happened: one unrelated finding froze
 the whole file, every deleted file left a permanent `dead_baseline` red, and the
 only way out was editing the JSON by hand.
 
-`count` is **derived**, written from the list it describes, and a file whose
-`count` disagrees with its own list is refused with exit `2` — that
-disagreement is the fingerprint of the hand-editing this flag exists to spare
-you, and a debt counted wrong is read wrong.
+`count` is **derived** and a file disagreeing with its own list is refused with
+exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-two-branches-write).
 
 ### What can never enter a baseline
 
@@ -92,4 +90,4 @@ you, and a debt counted wrong is read wrong.
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.86.0 capabilities=fb2e0dc0d643ce64311e8f99200a6c696bc378776f11c7e1ade7bf6e8da13b7b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.87.0 capabilities=cc1dd6426e362f7b7e21d2e8a71f9f04fd6e63386565b7d322747bc4f8025941 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
