@@ -159,6 +159,15 @@ including when a step fails mid-way, and the paths inside it are stripped out of
 the output that reaches the report: the person reading the red opens the file
 **in the repository**, not a copy that no longer exists.
 
+Removal on every exit path is not the whole of it: a **killed** run has no exit
+path. Cancel the gate and the process tree closes with the copy still on disk
+and nothing left to collect it. So sweeping the leftovers is the first act of
+every trial — the same answer `testdb` reached for the same reason. The sweep
+goes by **age**: a second x3 running right now has a working area under the same
+name, and taking it would shoot a live trial in the foot. It reaches no other
+name, and it cannot be switched off, because a sweep that can be switched off is
+switched off the day it is inconvenient.
+
 `write` is what makes the control experiment possible from the configuration
 alone: the same trial with one file written into the copy has to go red, and a
 trial whose red has never been seen is not a trial.
@@ -223,4 +232,4 @@ runs that wrap a command and runs that only measure guards: an expectation a
 command-less run can never satisfy is stale, while a reason it does not need is
 simply not needed.
 
-<!-- x3-dist version=v0.109.0 capabilities=bf57ad24b30d732a9c603eb0a18c1076ec3086ba0bfe52fe1ecfbec19053907a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.110.0 capabilities=8e148dba0bfdd51abe71c339e3f254364ebfc4f3e0ba2c90a6e0d9518d73398d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
