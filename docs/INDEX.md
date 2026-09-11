@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.85.0`**
+**Current version: `v0.86.0`**
 
 | Page | What it covers |
 |---|---|
@@ -53,4 +53,4 @@ describe a version that does not exist.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.85.0 capabilities=824561a6c775b5392c6cca5f5faa4039af3e43328c756c92d037e46e4c2dab93 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.86.0 capabilities=fb2e0dc0d643ce64311e8f99200a6c696bc378776f11c7e1ade7bf6e8da13b7b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

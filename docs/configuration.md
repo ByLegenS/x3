@@ -32,6 +32,21 @@ an error for the command that needs it. Ordering is by file name, so the merged
 configuration is the same on every run and machine. A project that does not
 split pays nothing.
 
+**A relative path written in the configuration is relative to the
+configuration.** `baseline.dir` and `cache.dir` are resolved against the
+directory of the root configuration file — the same base `include` patterns
+already use, so the whole configuration has exactly one base and a part cannot
+introduce a second. An absolute path is left alone, and a path given on the
+command line (`-baseline`, `-cache`) is not touched at all: a path typed into a
+shell belongs to that shell's directory.
+
+Bound to the working directory instead, the same configuration opens a
+different file depending on where it is run from: the baseline is not found and
+a frozen debt turns every finding red again, or a new baseline is written into
+the root of whatever tree the shell happened to be standing in. Both are silent.
+A setting that quietly changes meaning is worse than a wrong answer, because a
+wrong answer can be read.
+
 ## Pilot: a real `x3.json`
 
 x3 is piloted inside a real production application. Nothing about that
@@ -74,4 +89,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.85.0 capabilities=824561a6c775b5392c6cca5f5faa4039af3e43328c756c92d037e46e4c2dab93 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.86.0 capabilities=fb2e0dc0d643ce64311e8f99200a6c696bc378776f11c7e1ade7bf6e8da13b7b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
