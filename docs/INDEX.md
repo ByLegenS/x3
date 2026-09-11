@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.92.0`**
+**Current version: `v0.93.0`**
 
 | Page | What it covers |
 |---|---|
@@ -44,6 +44,7 @@ describe a version that does not exist.
 | [The live world, before the command](guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
 | [The setting on paper against the setting in force](effective.md) | a recorded value compared with the value the running system actually uses |
 | [How much of this engine actually runs](adoption.md) | the project measured against the engine's own command table |
+| [How the engine is called](adoption-invoke.md) | the spelling a project calls the engine by, the prose and the printed lines that are not calls, and where the line between them is drawn |
 | [Binding the gate without a permanent red](adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [The version, and how it updates itself](update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [A fresh database for this run](testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
@@ -56,4 +57,4 @@ describe a version that does not exist.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.92.0 capabilities=934160404f38d1ace532961dd4a04b6cad435644db87336b9e1da318fe141f19 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.93.0 capabilities=8e6ea0dead868abe1ef78d99ea4880c63abef385ce80ffc483b9f1a56eb54532 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

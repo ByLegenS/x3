@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.92.0`**
+**Current version: `v0.93.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `224b83c6f835ab7c782961fc6fc09e1231ceed05a487b9c2dd644ae636de129f` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `c59b9dfe569d5e7a9ac378d39669d5a950b35da1f687c299f7e1ba2e37f124ea` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `e0fd8d0c43e3d129c0968849c96f55ad3373b232677b95eaa777047644f894ec` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `bb285a2a80aa387bbb6247083fbef07f5301782d3ecdf8a7b646af7ddd5e54e5` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -179,6 +179,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
 | [The setting on paper against the setting in force](docs/effective.md) | a recorded value compared with the value the running system actually uses |
 | [How much of this engine actually runs](docs/adoption.md) | the project measured against the engine's own command table |
+| [How the engine is called](docs/adoption-invoke.md) | the spelling a project calls the engine by, the prose and the printed lines that are not calls, and where the line between them is drawn |
 | [Binding the gate without a permanent red](docs/adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
@@ -233,4 +234,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.92.0 capabilities=934160404f38d1ace532961dd4a04b6cad435644db87336b9e1da318fe141f19 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.93.0 capabilities=8e6ea0dead868abe1ef78d99ea4880c63abef385ce80ffc483b9f1a56eb54532 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
