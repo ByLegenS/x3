@@ -95,4 +95,26 @@ configuration, and the declaration is judged when that file lies inside the tree
 being run — which a whole-tree run always does, so the law does not loosen. What
 stops is a narrow run answering a question nobody asked it.
 
-<!-- x3-dist version=v0.96.0 capabilities=890b3ee4cf9878440f2cd2d8516be453e9d75846ffce0092312b5bb1236761b4 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+### What counts as naming a package
+
+An import is written only where an example **names** the package, and naming is
+read from the parsed example, never from its text — because reading it wrongly
+lands elsewhere. An import nobody uses is a compile error in Go, reported on the
+*import line*, so it fails the whole package: every example in it, including
+files nobody touched. So the inside of a string is not code. In
+`given=(q := "delete from sessions where key = 'user.login.reset'")`, `login` is
+five letters inside a SQL statement; no import is written for it, and a declared
+`.../login` is not kept alive by it. The setup is parsed as statements,
+arguments and expected values as expressions; only text neither parser reads — a
+variadic spread such as `in=(append(base, "user.x")...)` is not an expression —
+falls back to a plain scan, and that scan obeys the same law.
+
+**Where the reading cannot help.** An import can be written correctly and still
+go unused: an example whose own local name shadows the package uses the local
+everywhere. The compiler again speaks on the import line, which belongs to no
+example, so blame by line number finds nobody and once charged the whole
+package. The engine records which example asked for each import, so the finding
+lands on that one and says why — `"net/http/httptest" imported and not used; the
+import was written because this example names it` — and the neighbours still run.
+
+<!-- x3-dist version=v0.97.0 capabilities=e600efd1d92bff25f5816e9f3d989f80c770f098167ab364e947e723d56fa25d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
