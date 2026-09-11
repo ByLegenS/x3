@@ -17,6 +17,11 @@ command, so `x3 comments` reads `baselines/comments.json` and `x3 secrets` reads
 `baselines/secrets.json`. Declare nothing and there is no baseline: every
 finding is red.
 
+Six commands carry one: `arch`, `comments`, `secrets`, `lang`, `syntax` and
+`boxes` — each measures the **state of the tree**, which is what a debt is.
+`docs` and `scope` read a diff instead, and a finding there is not debt but the
+change in front of you; freezing it would silence the wrong thing.
+
 | Flag | What it does |
 |---|---|
 | `-baseline <file>` | read this file instead of the derived one |
@@ -90,4 +95,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.112.0 capabilities=0a7117b7df62a67af7a7c7f1fe618dc993bf861b0324f46841171931436ce071 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.112.1 capabilities=2ce4cf8e1a446da31988c9751de4619ad1bf92f1ea1af144c18b10cebd1d5adf template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

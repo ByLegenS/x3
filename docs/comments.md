@@ -8,7 +8,7 @@
 documentation, but a document in the wrong place.
 
 ```
-x3 comments [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [dir]
+x3 comments [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [-baseline <file>] [-update-baseline] [dir]
 ```
 
 **Block length is red.** Consecutive comment lines form a block; a blank line or
@@ -74,4 +74,4 @@ held, and writes an empty baseline, which is a declaration of no debt at all. Th
 diff of the new file is worth reading: whatever the old identity was hiding
 appears in it.
 
-<!-- x3-dist version=v0.112.0 capabilities=0a7117b7df62a67af7a7c7f1fe618dc993bf861b0324f46841171931436ce071 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.112.1 capabilities=2ce4cf8e1a446da31988c9751de4619ad1bf92f1ea1af144c18b10cebd1d5adf template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
