@@ -244,9 +244,9 @@ x3 boxes -baseline baselines/boxes.json -update-baseline   # freeze what stands 
 What may be frozen is **how the list is written today** — `box_uncovered`,
 `box_record`, `box_unlisted`, `box_unknown_state`, `box_owner`, `box_moved`,
 `box_suspect`. What may **never** be frozen is what the list *claims*:
-`box_finished`, `box_unproven` and `box_unmeasured` (freezing them makes finished
-work sit open forever, closing without proof free, and a gate that measures
-nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
+`box_finished`, `box_unproven`, `box_unmeasured` and `box_dead_selector`
+(freezing them makes finished work sit open forever, closing without proof free,
+and a gate that measures nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
 stop asking the two questions.
 
 ### A list that is finished, and where it goes next
@@ -320,24 +320,6 @@ from the record that they did. Both are the project's own words, and if the kind
 declares no `signed` marker a manual criterion can never hold — correct rather
 than convenient.
 
-### A criterion that stopped measuring
-
-The quietest way a work list dies is criteria that cannot fail. Three writings do
-it, all three go green, and none measures anything:
-
-```json
-{ "boxes": { "suspect": { "repeat": 3, "always": ["go.mod", "README.md"],
-                          "selfProof": true } } }
-```
-
-`repeat` finds one criterion carried by that many items or more; `always` a
-criterion pointing at a path the project carries in **every** state; `selfProof` a
-criterion whose scope is the very document the item is written in. Each is
-`box_suspect`. `repeat` counts distinct items and skips `manual` criteria, and is
-refused below `2`; `selfProof` asks the scope matcher, so a glob that reaches the
-document is as visible as a path that names it. The section must ask for at least
-one of the three.
-
 ### Who a manual criterion may wait on
 
 ```json
@@ -348,4 +330,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.93.0 capabilities=8e6ea0dead868abe1ef78d99ea4880c63abef385ce80ffc483b9f1a56eb54532 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.94.0 capabilities=c39eb58e8ee9646890a2f3128e2022fcf610ac0f156ba567625a89e2b97b1034 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

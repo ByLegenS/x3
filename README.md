@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.93.0`**
+**Current version: `v0.94.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `e0fd8d0c43e3d129c0968849c96f55ad3373b232677b95eaa777047644f894ec` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `bb285a2a80aa387bbb6247083fbef07f5301782d3ecdf8a7b646af7ddd5e54e5` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `aae6896c53c502faeab32c7df81476a6c15c95afb5a02b13030808cd13d1590e` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `59262f7155e8ddb84f2c2c1d0f1ed4593730794982fadd0c882620cb8ba69bfb` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -165,6 +165,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
+| [Criteria that stopped measuring](docs/boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -234,4 +235,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.93.0 capabilities=8e6ea0dead868abe1ef78d99ea4880c63abef385ce80ffc483b9f1a56eb54532 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.94.0 capabilities=c39eb58e8ee9646890a2f3128e2022fcf610ac0f156ba567625a89e2b97b1034 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

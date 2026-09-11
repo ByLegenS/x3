@@ -17,6 +17,13 @@ And `summary.unmeasuredBoxes` counts every box carrying such a criterion, which 
 more than the number of `box_unmeasured` findings: a box that also fails a
 criterion it *did* measure is counted here and reported as `box_unproven`.
 
+**A dead selector is only asked where the selector is declared.** The engine
+never guesses which argument a runner reads as its selector; the kind says so
+(`batch.select`). A criterion whose kind declares nothing carries a selector the
+engine cannot see, and is passed over in silence rather than guessed at. The
+names it is matched against are the declarations the engine can parse, so a
+check written in a language it does not read is invisible to this question too.
+
 **A name a declared place mentions cannot be weighed.** A criterion carries a
 place to compare against; a runner *is* the place. Such a record is `SUSPECT`
 and its entry `unsure` - kept on the not-free side, never counted as a bond.
@@ -34,4 +41,4 @@ every run until someone carries it.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.93.0 capabilities=8e6ea0dead868abe1ef78d99ea4880c63abef385ce80ffc483b9f1a56eb54532 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.94.0 capabilities=c39eb58e8ee9646890a2f3128e2022fcf610ac0f156ba567625a89e2b97b1034 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

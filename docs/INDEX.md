@@ -1,13 +1,11 @@
 # x3 documentation
 
 One page per capability: the directive line, what it catches, a red and a green
-example, and the settings it reads. Every page is generated from the engine's
-own capability document in the same run as the binaries, so a page cannot
-describe a version that does not exist.
+example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.93.0`**
+**Current version: `v0.94.0`**
 
 | Page | What it covers |
 |---|---|
@@ -30,6 +28,7 @@ describe a version that does not exist.
 | [Credentials in the source](secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](boxes.md) | every box against the criteria that would prove it done, in both directions |
+| [Criteria that stopped measuring](boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [Before a name is removed](holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -57,4 +56,4 @@ describe a version that does not exist.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.93.0 capabilities=8e6ea0dead868abe1ef78d99ea4880c63abef385ce80ffc483b9f1a56eb54532 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.94.0 capabilities=c39eb58e8ee9646890a2f3128e2022fcf610ac0f156ba567625a89e2b97b1034 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
