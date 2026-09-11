@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.99.0`**
+**Current version: `v0.100.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `d3b8e679e793bf227c371d7642259020ba25d364f2941016b561b196f30a5437` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `9ee532b35a70f83bfc2487b823875fb89bcd2d1478173415a9c320fc2884d330` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `3c0f3157ea22167f37499b1fb05c259ad481c6866403c24c0dda675205324a1c` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `679d13d16dde69e0b44e37cbe06ed340b5b1c2e0b7660bd0d039c3a36b04f7a3` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -151,6 +151,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Where a pattern binds](docs/patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
 | [The names an example may reach](docs/case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
+| [The type an example declares](docs/case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
@@ -235,4 +236,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.99.0 capabilities=c87a76409332a713963f0bdac1bfd4b7896c2dae041df37989e6a12826e0e6d2 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.100.0 capabilities=155f530d349523a8f9447a8fe2dab50ac5b99a2064f5a03a88a0ae0f628a2d6a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
