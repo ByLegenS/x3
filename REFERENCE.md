@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.77.0`**
+**Current version: `v0.78.0`**
 
 ## scan exit codes
 
@@ -25,6 +25,7 @@ document in one run, so no two can describe different versions.
 | `//x3:guard:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
 | `//x3:case: <payload>` | `decl` only | a payload that parses: `in=(...) out=...` |
 | `//x3:import: [<name> ]<path>` | `file` only | an import path, and a name that is a plain identifier if one is written |
+| `//x3:tags: <tag>[ <tag>...]` | `file` only | one or more build tags; a constraint expression is not a tag |
 | `//x3:live` | `decl`, `file`, `pkg` | nothing |
 | `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
 | `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
@@ -274,4 +275,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.78.0 capabilities=53c367399e7771a03b7c0432e35711311b74e3fc7bdd733b14434d4810570cd8 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

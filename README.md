@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.77.0`**
+**Current version: `v0.78.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `71de5cb5b2a7bacf0b56b8903328c6d0f717c68780116930bf451aae9a3fe288` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `496c08c640b4d69d303b9fa0a32065ae45e0d7fa912e4291db466fd527e6b2ca` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `756df084ed3af5b3058e4cd35c975d8d414a0e8a4ad200583b51060f2dee0f09` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `ece744ff046bae289d47b98a26bc6bf7fbabf7951b3d4ef28afd6d9a6d7b1f43` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -149,6 +149,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Where a pattern binds](docs/patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
 | [The names an example may reach](docs/case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
+| [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
@@ -225,4 +226,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.78.0 capabilities=53c367399e7771a03b7c0432e35711311b74e3fc7bdd733b14434d4810570cd8 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
