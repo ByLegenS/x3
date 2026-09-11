@@ -255,4 +255,4 @@ The law does not slacken: a run rooted at the configuration's own directory
 judges **every** expectation, and each has already pulled its subject into
 scope. A run rooted **outside** that tree is an error, not a pass.
 
-<!-- x3-dist version=v0.83.0 capabilities=d3348f8a3d4c73a596a541668f761bcece1eb2e22db0a496d09c11966cefe90f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.84.0 capabilities=4637b37ed5c75adce624ebb178cfdcdf0515fc86905e5583e6fbe8f59906f92b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
