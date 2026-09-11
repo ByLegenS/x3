@@ -96,6 +96,16 @@ needs; the same text in two files is **two targets**. `absent` is a
 it is named nowhere any more: an exemption list that only grows is a gate
 carrying its own silencer.
 
+⚠️ **A path whose presence depends on the machine belongs in `skip`, not
+`absent`.** A build output, a credentials file, or the sand a control experiment
+writes on purpose is there on one checkout and gone on the next; `absent` states
+a fact about the disk, so it turns `dead_exemption` the first time the file
+appears, and dropping it turns `missing_target` the first time it does not.
+`skip` takes the value out before any verdict, so neither state is judged, and
+it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`.
+One pattern may cover a whole family, which is what a project that keeps its
+control-experiment fixtures inside its gate scripts needs.
+
 ### `from: "x3"` — the engine's own roster
 
 **Catches:** a rulebook sentence saying *"this one is guarded"* after the guard
@@ -154,4 +164,4 @@ its own name; a project calling it through a variable (`& $bin scan`) says so
 with `invoke`, a list of patterns each carrying one capture group — the same
 field, spelled the same way, that [`x3 adoption`](adoption.md#x3-adoption) reads.
 
-<!-- x3-dist version=v0.91.0 capabilities=42fdb478204aa7bb7bc7b10d4593e3f217343dcde7c7797089bda96e8b263f48 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.92.0 capabilities=934160404f38d1ace532961dd4a04b6cad435644db87336b9e1da318fe141f19 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

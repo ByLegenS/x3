@@ -67,4 +67,4 @@ two apart.
 matches anything. Which ending a repository stores is git's question, not this
 engine's.
 
-<!-- x3-dist version=v0.91.0 capabilities=42fdb478204aa7bb7bc7b10d4593e3f217343dcde7c7797089bda96e8b263f48 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.92.0 capabilities=934160404f38d1ace532961dd4a04b6cad435644db87336b9e1da318fe141f19 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
