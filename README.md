@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.76.0`**
+**Current version: `v0.77.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `00d5bcfa95e839fb7b14c95575e120835ae083b65b6a4b429dacff33abbbe152` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `b825182bc0b01c58d5702883748531885acea40682a190ab5fca0d59b3257873` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `71de5cb5b2a7bacf0b56b8903328c6d0f717c68780116930bf451aae9a3fe288` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `496c08c640b4d69d303b9fa0a32065ae45e0d7fa912e4291db466fd527e6b2ca` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -148,7 +148,8 @@ markers that split this document, so a page cannot be missing from it.
 | [Where a directive may sit](docs/layout.md) | the placement the Go formatter writes, measured by the engine itself, so that a formatting run cannot move a directive behind your back |
 | [Where a pattern binds](docs/patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
-| [What an example may name, and what a run says](docs/case-findings.md) | the pool of importable names and the scope it is measured in, the finding codes, the settings and the report |
+| [The names an example may reach](docs/case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
+| [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [The two sets a rule compares](docs/sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
@@ -224,4 +225,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

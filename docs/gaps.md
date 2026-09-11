@@ -24,6 +24,13 @@ whether a formatting run would move a `//x3:` line. It also stays silent
 wherever the formatter itself does: indented comments, block comments, and doc
 comments on `import` declarations.
 
+**A declared import name is taken at its word.** The engine does not read the
+package it points at, so a declaration whose name is not what that package calls
+itself is not caught here — the generated test aliases the import to the
+declared name, which makes the binding hold anyway, and the only cost is an
+example reading differently from the rest of the project. What is checked is
+that the name is writable at all.
+
 **Expectations count directives, and only from `scan`.** They say a minimum,
 never a maximum, and cannot say "these two exact directives".
 
@@ -66,4 +73,4 @@ cannot read a value it mutated.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

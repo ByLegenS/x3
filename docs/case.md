@@ -275,4 +275,4 @@ where it is.
 What an example may *name* — a package its own file cannot import — and
 what a run says when one goes red are on the next page.
 
-<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.76.0`**
+**Current version: `v0.77.0`**
 
 ## scan exit codes
 
@@ -24,6 +24,7 @@ document in one run, so no two can describe different versions.
 | `//x3:rule:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
 | `//x3:guard:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
 | `//x3:case: <payload>` | `decl` only | a payload that parses: `in=(...) out=...` |
+| `//x3:import: [<name> ]<path>` | `file` only | an import path, and a name that is a plain identifier if one is written |
 | `//x3:live` | `decl`, `file`, `pkg` | nothing |
 | `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
 | `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
@@ -69,7 +70,7 @@ document in one run, so no two can describe different versions.
 | `not_a_function` | the example sits above something that cannot be called |
 | `in_a_test_file` | the example is in a `_test.go` file, where nothing would run it |
 | `wrong_result_count` | the declaration returns a different number of values than the example expects, or a method was given no receiver |
-| `dead_import` | a declared import (`case.imports`) that no example names — asked only of a run whose tree contains the configuration |
+| `dead_import` | a declared import that no example names — from `case.imports`, asked only of a run whose tree contains the configuration; or from a `//x3:import:` line, asked of the file that carries it |
 | `does_not_parse` | a source file the gate could not read at all — the parser stopped, so nothing in that package was measured |
 
 ## language settings
@@ -273,4 +274,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

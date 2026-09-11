@@ -7,7 +7,7 @@ describe a version that does not exist.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.76.0`**
+**Current version: `v0.77.0`**
 
 | Page | What it covers |
 |---|---|
@@ -15,7 +15,8 @@ describe a version that does not exist.
 | [Where a directive may sit](layout.md) | the placement the Go formatter writes, measured by the engine itself, so that a formatting run cannot move a directive behind your back |
 | [Where a pattern binds](patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
-| [What an example may name, and what a run says](case-findings.md) | the pool of importable names and the scope it is measured in, the finding codes, the settings and the report |
+| [The names an example may reach](case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
+| [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [The two sets a rule compares](sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
@@ -49,4 +50,4 @@ describe a version that does not exist.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.77.0 capabilities=96b955689db46e4fde92f841e310e30c875e24eecabb677ca2a43803b97975b4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
