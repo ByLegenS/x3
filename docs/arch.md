@@ -320,9 +320,9 @@ BLOCK scope_below_minimum: every-root-a-gate-names-is-still-there
   the rule saw 3 subjects and 40 were declared; a scan that shrank is a gate that stopped looking
 ```
 
-`minimum` belongs to **every kind**, counting the rule's own subject. This is not
-[`expect`](scan.md#expectations), which counts verified directives in a scan; this counts
-what one arch rule looked at. Same disease, two organs.
+`minimum` belongs to **every kind**, counting the rule's own subject — text-reading
+kinds included, weighed in the walk that counts them. Not [`expect`](scan.md#expectations),
+which counts verified directives in a scan: same disease, two organs.
 
 ### What a run looks like
 
@@ -357,4 +357,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.110.0 capabilities=8e148dba0bfdd51abe71c339e3f254364ebfc4f3e0ba2c90a6e0d9518d73398d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.111.0 capabilities=f088e41a540b9aad743af8a7320405094bc2ed69445df36ccf6c69eaf20d959e template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

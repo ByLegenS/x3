@@ -56,4 +56,4 @@ The answer needs **no run at all**, and that is the point. In a shell that canno
 reach the runner, the database or the network, every criterion is unmeasured and
 a box closed on a vanished name looks exactly like the rest of the noise.
 
-<!-- x3-dist version=v0.110.0 capabilities=8e148dba0bfdd51abe71c339e3f254364ebfc4f3e0ba2c90a6e0d9518d73398d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.111.0 capabilities=f088e41a540b9aad743af8a7320405094bc2ed69445df36ccf6c69eaf20d959e template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
