@@ -40,4 +40,4 @@ pay. `places` says how many files were read, and **a declaration that reaches no
 file stops the run**: an empty place answers every question with silence, and
 that silence cannot be told apart from a declaration that died in a rename.
 
-<!-- x3-dist version=v0.80.0 capabilities=11beb0dad35efb30c2b7e14a0ead52c847982dcf9d923e8a2201d4350ac1c2ee template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.81.0 capabilities=c4d88cb725a31b1da87876efb71e76fd3bc7978cff49600f9a54b2e2cd36aab8 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

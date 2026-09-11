@@ -121,6 +121,17 @@ blindness as *"all of it runs"*. Sections describing the engine's own workings
 neither set. **`policy: "warn"` is not in force**, and neither is anything nested
 under it.
 
+**The file is read the way the engine reads it — parts included.** A large
+project splits its configuration: the root declares its parts with `include`, and
+every command merges them before measuring anything
+([splitting the configuration](configuration.md#splitting-the-configuration)). The roster follows
+the same reading. It did not always, and the bug is worth keeping written down: it
+read the named file alone, so the day a project split its settings, every rule
+that moved into a part left this set in silence. The rule went on running, and the
+one question that could have noticed — *is this rule in force?* — answered **no**,
+which makes the rulebook's true sentence about it red for a reason nobody can see.
+A set that shrinks when a file is split is measuring the layout, not the rules.
+
 ### `invocations` — the commands a script actually runs
 
 The other half of the same question: `commands` says what the settings put in
@@ -143,4 +154,4 @@ its own name; a project calling it through a variable (`& $bin scan`) says so
 with `invoke`, a list of patterns each carrying one capture group — the same
 field, spelled the same way, that [`x3 adoption`](adoption.md#x3-adoption) reads.
 
-<!-- x3-dist version=v0.80.0 capabilities=11beb0dad35efb30c2b7e14a0ead52c847982dcf9d923e8a2201d4350ac1c2ee template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.81.0 capabilities=c4d88cb725a31b1da87876efb71e76fd3bc7978cff49600f9a54b2e2cd36aab8 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

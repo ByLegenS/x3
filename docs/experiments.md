@@ -51,6 +51,7 @@ step names below are the ones the gate prints.
 | `public leak gate` | the published documents clean, and a planted tree in which **every** forbidden pattern speaks |
 | `public size gate` | every published document under its own cap, then **each cap in turn** asked with one line too many — one document over the line would leave the other caps unmeasured |
 | `public language gate` | the published documents in one language, and the template's **real** maintainer note planted; the plant is not invented text, so the experiment measures the assumption too — a note rewritten in English would leave the gate unable to prove itself, and it says so |
+| `split configuration roster control experiment` | one tree asked twice, only the rulebook moving: a rule and a section declared in an `include` **part**, the rulebook naming neither `1` — both named in the red — and the rulebook naming both `0`. The same run reports that the part's rule really ran, which is the whole point: a name the engine is enforcing cannot be missing from the set of names in force |
 | `published control experiment` | one planted world — a bare remote and a repository that knows it — asked three times as the one missing step is taken: the tag never created `1`, the tag created and not pushed `1`, the tag pushed `0`; then this repository's **own** publication `0`. The middle row is the release that was really made and could not be downloaded |
 | `dist gate` | the publication current, the same question asked with a deliberately wrong document hash, and a copy of the publication with one page missing |
 
@@ -73,4 +74,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.80.0 capabilities=11beb0dad35efb30c2b7e14a0ead52c847982dcf9d923e8a2201d4350ac1c2ee template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.81.0 capabilities=c4d88cb725a31b1da87876efb71e76fd3bc7978cff49600f9a54b2e2cd36aab8 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
