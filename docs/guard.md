@@ -211,9 +211,12 @@ work-list criteria already use (`must`, `mustNot`, `unmeasured`). The output
 still streams to the terminal untouched; the copy kept for weighing is capped,
 and a run that outgrows it is **not measured** rather than measured on half the
 text. The command's own red passes through unchanged — an expectation renames
-nothing — and `measured` carries the verdict: `pass`, `fail`, or `error` for a
-run that could not be measured. With nothing declared the exit code is still the
-whole answer and the run says so in one line; an expectation written where no
-command is wrapped is a dead expectation and stops the run.
+nothing — and `measured` carries the verdict: `pass`, `fail`, or `error`.
 
-<!-- x3-dist version=v0.106.0 capabilities=e2484f923558bfc76a33acea1914087aa31ed63c1f55629274b8eda05f26b0cd template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+**Both directions are closed.** An expectation with no command to measure is a
+dead expectation; a wrapped command with no expectation is a silent green. Both
+stop the run. The only way past is the reason — `"unweighed": "<why it cannot be
+weighed>"` written in place of `command` — and that reason is printed on every
+run, so an excused gate never becomes a quiet one.
+
+<!-- x3-dist version=v0.107.0 capabilities=e5b56b1fd4cf5a1646ddb67bc4b87955524c10c3013d934948604da0d7630322 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
