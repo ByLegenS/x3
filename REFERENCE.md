@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.111.0`**
+**Current version: `v0.112.0`**
 
 ## scan exit codes
 
@@ -109,6 +109,7 @@ document in one run, so no two can describe different versions.
 | `in`+`terms`+`comments` | vocabulary | the layer, the words, whether prose counts |
 | `keys` | containment | the ownership prefix per component |
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
+| `per` | consistency | compare each instance of a component with **itself** |
 | `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
 | `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
 | `except` | no | `self` only, next to `from` + `deny` |
@@ -287,4 +288,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.111.0 capabilities=f088e41a540b9aad743af8a7320405094bc2ed69445df36ccf6c69eaf20d959e template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.112.0 capabilities=0a7117b7df62a67af7a7c7f1fe618dc993bf861b0324f46841171931436ce071 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

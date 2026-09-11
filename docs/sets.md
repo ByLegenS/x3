@@ -62,6 +62,35 @@ quotes (`-ArgumentList 'record'`) begins in code and still counts. Dropping ever
 quoted run instead would take that real call with it, and the count would lie in
 the other direction.
 
+**One comparison per component.** By default both sets are read out of **every**
+source the rule reaches and merged into one pool. That answers *"is this value
+declared somewhere in the project"* — which is a different question from *"does
+each application declare what it uses"*, and the merged pool **cannot** ask the
+second one: a package one app imports without declaring is declared by another
+app, the difference dissolves in the pool, and the rule reports a green it did
+not earn. `per` names a component and asks the comparison once per instance,
+with only that instance's files on each side:
+
+```json
+{ "kind": "consistency", "per": "apps",
+  "sources": ["apps/**"],
+  "left":  { "from": "regex", "select": "\"[a-z.]+/(core/[a-z]+)\"", "sources": ["apps/*/**.go"] },
+  "right": { "from": "regex", "select": "uses (core/[a-z]+)", "sources": ["apps/*/uses.txt"] } }
+```
+
+Every finding names its instance (`object`), so the same value drifting in two
+places is two findings and each can be baselined on its own. The component needs
+a star in its patterns — a component with one instance would make this a copy of
+the merged reading. A side that reads one fixed document (`json`, `x3`, or any
+`file`) is refused for the same reason: a text that cannot vary by instance is
+not being compared per instance.
+
+An **empty instance is not red**: an application that uses no core package and
+declares none agrees. Blindness is measured over the rule, not the instance — a
+side no instance can read is `empty_scope`. Asked per instance instead, every
+correctly silent application would shout; not asked at all, an unreadable side
+would pass as agreement.
+
 ### `left-exists-on-disk` — does the path still point at something?
 
 **Catches:** a gate carrying a path constant that keeps working after the path
@@ -164,4 +193,4 @@ its own name; a project calling it through a variable (`& $bin scan`) says so
 with `invoke`, a list of patterns each carrying one capture group — the same
 field, spelled the same way, that [`x3 adoption`](adoption.md#x3-adoption) reads.
 
-<!-- x3-dist version=v0.111.0 capabilities=f088e41a540b9aad743af8a7320405094bc2ed69445df36ccf6c69eaf20d959e template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.112.0 capabilities=0a7117b7df62a67af7a7c7f1fe618dc993bf861b0324f46841171931436ce071 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

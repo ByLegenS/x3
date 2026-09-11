@@ -357,4 +357,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.111.0 capabilities=f088e41a540b9aad743af8a7320405094bc2ed69445df36ccf6c69eaf20d959e template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.112.0 capabilities=0a7117b7df62a67af7a7c7f1fe618dc993bf861b0324f46841171931436ce071 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

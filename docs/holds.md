@@ -75,4 +75,4 @@ Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.111.0 capabilities=f088e41a540b9aad743af8a7320405094bc2ed69445df36ccf6c69eaf20d959e template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.112.0 capabilities=0a7117b7df62a67af7a7c7f1fe618dc993bf861b0324f46841171931436ce071 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
