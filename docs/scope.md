@@ -64,4 +64,4 @@ deliberate hole in the rule everywhere else in the engine, that an exemption
 must be sayable. Write it only when the boundary is somebody's stated condition
 rather than a convention. `base` without `branch` is refused.
 
-<!-- x3-dist version=v0.98.0 capabilities=e55750f3b910e41dadf46e901aef548835ac9180db5482e255c3ed851850993a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.99.0 capabilities=c87a76409332a713963f0bdac1bfd4b7896c2dae041df37989e6a12826e0e6d2 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

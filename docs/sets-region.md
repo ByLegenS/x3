@@ -57,4 +57,24 @@ instead. Measured before this was written; that gap is the whole reason for it.
   the file, the line and the value. Dropping it would shrink the set from a
   place nobody is looking at, and a shrunken set turns green quietly.
 
-<!-- x3-dist version=v0.98.0 capabilities=e55750f3b910e41dadf46e901aef548835ac9180db5482e255c3ed851850993a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+### Where a region ends, and what a comment does to it
+
+A region runs to the next boundary — **not** to the end of the function it names
+— so the doc comment of the *next* declaration sits inside it, and an inline
+example written there reads as production code:
+
+```go
+func (m *App) ConnectionTypes() []Field { return []Field{{Key: "phone"}} }
+//x3:case: given=(q := `SELECT v FROM t WHERE Key: "ghost"`) in=(q) out=…
+```
+
+`ConnectionTypes.ghost` enters the set and the rule goes red on a value no
+running code names; in one real production Go application that surface is 2038
+`//x3:` lines across 245 non-test Go files. The answer is `comments: "exempt"`,
+the field the vocabulary rule has carried since v0.11.0 and defaults to.
+Comments are blanked, not deleted, so positions hold and **region boundaries are
+drawn on the same blanked text** — a heading inside a comment cannot open a
+region either. The real fields are still read, so the green is measured rather
+than empty; both directions run over one tree.
+
+<!-- x3-dist version=v0.99.0 capabilities=c87a76409332a713963f0bdac1bfd4b7896c2dae041df37989e6a12826e0e6d2 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
