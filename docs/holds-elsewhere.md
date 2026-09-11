@@ -22,22 +22,11 @@ USED    gates/gate.ps1:4
 	by: Get-Content src/golden.txt
 ```
 
-**A name the file declares** is reported as `SUSPECT`, verdict `unsure` — but
-only a name an outsider could write. A declared place sits outside the package,
-and Go itself says what can be named from there: an **exported, package-level**
-declaration. An unexported name cannot be written from outside at all, and a
-method name alone points at no declaration — in both classes the match is the
-word, not the symbol. `bindable` counts the names that survived the question:
-
-```
-SUSPECT gates/gate.ps1:2
-	name: TestManifestIsWritten
-	by: go test ./src/ -run TestManifestIsWritten
-	asked: src/manifest_test.go
-```
-
 `places` says how many files were read, and **a declaration that reaches no file
 stops the run**: an empty place answers every question with silence, and that
 silence cannot be told from a declaration that died in a rename.
 
-<!-- x3-dist version=v0.90.0 capabilities=ddd6422e823fdef53eb890d125f81c56bb91f8d7d1d213804289b7a90ff40f1d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+What the engine does with the **names** on those lines is a second question —
+[The names on a gate's line](holds-selectors.md#the-names-on-a-gates-line).
+
+<!-- x3-dist version=v0.91.0 capabilities=42fdb478204aa7bb7bc7b10d4593e3f217343dcde7c7797089bda96e8b263f48 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

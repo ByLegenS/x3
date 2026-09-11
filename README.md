@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.90.0`**
+**Current version: `v0.91.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `4fa57034ad0f36951910196e6f6fdd7db47e690144419529350abb1626ccc684` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `4d915e40d4e1d30eb61aab323efb3ac8a0d2973d4fd857af7bdb822f7f720940` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `c57b638b6a873dab3ee4460edc7ee524fa44c267ed64929c5a4769a817040c37` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `3520ad91ba5c63958853bdcbd87e56afc54e3675aee059f47622ff6995444843` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -168,6 +168,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
+| [The names on a gate's line](docs/holds-selectors.md) | the selector a gate hands its runner, read by a declared pattern and matched against the name it would run, next to the bare word that cannot be weighed |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
@@ -232,4 +233,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.90.0 capabilities=ddd6422e823fdef53eb890d125f81c56bb91f8d7d1d213804289b7a90ff40f1d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.91.0 capabilities=42fdb478204aa7bb7bc7b10d4593e3f217343dcde7c7797089bda96e8b263f48 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
