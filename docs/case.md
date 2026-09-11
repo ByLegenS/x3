@@ -181,24 +181,48 @@ still look green; without the third, a missing server would.
 
 Nothing above knows what a database is. `x3 testdb` hands a command a freshly
 cloned database through the environment and `x3 case` inherits it, so the two
-compose with nothing third to configure:
+compose with nothing third to configure and no directive of their own:
 
 ```
-x3 testdb run -- x3 case ./...
+x3 testdb run -- x3 case .
 ```
 
-The setup opens that connection the way the project's own tests do — from the
-variable named in `testdb.dsnEnv` — seeds what the example needs, and hands back
-the identity it created:
+`x3 case` takes a **directory**, not a package pattern — `./...` is not a path
+and a run given one exits `2`.
+
+The setup opens that connection the way the project's own tests already do — from
+the variable named in `testdb.dsnEnv` — seeds what the example needs, and hands
+back the identity it created:
 
 ```go
-//x3:case: given=(p := open(t); c := company(t, p)) in=(New(p), ctx, c) out=nil
-func (r *Repository) Charge(ctx context.Context, req Request) error {
+//x3:case: given=(p := open(t); c := company(t, p, 250)) in=(&Repository{DB: p}, ctx, c) out=250, nil
+func (r *Repository) Balance(ctx context.Context, id int64) (int, error) {
 ```
 
-The database is created before the run and dropped after it whatever the
-examples do; and when the environment names none, the setup skips and the run is
-red rather than quietly empty.
+**The variable is the project's, not the engine's.** `testdb.dsnEnv` names it, so
+a repository whose helpers already read `APP_TEST_DSN` keeps them as they are:
+neither the helper nor the source has to learn what x3 is. Filling the engine's
+default name as well would be worse than useless — a helper reading the wrong
+name would then pass too.
+
+**One database per run, not per example**, and that is why no example has to
+declare anything. The database is created before the command and dropped after
+it whatever the examples do; measured against PostgreSQL 18 over loopback, an
+empty one costs **241–350 ms** once, and a tree of 43 examples that ask for no
+database ran in **4577/4661/4652 ms** wrapped against **4711/4716/4522 ms** plain
+— the same run, inside the noise. An example that never names the connection
+never opens one.
+
+**The failure this closes is the skipped setup.** A helper that cannot reach a
+server calls `t.Skip`, the toolchain exits `0`, and a suite of database tests
+reports nothing on every machine without one — green, for years. Here that
+example is `never_ran` and the run is red; the examples beside it that ask for no
+database still pass, so the red names exactly what was not measured.
+
+**Bound:** one database serves the whole tree, and packages are run one at a
+time, so nothing races — but an example that assumes an *empty* table is
+assuming something the run does not promise. Seed what you assert on and assert
+on the identity you seeded.
 
 ### Red
 
@@ -251,4 +275,4 @@ where it is.
 What an example may *name* — a package its own file cannot import — and
 what a run says when one goes red are on the next page.
 
-<!-- x3-dist version=v0.73.0 capabilities=02e34c7d4650e29421d327be97df8b9ff842a32f83d6a8cc046718f71f896143 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.74.0 capabilities=c65cff0a74d72c2baca34ce2677e8892c28679fc77a5e1f4edd66aec4d4138c3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
