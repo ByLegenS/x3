@@ -18,8 +18,15 @@ x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
 
 `create` prints its **DSN on stdout**, one line and nothing else, so a shell can
 capture it. `run` is the shape most projects want: one process, a fresh
-database, automatic cleanup; `-keep` leaves it behind, which is exactly what
-`drop -stale` later collects.
+database, automatic cleanup; `-keep` leaves it behind, for the sweep to collect.
+
+**Every `create` and `run` sweeps first.** The leak is not in the cleanup a run
+does — it is where that cleanup never happens: a killed process (a cancelled
+gate, a closed worker tree) says nothing more, and only the *next* run can see
+what it left. So the next run drops everything past `maxAgeMinutes` and prints
+how many. There is no switch: a sweep that can be turned off goes back to piling
+up on the day it is. It costs one `pg_database` query, about 50 ms against the
+~3 s a create takes.
 
 **The cleanup belongs to the run, not to one exit path.** Once the database is
 up, every way out carries it: the command passed, the command failed, the
@@ -52,7 +59,10 @@ before a byte reaches the server: the name matches `^[a-z_][a-z0-9_]{0,62}$`
 a style rule), and it carries the configured `prefix` **and** the creation stamp
 x3 writes into it. A name that fails either rule exits **1** — the gate refused
 it — while a name that passes and then cannot be reached exits **2**. That
-difference is what makes the gate observable from outside.
+difference is what makes the gate observable from outside. The stamp is weighed
+too: base36 accepts letters, so a hand-written `apptest_backup_v2` would read as
+born in 1970 and look infinitely stale. A stamp outside **2025-01-01 … now +
+24 h** is not a stamp, and the name is not ours.
 
 ### `testdb` in `x3.json`
 
@@ -80,4 +90,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.105.0 capabilities=c84b4eb7f15d69ec3de7d110114238de1bf6e9273e7f333acd5a8f192af87562 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.106.0 capabilities=e2484f923558bfc76a33acea1914087aa31ed63c1f55629274b8eda05f26b0cd template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
