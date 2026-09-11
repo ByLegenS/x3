@@ -105,9 +105,9 @@ time. It reads **string constants** in Go and **whole lines** elsewhere.
 
 **Ownership** (`pattern` + `owner`) derives the owner from the name itself, so no
 hand-kept list goes stale; **prohibition** (`from` + `pattern`) says this
-component may not spell such a name at all. Writing both is refused. Comments are
-not read — what is forbidden is the *code* knowing the name — and exemptions
-cover Go only, since a `.sql` file has nowhere to write one.
+component may not spell such a name at all. Writing both is refused. [Comments
+are exempt](arch-prose.md#prose-is-not-code) in every language it reads; exemptions cover Go
+only, since a `.sql` file has nowhere to write one.
 
 ### The `symbol` matcher — capabilities, not layers
 
@@ -216,8 +216,8 @@ a constant, a field name, a configuration key, a log line.
 `terms` is either `componentNames: "<component>"` (the **instance names** are the
 terms, so a new module is covered the day it appears) or `words: [...]` written
 out. The tokenizer is the language gate's, so `alphaTable` is `alpha` + `table`
-and a name cannot hide inside camel case. **Comments are exempt by default**;
-`"comments": "checked"` covers prose too.
+and a name cannot hide inside camel case. **[Comments are
+exempt](arch-prose.md#prose-is-not-code) by default**; `"comments": "checked"` covers prose too.
 
 #### Word forms
 
@@ -357,4 +357,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.105.0 capabilities=c84b4eb7f15d69ec3de7d110114238de1bf6e9273e7f333acd5a8f192af87562 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.104.0`**
+**Current version: `v0.105.0`**
 
 ## scan exit codes
 
@@ -134,6 +134,14 @@ document in one run, so no two can describe different versions.
 | `empty_scope` | every rule | a component, source set or followed field matched nothing |
 | `scope_below_minimum` | every rule | fewer subjects than `minimum` |
 | `dead_exemption` / `dead_exclusion` / `dead_filter` | escape hatches | an exemption, exclusion or filter that took nothing out |
+
+## how a rule reads a file
+
+| Setting | Where | What it does |
+|---|---|---|
+| `comments: "exempt"` | `deps:literal`, `vocabulary` | the default: comments are not read |
+| `comments: "checked"` | `deps:literal`, `vocabulary` | prose counts too; the name may not even be mentioned |
+| `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 
 ## boxes criteria fields
 
@@ -279,4 +287,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.105.0 capabilities=c84b4eb7f15d69ec3de7d110114238de1bf6e9273e7f333acd5a8f192af87562 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

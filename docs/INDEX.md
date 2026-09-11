@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.104.0`**
+**Current version: `v0.105.0`**
 
 | Page | What it covers |
 |---|---|
@@ -19,6 +19,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
+| [Prose is not code](arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
 | [The two sets a rule compares](sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
 | [The container a value sits in](sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
@@ -57,4 +58,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.105.0 capabilities=c84b4eb7f15d69ec3de7d110114238de1bf6e9273e7f333acd5a8f192af87562 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
