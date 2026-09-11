@@ -44,11 +44,13 @@ declaration called `ton`, and one saying `Readiness` does not hold `Read`.
 ### The record the engine refuses to decide
 
 A `sql` or `manual` criterion carries no place, so relevance cannot be measured.
-That record is printed as `UNSURE` and the run stays red. Dropping it would be a
+A declared place naming something the file declares cannot be weighed either —
+a runner **is** a place, so there is nothing left to weigh it against — and is
+printed as `SUSPECT`. Both count as `unsure` and the run stays red. Dropping it would be a
 guess in the direction that kills measurements; calling it a bond would hide
 which records were actually weighed. The two mistakes are not equal: a wrong
 "held" leaves a file in the tree that could have gone, a wrong "free" is the
 silent green this whole mode exists to prevent — so every class the engine
 cannot decide is counted on the bond side, and said out loud.
 
-<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

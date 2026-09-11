@@ -128,4 +128,4 @@ that receives the value without ever writing the type's name, and it never sees
 a dot-import. **A lie about who breaks would be worse than the gap**, so the
 basis is written next to the list rather than left to be assumed.
 
-<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

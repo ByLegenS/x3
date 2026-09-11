@@ -53,17 +53,24 @@ enters the engine. Without that declaration the `pattern` row is silent, which
 is the honest answer rather than a convenient one.
 
 ```
-HOLD   WORK.md:197005faf068: pattern via symbol
+HOLD    WORK.md:197005faf068: pattern via symbol
 	name: TestTheGatedWorkIsProven
-	box: the gated work a running test proves
 	by: command go test -v ./... -run TheGatedWork
+	box: the gated work a running test proves
 	at: WORK.md:3
 	asked: src/gated_test.go
-x3 boxes: 1 asked, 2 name(s) - 1 held, 0 unsure, 0 free - 3 criterion(s) in *.md, 0 declared place(s)
+x3 boxes: 1 asked, 2 name(s) - 1 held, 0 unsure, 0 free - 3 criterion(s) in *.md, 0 declared place(s), 0 suspect line(s)
 ```
+
+**One field answers the question.** Every entry in `resolved` carries a
+`verdict` — `held`, `unsure` or `free` — and a run prints a `FREE` line for each
+free one. What may be removed is that list, read straight off the report.
+Subtracting the record lists by hand is a rule somebody writes once, out of the
+lists they happened to see that day, and the list they miss is the one holding a
+real bond. `unsure` is **not** free: a record exists and could not be weighed.
 
 Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

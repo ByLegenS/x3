@@ -57,9 +57,13 @@ it. And it measures the API a caller *writes*, never what a call *does*.
 **`boxes` measures evidence, not completion.** A command criterion runs where the
 gate runs, and a move is trusted once its target exists.
 
+**A name a declared place mentions cannot be weighed.** A criterion carries a
+place to compare against; a runner *is* the place. Such a record is `SUSPECT`
+and its entry `unsure` - kept on the not-free side, never counted as a bond.
+
 **Examples are one call, not a scenario.** An example cannot expect a panic and
 cannot read a value it mutated.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

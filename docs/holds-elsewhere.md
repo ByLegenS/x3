@@ -14,26 +14,30 @@ tree is a gate:
 { "boxes": { "holds": { "sources": ["check.ps1", "gates/**/*.ps1", ".github/workflows/*.yml"] } } }
 ```
 
-Every line of those files is read as text, and a line containing an asked name is
-reported as a `USED`, counted with the holds:
+Every line is read as text, and two different things are found there. **The file
+itself, written as a path**, is a bond — a person put it there — `USED`, `held`:
 
 ```
-USED  gates/gate.ps1:2
+USED    gates/gate.ps1:4
+	name: src/golden.txt
+	by: Get-Content src/golden.txt
+```
+
+**A name the file declares** is reported as `SUSPECT`, verdict `unsure`. A whole
+word is a mention, so a short declaration (`lines`) draws lines that only look
+like it, and narrowing that would need language knowledge the engine does not
+have. The record is kept and printed — never dropped, never called a bond:
+
+```
+SUSPECT gates/gate.ps1:2
 	name: TestManifestIsWritten
 	by: go test ./src/ -run TestManifestIsWritten
 	asked: src/manifest_test.go
 ```
 
-`places` in the summary says how many such files were read. **A declaration that
-reaches no file stops the run**: an empty place answers every question with
-silence, and that silence is indistinguishable from the declaration having died
-when a directory was renamed.
+Reading a few extra lines is the price; a wrong "free" is what this refuses to
+pay. `places` says how many files were read, and **a declaration that reaches no
+file stops the run**: an empty place answers every question with silence, and
+that silence cannot be told apart from a declaration that died in a rename.
 
-The place is read as plain text and a whole word is a use, so a short declaration
-(`lines`) draws lines that only look like it. Narrowing that would mean knowing
-which of a file's declarations a script can even call — language knowledge the
-engine does not have, and guessing it would make the mode quietly miss the
-languages it does not recognise. Reading a few extra lines is the price; a wrong
-"free" is the thing this refuses to pay.
-
-<!-- x3-dist version=v0.75.0 capabilities=24f285e04e908d4e7cfcd4ff0c98505f172d6cc2944b582a432f8bd6ac27f89d template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.76.0 capabilities=1795187cd09d03d2dc0ea34f2fe0acd59b1733058375cf9b61793cec02fa64ca template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
