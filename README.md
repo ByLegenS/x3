@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.88.0`**
+**Current version: `v0.89.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `3a13c95fb0b17ac461a4a9fc267f28087d7a51606ebf8d0964c88edbb7f60435` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `ec0814f2009552c5a3f0d7b7fad7263c23d32b756b4932b45a188f8e29b50501` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `bb38c4854d67c07cb3c0d6bb9be6a81eb7786b6fa03ac0a519ab8bb5c0c47876` |
+| `x3-linux-amd64` | linux/amd64 | 14 MB | `c5fbc156d86f564c1a6b05c4b4c873f6a06140415e7aaecfbbf6ebffc349efd6` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -156,6 +156,7 @@ markers that split this document, so a page cannot be missing from it.
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [The two sets a rule compares](docs/sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
+| [The container a value sits in](docs/sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -231,4 +232,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.88.0 capabilities=705c7f5ac735e349fe03fb1384c40591cad27fbc50c96ba3a2ae0545428c6440 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.89.0 capabilities=1950ab1b1c9424a2e1d1b27f92ef5df32bc411a2d3d429ac2885d84d24d51559 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
