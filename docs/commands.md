@@ -42,4 +42,4 @@ the project can write out.
   "args": ["-c", "exec go run ./cmd/app -migrate"] } } }
 ```
 
-<!-- x3-dist version=v0.112.1 capabilities=2ce4cf8e1a446da31988c9751de4619ad1bf92f1ea1af144c18b10cebd1d5adf template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.113.0 capabilities=d3b1312ef3113bb4d37322ec1b31c116340aa413c715d3026a42857b79cf49e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

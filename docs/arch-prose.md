@@ -43,6 +43,37 @@ chosen, not accidental: not knowing the syntax makes the rule read **more**, and
 a rule that reads too much shouts, while a rule that reads too little goes
 quietly green.
 
+### Inside a Go string is another language
+
+In Go the file's own comment is never a string constant, so the reading above
+needs no help. The **inside of a string** is a different matter: a raw literal
+carrying SQL carries that language's comments with it, and a `--` line there
+never runs either — yet the literal is read whole, so the name in it is counted
+as code. No exemption can be written on that line: it sits inside a string, and
+a Go comment cannot go there.
+
+Declaring `.go` answers it. The declaration says how a comment is written **in
+the text a Go string carries**, and it is applied to each literal, not to the
+file:
+
+```json
+{ "arch": { "syntax": { ".go": { "line": ["--"] } } } }
+```
+
+```go
+const q = `
+SELECT id FROM ledger
+-- queue_billing is drained by the module that owns it
+`
+const t = `SELECT 1 FROM queue_shipping`
+```
+
+Undeclared, both names are red and one of them is wrong. Declared,
+`queue_billing` goes quiet and `queue_shipping` **stays red** — the declaration
+narrows the reading, it is not an off switch. The embedded table is not
+consulted here: only an extension the project declares changes anything, so a
+project that writes nothing keeps exactly today's reading.
+
 **What changes for a rule already written:** in Go, nothing — a comment was
 never a string constant. Everywhere else the reading narrows to code, so a rule
 that was red on its own explanation turns green. Measured on the web tree of a
@@ -53,4 +84,4 @@ unreachable —
 `comments: "checked"` reads the prose again, and on the engine's own two-sided
 test tree it takes the same run from 14 findings to 28.
 
-<!-- x3-dist version=v0.112.1 capabilities=2ce4cf8e1a446da31988c9751de4619ad1bf92f1ea1af144c18b10cebd1d5adf template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.113.0 capabilities=d3b1312ef3113bb4d37322ec1b31c116340aa413c715d3026a42857b79cf49e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
