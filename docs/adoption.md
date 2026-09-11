@@ -5,7 +5,7 @@
 ## `x3 adoption`
 
 **What it catches:** an engine half used and nobody noticing — a capability no
-gate script runs, a settings section written but empty, a checksum vouching for
+gate script runs, a section holding a single token rule, a checksum vouching for
 a binary the version gate already refuses, and a pile of test files the inline
 examples were supposed to replace.
 
@@ -103,8 +103,8 @@ x3 adoption: 23 command(s) - 1 section(s) - 0 block, 0 warn, 1 allowed
 
 ```
 BLOCK docs section_token
-        puts 2 name(s) in force, the token ceiling is 2; the section is
-        written, not working
+        1 rule(s) in force in the configuration, and the token ceiling is 2;
+        at this size a section is an example, not an audit
 BLOCK tests_remain
         1 test file(s) still stand against 0 inline example(s); the engine's
         claim is that the second replaces the first
@@ -115,11 +115,25 @@ BLOCK dead_pin
 ```
 
 **"The section exists" is not a measure.** A section putting one rule in force
-and a section putting thirty in force would otherwise read the same. Depth is
-counted the way the engine counts it — `policy: "warn"` is not in force, here or
-in a consistency rule — and it is only asked of a section that actually holds a
-list: a ceiling written as a number has no depth, and calling it empty would be
-a finding about nothing.
+and a section putting thirty in force would otherwise read the same, and depth
+is counted the way the engine counts it: `policy: "warn"` is not in force.
+
+**But the shape of a section is not its weight.** Sections do not all carry
+their work in the same place, and one counter asked of all three is always wrong
+about the third:
+
+| `kind` | Where the weight is | Weighed against `token` |
+|---|---|---|
+| `rules` | named rules declared in the configuration | yes |
+| `directives` | `//x3:` directives in the tree carrying the section's name | yes |
+| `settings` | one mechanism — a pattern list, an env variable, a ceiling | no |
+
+Counting the *paths* inside a section instead calls a run command with three
+settings and one nested object "two names, written, not working" — and says the
+same of a section whose tree holds a thousand examples, three lines under the
+`DIRECTIVES` count of those thousand. A settings section stays on the page and
+the report names its `kind`; only the ceiling goes quiet, and nothing is lost: a
+rule list that holds nothing is refused by its own command at load time.
 
 **An exemption carries a reason, and a dead one speaks.** A command exempted and
 then actually run is a finding; a name exempted that the engine does not have
@@ -132,4 +146,4 @@ direction: they put no check in force.
 
 See **adoption finding codes** in [REFERENCE.md](../REFERENCE.md#adoption-finding-codes).
 
-<!-- x3-dist version=v0.82.0 capabilities=11edd916bf4f7054d8961098862c218884f6184a237e77ee3193ebf2a0e9dc05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.83.0 capabilities=d3348f8a3d4c73a596a541668f761bcece1eb2e22db0a496d09c11966cefe90f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

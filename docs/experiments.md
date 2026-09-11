@@ -44,6 +44,7 @@ step names below are the ones the gate prints.
 | `guard selection control experiment` | one file, only the flags changing; a mistyped tag exits `2` rather than skipping nothing |
 | `multi-step trial control experiment` | the same trial green, red once an import is *written* into the copy, red on an empty removal — and **zero working areas left behind, the reds included** |
 | `effective control experiment` | agreement, divergence under `block`, the same divergence under `warn` |
+| `adoption section weight control experiment` | one tree, two configurations. A settings section and a directive-backed section under `block`, `0`; the same tree with one section declaring one rule, `1`. Then the report's own numbers, so the silence is measured and not accidental: the settings section **is named, has names inside it, and holds zero rules**; the directive section is weighed by the tree, not the configuration; a real rule list is still counted; and the red names the section and where its weight was read |
 | `adoption policy control experiment` | one tree, eight settings. The first two are the measurement: the same tree, the same `block` default, `0` with the known code excepted and `1` without — the exception is the only thing that moved. Then the escapes: no reason, a bare word, an unknown code, a missing `"*"`, and `dead_policy` excepted from itself, each `2`; and an exception matching nothing, `1`. The last two rows read the report itself — the silenced finding is **still there, named, with its reason**, and the exception is counted against what it touched |
 | `update control experiment` | installed, a planted checksum refused, the version gate both ways, and **a pin disagreeing with a release whose own checksum list is perfect** — which is exactly how a compromised release looks |
 | `testdb control experiment` | a foreign name refused at the gate (`1`) **and our own name reaching an unreachable server (`2`)** — a gate that refused every name would also exit `1` |
@@ -75,4 +76,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.82.0 capabilities=11edd916bf4f7054d8961098862c218884f6184a237e77ee3193ebf2a0e9dc05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.83.0 capabilities=d3348f8a3d4c73a596a541668f761bcece1eb2e22db0a496d09c11966cefe90f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

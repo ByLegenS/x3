@@ -110,4 +110,4 @@ limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
 
-<!-- x3-dist version=v0.82.0 capabilities=11edd916bf4f7054d8961098862c218884f6184a237e77ee3193ebf2a0e9dc05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.83.0 capabilities=d3348f8a3d4c73a596a541668f761bcece1eb2e22db0a496d09c11966cefe90f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

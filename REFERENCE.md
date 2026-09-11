@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.82.0`**
+**Current version: `v0.83.0`**
 
 ## scan exit codes
 
@@ -246,7 +246,7 @@ document in one run, so no two can describe different versions.
 | `invoke` | how this project spells a call — one capture group, the command name |
 | `sources` / `exclude` | where `//x3:` directives are counted (default `**/*.go`) |
 | `tests` | the files whose number is supposed to be falling |
-| `token` | the ceiling under which a section is written rather than working |
+| `token` | the ceiling under which a section is an example rather than an audit |
 | `split` | the line count past which a configuration wants `include` |
 | `exempt` | command → **reason**; a reason is required and a dead one is a finding |
 | `policy` | `warn` (default), `block`, or an object keyed by finding code |
@@ -256,7 +256,7 @@ document in one run, so no two can describe different versions.
 | Code | Meaning |
 |---|---|
 | `command_unused` | no runner calls it and no exemption says why not |
-| `section_token` | a section holding a list puts `token` or fewer names in force |
+| `section_token` | a section puts `token` or fewer rules (or directives) in force |
 | `dead_exemption` | exempted, and run anyway |
 | `tests_remain` | test files still stand where inline examples were meant to be |
 | `dead_pin` | `update.pin` vouches for a release below `x3.min_version` |
@@ -275,4 +275,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.82.0 capabilities=11edd916bf4f7054d8961098862c218884f6184a237e77ee3193ebf2a0e9dc05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.83.0 capabilities=d3348f8a3d4c73a596a541668f761bcece1eb2e22db0a496d09c11966cefe90f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
