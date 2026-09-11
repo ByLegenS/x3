@@ -300,6 +300,13 @@ violations, and a dead exemption is red.
 A rule that matched nothing is `empty_scope` and red — engine behavior, not
 something you choose. Every component the rule names is measured, the object side
 included: a `deny` list pointing at a component with no files can never turn red.
+The measurement follows the files a rule really reads: one that reads text
+(`vocabulary`, `literal`) is weighed over **every** file and not only the Go
+ones, or a layer written in no Go at all would be told it "cannot have run" in
+the same run where it named a real violation — and its green would be
+unreachable. A component a rule only takes **names** from
+(`terms.componentNames`) is not asked this at all: it is never read, and its
+emptiness is already the empty term set.
 `empty_scope` and `dead_exemption` are always `block` whatever the `policy` says;
 a policy grades how bad a violation is, and neither of these is a violation —
 they are the measurement failing.
@@ -350,4 +357,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.89.0 capabilities=1950ab1b1c9424a2e1d1b27f92ef5df32bc411a2d3d429ac2885d84d24d51559 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.90.0 capabilities=ddd6422e823fdef53eb890d125f81c56bb91f8d7d1d213804289b7a90ff40f1d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

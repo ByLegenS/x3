@@ -95,4 +95,4 @@ configuration, and the declaration is judged when that file lies inside the tree
 being run — which a whole-tree run always does, so the law does not loosen. What
 stops is a narrow run answering a question nobody asked it.
 
-<!-- x3-dist version=v0.89.0 capabilities=1950ab1b1c9424a2e1d1b27f92ef5df32bc411a2d3d429ac2885d84d24d51559 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.90.0 capabilities=ddd6422e823fdef53eb890d125f81c56bb91f8d7d1d213804289b7a90ff40f1d template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
