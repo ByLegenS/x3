@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.71.0`**
+**Current version: `v0.72.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `acb4486b0452d2a249ea122b4dbf5fb28331a2d481fd4bad0ccd5eaf02856289` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `6c2496c3d67dc00419e2c29f60357fdbfeed31c33e6bcb7f60566540168de381` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `e5c0fb4edfa62f6b223e8c8fedce883cbd6967928e2b6d98f3b62a3343468598` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `d5146d7890684c3b6aae28e2f439a470ca0dccf5274ce24e2164dfd49798cf8c` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -145,6 +145,7 @@ markers that split this document, so a page cannot be missing from it.
 | Page | What it covers |
 |---|---|
 | [Directives in the source](docs/scan.md) | the `//x3:` dictionary, the scopes a directive may sit in, the report and its expectations |
+| [Where a directive may sit](docs/layout.md) | the placement the Go formatter writes, measured by the engine itself, so that a formatting run cannot move a directive behind your back |
 | [Where a pattern binds](docs/patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
 | [What an example may name, and what a run says](docs/case-findings.md) | the pool of importable names and the scope it is measured in, the finding codes, the settings and the report |
@@ -176,6 +177,7 @@ markers that split this document, so a page cannot be missing from it.
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
+| [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](docs/experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
 ## What is built and what is not
@@ -220,4 +222,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.72.0 capabilities=9bf32fd908a5e07564dfd8257c76c98659f46dd2920763c5305b7682b06759a4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

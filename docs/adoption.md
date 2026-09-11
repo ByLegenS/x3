@@ -118,4 +118,4 @@ direction: they put no check in force.
 
 See **adoption finding codes** in [REFERENCE.md](../REFERENCE.md#adoption-finding-codes).
 
-<!-- x3-dist version=v0.71.0 capabilities=f3be4db814129e87baddf35ca71e7ba8ddc4be4aeb4640bfe38ac1ee57ad51e3 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.72.0 capabilities=9bf32fd908a5e07564dfd8257c76c98659f46dd2920763c5305b7682b06759a4 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
