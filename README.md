@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.102.0`**
+**Current version: `v0.103.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `e655fe40b2184d1bf50d185e6fe007f46b0a61ad46daa1a1b948c2a6381ec221` |
-| `x3-linux-amd64` | linux/amd64 | 14 MB | `692574c5926d9d9a51a72ae120786b95280bb0d33f0b58ba46627c0e742e2407` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.4 MB | `ea77ad16c6250da9d91c679a9de1d4b1f6f5ef7751cc712480cc8d039b14054b` |
+| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `029d6399b932feb23f86c76f9b381414e7ad9bd81733ca29a7641731a4913a38` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -170,7 +170,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
-| [The names on a gate's line](docs/holds-selectors.md) | the selector a gate hands its runner, read by a declared pattern and matched against the name it would run, next to the bare word that cannot be weighed |
+| [What a gate's line holds](docs/holds-selectors.md) | the selector a gate hands its runner and the package its step runs, both read by declared patterns, next to the bare word that cannot be weighed |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
@@ -236,4 +236,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.102.0 capabilities=fef659c429c8905c6f65fd8f4e9599091a9cf2467c5a7a9a695b1c396dbd132a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

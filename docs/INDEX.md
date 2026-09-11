@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.102.0`**
+**Current version: `v0.103.0`**
 
 | Page | What it covers |
 |---|---|
@@ -33,7 +33,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Before a name is removed](holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
-| [The names on a gate's line](holds-selectors.md) | the selector a gate hands its runner, read by a declared pattern and matched against the name it would run, next to the bare word that cannot be weighed |
+| [What a gate's line holds](holds-selectors.md) | the selector a gate hands its runner and the package its step runs, both read by declared patterns, next to the bare word that cannot be weighed |
 | [Files no compiler reads](syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](test.md) | the unit graph, the cache, and what the measurement honestly shows |
@@ -57,4 +57,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.102.0 capabilities=fef659c429c8905c6f65fd8f4e9599091a9cf2467c5a7a9a695b1c396dbd132a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

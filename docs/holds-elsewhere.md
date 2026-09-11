@@ -26,8 +26,8 @@ USED    gates/gate.ps1:4
 stops the run**: an empty place answers every question with silence, and that
 silence cannot be told from a declaration that died in a rename.
 
-What the engine does with the **names** on those lines is a second question —
-[The names on a gate's line](holds-selectors.md#the-names-on-a-gates-line).
+What the engine does with the **names and the places** on those lines is a
+second question — [What a gate's line holds](holds-selectors.md#what-a-gates-line-holds).
 
 **A mention in prose is not a place.** A document naming the test in a table cell
 *recorded* something; it never *measured* it. Counting such a mention as a bond
@@ -40,4 +40,4 @@ tree declares (`from: go`, `select: exported`) under
 `compare: left-subset-of-right` is red on exactly that, and leaves this pool
 untouched. On the same tree it named 144 claims out of 2330.
 
-<!-- x3-dist version=v0.102.0 capabilities=fef659c429c8905c6f65fd8f4e9599091a9cf2467c5a7a9a695b1c396dbd132a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -39,6 +39,7 @@ removal, not after it.
 |---|---|---|
 | `text` | writes the name in its own words — `match`, `path`, `sources`, `query`, an argument | find the line, but not which box it belongs to, nor whether that box is open |
 | `pattern` | hands a **selector** to a runner, and the selector read as a regular expression matches the name | **not find it at all**: a selector may be a fragment of the name |
+| `scope` | runs the **package** the file sits in, naming neither the file nor any name in it (declared places only) | **not find it at all**: the line carries a directory, never the file |
 
 Every record also says `via`: `file` when the criterion names the **file itself**
 (by path or by bare name), `symbol` when it names something the file **declares**.
@@ -74,4 +75,4 @@ Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.102.0 capabilities=fef659c429c8905c6f65fd8f4e9599091a9cf2467c5a7a9a695b1c396dbd132a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
