@@ -15,6 +15,29 @@ in 0 package(s) - 0 passed, 0 finding(s)"* and exit `0` over a package that does
 not compile. **A gate does not lean on somebody else's red.** The compiler will
 say it too, and saying it twice is cheaper than a sentence that is not true.
 
+### A run that dies is not a run that skipped
+
+A panic is caught and turned into that example's red — the generated test
+recovers, and the neighbours keep running. **A fatal runtime error is not a
+panic**: `fatal error: concurrent map writes`, a deadlock, a run out of time.
+Nothing recovers from those; the process dies where it stands, its own verdict is
+never written, and no example after it ever starts.
+
+Read by verdict alone that looks like a skip, and the whole package reads as
+*"never ran"* — the exit code is right and the diagnosis sends the reader
+somewhere else. So the engine reads the **shape**, not the words: an example the
+stream started and never finished is `crashed`, and the reason is whatever the
+run itself said. No runner's sentence is written into the engine, because a
+fatal is spelled one way here and another way in the next language.
+
+The neighbours are then **measured, not guessed**: the dead example is charged
+and dropped, and the package runs again without it, inside the same round budget
+that compile errors use. Measured on one tree of four examples — one killing the
+process, three sound: before, four `never_ran` findings and nothing proven;
+after, one `crashed` naming the culprit and **three passed**. If the budget runs
+out first, the examples that never started say so, with the name of what killed
+the run in their finding.
+
 ### Propositions stop at the first one that fails
 
 Propositions in one `then=(...)` are evaluated in order, and the first one that
@@ -66,4 +89,4 @@ dependency waiting forever.
 `passed` is counted separately from `findings` on purpose: "no findings" and "no
 examples" are not the same sentence.
 
-<!-- x3-dist version=v0.100.0 capabilities=155f530d349523a8f9447a8fe2dab50ac5b99a2064f5a03a88a0ae0f628a2d6a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.101.0 capabilities=1e2d8212dbd1aee0a5d167f14593e56ef4cf09adec08d2c4414ff62f57804b5f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

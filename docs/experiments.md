@@ -13,6 +13,7 @@ step names below are the ones the gate prints.
 |---|---|
 | `control experiment` | a well-formed sample `0`, a broken one `1` |
 | `case control experiment` | an example that holds, one whose value is wrong, one with no payload, and one **nothing ran** — the last is why `never_ran` exists; plus an example using its file's imports `0`, and a tree with one broken example `1` **whose three sound neighbours still passed**; a declared import no example names `1` in the tree that declares it and `0` from a narrower scope — **same tree, same setting, only the scope moves**; and a red example whose code writes its own log, so the finding must still speak the gate's sentence; a file that does not parse `1` called `does_not_parse` and the same tree readable `0`; and a proposition its predecessor rules out `1` **whose two neighbours still ran** |
+| `case crash control experiment` | one tree of four examples, one of which kills the process: `1` with **exactly one** finding, `crashed`, naming the example it died in — and the **three beside it still ran**; then the same three with nothing to kill the run, `0` |
 | `case type declaration control experiment` | one shape asked twice: a fake the setup **cannot** write `1` (`does_not_build`), the same tree with the type declared `0` and **no file left behind**; then the declaration's own laws — a declaration no example names `1` (`dead_type`), one written under the `package` clause `1`, a method on a type the package already has `1`, and a declared name that collides `1` **blamed on the example that named it, its neighbour still passing** |
 | `language gate` | the repository `0`; a planted word `1`; a green tree with its allow list `0` **and without it `1`** — an allow list never seen to change an answer is decoration |
 | `docs gate` | this repository `0`; a rule whose counterpart directory cannot exist `1`; and on a planted repository whose single commit excuses one rule by name, that rule `0` while a second rule the reason does not name stays `1` |
@@ -83,4 +84,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.100.0 capabilities=155f530d349523a8f9447a8fe2dab50ac5b99a2064f5a03a88a0ae0f628a2d6a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.101.0 capabilities=1e2d8212dbd1aee0a5d167f14593e56ef4cf09adec08d2c4414ff62f57804b5f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.100.0`**
+**Current version: `v0.101.0`**
 
 ## scan exit codes
 
@@ -66,7 +66,8 @@ document in one run, so no two can describe different versions.
 | Code | Means |
 |---|---|
 | `example_failed` | the declaration was called and the result is not what the example says |
-| `never_ran` | no verdict was reported for it, or it was skipped |
+| `never_ran` | no verdict was reported for it, it was skipped, or a run that died elsewhere never reached it |
+| `crashed` | the run started this example and never came back — the process died inside it |
 | `does_not_build` | the example does not compile — charged to its own line when the compiler names one, and to every example in the package when the fault is in the package's own source |
 | `malformed` | the payload has no body, does not parse, or holds a proposition that cannot fail |
 | `not_a_function` | the example sits above something that cannot be called |
@@ -278,4 +279,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.100.0 capabilities=155f530d349523a8f9447a8fe2dab50ac5b99a2064f5a03a88a0ae0f628a2d6a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.101.0 capabilities=1e2d8212dbd1aee0a5d167f14593e56ef4cf09adec08d2c4414ff62f57804b5f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
