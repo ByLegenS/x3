@@ -217,6 +217,10 @@ nothing — and `measured` carries the verdict: `pass`, `fail`, or `error`.
 dead expectation; a wrapped command with no expectation is a silent green. Both
 stop the run. The only way past is the reason — `"unweighed": "<why it cannot be
 weighed>"` written in place of `command` — and that reason is printed on every
-run, so an excused gate never becomes a quiet one.
+run that wraps something, so an excused gate never becomes a quiet one. The
+reason is outside the dead-expectation rule, because one configuration serves
+runs that wrap a command and runs that only measure guards: an expectation a
+command-less run can never satisfy is stale, while a reason it does not need is
+simply not needed.
 
-<!-- x3-dist version=v0.107.0 capabilities=e5b56b1fd4cf5a1646ddb67bc4b87955524c10c3013d934948604da0d7630322 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.107.1 capabilities=a33d0a24b9931851dd74be101512bd0389f8cc3b6ca762f0a329588aad1acd05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
