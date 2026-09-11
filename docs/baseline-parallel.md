@@ -18,8 +18,7 @@ merged:                 "count": 3, 2 findings      <- nobody was asked
 ```
 
 Adjacent records are the other half: there the merge *does* conflict, and
-resolving it means editing a data file by hand — which is what a baseline exists
-to spare you.
+resolving it means editing a data file by hand.
 
 ### A segment owns its paths, and writes its own file
 
@@ -71,4 +70,17 @@ claim it. It happens once.
 The last two are the same law seen twice: **one debt, one record, one writer.**
 Give it two and the split has bought nothing.
 
-<!-- x3-dist version=v0.87.0 capabilities=cc1dd6426e362f7b7e21d2e8a71f9f04fd6e63386565b7d322747bc4f8025941 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+### A broken baseline can still be repaired
+
+Such a file is refused with exit `2`, and the message names both ways it
+happens — a hand edit **and a merge**. It used to name only the hand; on the day
+this was measured nobody had touched the file.
+
+`-update-baseline` **repairs it** instead of refusing it again. The list is the
+data and `count` is written from the list, so the repair adds no finding and
+drops none — it says what it rewrote (`REPAIRED <file>: count said 605 over a
+list of 602`). Without it the only ways out were editing a data file by hand, or
+deleting the baseline and regenerating it, which writes **"I owe nothing"** over
+the whole debt.
+
+<!-- x3-dist version=v0.88.0 capabilities=705c7f5ac735e349fe03fb1384c40591cad27fbc50c96ba3a2ae0545428c6440 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
