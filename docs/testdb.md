@@ -18,8 +18,25 @@ x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
 
 `create` prints its **DSN on stdout**, one line and nothing else, so a shell can
 capture it. `run` is the shape most projects want: one process, a fresh
-database, automatic cleanup even when the command fails; `-keep` leaves it
-behind, which is exactly what `drop -stale` later collects.
+database, automatic cleanup; `-keep` leaves it behind, which is exactly what
+`drop -stale` later collects.
+
+**The cleanup belongs to the run, not to one exit path.** Once the database is
+up, every way out carries it: the command passed, the command failed, the
+command never started at all. Written per path, the obligation is forgotten by
+the path added next — and the database that stays is invisible until someone
+looks. The line the run prints is not read off the error either, because a run
+can report a failure and still have closed cleanly:
+
+| The run says | What happened |
+|---|---|
+| `created and dropped` | the database is gone, whatever the command's exit code was |
+| `kept` | `-keep` was given, and `drop -stale` collects it later |
+| `left behind` | the drop itself failed — this one really is still on the server |
+
+`list` without `-stale` shows **every** database carrying the prefix, with its
+age, so a leftover is visible immediately; `maxAgeMinutes` only decides which of
+them `-stale` will collect.
 
 ### Two invariants
 
@@ -63,4 +80,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.84.0 capabilities=4637b37ed5c75adce624ebb178cfdcdf0515fc86905e5583e6fbe8f59906f92b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.85.0 capabilities=824561a6c775b5392c6cca5f5faa4039af3e43328c756c92d037e46e4c2dab93 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

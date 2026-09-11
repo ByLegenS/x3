@@ -191,4 +191,4 @@ See **the guard report fields** in [REFERENCE.md](../REFERENCE.md#the-guard-repo
 **No timestamp unless you ask for one**: the same configuration and the same
 answers must produce the same bytes.
 
-<!-- x3-dist version=v0.84.0 capabilities=4637b37ed5c75adce624ebb178cfdcdf0515fc86905e5583e6fbe8f59906f92b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.85.0 capabilities=824561a6c775b5392c6cca5f5faa4039af3e43328c756c92d037e46e4c2dab93 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
