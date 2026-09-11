@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.103.0`**
+**Current version: `v0.104.0`**
 
 ## scan exit codes
 
@@ -140,8 +140,8 @@ document in one run, so no two can describe different versions.
 | `when` | Fields | Holds when |
 |---|---|---|
 | `file` | `path` | `path` exists |
-| `pattern` | `sources`, `match` | `match` is found under `sources` |
-| `absent` | `sources`, `match` | `match` is found **nowhere** under `sources` |
+| `pattern` | `sources`, `match`, `directives` | `match` is found under `sources` |
+| `absent` | `sources`, `match`, `directives` | `match` is found **nowhere** under `sources` |
 | `sql` | `dsnEnv`, `query`, `equals`, `driver`, `timeoutMs` | the query's first cell equals `equals` |
 | `command` | `command`, `args`, `output`, `timeoutMs` | it exits `0` **and** its output meets `output` |
 | `manual` | `by`, `seen`, `signed` | `signed` is written |
@@ -279,4 +279,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -20,7 +20,10 @@ scan is not a check somebody skips by not configuring it.
 ```
 
 `builtin: false` turns the shipped patterns off, and then the project must write
-its own — a scan with no patterns is refused rather than passed.
+its own — a scan with no patterns is refused rather than passed. `directives:
+"skip"` keeps the engine's own `//x3:` lines out of the scan, for a tree whose
+examples live inside production files and carry key-shaped values of their own —
+[The engine's own lines](patterns.md#the-engines-own-lines).
 
 ### The report carries no secret
 
@@ -102,4 +105,4 @@ and red; the example above carries a real-shaped key on purpose, because written
 with an ellipsis the exemption over it would cover nothing and this document
 would fail the scan it describes.
 
-<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

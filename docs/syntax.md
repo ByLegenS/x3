@@ -35,4 +35,9 @@ on a machine without the tool reports green having verified nothing. A project
 that genuinely wants it optional writes `"missing": "warn"`. A check whose
 sources match nothing is `empty_scope`.
 
-<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+A `deny` check may also carry `directives: "skip"`, which keeps the engine's own
+`//x3:` lines out of what the pattern reads — [The engine's own
+lines](patterns.md#the-engines-own-lines). On `as` or `run` it is a configuration error:
+those parsers read the file from disk and nothing would measure it.
+
+<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

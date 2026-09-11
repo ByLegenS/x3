@@ -33,11 +33,31 @@ reading, the finding says so rather than leaving the number unexplained:
 ^ and $ read a line here, not the whole file - read the other way it would count 1
 ```
 
-**Four patterns are not read this way**, because their subject is one line or
-one value, not a file: `syntax` `deny`, `secrets` `patterns[].match` and
-`ignore[].match`, `boxes` `markdown.moved.match`, and `arch` `literal`
-`pattern`. The last is the one to read twice — a `literal` rule looks for a
-**name**, so `^name$` means "the whole literal is this name".
+**Four patterns are not read this way**, their subject being one line or one
+value: `syntax` `deny`, `secrets` `patterns[].match` and `ignore[].match`,
+`boxes` `markdown.moved.match`, and `arch` `literal` `pattern` — that last one
+looks for a **name**, so `^name$` means "the whole literal is this name".
+
+### The engine's own lines
+
+**What it catches:** an example living inside production code, read by a gate
+as if it were production code. A `//x3:case` carries whatever the declaration
+it proves needs — a query, a key-shaped value, a word some rule forbids — and
+scanning text cannot tell that from the project's own.
+
+The default does **not** change: a checker quietly going blind reports green
+having verified nothing. `skip` blanks the line with **spaces, not deletion**,
+so every line number still points where it did, and `//x3:allow:…` stays — that
+channel is the gate's own sentence.
+
+```json
+{ "secrets": { "directives": "skip" } }
+```
+
+**A `skip` that removes nothing stops the run** — a declaration that blanked no
+line cannot be told from one never written — and `masked` counts what came out.
+`secrets`, `syntax` `deny` and a `boxes` `pattern`/`absent` criterion take the
+word; `arch`, `lang` and `comments` read no directive already.
 
 ### Where a line ends
 
@@ -67,4 +87,4 @@ two apart.
 matches anything. Which ending a repository stores is git's question, not this
 engine's.
 
-<!-- x3-dist version=v0.103.0 capabilities=c085ea2f8775173860b02846284ab6863013fe369140640561fafd940510696a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.104.0 capabilities=0f1b608ea168587148c3676ec75a96e7861f0ed51b0cdcbc1a2eba994e9599e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
