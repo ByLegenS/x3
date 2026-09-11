@@ -29,4 +29,15 @@ silence cannot be told from a declaration that died in a rename.
 What the engine does with the **names** on those lines is a second question —
 [The names on a gate's line](holds-selectors.md#the-names-on-a-gates-line).
 
-<!-- x3-dist version=v0.94.0 capabilities=c39eb58e8ee9646890a2f3128e2022fcf610ac0f156ba567625a89e2b97b1034 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+**A mention in prose is not a place.** A document naming the test in a table cell
+*recorded* something; it never *measured* it. Counting such a mention as a bond
+was measured on a real production Go application and refused: of the 278 files no
+criterion held, 206 were named somewhere in its documents, so the pool would have
+fallen to 72 and the answer would have stopped carrying information. The record
+still matters, but to a different gate: an [`arch consistency`](sets.md#two-sets-and-how-they-must-agree)
+rule reading the names a document claims (`from: regex`) against the ones the
+tree declares (`from: go`, `select: exported`) under
+`compare: left-subset-of-right` is red on exactly that, and leaves this pool
+untouched. On the same tree it named 144 claims out of 2330.
+
+<!-- x3-dist version=v0.95.0 capabilities=70421d73578f03a25494e5bbc25e419896ea385f1af19b3fd407f0a02b3f7ebc template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
