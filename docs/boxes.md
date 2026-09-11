@@ -117,6 +117,33 @@ unmeasurable condition would silence both directions at once.
 A list with no boxes is `empty_scope`: a list that says nothing does not say
 everything is finished.
 
+#### The shell a run was measured in
+
+Two runs of the same tree, at the same version, can give two different numbers,
+and the reason is almost never the tree: a check that reads an environment
+variable skips itself when the shell does not carry it, the output never says
+"passed", and the box is counted unproven. Read side by side, that difference
+looks like a regression. So the report says where it was measured.
+
+```json
+{ "boxes": { "environment": ["APP_TEST_DSN", "APP_LIVE_TOKEN"] } }
+```
+
+`summary.environment` names each variable and whether it was **set** — never its
+value, because a report that carried one would be the leak it exists to prevent.
+The list is the declared names plus every variable a criterion already names for
+itself (`dsnEnv`), so a connection string is not declared twice. Which variable a
+*command* reads is the project's to say: the engine cannot open a test and guess.
+Nothing here changes a verdict — what a shell ought to carry is not the engine's
+judgement — and a run with no variable to speak of prints no line at all.
+
+`summary.blind` splits the unmeasured count by cause: `environment` (a variable
+the criterion needs is empty), `connection` (the query did not run), `command`
+(the command never started), `output` (the run said it did not measure). One
+total cannot tell a closed database from a skipped suite, and the difference
+between two runs is exactly what a total hides. The causes sit in `summary`, not
+in a finding, so a baseline still reads the same bytes from the same tree.
+
 ### Asking many criteria in one process
 
 A list's cost grows with the number of **processes**, not of criteria.
@@ -330,4 +357,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.95.0 capabilities=70421d73578f03a25494e5bbc25e419896ea385f1af19b3fd407f0a02b3f7ebc template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.96.0 capabilities=890b3ee4cf9878440f2cd2d8516be453e9d75846ffce0092312b5bb1236761b4 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
