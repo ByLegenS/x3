@@ -54,4 +54,24 @@ itself on the next format.
 //x3:allow:comments: the glob syntax table is the contract itself
 ```
 
-<!-- x3-dist version=v0.81.0 capabilities=c4d88cb725a31b1da87876efb71e76fd3bc7978cff49600f9a54b2e2cd36aab8 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+**Two blocks in one file are two debts.** When a finding is frozen into a
+[baseline](baseline.md#the-finding-baseline), its identity is the rule, the file **and the
+block itself** — the comment text with indentation and line breaks normalised
+away, so re-wrapping or re-indenting a frozen block keeps it frozen while a *new*
+over-long block in the same file does not inherit its pardon. The identity used
+to be the file alone, and that was a hole of exactly the shape this gate exists
+to close: in a file the baseline already knew, a newly written over-long block
+was absorbed in silence — the held count went up by one and nothing turned red,
+while the identical fault in a file with no baseline entry was blocked. The
+digest each finding carries is that identity, so a baseline line can be traced
+back to the block that put it there.
+
+**An older baseline has to be re-recorded, and the order matters.** Every
+identity in a `comments` baseline written before this changed, so the old file
+reads as debt the run no longer finds. **Delete the file, then record it once
+more** — an update run against the old file sees every entry dead and no entry
+held, and writes an empty baseline, which is a declaration of no debt at all. The
+diff of the new file is worth reading: whatever the old identity was hiding
+appears in it.
+
+<!-- x3-dist version=v0.82.0 capabilities=11edd916bf4f7054d8961098862c218884f6184a237e77ee3193ebf2a0e9dc05 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
