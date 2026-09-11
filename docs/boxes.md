@@ -44,7 +44,7 @@ because the work was done, never because it stopped being needed.**
 | State | Criteria | Result |
 |---|---|---|
 | `open` | all met | **red** — `box_finished`: the work is done, the list is stale |
-| `done` | any unmet | **red** — `box_unproven`, each unmet criterion named |
+| `done` | any unmet | **red** — `box_unproven`, each unmet criterion named (`box_unmeasured` when none of them could be measured) |
 | `open` | some unmet | green |
 | `done` | all met | green |
 
@@ -89,13 +89,33 @@ criterion **once** more, only when the first output says one of `when`, and the
 second run *replaces* the first: "either attempt may hold" would be an escape
 hatch. Nothing here is specific to any runner.
 
-#### A criterion that cannot run
+#### A criterion that cannot run, and one that ran and measured nothing
 
 A `sql` criterion whose DSN is empty, or a `command` that cannot start, is
-**unmet** — never met — with the reason beside it, and counted in
-`summary.unmeasured` and on the human line, because a count that is always above
-zero is a gate that never actually runs. A list with no boxes is `empty_scope`: a
-list that says nothing does not say everything is finished.
+**unmet** — never met, with the reason beside it. So is a run that *did* start and
+measured nothing: a suite whose cases all skipped themselves exits `0` and prints
+no proof. Which sentence means "I skipped" is the project's to declare.
+
+```json
+"output": { "must": ["--- PASS"], "mustNot": ["no tests to run"], "unmeasured": ["--- SKIP"] }
+```
+
+`unmeasured` is read **only** where the expectation did not hold and `mustNot` said
+nothing: a rejected output *was* measured, so a stale criterion cannot file itself
+as unmeasurable. One text written in both `must` and `unmeasured` is a
+configuration error (exit `2`).
+
+**Nothing turns green.** A closed box whose every unmet criterion could not be
+measured is red under its own code, `box_unmeasured`; a single unmet criterion that
+*was* measured keeps the box at `box_unproven`, because a measured red may not hide
+behind an unmeasured one. Both counts stand on the human line and in
+`summary.unmeasured` / `summary.unmeasuredBoxes` — one field for "how many boxes did
+this run fail to measure" — and neither code may be frozen into a baseline. A
+`when` condition that could not be measured does **not** postpone a box: an
+unmeasurable condition would silence both directions at once.
+
+A list with no boxes is `empty_scope`: a list that says nothing does not say
+everything is finished.
 
 ### Asking many criteria in one process
 
@@ -224,9 +244,9 @@ x3 boxes -baseline baselines/boxes.json -update-baseline   # freeze what stands 
 What may be frozen is **how the list is written today** — `box_uncovered`,
 `box_record`, `box_unlisted`, `box_unknown_state`, `box_owner`, `box_moved`,
 `box_suspect`. What may **never** be frozen is what the list *claims*:
-`box_finished` and `box_unproven` (freezing them makes finished work sit open
-forever and closing without proof free), `empty_scope`, and the gate's own health
-codes. A baseline buys time to write the criteria; it does not buy permission to
+`box_finished`, `box_unproven` and `box_unmeasured` (freezing them makes finished
+work sit open forever, closing without proof free, and a gate that measures
+nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
 stop asking the two questions.
 
 ### A list that is finished, and where it goes next
@@ -328,4 +348,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.78.0 capabilities=53c367399e7771a03b7c0432e35711311b74e3fc7bdd733b14434d4810570cd8 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.79.0 capabilities=3c45ec9abee79b86bf9ba9bca65f118d2c089dfaf5d4502d319cba631f64e38a template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

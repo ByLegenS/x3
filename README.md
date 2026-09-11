@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.78.0`**
+**Current version: `v0.79.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `756df084ed3af5b3058e4cd35c975d8d414a0e8a4ad200583b51060f2dee0f09` |
-| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `ece744ff046bae289d47b98a26bc6bf7fbabf7951b3d4ef28afd6d9a6d7b1f43` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.3 MB | `86a41d3daf3fde0996ccab0f8d7ff8330d171a6a600be70f1b2d5194d396c2be` |
+| `x3-linux-amd64` | linux/amd64 | 13.9 MB | `7f5099c288bfe2510b9ee9f280ccec81606dbfd138dbf5978fd4204814ddc53b` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -181,6 +181,7 @@ markers that split this document, so a page cannot be missing from it.
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
+| [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](docs/experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
@@ -226,4 +227,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.78.0 capabilities=53c367399e7771a03b7c0432e35711311b74e3fc7bdd733b14434d4810570cd8 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.79.0 capabilities=3c45ec9abee79b86bf9ba9bca65f118d2c089dfaf5d4502d319cba631f64e38a template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->

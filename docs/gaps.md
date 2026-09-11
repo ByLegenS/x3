@@ -61,24 +61,4 @@ type — freeze a value set with `freeze` if the number is the contract. The
 surface is the union across build constraints, so a platform-only symbol is in
 it. And it measures the API a caller *writes*, never what a call *does*.
 
-**`boxes` measures evidence, not completion.** A command criterion runs where the
-gate runs, and a move is trusted once its target exists.
-
-**A name a declared place mentions cannot be weighed.** A criterion carries a
-place to compare against; a runner *is* the place. Such a record is `SUSPECT`
-and its entry `unsure` - kept on the not-free side, never counted as a bond.
-
-**Examples are one call, not a scenario.** An example cannot expect a panic and
-cannot read a value it mutated.
-
-**A declared build tag is not checked against the build constraints.** The
-engine asks whether a run carries a tag an example asks for; it does not verify
-that the tag actually gates a file. It cannot: a tag may gate a file in a
-*dependency* of the package being run, so "no file here is constrained on it"
-would call a working declaration dead. A tag nothing is constrained on is
-therefore not red on its own — its examples simply stay deferred, named on
-every run until someone carries it.
-
-**The language gate speaks one language** — `en` is the only embedded dictionary.
-
-<!-- x3-dist version=v0.78.0 capabilities=53c367399e7771a03b7c0432e35711311b74e3fc7bdd733b14434d4810570cd8 template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
+<!-- x3-dist version=v0.79.0 capabilities=3c45ec9abee79b86bf9ba9bca65f118d2c089dfaf5d4502d319cba631f64e38a template=4c123e84344b7bfc12ab4a657b26ee954cda22cc067d7dff91cf88d206276e26 -->
