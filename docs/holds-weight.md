@@ -5,13 +5,10 @@
 ## Which hold is really a hold
 
 A file declares names, and a name is a short word. Ask about a file and the
-engine asks about everything in it — which is the point, and also the danger: a
-declaration called `Do`, `now` or `run` appears in the words of criteria that
-never look at that file. Counted as bonds, those records bury the real ones, and
-a run that cannot trust the answer filters it by hand — where the real bond gets
-filtered away together with the noise.
-
-So the two questions are kept apart.
+engine asks about everything in it — the point, and the danger: a declaration
+called `Do`, `now` or `run` appears in criteria that never look at that file, and
+counted as bonds those records bury the real ones. So the two questions are kept
+apart.
 
 **The file itself** (`via: file`) is always a bond. Somebody wrote that file into
 a criterion. The mention is read as a **path token**, not as a word: the match is
@@ -35,11 +32,27 @@ slash and nothing but path characters is a place, `./...` being the whole tree �
 never out of a runner's flag names, which would make the engine know one runner
 and not the next. A selector is a pattern and a pattern knows nothing about
 place: `runs ./service/ -run Manifest` does not hold a `TestManifestIsWritten`
-declared under `src/`, because the criterion never looked there. When a criterion
-names **several** places, any one of them covering the file is enough.
+declared under `src/`. Where a criterion names **several** places, any one of
+them covering the file is enough.
 
 Names are matched **as words**: a criterion saying `jeton` does not hold a
 declaration called `ton`, and one saying `Readiness` does not hold `Read`.
+
+### A name whose file is gone
+
+A name already deleted declares nothing anywhere, so there is no file to weigh a
+criterion against and every criterion that mentions it — or whose selector
+matches it — reads as a bond. Measured over 172 names removed from one
+repository's history: **5 held, every one of them from a command running in a
+different part of the tree.** So an ask may carry the place the name came from:
+`service/window:TestWindowReadsBothEnds`. It is weighed against **`command`
+criteria only**, by directory — one whose place covers it, or lies inside it,
+still holds the name; one that runs elsewhere does not. Pattern and file criteria
+are left alone on purpose: their places are file globs, and a directory measured
+against a file glob misses, turning a real bond into a silent "free". A left half
+that is neither a path nor a directory in the tree is no place, and the ask stays
+one name. The same 172 asked with their places: **0 held, 172 free** — while a
+name still living inside the place its criterion runs in is held either way.
 
 ### The record the engine refuses to decide
 
@@ -53,4 +66,4 @@ which records were actually weighed. The two mistakes are not equal: a wrong
 silent green this whole mode exists to prevent — so every class the engine
 cannot decide is counted on the bond side, and said out loud.
 
-<!-- x3-dist version=v0.101.0 capabilities=1e2d8212dbd1aee0a5d167f14593e56ef4cf09adec08d2c4414ff62f57804b5f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.102.0 capabilities=fef659c429c8905c6f65fd8f4e9599091a9cf2467c5a7a9a695b1c396dbd132a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -17,8 +17,9 @@ x3 boxes -holds internal/parse/line_test.go
 x3 boxes -holds-from removing.txt
 ```
 
-Each entry is a **name or a path**, `-holds` comma separated and `-holds-from`
-one per line (`#` opens a comment). An entry that names a file in the tree is
+Each entry is a **name or a path** — or a name with the place it came from,
+`<place>:<name>`, which is what a name already deleted needs — `-holds` comma
+separated and `-holds-from` one per line (`#` opens a comment). An entry that names a file in the tree is
 also asked as every top-level name that file **declares**: what gets removed is
 usually a file, while the name a criterion holds is written inside it, and
 leaving that step to a script outside the engine is what this mode exists to end.
@@ -73,4 +74,4 @@ Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.101.0 capabilities=1e2d8212dbd1aee0a5d167f14593e56ef4cf09adec08d2c4414ff62f57804b5f template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.102.0 capabilities=fef659c429c8905c6f65fd8f4e9599091a9cf2467c5a7a9a695b1c396dbd132a template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
