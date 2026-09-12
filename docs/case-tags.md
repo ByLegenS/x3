@@ -87,15 +87,20 @@ this — it runs in a tagged run and in an untagged one alike.
 A tag on a command line is a claim that it does something. Two reds keep the
 claim honest, and they are the same law read from either end:
 
-- the run carries a tag **no example asks for** — `dead_tag`, named on the
+- the run carries a tag **nothing in the tree uses** — `dead_tag`, named on the
   configuration file or on `-tags`, whichever declared it;
 - a file declares tags and **has no examples** — `dead_tag` on that line: the
   declaration binds that file's examples, and there are none to bind.
 
-Without the first, a gate script could keep `-tags integration` long after the
-last example that needed it was renamed, and go on reporting green over a
-narrower tree than anyone believes it measures. The second catches the same
-mistake one file earlier.
+*Uses* has two doors, and the second opened this page: an example **asks** for a
+tag with `//x3:tags:`, and a `//go:build` line **binds** the build with it,
+pulling in a file no example declares. Asking only the first reddened a correct
+run — `x3 case -tags integration` over a directory whose helpers sit behind that
+tag. A misspelled tag is still caught, because neither door names it.
+
+Without the first red, a gate script could keep a tag long after the last file
+that needed it was renamed, reporting green over a narrower tree than anyone
+believes it measures. The second catches it one file earlier.
 
 ### An example that never ran can be refused
 
@@ -124,8 +129,7 @@ a declaration, so the scope rule above does not apply to it.
 The run-side question is asked of a tag from the configuration **only when the
 configuration file lies inside the tree being run** — the same rule that governs
 `dead_import`, for the same reason: a repository-wide setting judged from a
-single directory would call a correct declaration dead. A tag given on the
-command line is not held back that way; it was typed for this run, over this
-scope, and "nothing here asks for it" is both true and worth hearing.
+single directory would call a correct declaration dead. A tag typed on the
+command line is not held back that way; both doors are asked of it here.
 
-<!-- x3-dist version=v0.163.0 capabilities=40d69e7ad99300f13c26ed7bd3dee5a6a6c9a6c296f5484c9d03f4d937f1dc74 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.164.0 capabilities=199cc3df673c9cfca30460d88e983aa8f978980b94ce3a71fcd68976e80383f9 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

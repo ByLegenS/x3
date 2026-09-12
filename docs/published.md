@@ -68,4 +68,4 @@ not see every release reported as pointing somewhere else.
 the release. It answers one question: *is the version this publication announces
 actually obtainable?*
 
-<!-- x3-dist version=v0.163.0 capabilities=40d69e7ad99300f13c26ed7bd3dee5a6a6c9a6c296f5484c9d03f4d937f1dc74 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.164.0 capabilities=199cc3df673c9cfca30460d88e983aa8f978980b94ce3a71fcd68976e80383f9 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
