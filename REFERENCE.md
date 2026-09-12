@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.130.0`**
+**Current version: `v0.131.0`**
 
 ## scan exit codes
 
@@ -139,6 +139,7 @@ document in one run, so no two can describe different versions.
 | `scope_below_minimum` | every rule | fewer subjects than `minimum` |
 | `dead_exemption` / `dead_exclusion` / `dead_filter` | escape hatches | an exemption, exclusion or filter that took nothing out |
 | `dead_satisfier` | `pairing` | `satisfiedBy` rescued no subject |
+| `unjudged_exemption` | any | an exemption names a rule this configuration does not load (warning) |
 
 ## how a rule reads a file
 
@@ -293,4 +294,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `setup` | no | the steps run after creation, **in order**; each one `command`, `args`, `env`, `timeoutMs` (§ [A ready database is more than one command](docs/testdb-setup.md#a-ready-database-is-more-than-one-command)) |
 
-<!-- x3-dist version=v0.130.0 capabilities=bc57eff9bf760acd13885d77a1a683b23ec2ced31c31afa271e6f8bf51d19afb template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.131.0 capabilities=0ae611848b4d163cdcc7ff33b586ecfda3da08f1e6cf326dffcd8d785144d8ea template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -36,4 +36,23 @@ func (m *Module) Provision() error {
 }
 ```
 
-<!-- x3-dist version=v0.130.0 capabilities=bc57eff9bf760acd13885d77a1a683b23ec2ced31c31afa271e6f8bf51d19afb template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+### Name the rule you are excusing
+
+```go
+//x3:allow:arch:an-app-pool-never-leaves-its-receiver: handed over once, at startup
+```
+
+Naming the rule changes two things. It silences **only** that rule, so a second
+rule finding something at the same line still speaks. And it ties the
+dead-exemption law to the run that could have judged it: a configuration that
+does not load that rule answers `unjudged_exemption` — a **warning**, counted
+in `summary.unjudged` and printed — instead of calling the line dead. Without
+that tie, running a *subset* of the rules pays for exemptions no rule in it
+ever looked at.
+
+The law is unchanged. When the named rule does run and excuses nothing the line
+is `dead_exemption` and red, and an exemption naming no rule silences every
+rule, so every run judges it. A name no rule carries is not an error — a subset
+run is legitimate — so it stays a warning on every run instead of hiding.
+
+<!-- x3-dist version=v0.131.0 capabilities=0ae611848b4d163cdcc7ff33b586ecfda3da08f1e6cf326dffcd8d785144d8ea template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
