@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.142.0`**
+**Current version: `v0.143.0`**
 
 | Page | What it covers |
 |---|---|
@@ -52,6 +52,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Files no compiler reads](syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [The word another language owns](syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
 | [Which files the check is about](syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
+| [What a check does not read](syntax-scope.md) | the file a source glob takes but the check must not weigh, and the comment that explains the rule rather than breaking it |
 | [A change that stays in its lane](scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](test.md) | the unit graph, the cache, and what the measurement honestly shows |
 | [One call per unit, one database per unit](test-isolation.md) | what a shared process and a shared database hide, and what the isolation costs |
@@ -80,4 +81,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.142.0 capabilities=26bb19f71c95ebb12c25cee2d5a14f374ec748b090b8afa420df48fd5ddb1db7 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.143.0 capabilities=2b4de3c78c787252f39d546e72740f1d3b98dd0ebabc1ab608208d11d23af971 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

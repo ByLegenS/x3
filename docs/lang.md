@@ -93,4 +93,4 @@ words. Its licence requires the notice to travel with any copy:
 Do not edit the file by hand. A word that belongs to your project belongs in
 `language.allow`.
 
-<!-- x3-dist version=v0.142.0 capabilities=26bb19f71c95ebb12c25cee2d5a14f374ec748b090b8afa420df48fd5ddb1db7 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.143.0 capabilities=2b4de3c78c787252f39d546e72740f1d3b98dd0ebabc1ab608208d11d23af971 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

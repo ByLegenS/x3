@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the
 guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
 and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.142.0`**
+**Current version: `v0.143.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `9bfb636e3435894174a43205fdf0ccf471be74803588d48f9305f32c79055fbd` |
-| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `76a3d7b361c43d05bf18cea9a7954c1ab24866f6538c62cda498a591d776433e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `b0244534d2c72bc6b84e5f4eb09f53ab664bd878c8b487b18a0cde52f3ccbe0e` |
+| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `257faaf92eb0e41ed66fdcb7bdd1a1766ddf77baa0a19a800dc6964df866a520` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -190,6 +190,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [The word another language owns](docs/syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
 | [Which files the check is about](docs/syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
+| [What a check does not read](docs/syntax-scope.md) | the file a source glob takes but the check must not weigh, and the comment that explains the rule rather than breaking it |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
 | [One call per unit, one database per unit](docs/test-isolation.md) | what a shared process and a shared database hide, and what the isolation costs |
@@ -261,4 +262,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.142.0 capabilities=26bb19f71c95ebb12c25cee2d5a14f374ec748b090b8afa420df48fd5ddb1db7 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.143.0 capabilities=2b4de3c78c787252f39d546e72740f1d3b98dd0ebabc1ab608208d11d23af971 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
