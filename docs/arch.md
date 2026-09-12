@@ -168,12 +168,31 @@ line number**: what is missing is missing from the file, not from a place in it.
   "counterpart": "sibling:*_test.go", "requires": "references-a-declaration" }
 ```
 
-**Not coverage** — the question is whether any file at all names this one. In
-`sibling:<template>` the `*` is the subject's own base name, so `beta.go` asks
-for `beta_test.go`; read as a glob the same string says which files are
-counterparts, and those are never subjects. `requires` is `exists` (default) or
+**Not coverage** — the question is whether any file at all names this one. There
+are two counterpart forms and they are **not the same question**.
+
+| Form | What it looks for | `*` means |
+|---|---|---|
+| `sibling:<template>` | the subject's **namesake**: `beta.go` asks for `beta_test.go` | the subject's own base name |
+| `in-directory:<pattern>` | **any** neighbour matching the pattern | an ordinary glob star |
+
+Read as a glob either string also says which files are counterparts, and those
+are never subjects. `requires` is `exists` (default) or
 `references-a-declaration`; a subject with no declarations cannot be asked the
 second question.
+
+The directory form exists because one suite file can cover a whole directory.
+Measured on a fixture where `suite_test.go` names both `service.go` and
+`ledger.go`: `sibling:` reports **2 violations** — it wants `service_test.go`
+and `ledger_test.go`, and both would be empty files — while `in-directory:`
+reports **none**. Under `references-a-declaration` **one** neighbour naming one
+declaration is enough; asking every match to name it would turn "does anybody
+touch this file" into "does everybody".
+
+It is not an off switch. In the same fixture a declaration no neighbour names is
+red (`N file(s) here match "*_test.go" and none names anything declared here`),
+and a directory with no matching file at all is red too (`no file in this
+directory matches "*_test.go"`).
 
 ### `flow` — where a value may appear
 
@@ -378,4 +397,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.118.0 capabilities=70f1f255387ba0e0b3e37f307a3ec5c030d0ad4c3514eac7aef65a5cead99c77 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.119.0 capabilities=3461040f39065d6a34ecc51e2c04d0c0200bfb0a101424f5cc8efaec1cc68c21 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
