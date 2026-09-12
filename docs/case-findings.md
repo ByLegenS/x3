@@ -38,6 +38,27 @@ after, one `crashed` naming the culprit and **three passed**. If the budget runs
 out first, the examples that never started say so, with the name of what killed
 the run in their finding.
 
+**A ceiling is not a culprit.** Examples in a package run one after another, so
+when the package reaches `case.timeout` the example left without a verdict is
+simply whichever one was running. Calling it `crashed` — or `never_ran` — writes
+a fact about the *package* onto an innocent example, and the reader spends the
+next hour in the wrong file. Measured: two runs of the same package accused two
+different examples, and neither was at fault.
+
+So the clock decides, not the runner's sentence: when the run reaches the ceiling
+the engine set, every example it did not measure is `over_ceiling` and **none is
+accused** — the finding says the package was too slow, that the run cannot tell
+which example is slow, and which number to raise. Examples that *were* measured
+keep their answers, a failing one included, and a run that genuinely died inside
+one example is still `crashed`, naming it. The ceiling itself is
+`{ "case": { "timeout": "90s" } }`, and it is read the same way whether it is
+reached or not.
+
+**Known boundary:** the clock covers compiling as well as running, so a ceiling
+set below a package's compile time reports `over_ceiling` for work that never
+got to run. The error is on the side of accusing nobody, which is the side this
+gate wants to be wrong on.
+
 ### Propositions stop at the first one that fails
 
 Propositions in one `then=(...)` are evaluated in order, and the first one that
@@ -89,4 +110,4 @@ dependency waiting forever.
 `passed` is counted separately from `findings` on purpose: "no findings" and "no
 examples" are not the same sentence.
 
-<!-- x3-dist version=v0.153.0 capabilities=623ccd05726c1539c169bc853f4869d52533d5c7fa7810be91e81b097e7bfbb6 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.154.0 capabilities=7e5d428879f4d1e56871c497dea26f349c71094333cace058016a37fe08d08ca template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
