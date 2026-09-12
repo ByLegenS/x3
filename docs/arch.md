@@ -161,39 +161,6 @@ The only marker form is `regex:<pattern>`, with `^` and `$` bound to a **line** 
 a mark need not open the file; one that must writes `\A`. A finding carries **no
 line number**: what is missing is missing from the file, not from a place in it.
 
-### `pairing` — does anybody touch this file?
-
-```json
-{ "kind": "pairing", "sources": ["internal/**/*.go"],
-  "counterpart": "sibling:*_test.go", "requires": "references-a-declaration" }
-```
-
-**Not coverage** — the question is whether any file at all names this one. There
-are two counterpart forms and they are **not the same question**.
-
-| Form | What it looks for | `*` means |
-|---|---|---|
-| `sibling:<template>` | the subject's **namesake**: `beta.go` asks for `beta_test.go` | the subject's own base name |
-| `in-directory:<pattern>` | **any** neighbour matching the pattern | an ordinary glob star |
-
-Read as a glob either string also says which files are counterparts, and those
-are never subjects. `requires` is `exists` (default) or
-`references-a-declaration`; a subject with no declarations cannot be asked the
-second question.
-
-The directory form exists because one suite file can cover a whole directory.
-Measured on a fixture where `suite_test.go` names both `service.go` and
-`ledger.go`: `sibling:` reports **2 violations** — it wants `service_test.go`
-and `ledger_test.go`, and both would be empty files — while `in-directory:`
-reports **none**. Under `references-a-declaration` **one** neighbour naming one
-declaration is enough; asking every match to name it would turn "does anybody
-touch this file" into "does everybody".
-
-It is not an off switch. In the same fixture a declaration no neighbour names is
-red (`N file(s) here match "*_test.go" and none names anything declared here`),
-and a directory with no matching file at all is red too (`no file in this
-directory matches "*_test.go"`).
-
 ### `exposure` — what reaches the outside
 
 **Catches:** an internal cost or margin the day the struct holding it is written
@@ -373,4 +340,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.125.0 capabilities=095fd8c2f3b2a4d369248a7cf091184c5d1e81337bdcd62da4b2f9f9fd3abfb4 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.126.0 capabilities=ab571bf2812ece5d736297b10b946386576e33e45fe5c4719049dc601b531860 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.125.0`**
+**Current version: `v0.126.0`**
 
 ## scan exit codes
 
@@ -104,6 +104,7 @@ document in one run, so no two can describe different versions.
 | `unknownOwner` | literal | `report` (default) or `ignore` a captured owner no instance carries |
 | `marker` | required | the mark every file in `sources` must carry |
 | `counterpart`+`requires` | pairing | the file that must name this one |
+| `satisfiedBy` | pairing | what else counts as a counterpart |
 | `value`+`allow` | flow | the value to follow, and where it may appear |
 | `surface`+`fields`+`carrier` | exposure | where to watch, which names, written how |
 | `across`+`minLines` | duplication | the component compared with itself |
@@ -136,6 +137,7 @@ document in one run, so no two can describe different versions.
 | `empty_scope` | every rule | a component, source set or followed field matched nothing |
 | `scope_below_minimum` | every rule | fewer subjects than `minimum` |
 | `dead_exemption` / `dead_exclusion` / `dead_filter` | escape hatches | an exemption, exclusion or filter that took nothing out |
+| `dead_satisfier` | `pairing` | `satisfiedBy` rescued no subject |
 
 ## how a rule reads a file
 
@@ -290,4 +292,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.125.0 capabilities=095fd8c2f3b2a4d369248a7cf091184c5d1e81337bdcd62da4b2f9f9fd3abfb4 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.126.0 capabilities=ab571bf2812ece5d736297b10b946386576e33e45fe5c4719049dc601b531860 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
