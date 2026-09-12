@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.117.0`**
+**Current version: `v0.118.0`**
 
 | Page | What it covers |
 |---|---|
@@ -40,6 +40,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A change that stays in its lane](scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](test.md) | the unit graph, the cache, and what the measurement honestly shows |
 | [One call per unit, one database per unit](test-isolation.md) | what a shared process and a shared database hide, and what the isolation costs |
+| [A skipped test is not a green one](test-skipped.md) | counting what the runner skipped, and the policy that makes it red |
 | [The test you forgot to write](mutate.md) | the code broken on purpose, and the behaviour no test noticed |
 | [What a mutation run breaks, and what it says](mutate-findings.md) | the operators, the text mutations, the fail-closed codes, and the findings a run names |
 | [Traffic, written down](record.md) | a run of the application recorded, redacted before it reaches the disk |
@@ -61,4 +62,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.117.0 capabilities=ce1800b7b838eea8f7342889f20d51ccb56d4ef122752fc5289d7e42f86aa617 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.118.0 capabilities=70f1f255387ba0e0b3e37f307a3ec5c030d0ad4c3514eac7aef65a5cead99c77 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
