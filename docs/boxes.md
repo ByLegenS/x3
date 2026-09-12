@@ -57,10 +57,56 @@ See **boxes criteria fields** in the [boxes reference](boxes-reference.md#boxes-
 
 `match` is read with `^` and `$` bound to a **line**
 ([how](patterns.md#how-a-pattern-is-read)). The sharp edge is `absent`: a `pattern` that
-stops matching goes loudly red, but an `absent` that stops matching goes **green
-without measuring anything**. It is also what makes deletion provable — "the old
-call site is gone" is exactly the sentence that becomes true when that work
-finishes.
+stops matching goes loudly red, while an `absent` that stops matching goes green,
+and nothing about that green announces itself. It is also what makes deletion
+provable — "the old call site is gone" is exactly the sentence that becomes true
+when that work finishes. What keeps the green honest is that **a criterion which
+read no file did not measure**: `sources` matching nothing at all is `unmeasured`
+in both directions, never a red that claims to have looked and never a green that
+never looked (`summary.blind` counts it under `sources`).
+
+**A criterion opens what it names.** The walk skips `vendor`, `testdata`,
+`node_modules` and every directory whose name starts with `.` or `_`, so a
+criterion written against `.claude/settings.json` used to read no byte and then
+report *"measured and failed"*. `sources` therefore reach into a skipped
+directory the same way a rule's `paths` do — but only where the directory is
+written out **plainly**: the moment a wildcard segment appears the reading stops,
+because `**/*.go` reaching everywhere would be the filter silently removed, and
+a package store read as project code is noise, not measurement.
+
+#### A comment is not the work
+
+**A pattern criterion is satisfied by the code, not by a comment quoting it.**
+A pattern criterion says *this tree does something*. A comment does not do it —
+it talks about it, and a comment that quotes the very name the criterion looks
+for satisfies it word for word. Measured on a production repository: a note left
+in an emptied test file, *"that exam is not in the repository today"*, closed a
+box that had gone unmeasured for months — the work list itself had started lying.
+
+So `pattern` reads the **code**: comments are blanked before the match, line
+endings and byte positions kept, string literals left where they are.
+
+```json
+{ "when": "pattern", "sources": ["docs/DESIGN.md"], "match": "the rule is written down", "reading": "text" }
+```
+
+`reading` is `code` by default and `text` where the prose *is* the subject — a
+criterion about a document, or about the reason written above a declaration.
+The direction of the default was chosen by which way each one fails: a reading
+that skips comments sees **less**, so when it is wrong it goes red and says so;
+a reading that takes them in sees more and goes quietly green.
+
+**A line a tool reads is not a comment.** `//x3:case`, `//go:embed`, `//nolint`,
+`# -*-` and their kin open with a comment marker and are still executed by
+something — an example the engine itself runs is a test, not a story — so they
+stay in the code half. The measurement says how much that distinction is worth:
+across 1385 criteria, blanking every comment dropped **78** of them; keeping the
+directive lines dropped **8**, and all eight were prose, three of them sentences
+saying the named thing does *not* exist.
+
+`absent` does not take this reading and cannot write the field. It asks for a
+name to be **gone**, and a name still written in a comment is a name the tree
+still carries; reading less could only make it greener.
 
 `equals` is required on `sql`, because a query that only has to *run* is answered
 by an empty table; the DSN is read from the environment by name and never written
@@ -156,7 +202,8 @@ judgement — and a run with no variable to speak of prints no line at all.
 
 `summary.blind` splits the unmeasured count by cause: `environment` (a variable
 the criterion needs is empty), `connection` (the query did not run), `command`
-(the command never started), `output` (the run said it did not measure). One
+(the command never started), `output` (the run said it did not measure),
+`sources` (the criterion's own sources matched no file, so it read nothing). One
 total cannot tell a closed database from a skipped suite, and the difference
 between two runs is exactly what a total hides. The causes sit in `summary`, not
 in a finding, so a baseline still reads the same bytes from the same tree.
@@ -289,4 +336,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.160.0 capabilities=e88f95261480eb59757c7a6380cf3f12994a6220aec98dc46bd65ac5e6967e82 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

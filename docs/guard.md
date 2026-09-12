@@ -258,7 +258,9 @@ gate step whose packages had emptied out and burned green for months. So the
 output is read for that announcement **whether or not one was written**:
 
 ```json
-"live": { "blind": { "when": ["go test"], "says": ["no tests to run", "no test files"] } }
+"live": { "blind": { "when": ["go test"],
+                     "says": ["no tests to run"],
+                     "melted": { "pattern": "^\?\s+(\S+)\s+\[no test files\]", "name": 1 } } }
 ```
 
 Both fields default to what is shown, so the block is normally left out. `when`
@@ -275,13 +277,29 @@ file: two keys for one hole would be shaped in one place and forgotten in the
 other. A `live` section is not required for it - the protection is a floor, not
 something a project earns by writing guards - and `off` is printed there as well.
 
+**A package with no test file may be a success, not a blindness.** Once a
+package's claims move into examples the engine itself runs, its test file is
+gone and the runner announces it — and a protection asking only whether the
+sentence *appeared* cannot tell that apart from a `-run` pattern matching
+nothing. Measured mid-migration: one fully melted package reddened a run
+covering forty, and every further step added another. So `says` carries only
+sentences that are a fault on their own, while `melted` carries the line that is
+first **asked about its subject**: the name it captures resolves to a directory,
+and a directory declaring examples is where the measure lives. A subject
+resolving to no directory is never excused — not knowing is paid for in red —
+and neighbours do not answer for each other. The same sentence written into
+`says` overrides all of it: a sentence listed there is a fault by declaration.
+
 The default names a runner, which `must`/`mustNot` deliberately never do; the
 difference is that it is a *default*. Another runner writes its own line
 (`"when": ["pytest"], "says": ["no tests ran"]`), and an empty list in place of
 either is refused — it cannot be told from an unwritten one, and would inherit
 the default in silence. Removing the protection takes a reason
 (`"blind": { "off": "…" }`), printed on every run that wraps a command, and `off`
-cannot sit beside `when` or `says`: a protection is either shaped or removed.
+cannot sit beside `when`, `says` or `melted`: a protection is either shaped or
+removed. A `melted` pattern that does not compile, or whose `name` points at a
+capture group the pattern does not have, is a configuration error — a group that
+cannot be read names no subject, and would excuse everything or nothing.
 
 **A dead excuse is red too.** `unwrapped` written with no `command` beside it
 excuses nothing — a run that wraps no command was never in question — so the
@@ -289,4 +307,4 @@ configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.160.0 capabilities=e88f95261480eb59757c7a6380cf3f12994a6220aec98dc46bd65ac5e6967e82 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
