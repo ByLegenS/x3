@@ -109,7 +109,13 @@ exists at all.
   "absent": { "internal/legacy/importer": "deleted in the migration" } }
 ```
 
-A value naming nothing is `missing_target`. Values resolve against the
+A value naming nothing is `missing_target`, **reported against the file that
+carries the value** — a finding has to open somewhere, and one that names only a
+value leaves a baseline record nobody can review a year later. A value written
+in several files is reported against the first of them, so the same tree gives
+the same bytes. The one finding with no file is an `absent` entry **nothing
+names any more**: there is no file to point at, which is what the finding says.
+Values resolve against the
 **repository root** unless `relativeTo: "source"` resolves each against the
 directory of the file carrying it, which is what a test reading `"../../x.go"`
 needs; the same text in two files is **two targets**. `absent` is a
@@ -193,4 +199,4 @@ its own name; a project calling it through a variable (`& $bin scan`) says so
 with `invoke`, a list of patterns each carrying one capture group — the same
 field, spelled the same way, that [`x3 adoption`](adoption.md#x3-adoption) reads.
 
-<!-- x3-dist version=v0.122.0 capabilities=15ca9e0e91f95ecffad1e8ad49dbf97d72b4af46193928ec5bd51865cf8290e0 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.123.0 capabilities=b0528e92f0eecaaed4d3d24aa0d548943df4de890c8d41d68593fea3187c3852 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
