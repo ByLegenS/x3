@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.161.0`**
+**Current version: `v0.162.0`**
 
 | Page | What it covers |
 |---|---|
@@ -17,6 +17,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The type an example declares](case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
+| [What a run costs, and what it does not pay twice](case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The words a language reserves](lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
@@ -89,4 +90,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

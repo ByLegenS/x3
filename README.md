@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.161.0`**
+**Current version: `v0.162.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `d3554ddabda0373f24edfdd52b0b8b275acfa5f0c5cc016aac4d95f835e0ab09` |
-| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `321449bc8abe4f1706c072bdb8caedd405530498059c92db63c11ea9ebf94b74` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `8f872fd30349a7b38dac7a711af1dff490de231598b41cc1e8ac8e1c49d3f36e` |
+| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `29237348cf8c7a968d2108910ab5536dd53c8150738092ff112175b26afcdbfe` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -154,6 +154,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The type an example declares](docs/case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
+| [What a run costs, and what it does not pay twice](docs/case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The words a language reserves](docs/lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
@@ -255,6 +256,7 @@ evidence.
 | **Effective checks** (`internal/live`) | a setting as *recorded* against the same setting as it is *in force* |
 | **Test databases** (`internal/testdb`) | a template database cloned per run, migrated, dropped, and the leftovers collected |
 | **Incremental cache** (`internal/cache`) | keyed on engine version, configuration fingerprint and file content; off unless declared |
+| **Examples measured once** (`internal/cases`) | packages run beside each other, and a package nothing it reaches has changed is not run at all |
 | **Settings placement** (`internal/placement`) | a rule whose paths all fall in one region, declared anywhere but that region's own settings file |
 | **Adoption** (`internal/adoption`) | how much of this engine the project actually runs, measured against the engine's own command table |
 
@@ -269,4 +271,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

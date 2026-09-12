@@ -89,14 +89,16 @@ Optional — an example lives in the source, not the configuration:
 ```json
 { "case": { "exclude": ["internal/legacy/**"],
             "imports": ["net/http/httptest", "typeset \"example.com/lib/text/core\""],
-            "timeout": "2m" } }
+            "timeout": "2m", "workers": 8 } }
 ```
 
 `imports` is the pool above, each entry `[<name> ]<path>` — the same grammar the
 `//x3:import:` directive uses, because one declaration read two ways would be
 valid in one place and malformed in the other. `timeout` (default `1m`) is applied to the test binary **and** to the toolchain
 call around it; only the first would leave a run that hangs downloading a
-dependency waiting forever.
+dependency waiting forever. `workers` is how many packages are measured at the
+same time — see **[what a run costs](case-speed.md#x3-case-what-a-run-costs)**, where the
+cache that skips a package entirely is written down too.
 
 ### The report
 
@@ -104,10 +106,13 @@ dependency waiting forever.
 { "version": 1, "root": ".", "config": "x3.json",
   "findings": [ { "file": "wallet.go", "line": 8, "target": "Add",
                   "code": "example_failed", "message": "out[0] = 5, want 6" } ],
+  "cached": ["internal/money"],
+  "slowest": [ { "file": "wallet.go", "line": 8, "target": "Add", "seconds": 0.004 } ],
   "summary": { "files": 1, "packages": 1, "cases": 1, "passed": 0, "findings": 1 } }
 ```
 
 `passed` is counted separately from `findings` on purpose: "no findings" and "no
-examples" are not the same sentence.
+examples" are not the same sentence. `cached` names the packages this run did
+**not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

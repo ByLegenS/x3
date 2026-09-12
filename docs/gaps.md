@@ -51,9 +51,12 @@ written inside strings that `strings: "any"` stops reading. A reverse
 dictionary is wider than any hand-written list and blind in a different place;
 neither reading contains the other.
 
-**The cache is per file, not per project.** A checker whose answer depends on
-more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not use
-it.
+**The cache is per file for the file-by-file checkers.** `scan`, `lang`,
+`secrets` and `comments` key it on one file's content. Two gates key it on
+something bigger, because their unit of work is bigger: `test` on a unit and
+everything that unit reaches, `case` on a package and everything it reaches.
+A checker whose answer depends on a whole tree at once — `arch`, `freeze`,
+`docs`, `boxes` — does not use it at all.
 
 **Every matcher reads shapes, not meaning.** `symbol` and `pairing` read names,
 not types; `flow` does not follow a copy; `exposure` sees tags, not
@@ -72,4 +75,4 @@ type — freeze a value set with `freeze` if the number is the contract. The
 surface is the union across build constraints, so a platform-only symbol is in
 it. And it measures the API a caller *writes*, never what a call *does*.
 
-<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

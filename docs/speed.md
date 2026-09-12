@@ -30,8 +30,10 @@ A run can remember what it measured, keyed on the **content** of each file.
 A directory, not a file: the file name comes from the command, because two
 commands sharing one file would each delete the other's entries. Nothing is
 written unless the section is there, and the directory belongs in `.gitignore`.
-`x3 scan`, `x3 lang` and `x3 secrets` read it; `-cache <file>` points one run
-elsewhere and `-no-cache` measures everything again.
+`x3 scan`, `x3 lang`, `x3 secrets` and `x3 comments` read it per file; `x3 test`
+and `x3 case` read it for something bigger than a file (a unit and a package).
+`-cache <file>` points one run elsewhere and `-no-cache` measures everything
+again.
 
 An entry is used only when three things match: the **engine version**, a
 **fingerprint of the whole configuration**, and the file's **content hash**.
@@ -61,4 +63,4 @@ calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.161.0 capabilities=dc3e9670ba9497349615241cc730ebb0d3de55e98954f4e755b74dcc5cc9ebff template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
