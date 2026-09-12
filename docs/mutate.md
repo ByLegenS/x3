@@ -8,7 +8,7 @@
 answers a question next to the one that matters — *is there a test file?*, *was
 this line executed?* — and a line can be executed by a test that asserts nothing
 about it. `x3 mutate` breaks the code on purpose and asks the only question that
-cannot be faked: **which test went red?** If none did, that behaviour is not
+cannot be faked: **which test went red?** If none did, that behavior is not
 tested, and the command says so by name.
 
 ```
@@ -73,7 +73,7 @@ the very moment the interruption happened.
 ```json
 { "mutate": {
     "sources": ["cmd/*/*.go", "internal/*/*.go"],
-    "exclude": { "internal/*/testdata/**": "fixtures are inputs the gates read, not behaviour" },
+    "exclude": { "internal/*/testdata/**": "fixtures are inputs the gates read, not behavior" },
     "text": [
       { "name": "sql-condition", "sources": ["**/*.sql"], "find": " AND ", "replace": " OR " },
       { "name": "sql-limit", "sources": ["**/*.sql"], "find": "LIMIT ([0-9]+)", "replace": "LIMIT 0" }
@@ -110,7 +110,7 @@ and removed — a declaration no exported symbol of its package can reach is
 unreachable from outside, and this tree has **not one**, because an unexported
 helper exists in order to be called by an exported one. The unsound half is
 refused: `fmt` calls a `String()` without ever writing the name, and a watcher
-dropped by mistake would have the gate call a tested behaviour untested.
+dropped by mistake would have the gate call a tested behavior untested.
 
 Three consequences, in the order they save time:
 
@@ -142,4 +142,4 @@ nothing, so `baseline_red` stops the run), it fills the toolchain's build cache
 for everything that follows, and it **measures** each unit, so a slow unit gets
 a proportionally longer ceiling instead of being called caught for being slow.
 
-<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

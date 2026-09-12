@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.127.0`**
+**Current version: `v0.128.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `aae5daea643cc2fdab1d6ab0a6dc2b1021f9102d24a7d695d16ff72be8f8d979` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `ecba286e25ef6c7d95d98cc54adfedf0f00f48dc5cb8047a43f1cef69b88c859` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `38a19476bb836f54286ddd2a550a0ab43f140548d93efed4631ea2c3669a10d7` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `0fd325efcb2c0ad9467fb71c1a999a51def0e08d15251dd8e8681bbe568d6766` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -157,7 +157,8 @@ markers that split this document, so a page cannot be missing from it.
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
-| [Does anybody touch this file](docs/arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and the example that stands in for it |
+| [Does anybody touch this file](docs/arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
+| [The example that stands in for a counterpart](docs/arch-pairing-example.md) | the inline example a migrated test leaves behind, what makes it count, and the price of declaring it |
 | [The one line a rule may not reach](docs/arch-exemptions.md) | the reason a violation is excused with, the place that reason binds, and the exemption that stopped excusing anything |
 | [Where a restricted value may appear](docs/arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
 | [Prose is not code](docs/arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
@@ -184,7 +185,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
 | [One call per unit, one database per unit](docs/test-isolation.md) | what a shared process and a shared database hide, and what the isolation costs |
 | [A skipped test is not a green one](docs/test-skipped.md) | counting what the runner skipped, and the policy that makes it red |
-| [The test you forgot to write](docs/mutate.md) | the code broken on purpose, and the behaviour no test noticed |
+| [The test you forgot to write](docs/mutate.md) | the code broken on purpose, and the behavior no test noticed |
 | [What a mutation run breaks, and what it says](docs/mutate-findings.md) | the operators, the text mutations, the fail-closed codes, and the findings a run names |
 | [Traffic, written down](docs/record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](docs/replay.md) | compared field by field, with what is allowed to differ written down |
@@ -249,4 +250,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

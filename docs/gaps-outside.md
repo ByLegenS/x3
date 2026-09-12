@@ -24,14 +24,14 @@ reported the same as any other survivor while never having been applied — that
 case wants a copied tree, and no copy is made today. Two further bounds: an
 identifier names a spot rather than one mutation, so forgiving it forgives every
 mutation written there; and equivalent mutants (a break that cannot change any
-observable behaviour) are counted as survivors, because telling one apart from a
+observable behavior) are counted as survivors, because telling one apart from a
 missing test is undecidable in general and a reason in `allow` is the honest
 place to say which it was. And **which tests can see a mutation is answered per
 package, not per function** — a mutant runs against every unit whose test binary
 links its own (2.6 on average, measured) rather than the units that actually
 reach the mutated function; the narrower answer wants a call graph, because
 `fmt` calls a `String()` without writing the name and a watcher dropped by
-mistake would call a tested behaviour untested. The floor is elsewhere anyway:
+mistake would call a tested behavior untested. The floor is elsewhere anyway:
 every mutant pays a compile pass *and* a test run, and a runner able to report a
 build failure in a form the configuration declares would remove half the
 launches. Nothing declares one today.
@@ -51,4 +51,4 @@ and `map` is a lookup table, not a rule.
 **`x3 testdb` speaks PostgreSQL only.** Nothing prevents two runs from sharing a
 template, and it keeps no record of its own beyond what it encodes in a name.
 
-<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -24,7 +24,7 @@ mutation *is* here, which codes stop a run, and what a finding says.
 
 Three things are never touched, and none of it is a setting: **test files** (a
 broken test proving a test broke measures nothing), **import paths and struct
-tags** (text that carries no behaviour — breaking them yields a compile error,
+tags** (text that carries no behavior — breaking them yields a compile error,
 not a finding), and **declared names**. `operators` narrows the list; an
 operator named there that produces no mutant anywhere is `dead_operator`.
 
@@ -97,7 +97,7 @@ green having measured nothing), `exempt`, and `runs`, the number of times
 the runner was actually launched. `score` is caught over what was measured.
 
 `invalid` is the one line in that list that must never bend. A mutation the
-compiler refuses is not a behaviour anybody tested; counting it as caught would
+compiler refuses is not a behavior anybody tested; counting it as caught would
 raise the score without measuring one thing, which is the exact failure this
 command exists to name. So a red run is never called caught on its own word —
 the engine buys one compile pass and asks. The control experiment runs both
@@ -119,7 +119,7 @@ On this engine's own source, one package of 143 lines produced **85 mutants** in
 **68 s** (32 workers, 269 runs) and the answer was a real gap: that package has no
 test file of its own, 21 mutants survived — a comparison boundary, a `+` turned
 into a `-`, four swallowed errors — and the score was **0.738**. The finding is
-not "coverage is low"; it is twenty-one namings, each a behaviour that can be
+not "coverage is low"; it is twenty-one namings, each a behavior that can be
 broken today with every gate still green.
 
 Then a production Go repository, read-only, one package: **1,347 lines across
@@ -153,4 +153,4 @@ matters for planning: **0.35 s of wall clock per mutant** on 32 processors,
 which puts a repository of twenty thousand lines at a few hours — a night, not
 a decision.
 
-<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

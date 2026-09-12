@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.127.0`**
+**Current version: `v0.128.0`**
 
 | Page | What it covers |
 |---|---|
@@ -19,7 +19,8 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
-| [Does anybody touch this file](arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and the example that stands in for it |
+| [Does anybody touch this file](arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
+| [The example that stands in for a counterpart](arch-pairing-example.md) | the inline example a migrated test leaves behind, what makes it count, and the price of declaring it |
 | [The one line a rule may not reach](arch-exemptions.md) | the reason a violation is excused with, the place that reason binds, and the exemption that stopped excusing anything |
 | [Where a restricted value may appear](arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
 | [Prose is not code](arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
@@ -46,7 +47,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Only the tests a change can reach](test.md) | the unit graph, the cache, and what the measurement honestly shows |
 | [One call per unit, one database per unit](test-isolation.md) | what a shared process and a shared database hide, and what the isolation costs |
 | [A skipped test is not a green one](test-skipped.md) | counting what the runner skipped, and the policy that makes it red |
-| [The test you forgot to write](mutate.md) | the code broken on purpose, and the behaviour no test noticed |
+| [The test you forgot to write](mutate.md) | the code broken on purpose, and the behavior no test noticed |
 | [What a mutation run breaks, and what it says](mutate-findings.md) | the operators, the text mutations, the fail-closed codes, and the findings a run names |
 | [Traffic, written down](record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](replay.md) | compared field by field, with what is allowed to differ written down |
@@ -68,4 +69,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

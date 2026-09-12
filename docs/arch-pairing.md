@@ -35,54 +35,45 @@ red (`N file(s) here match "*_test.go" and none names anything declared here`),
 and a directory with no matching file at all is red too (`no file in this
 directory matches "*_test.go"`).
 
-### An example inside the file is a counterpart
+### What counts as a subject
 
 ```json
-{ "kind": "pairing", "sources": ["internal/**/*.go"],
-  "counterpart": "in-directory:*_test.go", "requires": "references-a-declaration",
-  "satisfiedBy": ["an-example-in-the-file"] }
+{ "kind": "pairing", "sources": ["**/*.go"], "counterpart": "in-directory:*_test.go",
+  "requires": "references-a-declaration", "subjects": "files-that-declare-a-function" }
 ```
 
-A test moved into [an inline example](case.md) leaves no file behind. Without
-this line the rule calls that subject untested on the day its test started
-running — a gate that **turns red as the migration succeeds**, which is the
-opposite of what it is for.
+A file that declares an interface, a struct and nothing else has no behavior a
+test could touch. Asked for a counterpart anyway it produces a debt that cannot
+be paid — the only way to close it is an empty test file — and a debt list made
+of those is a list nobody reads.
 
-**Why not a third `requires` value.** `requires` says what is asked *of the
-counterpart*. A third value would make "a neighbour names me" and "I carry my
-own example" exclude each other, and a project mid-migration wants both at
-once: some subjects have moved, most have not.
+`subjects` says what the rule is **about**. The two readings are
 
-**Why not an exemption.** An exemption needs a reason because a person is
-overriding a measurement. Nothing is overridden here — the subject *is* tested,
-in the engine's own form. Demanding a written reason would produce one
-sentence copied over every migrated file, and copied reasons are how a gate
-goes blind.
+| Value | A subject is |
+|---|---|
+| `every-file` (default) | every file `sources` matches |
+| `files-that-declare-a-function` | only a file that declares something that **runs** |
 
-**What counts.** The engine's own reading, the one `x3 case` runs: the
-directive sits on a **function declaration in this file**, its body parses, it
-compares something, and it fits that function's signature. So a directive
-cannot be pasted into silence — `//x3:case: in=() out=_` compares nothing and
-is not an example, and a directive floating in a comment binds to no
-declaration.
+**Not an exemption, and not an exclusion either.** An exemption overrides a
+measurement, so it needs a reason. `exclude` names a **path** and is therefore a
+claim about the tree — this one exists — which is why a dead exclusion is red.
+`subjects` names a **property** and claims nothing about the tree, exactly as
+`sources: ["**/*.go"]` is a true statement of scope in a tree where every file
+is Go. So there is no dead-declaration law here to run.
 
-**Where the line is.** This asks the same question of both forms and no more:
-`requires: "exists"` accepts an empty `foo_test.go` without asking whether it
-passes, and this accepts a well-formed example without running it. Whether the
-example is *true* is `x3 case`'s answer, exactly as whether the sibling test
-passes is the test runner's. A project that declares examples and never runs
-them has that hole on both sides of the pairing rule.
+**What runs.** A function declaration — `func f()`, a method (a receiver does
+not make a body less of a body) and `init` (its name cannot be called, but it
+runs) — **or** a function literal inside a declaration, `var Hook = func() { … }`.
+A function *type* (`type Handler func()`) is a signature, and a name bound to
+somebody else's function (`var now = time.Now`) is a label on another file's
+body; neither is behavior here. Build constraints are not evaluated: the file
+is read as source, so both halves of a `//go:build` pair are judged the same
+way. A file the engine does not parse as Go declares no function at all, so a
+source set holding non-Go files loses **all** of them to this reading.
 
-**The declaration is not free.** `satisfiedBy` is an escape hatch and carries
-the engine's law for one: a criterion that takes no finding away is
-`dead_satisfier`, red. It is measured on findings *removed*, not on files that
-happen to carry an example — a subject with a counterpart of its own was never
-going to be red, and cannot keep the declaration alive. A rule with no subjects
-at all reports `empty_scope` instead: there was nothing to rescue, and one fact
-deserves one finding. Written empty (`"satisfiedBy": []`), a name written twice
-or an unknown name is exit `2`.
+**The elimination is counted.** `rules[].eliminated` in the report, a line of
+its own on stderr, and if it takes the last subject away the rule is red with
+`empty_scope` naming what emptied it — an elimination nobody can see is the
+quietest way to turn a gate off.
 
-Each rescue is counted: `rules[].satisfied` in the report, and a line of its
-own on stderr. A rescue nobody can see is a hole nobody can find.
-
-<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
