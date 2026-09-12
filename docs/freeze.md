@@ -90,6 +90,54 @@ The last two are where the modes part: in the set mode a value that is gone *is*
 the shrink, but here a key without a number leaves a ceiling standing for a file
 that may come back at its old size.
 
+### The seal
+
+**What it catches:** a line quietly removed from something already published — a
+migration that ran in production, a fixture another team pinned to, a contract
+file. `set` and `count` cannot say this, and the reason is that both measure
+**loosening**: a value that is gone is a shrink, a number that fell is debt
+repaid. For a published file there is no such thing as loosening. Adding a line
+and removing one break the same promise, and today removing one is green.
+
+```json
+{ "freeze": { "baselines": [
+    { "name": "published-migrations-are-sealed",
+      "sources": ["migrations/*.sql"],
+      "seal": { "of": "content" },
+      "file": "baselines/migrations.json" } ] } }
+```
+
+The baseline holds a fingerprint per file, and the file it lives in is readable:
+
+```json
+{ "name": "published-migrations-are-sealed", "count": 2,
+  "seals": { "migrations/001_first.sql": "sha256:519a1e8e…" } }
+```
+
+| Measured against the seal | Result |
+|---|---|
+| a sealed file whose content changed | **red** — `seal_broken`, both fingerprints named |
+| a sealed file that is gone | **red** — `dead_key` |
+| a file the seal does not hold | green — a new migration is not a broken promise |
+| the baseline file does not exist | **red** — nothing is sealed yet |
+| nothing measured at all | **red** — `empty_scope` |
+
+`-update` **only adds**. It records files the seal does not yet hold, and it
+refuses to rewrite a fingerprint that changed or to drop one that vanished — a
+seal that rewrites itself seals nothing. Lifting a seal therefore means editing
+the baseline file by hand, which is a diff somebody reviews.
+
+The missing-file row is the one that is easy to get wrong. A seal greets an
+unknown file with green, so a seal that was never applied would be green
+forever; the baseline file's **existence** is the project's statement that it has
+sealed something, and its absence is one red until the first `-update`.
+
+**What a seal does not measure:** the bytes on disk. It fingerprints the text the
+engine reads, with line endings normalised, because a byte-exact seal would turn
+red on a CRLF checkout with the content untouched — and a gate that depends on
+how the tree was checked out is switched off the first time it fires. A file
+whose *only* change is its line endings keeps its seal.
+
 ### A cap with no baseline
 
 **What it catches:** a document that must stay short and owes nothing — a status
@@ -110,4 +158,4 @@ limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
 
-<!-- x3-dist version=v0.151.0 capabilities=fcf618b09dada98e38d202fcc0d01a4e8208be5be29d181aa1a392505c3c3703 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.152.0 capabilities=99e1a9e5ef7349cef2de389de0c82b8654db18f948462add95ca7aead639768c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
