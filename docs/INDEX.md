@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.164.0`**
+**Current version: `v0.165.0`**
 
 | Page | What it covers |
 |---|---|
@@ -13,6 +13,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Where a directive may sit](layout.md) | the placement the Go formatter writes, measured by the engine itself, so that a formatting run cannot move a directive behind your back |
 | [Where a pattern binds](patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
+| [An example on the package itself](case-package.md) | a package whose only work is a registration side effect, the claim its import list makes, and the proposition that dies with a deleted line |
 | [The names an example may reach](case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
 | [The type an example declares](case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
@@ -90,4 +91,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.164.0 capabilities=199cc3df673c9cfca30460d88e983aa8f978980b94ce3a71fcd68976e80383f9 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

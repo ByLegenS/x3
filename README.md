@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.164.0`**
+**Current version: `v0.165.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `4631fafe2b3ea2f022cb418e3a2ac4b4f1273ac1e79038a352e7a6e8376bec0d` |
-| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `dc22d0d30a40fb6aeaece87f3c526076efe23e7da4bcabf966b6c8f11f073a3e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `6639bc77592d9ac4fa132a55673bfcb7a3f53b9a6bcafa9854dded13a94f702a` |
+| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `c77868e00d422e800e0c9d971b8ac8452b5cb1c5a0eae4598997c2e4b3968ea6` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -150,6 +150,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Where a directive may sit](docs/layout.md) | the placement the Go formatter writes, measured by the engine itself, so that a formatting run cannot move a directive behind your back |
 | [Where a pattern binds](docs/patterns.md) | how `^` and `$` are read against a file, and where a line ends |
 | [Inline examples that run](docs/case.md) | an example that calls the declaration it sits on, with a state given to it and an aspect of the result asserted |
+| [An example on the package itself](docs/case-package.md) | a package whose only work is a registration side effect, the claim its import list makes, and the proposition that dies with a deleted line |
 | [The names an example may reach](docs/case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
 | [The type an example declares](docs/case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
@@ -271,4 +272,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.164.0 capabilities=199cc3df673c9cfca30460d88e983aa8f978980b94ce3a71fcd68976e80383f9 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

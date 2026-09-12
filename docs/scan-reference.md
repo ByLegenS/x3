@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.164.0`**
+**Current version: `v0.165.0`**
 
 ## scan exit codes
 
@@ -18,7 +18,7 @@
 |---|---|---|
 | `//x3:rule:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
 | `//x3:guard:<type>[:<subtype>...]` | `decl`, `file`, `pkg` | at least one sub-type |
-| `//x3:case: <payload>` | `decl` only | a payload that parses: `in=(...) out=...` |
+| `//x3:case: <payload>` | `decl`, `file`, `pkg` | a payload that parses: `in=(...) out=...` on a declaration, `then=(...)` above the `package` clause |
 | `//x3:import: [<name> ]<path>` | `file` only | an import path, and a name that is a plain identifier if one is written |
 | `//x3:tags: <tag>[ <tag>...]` | `file` only | one or more build tags; a constraint expression is not a tag |
 | `//x3:type: <declaration>` | `file` only | a type declaration, or a method on a type the same file declares |
@@ -56,4 +56,4 @@
 | `category` | `guard`, `rule`, `case`, ...; absent means any |
 | `kind` | the first segment after the category; absent means any |
 
-<!-- x3-dist version=v0.164.0 capabilities=199cc3df673c9cfca30460d88e983aa8f978980b94ce3a71fcd68976e80383f9 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

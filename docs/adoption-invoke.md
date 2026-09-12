@@ -41,4 +41,4 @@ and that counts too.
 | `# the x3 scan step measures …` | no — a comment |
 | `Write-Host "  next: x3 update"` | no — a string, start to finish |
 
-<!-- x3-dist version=v0.164.0 capabilities=199cc3df673c9cfca30460d88e983aa8f978980b94ce3a71fcd68976e80383f9 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
