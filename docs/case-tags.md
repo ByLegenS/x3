@@ -97,6 +97,30 @@ last example that needed it was renamed, and go on reporting green over a
 narrower tree than anyone believes it measures. The second catches the same
 mistake one file earlier.
 
+### An example that never ran can be refused
+
+A deferral is loud and not red, which is right for a run narrowed on purpose
+and wrong for a gate: drop one entry from `case.tags` and every example behind
+that tag defers, the run says so, and the exit code is still `0` — the hole a
+skipped test leaves, one level up.
+
+```json
+{ "case": { "deferred": { "policy": "block", "max": 0 } } }
+```
+
+| Field | What it is |
+|---|---|
+| `policy` | `warn` (default) or `block` |
+| `max` | in `block`, how many deferrals are allowed; 0 when not written |
+| `listed` | how many examples the finding names; 5 when not written |
+
+The fields and their defaults are the ones `test.skips` carries, because two
+places asking one question should take one answer under one name. The default
+stays a warning — **a declaration cannot redden an existing tree by itself** —
+and the finding is charged on the configuration, naming the examples. It is
+asked on every run, narrowed or not: it measures this run rather than judging
+a declaration, so the scope rule above does not apply to it.
+
 The run-side question is asked of a tag from the configuration **only when the
 configuration file lies inside the tree being run** — the same rule that governs
 `dead_import`, for the same reason: a repository-wide setting judged from a
@@ -104,4 +128,4 @@ single directory would call a correct declaration dead. A tag given on the
 command line is not held back that way; it was typed for this run, over this
 scope, and "nothing here asks for it" is both true and worth hearing.
 
-<!-- x3-dist version=v0.141.0 capabilities=766f6a0c8fc2af6b7d6fc9bc993bd7568b52aff3738b034a1bdf30eb171edf54 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.142.0 capabilities=26bb19f71c95ebb12c25cee2d5a14f374ec748b090b8afa420df48fd5ddb1db7 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
