@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.116.0`**
+**Current version: `v0.117.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `a2ab79e78f7007cb0974dabf02a68c4e6c441971c14d2ce8f844470b3ad21e87` |
-| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `a9df447945a3b326d112db23f33d128be5dc656f8eb3a1098483634a5d26505b` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `baed98daede31692037a71ba6d4885d2407145bb06e297615792d29c600007fc` |
+| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `c32358cefdf9f26971fa14b9ea879888b628887cb5ddcebe787bdee8641b7e84` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -176,6 +176,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
 | [Only the tests a change can reach](docs/test.md) | the unit graph, the cache, and what the measurement honestly shows |
+| [One call per unit, one database per unit](docs/test-isolation.md) | what a shared process and a shared database hide, and what the isolation costs |
 | [The test you forgot to write](docs/mutate.md) | the code broken on purpose, and the behaviour no test noticed |
 | [What a mutation run breaks, and what it says](docs/mutate-findings.md) | the operators, the text mutations, the fail-closed codes, and the findings a run names |
 | [Traffic, written down](docs/record.md) | a run of the application recorded, redacted before it reaches the disk |
@@ -239,4 +240,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.116.0 capabilities=cb9ce75a339d999d0e2fb4646b107500b7661d9711f76b6f18cc8b94e308a691 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.117.0 capabilities=ce1800b7b838eea8f7342889f20d51ccb56d4ef122752fc5289d7e42f86aa617 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

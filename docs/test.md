@@ -9,7 +9,7 @@ it. `x3 test` hands the runner only the units a change can reach, so the cost of
 a run follows the **change**, not the size of the tree.
 
 ```
-x3 test [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [-scope auto|working|head] [-reason <text>] [-full] [dir]
+x3 test [-config <file>] [-out <file>] [-cache <file>] [-no-cache] [-scope auto|working|head] [-reason <text>] [-full] [-per-unit] [-fresh-db] [dir]
 ```
 
 The engine knows no test runner: the command, the way a unit is written on the
@@ -155,4 +155,4 @@ to do, and that walk grows with the repository. For a runner **without** a cache
 of its own — most of them — the first three rows would look very different. The
 engine does not assume either case; it measures.
 
-<!-- x3-dist version=v0.116.0 capabilities=cb9ce75a339d999d0e2fb4646b107500b7661d9711f76b6f18cc8b94e308a691 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.117.0 capabilities=ce1800b7b838eea8f7342889f20d51ccb56d4ef122752fc5289d7e42f86aa617 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
