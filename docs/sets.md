@@ -159,6 +159,19 @@ needs; the same text in two files is **two targets**. `absent` is a
 | `skip` | a **value**, before any verdict | `dead_filter` |
 | `absent` | the **verdict** on a measured value | `dead_exemption` |
 
+**A value carrying `*`, `?` or `[` is asked whether it reaches a file, not
+whether it is on disk.** A pattern has no "is it there": `os.Stat` says no to
+every one of them, and a rule phrased over a family of files would be
+`missing_target` on a line that measures perfectly well. Measured: the criterion
+`absent apps/**/*.go <pattern>` was measured by `boxes` — the right box red, its
+neighbour green — while this rule called the same line a missing target, so the
+two gates said different things about one line. The search starts at the
+pattern's literal prefix (`apps/` for `apps/**/*.go`) and stops at the first
+match; the **disk** answers, not the rule's own scope list, because a filtered
+list would call an out-of-scope branch missing. A pattern matching nothing is
+still `missing_target` — it is as dead as an absent path — and the sentence says
+`matches no file in this tree` so the reader does not go looking for a file.
+
 `dead_exemption` is raised both when the excused path is on disk again and when
 it is named nowhere any more: an exemption list that only grows is a gate
 carrying its own silencer.
@@ -173,4 +186,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

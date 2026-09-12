@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.165.0`**
+**Current version: `v0.166.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `6639bc77592d9ac4fa132a55673bfcb7a3f53b9a6bcafa9854dded13a94f702a` |
-| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `c77868e00d422e800e0c9d971b8ac8452b5cb1c5a0eae4598997c2e4b3968ea6` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `f30410be722bfe7b51bca6dc765529ecd450fdc701a930f46923d467b8f7ba9f` |
+| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `b43e2d60727cd631955ce3d49e3c8586d0171867d581ebd2daf683827e8fb69a` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -187,6 +187,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A work list written as a document](docs/boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
 | [Three ways a criterion is lost in the writing](docs/criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](docs/boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
+| [A departure that never happened](docs/boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -272,4 +273,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

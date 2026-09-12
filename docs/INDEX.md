@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.165.0`**
+**Current version: `v0.166.0`**
 
 | Page | What it covers |
 |---|---|
@@ -50,6 +50,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A work list written as a document](boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
 | [Three ways a criterion is lost in the writing](criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
+| [A departure that never happened](boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
 | [Before a name is removed](holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -91,4 +92,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

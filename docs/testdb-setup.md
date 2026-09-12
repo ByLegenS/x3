@@ -61,4 +61,4 @@ variable the *test* DSN is how it stops seeing the maintenance one. Written
 empty (`"setup": []`, `"env": {}`), a step with no `command`, or a variable with
 no name is exit `2` as well.
 
-<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

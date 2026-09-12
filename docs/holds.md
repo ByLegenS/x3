@@ -62,6 +62,12 @@ there the address is the list file itself, which is all the engine knows.
 | `text` | writes the name in its own words — `match`, `path`, `sources`, `query`, an argument | find the line, but not which box it belongs to, nor whether that box is open |
 | `pattern` | hands a **selector** to a runner, and the selector read as a regular expression matches the name | **not find it at all**: a selector may be a fragment of the name |
 | `scope` | runs the **package** the file sits in, naming neither the file nor any name in it (declared places only) | **not find it at all**: the line carries a directory, never the file |
+| `prose` | does not name it — the box's **body** does, as the proof (`evidence.names` only) | find the sentence, but read it as prose, not as a bond |
+
+**A proof shown in prose is a bond too**, read by the declared
+[`evidence.names`](boxes-suspect.md#a-proof-the-prose-shows-and-the-tree-no-longer-carries), never
+guessed. A **closed** box's citation is `held`, an **open** box's `unsure` — that
+exam may not be written yet. The address is the prose line, not the criterion's.
 
 Every record also says `via`: `file` when the criterion names the **file itself**
 (by path or by bare name), `symbol` when it names something the file **declares**.
@@ -106,4 +112,4 @@ Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

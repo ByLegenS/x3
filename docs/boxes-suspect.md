@@ -102,10 +102,10 @@ The shape of such a name belongs to the project, so it is declared:
 { "boxes": { "evidence": { "names": ["\\b(Test[A-Z]\\w+)\\b"], "policy": "block" } } }
 ```
 
-Each pattern captures exactly one group — the name — and the names found in a
-box's **prose** are looked up among the declarations of the tree. The criterion
-line itself is skipped: it is measured by its own law, and a name reported twice
-reads as two debts. `policy` defaults to the section's.
+Each pattern captures one group — the name — and a box's **prose** names are
+looked up among the tree's declarations **and its paths**: where a proof is a
+file, a file that can be opened is a proof that can be opened. The criterion line
+is skipped, measured by its own law. `policy` defaults to the section's.
 
 **The state of the box is the whole rule.** A **closed** box naming a proof that
 no declaration carries is `box_dead_evidence`; an **open** box naming one is
@@ -120,4 +120,4 @@ and a rule that cannot be adopted on a real tree never catches tomorrow's lie
 either. A declaration that reads no name at all is exit `2`, and so is a tree in
 which not one declaration can be read.
 
-<!-- x3-dist version=v0.165.0 capabilities=be9dfbd99fa071d822217733587d45b7413a250a2ae2d6e405e1cedf53346750 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
