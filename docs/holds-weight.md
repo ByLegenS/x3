@@ -30,10 +30,13 @@ criterion looks at:
 The place is read out of the **shape of the arguments** — one that carries a
 slash and nothing but path characters is a place, `./...` being the whole tree —
 never out of a runner's flag names, which would make the engine know one runner
-and not the next. A selector is a pattern and a pattern knows nothing about
-place: `runs ./service/ -run Manifest` does not hold a `TestManifestIsWritten`
-declared under `src/`. Where a criterion names **several** places, any one of
-them covering the file is enough.
+and not the next. **A selector is weighed inside the package it was given**, and
+a pattern on its own knows nothing about place: `runs ./service/ -run Manifest`
+does not hold a `TestManifestIsWritten` declared under `src/`. Read across the
+whole tree instead, the error runs both ways — a namesake exam in an unrelated
+package reads `held` and stays undeletable, while the reader who trusts that
+`held` stops the round in the wrong place and sees no symptom. Where a criterion
+names **several** places, any one of them covering the file is enough.
 
 Names are matched **as words**: a criterion saying `jeton` does not hold a
 declaration called `ton`, and one saying `Readiness` does not hold `Read`.
@@ -66,4 +69,4 @@ which records were actually weighed. The two mistakes are not equal: a wrong
 silent green this whole mode exists to prevent — so every class the engine
 cannot decide is counted on the bond side, and said out loud.
 
-<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

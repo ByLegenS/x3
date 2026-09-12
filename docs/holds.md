@@ -48,6 +48,15 @@ not by scanning the report afterwards: a second pass could pick up a record that
 did not make the verdict, and once the two come from different sets they drift.
 A `free` entry carries none, because there is nothing to show.
 
+**The line a hold points at** is the criterion's, not the box's. A box body
+carries prose as well, and its criterion usually sits several lines below the
+line the box opens on; an address naming the opening line sends the reader to a
+title where their file is never mentioned, and the honest conclusion from that
+page is *"nothing here holds me"* — the wrong one. Measured on one repository:
+the address said line `775`, the criterion stood on `778`. A criterion the
+configuration carries has no line in any document, and none is invented for it:
+there the address is the list file itself, which is all the engine knows.
+
 | `how` | The criterion | A search would |
 |---|---|---|
 | `text` | writes the name in its own words — `match`, `path`, `sources`, `query`, an argument | find the line, but not which box it belongs to, nor whether that box is open |
@@ -72,7 +81,7 @@ HOLD    WORK.md:197005faf068: pattern via symbol
 	name: TestTheGatedWorkIsProven
 	by: command go test -v ./... -run TheGatedWork
 	box: the gated work a running test proves
-	at: WORK.md:3
+	at: WORK.md:4
 	asked: src/gated_test.go
 x3 boxes: 1 asked, 2 name(s) - 1 held, 0 unsure, 0 free - 3 criterion(s) in *.md, 0 declared place(s), 0 suspect line(s)
 ```
@@ -97,4 +106,4 @@ Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

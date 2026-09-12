@@ -40,6 +40,21 @@ tree declares (`from: go`, `select: exported`) under
 `compare: left-subset-of-right` is red on exactly that, and leaves this pool
 untouched. On the same tree it named 144 claims out of 2330.
 
+**A name inside a fence is an illustration.** A declared place may be a
+procedure document, and a fenced block in one is usually a drawing — a directory
+sketch, a layout, a listing. A bare name standing alone on such a line runs
+nothing: it is redrawn when the tree changes, it never stops measuring. Counted
+as a bond it locks a file the migration could have melted, and the pool stops
+where the drawing is. The fence is **not** an amnesty: a path written the way a
+shell runs it (`./gate.ps1`, `.\gate.ps1`, `/usr/local/bin/gate`) still holds
+inside one, and so does every line carrying a declared selector or a running
+step — the split is the shell's own rule, since a program in the current
+directory cannot be started by its bare name. A name with words beside it
+(`001_baseline.sql   frozen`) is still read as a bond: of the two ways to be
+wrong, leaving a file in the tree is the cheap one. Measured on one repository's
+twelve declared procedure documents: one such line, holding one exam file, while
+all 34 lines that do run something begin with `./`, `.\` or an interpreter.
+
 ### The engine's own example is a third place, and it is not declared
 
 A production file can carry an inline example, and that example's setup runs
@@ -81,4 +96,4 @@ false `held` for every test file it empties — measured, on three counts in one
 tree. An example whose body does not parse falls back to the plain reading:
 a line that cannot be read is not evidence that nothing is bound to it.
 
-<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
