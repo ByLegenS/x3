@@ -40,4 +40,32 @@ tree declares (`from: go`, `select: exported`) under
 `compare: left-subset-of-right` is red on exactly that, and leaves this pool
 untouched. On the same tree it named 144 claims out of 2330.
 
-<!-- x3-dist version=v0.113.0 capabilities=d3b1312ef3113bb4d37322ec1b31c116340aa413c715d3026a42857b79cf49e3 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+### The engine's own example is a third place, and it is not declared
+
+A production file can carry an inline example, and that example's setup runs
+**real code**:
+
+```go
+//x3:case: given=(n := seedLedger()) in=(n) out=7
+func Total(n int) int { return n }
+```
+
+`seedLedger` lives in a test file that carries no exam of its own, so no
+criterion names it and no gate script calls it. Asked, the pool answered
+**`free`** — and deleting it does not lose a measurement, it stops the package
+compiling: `x3 case` then prints `undefined: seedLedger`, `does_not_build`.
+This blindness **grows** with a migration, because every round turns one more
+test file into a helper-only file.
+
+Nothing is declared for this one: the directive is the engine's own, so the
+engine reads it. The bond is reported as `USED`, `how: "example"`, `held`, and
+`examples` in the summary says how many directives were read.
+
+**The bond is the package, not the text.** The generated exam is written into
+the directory of the file carrying the directive, so an unqualified name
+resolves only there. A namesake in another package is **not** held — read as a
+text search instead, the pool would fill with homonyms. A name an outsider could
+write (exported, package-level) that appears in an example elsewhere is
+`SUSPECT`, `unsure`: a qualified call spells the same word.
+
+<!-- x3-dist version=v0.114.0 capabilities=c20396abae26df1648d6f2f7acb006448998f99e4002b7eaa056b56f8ba32092 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
