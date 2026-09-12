@@ -40,4 +40,4 @@ A `deny` check may also carry `directives: "skip"`, which keeps the engine's own
 lines](patterns.md#the-engines-own-lines). On `as` or `run` it is a configuration error:
 those parsers read the file from disk and nothing would measure it.
 
-<!-- x3-dist version=v0.119.0 capabilities=3461040f39065d6a34ecc51e2c04d0c0200bfb0a101424f5cc8efaec1cc68c21 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.120.0 capabilities=54c18b47be39ddc085596a9e78b7e7cb1a18ca443ed5021529abbca12a554ae1 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

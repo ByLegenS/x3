@@ -194,23 +194,6 @@ red (`N file(s) here match "*_test.go" and none names anything declared here`),
 and a directory with no matching file at all is red too (`no file in this
 directory matches "*_test.go"`).
 
-### `flow` — where a value may appear
-
-**Catches:** a restricted handle escaping the one place allowed to hold it.
-
-```json
-{ "kind": "flow", "sources": ["internal/**/*.go"],
-  "value": { "field": "Module.pool" }, "allow": ["receiver"] }
-```
-
-The places are `receiver`, `argument`, `result`, `assignment` and `other` — the
-last so an unrecognised position is refused rather than skipped. **`allow` lists
-what is permitted; everything else is red**, because a deny list would leave a
-place added later silently free. **It reads names, not types**: the type in
-`value.field` proves only that the field is declared somewhere the rule reads,
-and if it is not the rule is `empty_scope` — a renamed field must not leave a
-green rule behind.
-
 ### `exposure` — what reaches the outside
 
 **Catches:** an internal cost or margin the day the struct holding it is written
@@ -397,4 +380,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.119.0 capabilities=3461040f39065d6a34ecc51e2c04d0c0200bfb0a101424f5cc8efaec1cc68c21 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.120.0 capabilities=54c18b47be39ddc085596a9e78b7e7cb1a18ca443ed5021529abbca12a554ae1 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

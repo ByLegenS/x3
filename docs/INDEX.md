@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.119.0`**
+**Current version: `v0.120.0`**
 
 | Page | What it covers |
 |---|---|
@@ -19,6 +19,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
+| [Where a restricted value may appear](arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
 | [Prose is not code](arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
 | [The two sets a rule compares](sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
 | [The container a value sits in](sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
@@ -62,4 +63,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.119.0 capabilities=3461040f39065d6a34ecc51e2c04d0c0200bfb0a101424f5cc8efaec1cc68c21 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.120.0 capabilities=54c18b47be39ddc085596a9e78b7e7cb1a18ca443ed5021529abbca12a554ae1 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
