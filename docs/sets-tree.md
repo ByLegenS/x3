@@ -37,4 +37,4 @@ red as everywhere else. A pattern that matches nothing leaves the side empty,
 and an empty side is `empty_scope`, not a tree full of debts: a mistyped pattern
 must not be able to write its own mistake onto the code.
 
-<!-- x3-dist version=v0.132.0 capabilities=23f359762a38e46ab4ed0a73511695f04715a1903c0a0e86678febb6d036e65a template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.133.0 capabilities=4ea1650e0f2c137f9bfc3d62370a6c36b014ec75cfe08d71b99392af0d285bae template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

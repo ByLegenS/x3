@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.132.0`**
+**Current version: `v0.133.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `57f6a7876deaa10eab9cf2a00c2d70536a70258b1e34951b37440753f5a492b0` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `91f500ce388ad577a5e4702b17ced4545c82a4fdda6615129b43f7b1f5c4b5a5` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `9626a86578642df50015c6f859a08d84ad2b3e08d336c24632642aee46d73b99` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `805fae8b8f5c31a81900e8151dcb4a49d8cd841342103a16b8aea1676cf38cf0` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -170,6 +170,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [The sentence that says why a debt is held](docs/baseline-why.md) | the reason written next to a record by hand, carried through a file the engine regenerates, and what becomes of it when the debt is paid |
 | [A baseline belongs to the root it measured](docs/baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
 | [A baseline two branches write](docs/baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [One debt, one file, one writer](docs/baseline-segments.md) | the split that gives a region or a rule its own baseline file, and the two axes a part may own |
@@ -253,4 +254,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.132.0 capabilities=23f359762a38e46ab4ed0a73511695f04715a1903c0a0e86678febb6d036e65a template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.133.0 capabilities=4ea1650e0f2c137f9bfc3d62370a6c36b014ec75cfe08d71b99392af0d285bae template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
