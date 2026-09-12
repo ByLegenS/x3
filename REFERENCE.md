@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.126.0`**
+**Current version: `v0.127.0`**
 
 ## scan exit codes
 
@@ -292,4 +292,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.126.0 capabilities=ab571bf2812ece5d736297b10b946386576e33e45fe5c4719049dc601b531860 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.126.0`**
+**Current version: `v0.127.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `084911d95056c8fcc65cd0cea1477fb5fbacc1df83fc450f9581ab960c2823cd` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `d649a395fe82f2ad0a3afb45cce8485357ae1c1baaabe44e9d4e5e7d9584e23d` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `aae5daea643cc2fdab1d6ab0a6dc2b1021f9102d24a7d695d16ff72be8f8d979` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `ecba286e25ef6c7d95d98cc54adfedf0f00f48dc5cb8047a43f1cef69b88c859` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -161,7 +161,8 @@ markers that split this document, so a page cannot be missing from it.
 | [The one line a rule may not reach](docs/arch-exemptions.md) | the reason a violation is excused with, the place that reason binds, and the exemption that stopped excusing anything |
 | [Where a restricted value may appear](docs/arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
 | [Prose is not code](docs/arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
-| [The two sets a rule compares](docs/sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
+| [The two sets a rule compares](docs/sets.md) | the consistency kind, the extractors that read each side, and the escape hatches they carry |
+| [The engine read as a set](docs/sets-roster.md) | the checks a settings file puts in force, the commands the binary carries, and the calls a gate script really makes |
 | [The container a value sits in](docs/sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
@@ -248,4 +249,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.126.0 capabilities=ab571bf2812ece5d736297b10b946386576e33e45fe5c4719049dc601b531860 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

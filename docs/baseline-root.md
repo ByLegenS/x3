@@ -37,4 +37,4 @@ an older file is not a broken one — and the root is stamped the first time the
 baseline is refreshed. Until that refresh, the narrowed run above is still
 possible, so refresh once from the root the gate runs at.
 
-<!-- x3-dist version=v0.126.0 capabilities=ab571bf2812ece5d736297b10b946386576e33e45fe5c4719049dc601b531860 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

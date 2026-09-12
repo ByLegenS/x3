@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.126.0`**
+**Current version: `v0.127.0`**
 
 | Page | What it covers |
 |---|---|
@@ -23,7 +23,8 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The one line a rule may not reach](arch-exemptions.md) | the reason a violation is excused with, the place that reason binds, and the exemption that stopped excusing anything |
 | [Where a restricted value may appear](arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
 | [Prose is not code](arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
-| [The two sets a rule compares](sets.md) | the consistency kind, the extractors that read each side, the escape hatches they carry, and the engine's own roster |
+| [The two sets a rule compares](sets.md) | the consistency kind, the extractors that read each side, and the escape hatches they carry |
+| [The engine read as a set](sets-roster.md) | the checks a settings file puts in force, the commands the binary carries, and the calls a gate script really makes |
 | [The container a value sits in](sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
@@ -67,4 +68,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.126.0 capabilities=ab571bf2812ece5d736297b10b946386576e33e45fe5c4719049dc601b531860 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.127.0 capabilities=2801084864972251f16605de3f015cce95cb887510f91b29286bf29571907c96 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
