@@ -54,4 +54,10 @@ a lookup table, not a rule.
 **`x3 testdb` speaks PostgreSQL only.** Nothing prevents two runs from sharing a
 template, and it keeps no record of its own beyond what it encodes in a name.
 
-<!-- x3-dist version=v0.146.0 capabilities=053cb5bda96cabedacc8ad6dc3d302d827ec2d9dcde5c77e648e817df0e093a8 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+**A run counts what it left behind on Windows only.** The container the count
+reads is a job object; Unix has no equivalent the engine can rely on, because the
+session a severed child is given can be broken by a grandchild that opens one of
+its own, and a container with a hole in it would report an empty one. On those
+machines the run says nothing rather than print an unmeasured green.
+
+<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

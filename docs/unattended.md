@@ -14,13 +14,17 @@ database server could no longer start, twice.
 fix useless. A password prompt is written to the **console** — `CONOUT$` on
 Windows, the controlling terminal on Unix. Measured: four bindings of the
 child's stdin (unset, an empty reader, the null device, the caller's own
-stdin) and **all four waited forever**. Cut the console instead and the same
-command exits in **6-7 ms**, with the reason in the output the report already
-captures: `no console to write to`.
+stdin) and **all four waited forever**.
+
+What the engine takes is the **screen**, not the console: on Windows the child
+gets a console with **no window** (`GetConsoleWindow` returns nothing though
+`CONOUT$` still opens), on Unix no terminal at all. ⛔ Removing it outright
+(`DETACHED_PROCESS`) was **reverted** — grandchildren inherit none either, so
+Windows gives each a NEW one and a compiler filled a desktop with windows.
 
 | | |
 |---|---|
-| the child is **measured** | it starts with no console at all: `DETACHED_PROCESS` on Windows, a session of its own on Unix |
+| the child is **measured** | on Windows its console has no window; on Unix there is no terminal at all |
 | its stdin is **not written** | an unwritten stdin is the null device already, so a reader sees `EOF` at once; the engine does not touch it |
 | the caller **feeds** it | the pipe the caller wrote stays exactly as written — handing a parser its input on stdin is a legitimate way to run one, and this rule does not close it |
 
@@ -60,6 +64,6 @@ is watching may run is that person's business.
 the console's `Ctrl-C` group. A measured child is bounded by its timeout and is
 killed when the run's context ends, but a parent killed outright still leaves
 it behind — on Windows that was already true before, since no parent takes its
-children down with it.
+children down with it. What happens to those survivors is the next page.
 
-<!-- x3-dist version=v0.146.0 capabilities=053cb5bda96cabedacc8ad6dc3d302d827ec2d9dcde5c77e648e817df0e093a8 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

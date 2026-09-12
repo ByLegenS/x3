@@ -67,6 +67,7 @@ step names below are the ones the gate prints.
 | `split configuration roster control experiment` | one tree asked twice, only the rulebook moving: a rule and a section declared in an `include` **part**, the rulebook naming neither `1` — both named in the red — and the rulebook naming both `0`. The same run reports that the part's rule really ran, which is the whole point: a name the engine is enforcing cannot be missing from the set of names in force |
 | `published control experiment` | one planted world — a bare remote and a repository that knows it — asked three times as the one missing step is taken: the tag never created `1`, the tag created and not pushed `1`, the tag pushed `0`; then this repository's **own** publication `0`. The middle row is the release that was really made and could not be downloaded |
 | `dist gate` | the publication current, the same question asked with a deliberately wrong document hash, and a copy of the publication with one page missing |
+| `leftover control experiment` | one program run five ways, only what it leaves moving: a measured command that forks a grandchild and returns is `1` with the **grandchild and its console host named**; the same program told to leave nothing is `0` and silent, **ten runs out of ten** — the row that proves the count is not noise; the red tree with `leaves` declared is `0` and still names them; the permission written with no reason is `2`; and the **same program started before the run** is `0`, uncounted and still alive afterwards, which is the false positive this gate would be useless for having |
 
 Whatever cannot be arranged from a shell — a database, a network, a fake driver,
 a mapping, a retry — is control-tested in Go instead, to the same rule: each
@@ -87,4 +88,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.146.0 capabilities=053cb5bda96cabedacc8ad6dc3d302d827ec2d9dcde5c77e648e817df0e093a8 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
