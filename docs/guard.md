@@ -227,10 +227,31 @@ nothing — and `measured` carries the verdict: `pass`, `fail`, or `error`.
 dead expectation; a wrapped command with no expectation is a silent green. Both
 stop the run. The only way past is the reason — `"unweighed": "<why it cannot be
 weighed>"` written in place of `command` — and that reason is printed on every
-run that wraps something, so an excused gate never becomes a quiet one. The
-reason is outside the dead-expectation rule, because one configuration serves
-runs that wrap a command and runs that only measure guards: an expectation a
-command-less run can never satisfy is stale, while a reason it does not need is
-simply not needed.
+run that wraps something, so an excused gate never becomes a quiet one.
 
-<!-- x3-dist version=v0.149.0 capabilities=aa2b3d5359a52c0465529a4d78500da0ece5c1d342d9261b163f39c08cf09ce1 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+**One configuration, two kinds of run.** A project usually runs the same
+configuration twice: wrapped around its build or test command, and on its own as
+a plain health check. The second kind wraps nothing, so the dead-expectation
+question — asked of a single run — would refuse it, and the project would end up
+either not writing `command` at all (a silent green) or keeping a second
+configuration file beside the first (and a configuration split in two is the one
+where half of it goes stale). The way through is written down and justified:
+
+```json
+"live": { "guards": [ … ],
+  "command": { "must": ["--- PASS"] },
+  "unwrapped": "the same configuration also runs as a plain health check, with no command to wrap" }
+```
+
+`unwrapped` excuses **only** the dead-expectation question. The expectation stays
+where it is: a run that *does* wrap a command still weighs its output, and a
+command that breaks is still red with the expectation's own words. The reason is
+printed on every command-less run, so an excused gate never becomes a quiet one.
+
+**A dead excuse is red too.** `unwrapped` written with no `command` beside it
+excuses nothing — a run that wraps no command was never in question — so the
+configuration is refused: *"live.unwrapped is written but live.command is not"*.
+That is what keeps the reason from outliving the expectation it was written for.
+A blank reason is refused for the same reason a blank `unweighed` is.
+
+<!-- x3-dist version=v0.150.0 capabilities=162fe2ced0d891cd8733aba17d14fcabc3618c79fd93d1547dabbbcdc64d0fcb template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
