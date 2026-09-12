@@ -39,7 +39,15 @@ allowance, so `docByExtension` writes it per language.
 
 Lines that talk to a tool rather than a reader are neither prose nor code —
 `//go:...`, `// Deprecated:`, `//nolint`, `#!`, `// +build`, and x3's own
-directives. They close a block and count for nothing.
+directives. They close a block and count for nothing: against the block limit,
+and against the comment-to-code ratio.
+
+x3's own are recognised **in every language**: a directive is written
+`//x3:...` with the language's comment marker in front, so the same line reads
+`//x3:case: …` in Go and `# //x3:case: …` in Python. Matched as plain text
+against `//x3:`, the `#` and `--` spellings were weighed as narrative — what was
+measured was not what had been written but which file it sat in. A directive is
+an **audit**; the diet is about narrative.
 
 Ten languages are built in (`.go`, `.js`, `.java`, `.cpp`, `.py`, `.ps1`,
 `.yaml`, `.yml`, `.sql`, `.lua`); an extension that is not among them is skipped
@@ -74,4 +82,4 @@ held, and writes an empty baseline, which is a declaration of no debt at all. Th
 diff of the new file is worth reading: whatever the old identity was hiding
 appears in it.
 
-<!-- x3-dist version=v0.155.0 capabilities=bd64cc3512a9fc65db0936bc54546917afbce4d7828169eb8afe0fe2307d36ce template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

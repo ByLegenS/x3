@@ -227,7 +227,9 @@ nothing — and `measured` carries the verdict: `pass`, `fail`, or `error`.
 dead expectation; a wrapped command with no expectation is a silent green. Both
 stop the run. The only way past is the reason — `"unweighed": "<why it cannot be
 weighed>"` written in place of `command` — and that reason is printed on every
-run that wraps something, so an excused gate never becomes a quiet one.
+run that wraps something, so an excused gate never becomes a quiet one. It
+excuses **weighing**, not the protection below; a runner announcing it had
+nothing to run is still red under an `unweighed` configuration.
 
 **One configuration, two kinds of run.** A project usually runs the same
 configuration twice: wrapped around its build or test command, and on its own as
@@ -248,10 +250,36 @@ where it is: a run that *does* wrap a command still weighs its output, and a
 command that breaks is still red with the expectation's own words. The reason is
 printed on every command-less run, so an excused gate never becomes a quiet one.
 
+**A runner that measured nothing does not make a green.** `go test -run <pattern>`
+exits **0** when the pattern matches nothing, and so does a package with no test
+file in it. That zero reads as "the work is done", and an expectation cannot be
+relied on to catch it, because `unweighed` excuses writing one — measured on a
+gate step whose packages had emptied out and burned green for months. So the
+output is read for that announcement **whether or not one was written**:
+
+```json
+"live": { "blind": { "when": ["go test"], "says": ["no tests to run", "no test files"] } }
+```
+
+Both fields default to what is shown, so the block is normally left out. `when`
+is matched against the command line **x3 was given**, not what a script inside it
+goes on to run; only then are the sentences looked for. A command's own non-zero
+exit passes through untouched — this looks only at greens, an expectation's own
+red included, so "I measured and it failed" keeps its name — and the reading is a
+**stream**, so a run that outgrows the copy kept for weighing is still watched.
+
+The default names a runner, which `must`/`mustNot` deliberately never do; the
+difference is that it is a *default*. Another runner writes its own line
+(`"when": ["pytest"], "says": ["no tests ran"]`), and an empty list in place of
+either is refused — it cannot be told from an unwritten one, and would inherit
+the default in silence. Removing the protection takes a reason
+(`"blind": { "off": "…" }`), printed on every run that wraps a command, and `off`
+cannot sit beside `when` or `says`: a protection is either shaped or removed.
+
 **A dead excuse is red too.** `unwrapped` written with no `command` beside it
 excuses nothing — a run that wraps no command was never in question — so the
 configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.155.0 capabilities=bd64cc3512a9fc65db0936bc54546917afbce4d7828169eb8afe0fe2307d36ce template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

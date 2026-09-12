@@ -84,8 +84,17 @@ Subtracting the record lists by hand is a rule somebody writes once, out of the
 lists they happened to see that day, and the list they miss is the one holding a
 real bond. `unsure` is **not** free: a record exists and could not be weighed.
 
+**A verdict never depends on what was asked before it.** The record lists are
+de-duplicated — the same criterion, the same box, the same name is written once —
+and that de-duplication used to decide the verdict as well: a file asked on its
+own came back `held`, and the same question asked a second time in one run came
+back `free`. A pool built from an answer like that is a list of files to delete,
+so the order of the question was a way to delete the wrong one. The memory is now
+per entry, and the verdict is set before the de-duplication rather than inside it:
+every line of `resolved` is the answer to its own entry and to nothing else.
+
 Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.155.0 capabilities=bd64cc3512a9fc65db0936bc54546917afbce4d7828169eb8afe0fe2307d36ce template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
