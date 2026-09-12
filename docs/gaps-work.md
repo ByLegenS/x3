@@ -41,4 +41,4 @@ every run until someone carries it.
 
 **The language gate speaks one language** — `en` is the only embedded dictionary.
 
-<!-- x3-dist version=v0.152.0 capabilities=99e1a9e5ef7349cef2de389de0c82b8654db18f948462add95ca7aead639768c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.153.0 capabilities=623ccd05726c1539c169bc853f4869d52533d5c7fa7810be91e81b097e7bfbb6 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

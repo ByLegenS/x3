@@ -75,7 +75,10 @@ taking **no** file out is `dead_exclusion`, one taking **every** file out is
 `empty_scope`, and `"exclude": []` is exit `2` — an empty list cannot be told
 from an absent one, and whoever wrote it would have silently inherited instead.
 This is not `surface.exclude`, which drops paths from an `exposure` rule's
-surface; `exclude` drops files from what the rule reads at all.
+surface; `exclude` drops files from what the rule reads at all. **Both answer to
+the same law** — the two are measured against different sets, because one
+narrows what the rule reads and the other what the surface holds, and a pattern
+weighed against the wrong set reads live when it is dead.
 
 ### The two rule forms
 
@@ -178,6 +181,15 @@ and illegal on a tenant one. `fields` match case-insensitively; `carrier` is a
 struct field's `json:"…"` name or a string key in a composite literal. **A field
 with no tag is not seen** — deciding whether it is serialized needs type
 resolution, and calling every field an exposure would drown the gate.
+
+`surface.exclude` is an escape hatch and carries the escape hatch's law: a
+pattern that takes **no** file out of the surface's components is
+`dead_exclusion`, named as `surface.exclude pattern …` so the reader knows which
+of a rule's two exclusions went stale. The measurement is separate from the
+rule's own because the sets are: this one is weighed against the files the rule
+reads *that belong to a watched component*, and the day a directory is renamed
+the line that used to hide it stops hiding anything — which is the exact shape of
+the bug an exclusion list is supposed to prevent.
 
 ### `duplication` — the body written twice
 
@@ -340,4 +352,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.152.0 capabilities=99e1a9e5ef7349cef2de389de0c82b8654db18f948462add95ca7aead639768c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.153.0 capabilities=623ccd05726c1539c169bc853f4869d52533d5c7fa7810be91e81b097e7bfbb6 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
