@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.133.0`**
+**Current version: `v0.134.0`**
 
 ## scan exit codes
 
@@ -83,6 +83,9 @@ document in one run, so no two can describe different versions.
 |---|---|
 | `allowed` | the language outside comments; `en` is the only embedded dictionary, and any other value is an error, not a silent pass |
 | `comments` | `any` (default) leaves comments alone; `en` holds them to the dictionary |
+| `strings` | `en` (default) holds every string constant to the dictionary; `any` leaves them alone |
+| `sources` | which files are read; left out, the Go tree |
+| `names` | which paths have their **name** read; left out, no name is read |
 | `allow` | project terms no dictionary has. One ASCII word, three letters or more — an entry that could never match is rejected rather than ignored |
 
 ## component path patterns
@@ -294,4 +297,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `setup` | no | the steps run after creation, **in order**; each one `command`, `args`, `env`, `timeoutMs` (§ [A ready database is more than one command](docs/testdb-setup.md#a-ready-database-is-more-than-one-command)) |
 
-<!-- x3-dist version=v0.133.0 capabilities=4ea1650e0f2c137f9bfc3d62370a6c36b014ec75cfe08d71b99392af0d285bae template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.133.0`**
+**Current version: `v0.134.0`**
 
 | Page | What it covers |
 |---|---|
@@ -18,6 +18,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
+| [The three scopes of a language run](lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [Does anybody touch this file](arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
 | [Which files the rule is about](arch-pairing-subjects.md) | the property that says what a pairing rule measures, why it is neither an exemption nor an exclusion, and the elimination that is counted |
@@ -73,4 +74,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.133.0 capabilities=4ea1650e0f2c137f9bfc3d62370a6c36b014ec75cfe08d71b99392af0d285bae template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

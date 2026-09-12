@@ -40,6 +40,17 @@ cannot pass — but a tautology written over a real name (`out0 == out0`) names
 something and is accepted. Telling those apart needs the types, and the payload
 is deliberately handed to the compiler rather than resolved here.
 
+**The language gate reads the dictionary, not a grammar.** A foreign word
+spelled in plain ASCII that is also an English word — `sure`, `gun`, `durum` —
+is a word, and no run will ever call it foreign; neither will a fragment under
+three letters. Measured against a hand-written gate that carries a list of one
+language's stems instead: of 245 violations it reported over a real production
+Go application, 233 are reported here too (205 in the same file, 28 at the
+declaration rather than at a use), 8 are of this class, and 4 are field names
+written inside strings that `strings: "any"` stops reading. A reverse
+dictionary is wider than any hand-written list and blind in a different place;
+neither reading contains the other.
+
 **The cache is per file, not per project.** A checker whose answer depends on
 more than one file at a time — `arch`, `freeze`, `docs`, `boxes` — does not use
 it.
@@ -61,4 +72,4 @@ type — freeze a value set with `freeze` if the number is the contract. The
 surface is the union across build constraints, so a platform-only symbol is in
 it. And it measures the API a caller *writes*, never what a call *does*.
 
-<!-- x3-dist version=v0.133.0 capabilities=4ea1650e0f2c137f9bfc3d62370a6c36b014ec75cfe08d71b99392af0d285bae template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -21,10 +21,14 @@ x3 lang [-config <file>] [-out <file>] [-baseline <file>] [-update-baseline] [di
 |---|---|
 | the package name | comments (unless `comments: "en"`) |
 | every **declared** identifier — function, type, variable, constant, field, parameter, result, label, import alias | the **use** of a name declared elsewhere |
-| every string constant, struct tags included | import paths |
+| every string constant, struct tags included (unless `strings: "any"`) | import paths |
 
 The asymmetry is deliberate: a name is spelled once where it is declared, and a
 name declared elsewhere — `fmt.Fprintf`, `pgx.Connect` — is not yours to spell.
+
+Which files are read, whether their strings are read at all, and whether the
+**names** of files and directories are read are three separate questions; see
+[The three scopes of a language run](lang-scope.md#the-three-scopes-of-a-language-run).
 
 ### The token rule
 
@@ -39,14 +43,16 @@ non-ASCII letter outside a comment is red**, and `allow` cannot excuse it.
 ### `language` in `x3.json`
 
 ```json
-{ "language": { "allowed": "en", "comments": "any",
+{ "language": { "allowed": "en", "comments": "any", "strings": "any",
+                "sources": ["**/*.go", "ui/**/*.js"], "names": ["**/*.go"],
                 "allow": ["cfg", "ctx", "dsn", "omitempty"] } }
 ```
 
 See **language settings** in [REFERENCE.md](../REFERENCE.md#language-settings).
 
-No `language` section is not an error; the default is `en` / `any` / no list. A
-section that *is* written and is wrong stops the run — fail-closed.
+No `language` section is not an error; the default is `en` / `any` / `en` / the
+Go tree / no names. A section that *is* written and is wrong stops the run —
+fail-closed.
 
 ### What a run looks like
 
@@ -57,8 +63,8 @@ x3 lang: 1 file(s) - 2 finding(s) - dictionary "en"
 ```
 
 The report carries the same findings sorted by file and line, with no timestamp.
-`code` is the stable part — `not_in_dictionary` or `non_ascii_letter`; `where`
-is `identifier`, `string` or `comment`.
+`code` is the stable part — `not_in_dictionary`, `non_ascii_letter` or
+`empty_scope`; `where` is `identifier`, `string`, `comment`, `name` or `scope`.
 
 ### The embedded dictionary
 
@@ -81,4 +87,4 @@ words. Its licence requires the notice to travel with any copy:
 Do not edit the file by hand. A word that belongs to your project belongs in
 `language.allow`.
 
-<!-- x3-dist version=v0.133.0 capabilities=4ea1650e0f2c137f9bfc3d62370a6c36b014ec75cfe08d71b99392af0d285bae template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
