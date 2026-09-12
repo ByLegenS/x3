@@ -60,7 +60,8 @@ system.
 | `decl` | in the doc comment of a func, type, var, const or **import** | that one declaration; `target` names it |
 | `file` | above the `package` clause | that file |
 | `pkg` | above the `package` clause **in a file named `doc.go`** | the whole package |
-| `unattached` | anywhere else — inside a body, or a floating comment | nothing: always red |
+| `line` | anywhere else — inside a body, inside a composite literal | the lines below it; only types that ask for no declaration |
+| `unattached` | anywhere else, for a type that needs a declaration | nothing: always red |
 
 `pkg` is not a different syntax from `file`; the filename `doc.go` is the only
 thing that separates them.
@@ -74,8 +75,16 @@ func (w *Wallet) Add(n int64) int64 {
 
 A method's `target` is written `Receiver.Method` with pointer stars and generic
 brackets stripped: `*Wallet` and `Wallet[T]` both report `Wallet`. A directive
-inside a function body has nothing to attach to and is **not silently ignored** —
-it is `unattached`, and red.
+inside a function body has no declaration to attach to and is **not silently
+ignored** — it is `unattached`, and red.
+
+**Unless the type does not want one.** An exemption binds to the lines below it,
+not to a declaration: what it silences may be a block inside a function body or
+a field of a composite literal, and no doc comment reaches there. `//x3:allow:`
+is therefore legal in `line` scope, and only there does a directive bind to a
+place instead of a name. A dead exemption is still caught — by the gate that
+reads it (`dead_exemption`), which knows which lines it covered; the scanner
+does not.
 ## The dictionary
 
 **What it catches:** an invented directive type, or a known type written in the
@@ -255,4 +264,4 @@ The law does not slacken: a run rooted at the configuration's own directory
 judges **every** expectation, and each has already pulled its subject into
 scope. A run rooted **outside** that tree is an error, not a pass.
 
-<!-- x3-dist version=v0.115.0 capabilities=2952ef7095047d7743855a0fc84a96df30d195e198a70bd16abf8d35f8fbb94b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.116.0 capabilities=cb9ce75a339d999d0e2fb4646b107500b7661d9711f76b6f18cc8b94e308a691 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

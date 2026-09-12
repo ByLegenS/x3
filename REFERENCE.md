@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.115.0`**
+**Current version: `v0.116.0`**
 
 ## scan exit codes
 
@@ -29,7 +29,7 @@ document in one run, so no two can describe different versions.
 | `//x3:type: <declaration>` | `file` only | a type declaration, or a method on a type the same file declares |
 | `//x3:live` | `decl`, `file`, `pkg` | nothing |
 | `//x3:skip:<reason>` | `decl`, `file`, `pkg` | a reason |
-| `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg` | a type **and** a reason |
+| `//x3:allow:<type>:<reason>` | `decl`, `file`, `pkg`, `line` | a type **and** a reason |
 
 ## scan error codes
 
@@ -38,7 +38,7 @@ document in one run, so no two can describe different versions.
 | `unknown_category` | the type is not in the dictionary — no verifier exists for it |
 | `malformed` | a required sub-type or reason is missing, a doubled colon left an empty sub-type, or a `case` payload does not parse |
 | `scope_not_allowed` | the type is known and well formed, but not legal in this scope |
-| `unattached` | the directive binds to nothing at all |
+| `unattached` | the type needs a declaration and there is none to bind to |
 
 ## the scan report fields
 
@@ -290,4 +290,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.115.0 capabilities=2952ef7095047d7743855a0fc84a96df30d195e198a70bd16abf8d35f8fbb94b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.116.0 capabilities=cb9ce75a339d999d0e2fb4646b107500b7661d9711f76b6f18cc8b94e308a691 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

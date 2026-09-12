@@ -89,4 +89,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.115.0 capabilities=2952ef7095047d7743855a0fc84a96df30d195e198a70bd16abf8d35f8fbb94b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.116.0 capabilities=cb9ce75a339d999d0e2fb4646b107500b7661d9711f76b6f18cc8b94e308a691 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

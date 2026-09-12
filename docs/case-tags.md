@@ -104,4 +104,4 @@ single directory would call a correct declaration dead. A tag given on the
 command line is not held back that way; it was typed for this run, over this
 scope, and "nothing here asks for it" is both true and worth hearing.
 
-<!-- x3-dist version=v0.115.0 capabilities=2952ef7095047d7743855a0fc84a96df30d195e198a70bd16abf8d35f8fbb94b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.116.0 capabilities=cb9ce75a339d999d0e2fb4646b107500b7661d9711f76b6f18cc8b94e308a691 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
