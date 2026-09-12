@@ -65,6 +65,41 @@ read no file did not measure**: `sources` matching nothing at all is `unmeasured
 in both directions, never a red that claims to have looked and never a green that
 never looked (`summary.blind` counts it under `sources`).
 
+#### The absence of a file is not the absence of a pattern
+
+| Written | The question | Answered by |
+|---|---|---|
+| `absent`, `sources`, `match` | *does this name still appear in what these files say?* | reading the files |
+| `gone`, `path` | *is this path still there?* | the filesystem |
+
+`absent` reads, so sources matching no file leave it `unmeasured` however
+obviously the place is missing. `gone` does not read: it asks what `file` asks
+and takes the opposite answer, and `file` was never called blind for stating an
+existence without opening anything.
+
+```json
+{ "when": "gone", "path": "scripts/collect-debt.py" }
+```
+
+Measured on a production repository before this kind existed: sixteen closed
+boxes stood `unmeasured` because a deleted script, a binary no longer built and a
+trip-wire filename had each been written as an `absent` pointing at the vanished
+path itself — and fourteen had already been argued out, one reason each, in a
+**different command's exemption list**. The two commands then said opposite
+things about the same line: one *a legitimate absence*, the other *I measured
+nothing*.
+
+⛔ **That exemption list is not read, and must not be.** An exemption silences a
+verdict rather than making a measurement, its reason is prose nobody can check,
+and a box whose honesty depended on rules in another section would answer
+differently depending on which rules loaded. The word belongs where the criterion
+is written. A rewritten criterion also stops being named by the rule that excused
+it, so the exemption reports itself dead and the residue clears itself.
+
+A `gone` path carrying `*`, `?` or `[` is refused before the run (exit `2`):
+a pattern matching nothing is green for the wrong reason. The question with a
+pattern in it is `absent`, and it names the files it read.
+
 **A criterion opens what it names.** The walk skips `vendor`, `testdata`,
 `node_modules` and every directory whose name starts with `.` or `_`, so a
 criterion written against `.claude/settings.json` used to read no byte and then
@@ -336,4 +371,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.163.0 capabilities=40d69e7ad99300f13c26ed7bd3dee5a6a6c9a6c296f5484c9d03f4d937f1dc74 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

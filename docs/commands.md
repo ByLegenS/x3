@@ -42,4 +42,24 @@ the project can write out.
   "args": ["-c", "exec go run ./cmd/app -migrate"] } } }
 ```
 
-<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+### Where a flag may stand on x3's own command line
+
+Every command that takes a directory takes it **last**, and a flag written after
+it is **refused** (exit `2`), naming what it dropped:
+
+```
+x3 case ./core -out report.json
+x3 case: 2 argument(s) written after the directory are read by nothing: -out report.json
+        flags are read only BEFORE the directory: x3 case -out report.json ./core
+```
+
+⛔ **Why this is refused rather than tolerated.** Flag parsing stops at the
+first argument that is not a flag, so everything after the directory arrives as
+plain words. Until this refusal those words were simply dropped: the run
+measured the right tree, printed its findings to stdout, exited `1` — and the
+file the caller asked for was never created. A wrapper that reads the red out of
+a report file is then blind **exactly when there is something to read**, which
+is the one moment it exists for. The same trap was met once inside `outbound`,
+where a mode word sits before the flags; this is that answer applied everywhere.
+
+<!-- x3-dist version=v0.163.0 capabilities=40d69e7ad99300f13c26ed7bd3dee5a6a6c9a6c296f5484c9d03f4d937f1dc74 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

@@ -173,6 +173,21 @@ switched off the day it is inconvenient.
 alone: the same trial with one file written into the copy has to go red, and a
 trial whose red has never been seen is not a trial.
 
+**A step behind a red step did not fail - it never ran.** The trial stops at the
+first step that does not hold, so every step after it is neither green nor red,
+and a report that leaves this to be inferred is read wrong by the only reader
+that cannot infer: a wrapper parsing the JSON. So the failing step is reported by
+**position** and the rest are counted:
+
+```
+want: 3 step(s) that hold
+got:  step 1 of 3 "the core compiles with no application in the tree",
+      and the 2 step(s) after it did not run: the command exits 1
+```
+
+A trial that holds all the way through says nothing of the sort, and the command
+behind the guard launches.
+
 ### Secrets never enter the report
 
 Credentials are referenced **by environment variable name only**. Before
@@ -307,4 +322,4 @@ configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.162.0 capabilities=378f4f62b8b3092c91e14d893df6a0bc2ebcf3f8431d1dbada401ca6f492a485 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.163.0 capabilities=40d69e7ad99300f13c26ed7bd3dee5a6a6c9a6c296f5484c9d03f4d937f1dc74 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
