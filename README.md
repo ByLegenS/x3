@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.129.0`**
+**Current version: `v0.130.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `32d9cd5754fede42699437791f0571410b69210f8fa44094ef2ce41b858722be` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `6dd7a1e6abb5a87cbb93ad83827476e6edff7fae5f4ba4653e32b2d0fd7e5482` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `620dd62d3c90b8ab8e2f9f9c7312d8f4172f5428794d7799ed985acb2900fa38` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `2ee3ffee9fb0ec4f0fb91434ae105e665652d8f24873f43e9b27e6e5171b5d4e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -158,6 +158,7 @@ markers that split this document, so a page cannot be missing from it.
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [Does anybody touch this file](docs/arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
+| [Which files the rule is about](docs/arch-pairing-subjects.md) | the property that says what a pairing rule measures, why it is neither an exemption nor an exclusion, and the elimination that is counted |
 | [The example that stands in for a counterpart](docs/arch-pairing-example.md) | the inline example a migrated test leaves behind, what makes it count, and the price of declaring it |
 | [The one line a rule may not reach](docs/arch-exemptions.md) | the reason a violation is excused with, the place that reason binds, and the exemption that stopped excusing anything |
 | [Where a restricted value may appear](docs/arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
@@ -251,4 +252,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.129.0 capabilities=f407b41733163dd348e141d538fa5d3f1f5a9f6c3f9f9b5019029a55fdf4d2fc template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.130.0 capabilities=bc57eff9bf760acd13885d77a1a683b23ec2ced31c31afa271e6f8bf51d19afb template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
