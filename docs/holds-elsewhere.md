@@ -68,4 +68,17 @@ text search instead, the pool would fill with homonyms. A name an outsider could
 write (exported, package-level) that appears in an example elsewhere is
 `SUSPECT`, `unsure`: a qualified call spells the same word.
 
-<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+**The example is parsed, not scanned, and only a name it could really resolve
+counts.** A word standing to the right of a selector (`r.Close()`, `json.Marshal`)
+names a method or a field of some value, and the key of a composite literal
+(`Report{Count: 2}`) names a field — neither mentions a top-level declaration.
+A method the asked file declares cannot be meant by a bare word either: at the
+call site a method is always tied to a receiver, and reaching it means naming the
+type or the constructor that makes one, which is a top-level name and is caught.
+Read as plain text instead, all three become bonds the moment a file somewhere in
+the package happens to declare the same short word, and a migration then mints a
+false `held` for every test file it empties — measured, on three counts in one
+tree. An example whose body does not parse falls back to the plain reading:
+a line that cannot be read is not evidence that nothing is bound to it.
+
+<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

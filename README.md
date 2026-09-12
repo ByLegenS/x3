@@ -13,22 +13,21 @@ the answer is wrong.
 published binaries can do is documented here: this file says what x3 **is**, and
 every capability has a page of its own under [docs/](docs/INDEX.md) that says how
 it is **used** — the directive line, what it catches, a red and a green example,
-and the settings it reads. All of it is generated from the engine's own
-capability document at build time, so no page can describe a version that does
-not exist.
+and the settings it reads. All of it is generated from the engine's own capability
+document at build time, so no page can describe a version that does not exist.
 
-The lookup tables — field names, error codes, exit codes — sit beside the
-guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
-and written in the same run; every page links to the table it uses.
+The lookup tables — field names, error codes, exit codes — sit beside the guides,
+one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
+in the same run; every page links to the table it uses.
 
-**Current version: `v0.157.0`**
+**Current version: `v0.158.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.4 MB | `3750b921643bfb2ea193d1ccab14020ea64460d6468e255f32b52b5eeeab3f6b` |
-| `x3-linux-amd64` | linux/amd64 | 15 MB | `83201c3fc9778bfc4701d1c969cde63980c0d8e5f4838691b989defcd56a3b73` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.4 MB | `57bcd4497db14585362e87773482cdec3b2b2ef351315b9f51ba8de8540c75f6` |
+| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `382659a218d962f4257ba5ccaf8e9eee360c4ebddc4f5881c5a953e485a03885` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -156,6 +155,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
+| [The words a language reserves](docs/lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
 | [The field name written inside a string](docs/lang-fields.md) | the keys of a structured log line, read as identifiers even where a project has declared its strings free |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
@@ -190,6 +190,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
 | [What a gate's line holds](docs/holds-selectors.md) | the selector a gate hands its runner and the package its step runs, both read by declared patterns, next to the bare word that cannot be weighed |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
+| [The file a shell decodes before it runs it](docs/syntax-encoding.md) | the bytes a parser reads its own way and the shell reads another, and the mark that settles it |
 | [The parser that reads the name](docs/syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](docs/syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
 | [Which files the check is about](docs/syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
@@ -268,4 +269,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

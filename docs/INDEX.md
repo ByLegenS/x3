@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.157.0`**
+**Current version: `v0.158.0`**
 
 | Page | What it covers |
 |---|---|
@@ -18,6 +18,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
+| [The words a language reserves](lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
 | [The field name written inside a string](lang-fields.md) | the keys of a structured log line, read as identifiers even where a project has declared its strings free |
 | [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
@@ -52,6 +53,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
 | [What a gate's line holds](holds-selectors.md) | the selector a gate hands its runner and the package its step runs, both read by declared patterns, next to the bare word that cannot be weighed |
 | [Files no compiler reads](syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
+| [The file a shell decodes before it runs it](syntax-encoding.md) | the bytes a parser reads its own way and the shell reads another, and the mark that settles it |
 | [The parser that reads the name](syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
 | [Which files the check is about](syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
@@ -87,4 +89,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

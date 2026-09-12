@@ -13,7 +13,7 @@ x3 syntax [-config <file>] [-out <file>] [-check <names>] [-baseline <file>] [-u
 ```
 
 The gate does not guess which parser a file wants; a project declares it, and
-each check is exactly one of three kinds:
+each check is exactly one of four kinds:
 
 ```json
 { "syntax": { "checks": [
@@ -28,7 +28,15 @@ each check is exactly one of three kinds:
 format half-understood is worse than one not understood at all. `run` names an
 external parser: the path is appended, and a non-zero exit is a finding carrying
 the parser's own first line. `deny` is the other half of the same problem — text
-that parses but means nothing in this format — and it needs a `reason`.
+that parses but means nothing in this format — and it needs a `reason`. The
+fourth, `encoding`, asks a question no parser answers: [The file the shell has
+to decode first](syntax-encoding.md#the-file-the-shell-has-to-decode-first).
+
+Where the parser is a one-line expression rather than a program that takes a
+path, the arguments may name the file themselves with `{file}`; the path is then
+substituted rather than appended, because a second path at the end would become
+an argument of that expression. This is what lets a script parser be declared
+without a project writing a wrapper script of its own.
 
 An outside parser handed a path may decide what to read from the name rather
 than the bytes, and pass a file it never checked: [The parser that reads the
@@ -55,10 +63,4 @@ A denied word is often legitimate somewhere else in the same tree — another
 language's own keyword or type. Those lines are excluded rather than denied:
 [The word another language owns](syntax-ignore.md#the-word-another-language-owns).
 
-A check reads the files its `sources` match. Which files a check is **about**
-can also be asked of what a file holds: [Which files the check is
-about](syntax-subjects.md#which-files-the-check-is-about). And the tree a glob takes is often one
-path too wide, while a comment explaining a rule is not a breach of it: [What a
-check does not read](syntax-scope.md#what-a-syntax-check-does-not-read).
-
-<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

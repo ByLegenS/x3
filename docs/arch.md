@@ -150,6 +150,39 @@ makes `**/*.Retry` find retry logic whose package cannot be known. Catching only
 the import lets a file call the function through a package it already has;
 catching only the call lets the package be aliased out of sight.
 
+#### A negated pattern in deny
+
+A forbidden family usually has one member that is not forbidden: the whole
+cryptography tree is out of bounds for a module, except the source of entropy it
+is supposed to use. Splitting the family into every sub-path that *is* denied
+makes the rule a list that goes stale the day the library adds a package — and
+`allow` cannot help, because it belongs to a flow rule and a symbol rule that
+carries one is refused.
+
+A pattern written with a leading `!` spares instead of denying:
+
+```json
+{ "kind": "deps", "match": "symbol", "from": "modules",
+  "deny": ["crypto/**", "!crypto/rand", "!crypto/rand.*"] }
+```
+
+**Sparing is asked after denying, and has no order.** A name is a violation when
+some pattern denies it and none spares it, so moving two lines past each other
+cannot quietly change what the rule means.
+
+**A negation is an escape hatch, and the engine's dead-exemption law applies
+unchanged**: a `!` pattern that spares nothing the rule denies is
+`dead_allowance`, red — the source it was written for is gone, or the pattern
+never matched it, and either way a line that lets nothing through is a line
+nobody can read. A `deny` made of negations only is a configuration error: it can
+never be red. So is a bare `!`, which would spare everything.
+
+Control experiment, five directions over one tree: the whole family denied gives
+4 findings (two imports, two calls); the same tree with the entropy source spared
+gives 2, and both name the other package; a negation for a source nothing uses is
+`dead_allowance` while the two real findings stay; a deny of negations only and a
+bare `!` both stop the run.
+
 ### `required` — the mark every file of a class must carry
 
 **Catches:** the seventh file somebody adds without the protection every other
@@ -352,4 +385,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.158.0 capabilities=e84674ef730d4c01bd28143e856bf5a927aed61a6b4eead5472b98cb6d4baaa2 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
