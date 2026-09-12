@@ -300,24 +300,6 @@ undeclared component, an unknown `policy` or an empty `rules` list stops the run
 with exit `2`. An empty list is an error on purpose — a check with nothing in it
 is a silent pass.
 
-### Exemptions
-
-`arch` adds no directive type; a violation is silenced with the dictionary's own:
-
-```go
-import (
-	//x3:allow:arch: the ledger is wired to alpha here, and only here
-	"example.com/app/modules/alpha"
-)
-```
-
-**`skip` does not silence `arch`** — say what you are silencing by name. **An
-exemption binds a line, not a tree**: above one import it covers that import,
-above the `package` clause the file, and above a parenthesised `import (` block
-it binds nothing and shows up dead, because a block-wide silence is a deleted
-rule. A reason is required, exemptions are listed in the report separately from
-violations, and a dead exemption is red.
-
 ### Scope integrity
 
 A rule that matched nothing is `empty_scope` and red — engine behavior, not
@@ -380,4 +362,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.120.0 capabilities=54c18b47be39ddc085596a9e78b7e7cb1a18ca443ed5021529abbca12a554ae1 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.121.0 capabilities=5306ec23e7cabdf80270578237935895351c102537d5fe39aeb8684a98f26cd2 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
