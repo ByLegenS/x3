@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the
 guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
 and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.143.0`**
+**Current version: `v0.144.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `b0244534d2c72bc6b84e5f4eb09f53ab664bd878c8b487b18a0cde52f3ccbe0e` |
-| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `257faaf92eb0e41ed66fdcb7bdd1a1766ddf77baa0a19a800dc6964df866a520` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `8b90e23c37764aa539f488c10e2daef1be78947c57301df684aed8cf46b1fd24` |
+| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `806c3f6f0d8b6246781a37894adf26e4bcf05a224df9e9c494bd90d3fecdae0e` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -207,6 +207,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Binding the gate without a permanent red](docs/adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [The program a command name means](docs/commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
+| [A command started to measure cannot wait for a person](docs/unattended.md) | the console a measured child never inherits, the stdin it already reads as empty, and the streamed run this rule deliberately leaves alone |
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
 | [Getting the database ready](docs/testdb-setup.md) | the ordered steps a fresh database is prepared with, and the variables each one is handed |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
@@ -262,4 +263,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.143.0 capabilities=2b4de3c78c787252f39d546e72740f1d3b98dd0ebabc1ab608208d11d23af971 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.144.0 capabilities=c7a898f2ed45fa4107ced156c2151290063596e5205ab3e9fac74e3314f2808e template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
