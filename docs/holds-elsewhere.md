@@ -68,4 +68,4 @@ text search instead, the pool would fill with homonyms. A name an outsider could
 write (exported, package-level) that appears in an example elsewhere is
 `SUSPECT`, `unsure`: a qualified call spells the same word.
 
-<!-- x3-dist version=v0.150.0 capabilities=162fe2ced0d891cd8733aba17d14fcabc3618c79fd93d1547dabbbcdc64d0fcb template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.151.0 capabilities=fcf618b09dada98e38d202fcc0d01a4e8208be5be29d181aa1a392505c3c3703 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

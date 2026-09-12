@@ -61,4 +61,4 @@ This reading is the Go parser's — a call has to be parsed before anyone can sa
 which argument is which. Files read as text, past the Go tree, have their
 strings read whole or not at all.
 
-<!-- x3-dist version=v0.150.0 capabilities=162fe2ced0d891cd8733aba17d14fcabc3618c79fd93d1547dabbbcdc64d0fcb template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.151.0 capabilities=fcf618b09dada98e38d202fcc0d01a4e8208be5be29d181aa1a392505c3c3703 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

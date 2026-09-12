@@ -30,6 +30,10 @@ external parser: the path is appended, and a non-zero exit is a finding carrying
 the parser's own first line. `deny` is the other half of the same problem — text
 that parses but means nothing in this format — and it needs a `reason`.
 
+An outside parser handed a path may decide what to read from the name rather
+than the bytes, and pass a file it never checked: [The parser that reads the
+name](syntax-content.md#the-parser-that-reads-the-name).
+
 **A parser that is not installed is red.** A gate that quietly skips its check
 on a machine without the tool reports green having verified nothing. A project
 that genuinely wants it optional writes `"missing": "warn"`. A check whose
@@ -57,4 +61,4 @@ about](syntax-subjects.md#which-files-the-check-is-about). And the tree a glob t
 path too wide, while a comment explaining a rule is not a breach of it: [What a
 check does not read](syntax-scope.md#what-a-syntax-check-does-not-read).
 
-<!-- x3-dist version=v0.150.0 capabilities=162fe2ced0d891cd8733aba17d14fcabc3618c79fd93d1547dabbbcdc64d0fcb template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.151.0 capabilities=fcf618b09dada98e38d202fcc0d01a4e8208be5be29d181aa1a392505c3c3703 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

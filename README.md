@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the
 guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
 and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.150.0`**
+**Current version: `v0.151.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.7 MB | `39a1b822c8a5d2e5759f7df9beb93cf4f88c0c6fee7dd38f8facd612ee72283e` |
-| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `41ff249dd94b5c91b21efc0aa34fd0d3de9a67023962d9d59a551e0726b68802` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.7 MB | `b94b953440494c1b0b1e0c8b098cde6aed74503986e37b26a11c940a6c653058` |
+| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `dc86feb260700e84cc1d28d42b59aa55bc5ecf4db15e0bab1d2d3d8babd19def` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -189,6 +189,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
 | [What a gate's line holds](docs/holds-selectors.md) | the selector a gate hands its runner and the package its step runs, both read by declared patterns, next to the bare word that cannot be weighed |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
+| [The parser that reads the name](docs/syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](docs/syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
 | [Which files the check is about](docs/syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
 | [What a check does not read](docs/syntax-scope.md) | the file a source glob takes but the check must not weigh, and the comment that explains the rule rather than breaking it |
@@ -265,4 +266,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.150.0 capabilities=162fe2ced0d891cd8733aba17d14fcabc3618c79fd93d1547dabbbcdc64d0fcb template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.151.0 capabilities=fcf618b09dada98e38d202fcc0d01a4e8208be5be29d181aa1a392505c3c3703 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
