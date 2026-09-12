@@ -129,6 +129,23 @@ looks like a regression. So the report says where it was measured.
 { "boxes": { "environment": ["APP_TEST_DSN", "APP_LIVE_TOKEN"] } }
 ```
 
+A connection does not have to live in one variable. A running application often
+asks **several names in order** — a local one, a CI one, a production one — and
+takes the first that is written. `dsnEnv` therefore takes a name *or* a list of
+names, and the `sql` criterion reads them the same way:
+
+```json
+{ "when": "sql", "dsnEnv": ["APP_TEST_DSN", "APP_DSN"],
+  "query": "select 1", "equals": "1" }
+```
+
+The first variable that is written is used, and the report says which one. When
+none of them is written the criterion is unmeasured and the sentence names
+**every** place it looked, because a reader who is told one name cannot know
+which one to write. A list that names nothing, holds a blank, or repeats a name
+is a configuration error: a second place to look that is the same place is not a
+second place. Read as a single name the field behaves exactly as before.
+
 `summary.environment` names each variable and whether it was **set** — never its
 value, because a report that carried one would be the leak it exists to prevent.
 The list is the declared names plus every variable a criterion already names for
@@ -173,92 +190,6 @@ byte-identical. The honest row is the second: 30 processes fewer and no reliable
 time, because 71 of those criteria do not hold. **Parallelism buys the waiting;
 batching buys a process, only for the criteria that hold**; `sql` stays serial.
 
-### A list written as a document
-
-Most projects keep their open work in their documents, as Markdown checkboxes
-with more than two states. `sources` reads the list that way — and `file` and
-`sources` cannot both be written.
-
-```json
-{ "boxes": { "sources": ["docs/**/*.md"], "markdown": {
-    "states": [
-      { "mark": " ", "name": "open",  "means": "open" },
-      { "mark": "~", "name": "doing", "means": "open", "requires": ["done-so-far", "left"] },
-      { "mark": "x", "name": "done",  "means": "done" } ],
-    "criterion": { "key": "criterion", "kinds": {
-      "exists":   { "when": "file" },
-      "contains": { "when": "pattern" },
-      "passes":   { "when": "command", "prefix": ["go", "test", "-v"],
-                    "output": { "must": ["--- PASS"] } },
-      "by-hand":  { "when": "manual", "separator": " - ", "signed": " - signed " } } },
-    "minLength": 4 } } }
-```
-
-```markdown
-- [~] the report that names a state
-      done-so-far: the reader is written
-      left: the report still prints only the mark
-      criterion: exists docs/reader.md
-```
-
-#### The engine does not know what "in progress" means
-
-A mark gets a `name`, which the report uses, and a `means`, which is the only
-thing the engine acts on: `open` (all criteria met is red), `done` (any unmet is
-red), `silent` (neither direction is asked). So whether "waiting on somebody"
-goes red when its proof already stands is one line of the project's
-configuration. `silent` is an escape hatch, and a `silent` state no box carries
-is `dead_state` and red.
-
-#### The record a state must carry
-
-An in-between state is a claim, not a condition. `requires` names the fields that
-must sit in the item's body, in the project's own words; a missing one is
-`box_record`, and so is a field so short it is a way of not answering —
-`minLength` sets the floor, and `left: -` does not clear it. A field line may
-carry any leading decoration; what counts is a name, a colon and something after
-it. The body of an item is everything indented under it, or — for an item written
-as a heading — everything to the next heading. Checkboxes inside a fenced code
-block are examples, not work.
-
-#### Writing a criterion in prose
-
-`criterion.key` opens a criterion line and `kinds` maps the project's word onto
-one of the six criteria. Everything a criterion needs but a document should not
-repeat — the DSN variable, the runner `prefix`, the separators — lives in the
-kind, not in the line.
-
-See **boxes criteria written in prose** in the [boxes reference](boxes-reference.md#boxes-criteria-written-in-prose).
-
-Place and expression split at the first space, so a path containing one is
-quoted, and **a quote that never closes is a configuration error** on that line
-rather than a path quietly split in two:
-
-```
-criterion: contains "docs/design notes/READER.md" the parser is here
-```
-
-#### What the reader refuses
-
-`box_unknown_state` is a mark the configuration never declared. `box_unlisted` is
-`* [ ]`, `+ [ ]` or `1. [ ]` — drawn like a checkbox, collected by nothing, which
-is the quiet one: the work was written down and is in no list, so nobody will
-come looking for it.
-
-#### Regions that are not work
-
-A note that keeps a work list usually also shows **how an item is written**, drawn
-with the same checkboxes. Fenced code blocks are skipped because that is
-Markdown's own writing; every other marker is declared:
-
-```json
-"markdown": { "examples": [ { "open": "^<!-- EXAMPLE -->", "close": "^<!-- /EXAMPLE -->" } ] }
-```
-
-Both are required, and the marker lines are skipped with everything between them.
-A region that opens and never closes is `example_unclosed`; one that opens in no
-document at all is `dead_example`.
-
 ### A list that is adopted gradually
 
 A gate that reds a thousand times on its first run is switched off on its second,
@@ -271,9 +202,9 @@ x3 boxes -baseline baselines/boxes.json -update-baseline   # freeze what stands 
 What may be frozen is **how the list is written today** — `box_uncovered`,
 `box_record`, `box_unlisted`, `box_unknown_state`, `box_owner`, `box_moved`,
 `box_suspect`. What may **never** be frozen is what the list *claims*:
-`box_finished`, `box_unproven`, `box_unmeasured` and `box_dead_selector`
-(freezing them makes finished work sit open forever, closing without proof free,
-and a gate that measures nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
+`box_finished`, `box_unproven`, `box_unmeasured`, `box_dead_selector` and
+`dead_step_selector` (freezing them makes finished work sit open forever, closing
+without proof free, and a gate that measures nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
 stop asking the two questions.
 
 ### A list that is finished, and where it goes next
@@ -357,4 +288,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.149.0 capabilities=aa2b3d5359a52c0465529a4d78500da0ece5c1d342d9261b163f39c08cf09ce1 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

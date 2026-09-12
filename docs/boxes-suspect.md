@@ -44,6 +44,38 @@ Both are `box_dead_selector`, the one finding in this family that **cannot be
 frozen into a baseline**: the other three are how a list was written, this one is
 a box closed without proof.
 
+**A selector is asked in the parts its runner reads it in.** Compiled whole, a
+selector that names two checks stays alive as long as *one* of them is left, and
+the other one's measurement disappears without a word — the surviving half hides
+the dead half. So the selector is first cut at its top-level subtest separator
+(`/`, only the first element picks a top-level name) and then at its top-level
+alternatives (`|`), and each part is asked on its own; the finding names the part
+that died. A separator inside a group or a character class splits nothing —
+`Test(A|B)` is one name — and an escaped separator is text.
+
+### A gate step whose name has left the tree
+
+A step in a gate script hands its runner the very same selector, and **it does not
+need a box at all**. When the check it names is deleted, `-run` matches nothing,
+the runner exits `0`, and the step burns green having measured nothing — with no
+box anywhere to turn red on its behalf. Measured in a pilot: of five such steps,
+three named a check that no longer existed.
+
+When a project declares where its steps live and how to read a selector out of
+them, the same question is asked of every line it finds:
+
+```json
+{ "boxes": { "suspect": { "selector": true },
+             "holds": { "sources": ["gates/*.ps1"], "selects": ["-run\\s+'?([^\\s']+)"] } } }
+```
+
+Findings are `dead_step_selector` and carry the **file and line** they came from
+plus the step's own text, because there is no box to name. The two answers are
+kept apart exactly as above: a name that is nowhere, and a name declared only
+outside the place the step runs. Without `holds.selects` no step is read; without
+`suspect.selector` no step is judged — and a tree in which not one declaration can
+be read is exit `2`, here for the same reason as above.
+
 Open boxes are never asked. A criterion written before the check exists is how a
 list is meant to be used, and asking there would fill a plan with the red of work
 that has not started. The engine learns which argument carries the selector from
@@ -56,4 +88,4 @@ The answer needs **no run at all**, and that is the point. In a shell that canno
 reach the runner, the database or the network, every criterion is unmeasured and
 a box closed on a vanished name looks exactly like the rest of the noise.
 
-<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.149.0 capabilities=aa2b3d5359a52c0465529a4d78500da0ece5c1d342d9261b163f39c08cf09ce1 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

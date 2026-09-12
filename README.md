@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the
 guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
 and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.148.0`**
+**Current version: `v0.149.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.7 MB | `b3a82f7572601aed59b242e9d40c8592cf4146ecf19a901e0dc7fdb36e4137ab` |
-| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `135a9186f2ee8a4730b17548f59db66e8f37b1a62320443a1203310a6d85bc5b` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.7 MB | `1f6a6ea8cbea943678ad3a103d0c8e7956322d3504cc4ef1e9f978ed32507306` |
+| `x3-linux-amd64` | linux/amd64 | 14.3 MB | `e0f9991b2144d8a01875ea3db9824d88c24cedc7e75de11c9de3710cc0cc8896` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -182,6 +182,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
+| [A work list written as a document](docs/boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
 | [Criteria that stopped measuring](docs/boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
@@ -264,4 +265,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.149.0 capabilities=aa2b3d5359a52c0465529a4d78500da0ece5c1d342d9261b163f39c08cf09ce1 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
