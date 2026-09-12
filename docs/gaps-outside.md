@@ -51,4 +51,4 @@ and `map` is a lookup table, not a rule.
 **`x3 testdb` speaks PostgreSQL only.** Nothing prevents two runs from sharing a
 template, and it keeps no record of its own beyond what it encodes in a name.
 
-<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.134.0`**
+**Current version: `v0.135.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `4c2e9d156debc50ebd2050b07ec75bc041d2c3f8eea42977eda2f152975ad8bd` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `3cb0d155d379e4a3bfd0e850b642c747d45fdc67de64f49de527bed0cc455492` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `c04b0663e1d144e510afb6338a5a9f2ceeba6d85c6f136a51c22caca8ddea27c` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `daba341b3a17d2431a356b7c6d6a87ac30c4623d33d205107424d38033b8f569` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -157,6 +157,7 @@ markers that split this document, so a page cannot be missing from it.
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
+| [The field name written inside a string](docs/lang-fields.md) | the keys of a structured log line, read as identifiers even where a project has declared its strings free |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [Does anybody touch this file](docs/arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
 | [Which files the rule is about](docs/arch-pairing-subjects.md) | the property that says what a pairing rule measures, why it is neither an exemption nor an exclusion, and the elimination that is counted |
@@ -255,4 +256,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

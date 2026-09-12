@@ -22,6 +22,7 @@ x3 lang [-config <file>] [-out <file>] [-baseline <file>] [-update-baseline] [di
 | the package name | comments (unless `comments: "en"`) |
 | every **declared** identifier — function, type, variable, constant, field, parameter, result, label, import alias | the **use** of a name declared elsewhere |
 | every string constant, struct tags included (unless `strings: "any"`) | import paths |
+| the **field names** of a structured log call, wherever `fields` says they sit | the values next to those field names |
 
 The asymmetry is deliberate: a name is spelled once where it is declared, and a
 name declared elsewhere — `fmt.Fprintf`, `pgx.Connect` — is not yours to spell.
@@ -50,9 +51,13 @@ non-ASCII letter outside a comment is red**, and `allow` cannot excuse it.
 
 See **language settings** in [REFERENCE.md](../REFERENCE.md#language-settings).
 
+A seventh field, `fields`, says which strings are field names and therefore
+identifiers; it has its own page — [The field name written inside a
+string](lang-fields.md#the-field-name-written-inside-a-string).
+
 No `language` section is not an error; the default is `en` / `any` / `en` / the
-Go tree / no names. A section that *is* written and is wrong stops the run —
-fail-closed.
+Go tree / no names / no field names. A section that *is* written and is wrong
+stops the run — fail-closed.
 
 ### What a run looks like
 
@@ -64,7 +69,8 @@ x3 lang: 1 file(s) - 2 finding(s) - dictionary "en"
 
 The report carries the same findings sorted by file and line, with no timestamp.
 `code` is the stable part — `not_in_dictionary`, `non_ascii_letter` or
-`empty_scope`; `where` is `identifier`, `string`, `comment`, `name` or `scope`.
+`empty_scope`; `where` is `identifier`, `string`, `field`, `comment`, `name` or
+`scope`.
 
 ### The embedded dictionary
 
@@ -87,4 +93,4 @@ words. Its licence requires the notice to travel with any copy:
 Do not edit the file by hand. A word that belongs to your project belongs in
 `language.allow`.
 
-<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

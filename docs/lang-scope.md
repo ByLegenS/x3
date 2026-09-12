@@ -25,10 +25,10 @@ switched off by the afternoon.
 **strings only** — identifiers stay red. A setting that could silence the
 identifiers too would be a short way of switching the gate off.
 
-⚠️ What is lost is named: field names written **inside** a string — the keys of
-a structured log line — are strings, and `any` stops reading them. Measured on a
-real production Go application, that is four violations its own hand-written
-gate still catches.
+⚠️ What that costs is named, and it has its own answer: field names written
+**inside** a string — the keys of a structured log line — are strings, and
+`any` would stop reading them. They are read anyway, by declaration; see [The
+field name written inside a string](lang-fields.md#the-field-name-written-inside-a-string).
 
 ### Which files are read?
 
@@ -68,4 +68,4 @@ that did not hold, so it is `empty_scope` and red — a misspelled pattern would
 otherwise be the quietest way to switch a scope off. A list written as `[]` is
 refused with exit `2`: an empty scope is not a narrow scope, it is no scope.
 
-<!-- x3-dist version=v0.134.0 capabilities=b699977b12735de57dd29e063ac5b448eff274f05e35c42fbda29f7345d6d0b0 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
