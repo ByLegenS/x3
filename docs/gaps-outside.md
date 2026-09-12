@@ -42,13 +42,16 @@ unauthenticated one unless a value is carried. Outbound recording is plain HTTP
 only — `CONNECT` is refused rather than tunnelled. And a recording is only as
 good as the traffic it saw.
 
-**Guards compare strings.** `http` guards are `GET` only, guards run one after
-another, and the guard report is written once, after the command finishes. The
-`sql` and `http` kinds are control-tested in Go rather than in the gate script,
-which covers `exec` only. Effective checks compare strings too, never remember,
-and `map` is a lookup table, not a rule.
+**Guards compare strings, and one set.** `http` guards are `GET` only, guards
+run one after another, and the guard report is written once, after the command
+finishes. `sameRowsAs` reads whole row sets, but only from `sql`, only one
+column wide, and only into memory — two schemas that do not fit are not
+streamed. The comparison is control-tested against a real server **when the
+gate is given one**; the `http` kind is control-tested in Go rather than in the
+gate script. Effective checks compare strings too, never remember, and `map` is
+a lookup table, not a rule.
 
 **`x3 testdb` speaks PostgreSQL only.** Nothing prevents two runs from sharing a
 template, and it keeps no record of its own beyond what it encodes in a name.
 
-<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.136.0 capabilities=199e2bbec4fea082717a184864ff858991f224bd6b83038c02d8f9b48f610c4c template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.135.0`**
+**Current version: `v0.136.0`**
 
 | Page | What it covers |
 |---|---|
@@ -57,6 +57,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Traffic, written down](record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
+| [Two schemas, one question](guard-rows.md) | the row set a query answers with, weighed against the row set a second connection answers the same question with, and the difference named row by row |
 | [The setting on paper against the setting in force](effective.md) | a recorded value compared with the value the running system actually uses |
 | [How much of this engine actually runs](adoption.md) | the project measured against the engine's own command table |
 | [How the engine is called](adoption-invoke.md) | the spelling a project calls the engine by, the prose and the printed lines that are not calls, and where the line between them is drawn |
@@ -75,4 +76,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.136.0 capabilities=199e2bbec4fea082717a184864ff858991f224bd6b83038c02d8f9b48f610c4c template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

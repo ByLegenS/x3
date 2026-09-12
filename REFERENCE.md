@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.135.0`**
+**Current version: `v0.136.0`**
 
 ## scan exit codes
 
@@ -199,7 +199,7 @@ document in one run, so no two can describe different versions.
 | `dsnEnv` | yes | **name** of the variable holding the DSN; the DSN never appears in the file |
 | `query` | yes | its first row, first column is the observed value |
 | `driver` | no | defaults to `pgx`; a name this binary has not registered is a configuration error (exit `2`) |
-| `equals` / `contains` | one of them | what the observed value must be |
+| `equals` / `contains` / `sameRowsAs` | one of them | the first two say what the observed value must be; the third compares row **sets** against a second connection (§ [Two schemas, one question](docs/guard-rows.md#two-schemas-one-question)) |
 
 ## guard fields for kind http
 
@@ -297,4 +297,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `setup` | no | the steps run after creation, **in order**; each one `command`, `args`, `env`, `timeoutMs` (§ [A ready database is more than one command](docs/testdb-setup.md#a-ready-database-is-more-than-one-command)) |
 
-<!-- x3-dist version=v0.135.0 capabilities=20b1c981592aadc535186606e8f8a71ef40bca930051d3944300ed66b331d3e9 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.136.0 capabilities=199e2bbec4fea082717a184864ff858991f224bd6b83038c02d8f9b48f610c4c template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
