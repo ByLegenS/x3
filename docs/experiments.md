@@ -43,6 +43,7 @@ step names below are the ones the gate prints.
 | `boxes holds bindability control experiment` | one tree, one gate script, four questions: the gate names an exported package-level test `1`, carries an unexported name `0`, carries a method name `0`, and opens a file by its path `1`. Two rows measure the fixture itself — **both discarded words really are on a line of that gate** — so the green is a decision and not an empty search; two more read the report, where `names` and `bindable` show the narrowing |
 | `configuration relative path control experiment` | one configuration, two working directories, one answer. A run records a baseline from one directory `1`, and the file lands **beside the configuration** and beside neither working directory; the same configuration read from a second directory finds it, `0`; a new debt is `1` from both. Bound to the shell instead, the first run leaves the file in the wrong tree and the second sees no baseline at all |
 | `syntax control experiment` | parsing, broken, a parser that is not installed (red), and the same check under `missing: "warn"` |
+| `syntax ignore control experiment` | two trees and two settings, only the *question* moving: another language's own word red without the exclusion — the blindness itself — and green with it; the real violation red under both, so the exclusion is not hiding it; the same exclusion on the tree it excludes nothing in, `dead_ignore`; and an exclusion written on a parser check, `2` |
 | `scope control experiment` | inside the lane, crossing it, crossing with a reason; then the branch form both ways, including a violation in the first commit under a clean one, and a closed lane |
 | `test control experiment` | six directions on one tree, including **a full run when a file belongs to no unit** and a cache that answers, then measures again once the file changes |
 | `record` / `replay control experiment` | a ledger whose credential header and planted key are hidden **while an ordinary field is still there**; then a replay without a `normalize` rule (red), with it (green), and against a drifted application (red) |
@@ -85,4 +86,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.139.0 capabilities=57752bf7cc6540dd7c5294a3fe1382b06d87295e2a0ddc13b7e6cc4b27eb6c02 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
