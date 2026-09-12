@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.124.0`**
+**Current version: `v0.125.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `143472061d8f29ff384c390e3f94c4f6ba5fc9ed8be3ed28617479333ebed5d3` |
-| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `6b0ec9e0fb45a76f541fc5bfd911ffba8cadedf65d06d9bfec32e93d2b4224f5` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `79485371a51624afc81275a5d36650de192dd2a3597b27caf62f767b7322bd3f` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `c4fa8bdc21912d896979e4f4c94341b0889cf3e0c4fbdda96c223c2f9fbcb930` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -99,6 +99,7 @@ x3 secrets -config x3.json .    # credentials that got into the source
 x3 boxes -config x3.json .      # open work, in a file or in the documents
 x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
 x3 scope  -config x3.json .     # a change that must stay in its lane
+x3 placement -config x3.json    # a rule declared where the region it names can read it
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
 x3 outbound serve -listen :9101 -ledger out.jsonl                  # the far side, from the ledger
@@ -195,6 +196,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
@@ -231,6 +233,7 @@ evidence.
 | **Effective checks** (`internal/live`) | a setting as *recorded* against the same setting as it is *in force* |
 | **Test databases** (`internal/testdb`) | a template database cloned per run, migrated, dropped, and the leftovers collected |
 | **Incremental cache** (`internal/cache`) | keyed on engine version, configuration fingerprint and file content; off unless declared |
+| **Settings placement** (`internal/placement`) | a rule whose paths all fall in one region, declared anywhere but that region's own settings file |
 | **Adoption** (`internal/adoption`) | how much of this engine the project actually runs, measured against the engine's own command table |
 
 What `x3 scan` itself implements is a **language check**, not a behavior check.
@@ -244,4 +247,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.124.0 capabilities=2a78d3c8bbcbbd5a748b56e37baa25f6bc5b5c75586cf4c71127501f6048d067 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.125.0 capabilities=095fd8c2f3b2a4d369248a7cf091184c5d1e81337bdcd62da4b2f9f9fd3abfb4 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
