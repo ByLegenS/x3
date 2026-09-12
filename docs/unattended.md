@@ -36,10 +36,30 @@ it is **measured and attended**:
 | `command` criteria, `guard` checks and their trial steps, `syntax` external parsers, `testdb` setup steps, the mutation and example runners, `git` reads | measured — no console |
 | `x3 guard -- <command>`, `x3 testdb run -- <command>`, the streamed test runner | attended — the console is inherited, and so is `Ctrl-C` |
 
+### And it cannot wait forever either
+
+A run with no ceiling cannot even go red, because it never ends. Most surfaces
+declare one, because they know the size of their work — a guard's read is
+seconds, a whole suite is minutes. Three declared nothing, and a command
+started from them ran for as long as it felt like: the external parsers behind
+`syntax`, the `git` reads behind `docs`, `scope` and `published`, and anything
+reaching the engine through a context that carries no deadline.
+
+The engine's ceiling is **60 s**, and it is not a new number: two surfaces
+picked it independently, for two different jobs, before this was written. It
+**fills in, it never overrides** — a surface that declares its own size keeps
+it; a `syntax` check writes `timeoutMs`; a project writes its own with
+`{ "x3": { "commandTimeoutMs": 120000 } }`.
+
+A parser that runs out of time is `parser_failed`, not `does_not_parse`: the
+file is not at fault, and that code cannot be frozen into a baseline. The
+**attended** surfaces take no ceiling at all — how long the command a person
+is watching may run is that person's business.
+
 ⚠️ **What this does not buy.** Severing the console also removes the child from
 the console's `Ctrl-C` group. A measured child is bounded by its timeout and is
 killed when the run's context ends, but a parent killed outright still leaves
 it behind — on Windows that was already true before, since no parent takes its
 children down with it.
 
-<!-- x3-dist version=v0.144.0 capabilities=c7a898f2ed45fa4107ced156c2151290063596e5205ab3e9fac74e3314f2808e template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.145.0 capabilities=053cb5bda96cabedacc8ad6dc3d302d827ec2d9dcde5c77e648e817df0e093a8 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
