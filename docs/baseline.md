@@ -17,10 +17,12 @@ command, so `x3 comments` reads `baselines/comments.json` and `x3 secrets` reads
 `baselines/secrets.json`. Declare nothing and there is no baseline: every
 finding is red.
 
-Six commands carry one: `arch`, `comments`, `secrets`, `lang`, `syntax` and
-`boxes` — each measures the **state of the tree**, which is what a debt is.
-`docs` and `scope` read a diff instead, and a finding there is not debt but the
-change in front of you; freezing it would silence the wrong thing.
+Seven commands carry one: `arch`, `comments`, `secrets`, `lang`, `syntax`,
+`boxes` and `guard`. The first six measure the **state of the tree**, which is
+what a debt is. `guard` measures a running system instead, and a red there is a
+debt of the same shape: *"this check does not hold today, and no **new** one may
+appear"*. `docs` and `scope` read a diff, and a finding there is not debt but
+the change in front of you; freezing it would silence the wrong thing.
 
 | Flag | What it does |
 |---|---|
@@ -41,6 +43,7 @@ identified by **what it is, where it is, and what it says**:
 | `arch` | the code, the file, and the rule, subject and object |
 | `lang` | the code, the file, and the token with the place it sits in |
 | `syntax` | the code, the file and the name of the check |
+| `guard` | the guard's name, the kind of red, and the **expectation** |
 
 ```json
 { "version": 1, "command": "comments", "count": 2,
@@ -50,6 +53,14 @@ identified by **what it is, where it is, and what it says**:
 The **digest**, not the text, is what the run compares — a baseline storing the
 matched text would put the very value `secrets` masks into a file the repository
 keeps.
+
+`guard` has no file to key on, and what it observed is the one thing that cannot
+be part of the identity: a row count, a status code, a version string - it moves
+between runs, and a debt keyed on it would die on its first flutter, shouting a
+new finding and a `dead_baseline` in the same breath. The expectation is the
+opposite case: it **is** in the identity, so quietly rewriting one does not
+inherit the frozen record - the old debt dies loudly and somebody reads it
+again.
 
 ### The direction is the whole point
 
@@ -95,4 +106,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

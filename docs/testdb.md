@@ -20,6 +20,12 @@ x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
 capture it. `run` is the shape most projects want: one process, a fresh
 database, automatic cleanup; `-keep` leaves it behind, for the sweep to collect.
 
+`run` returns the command's own exit code, with one exception: a runner that
+announces it found nothing to run does not make a green. The sentences and the
+command lines they are looked for in are the `live.blind` block `x3 guard`
+documents, read from the same configuration file, and the reason is the same - `go test -run <pattern>` exits **0** when the pattern
+matches nothing.
+
 **Every `create` and `run` sweeps first.** The leak is not in the cleanup a run
 does — it is where that cleanup never happens: a killed process (a cancelled
 gate, a closed worker tree) says nothing more, and only the *next* run can see
@@ -90,4 +96,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

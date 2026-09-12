@@ -268,6 +268,13 @@ exit passes through untouched — this looks only at greens, an expectation's ow
 red included, so "I measured and it failed" keeps its name — and the reading is a
 **stream**, so a run that outgrows the copy kept for weighing is still watched.
 
+**Every wrapper reads it, not just this one.** `x3 testdb run -- <command>` is a
+gate step too, and nothing stands between its exit code and the gate, so the same
+zero arrives there unweighed. It reads the same `live.blind` block from the same
+file: two keys for one hole would be shaped in one place and forgotten in the
+other. A `live` section is not required for it - the protection is a floor, not
+something a project earns by writing guards - and `off` is printed there as well.
+
 The default names a runner, which `must`/`mustNot` deliberately never do; the
 difference is that it is a *default*. Another runner writes its own line
 (`"when": ["pytest"], "says": ["no tests ran"]`), and an empty list in place of
@@ -282,4 +289,4 @@ configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

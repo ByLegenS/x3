@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the
 guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
 and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.156.0`**
+**Current version: `v0.157.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.4 MB | `728730d29c5089f8406c1353db2e63ce6447a74aecdaa0221ee56fb61690cc3b` |
-| `x3-linux-amd64` | linux/amd64 | 15 MB | `10e9d0b7dcbdafb62d768661e610f0f95f8ca4b923b1c6967b3aeeecc485f146` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.4 MB | `3750b921643bfb2ea193d1ccab14020ea64460d6468e255f32b52b5eeeab3f6b` |
+| `x3-linux-amd64` | linux/amd64 | 15 MB | `83201c3fc9778bfc4701d1c969cde63980c0d8e5f4838691b989defcd56a3b73` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -183,6 +183,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [A work list written as a document](docs/boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
+| [Three ways a criterion is lost in the writing](docs/criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](docs/boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
@@ -202,6 +203,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Traffic, written down](docs/record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](docs/replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
+| [The reds a live gate starts with](docs/guard-baseline.md) | freezing the checks a running system fails today, so that a new failure is the only one that speaks |
 | [Two schemas, one question](docs/guard-rows.md) | the row set a query answers with, weighed against the row set a second connection answers the same question with, and the difference named row by row |
 | [The setting on paper against the setting in force](docs/effective.md) | a recorded value compared with the value the running system actually uses |
 | [How much of this engine actually runs](docs/adoption.md) | the project measured against the engine's own command table |
@@ -266,4 +268,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.156.0 capabilities=c8bb02269798cd209388b465a9941635adeb7d3cc673c6643bd116b9a446af22 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.157.0 capabilities=0d6774f63a7d6ac7b8ab85705df08fe31d30b6f17310f404154c63efb3690e4d template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
