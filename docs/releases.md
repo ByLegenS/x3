@@ -19,12 +19,17 @@ One command produces a release, and if any step fails nothing is published:
    that does not reproduce is not published, and that comparison happens on every
    release rather than in a one-off experiment;
 3. it writes `SHA256SUMS.txt` and generates every public document from this
-   document plus a template — what the engine **is** in `README.md`, the lookup
-   tables in `REFERENCE.md`, and how each capability is **used** on its own page
-   under `docs/` with an index beside them — stamping the tag and the SHA256 of
-   both sources into **each** generated file. Which page a section belongs to is
-   written in this document, not in the script: a `x3:doc` marker opens a page,
-   and everything up to the next marker is that page. Nothing is written by hand;
+   document plus a template — what the engine **is** in `README.md`, how each
+   capability is **used** on its own page under `docs/` with an index beside
+   them, and the lookup tables on a reference page per family, listed in
+   `REFERENCE.md` — stamping the tag and the SHA256 of both sources into
+   **each** generated file. Which page a section belongs to is written in this
+   document, not in the script: a `x3:doc` marker opens a page, and everything
+   up to the next marker is that page. A `x3:ref` marker moves the table under
+   it to the reference page of the page it sits in, so the grouping is
+   **derived** rather than declared a second time — a sub-page joins its main
+   family, `arch-prose` writing into the `arch` reference. Nothing is written
+   by hand;
 4. it re-reads what it just wrote and runs the staleness gate against it.
 
 **The staleness gate** recomputes the SHA256 of this document and of the template
@@ -95,4 +100,4 @@ configuration: see [Expectations](scan.md#expectations).
 migrated until its x3 equivalent has been seen to go red on a deliberately broken
 input.
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

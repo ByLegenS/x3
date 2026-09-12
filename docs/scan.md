@@ -17,7 +17,7 @@ reds stay on the terminal.
 
 ### Exit codes
 
-See **scan exit codes** in [REFERENCE.md](../REFERENCE.md#scan-exit-codes).
+See **scan exit codes** in the [scan reference](scan-reference.md#scan-exit-codes).
 
 Exit codes are the same for every command. A tree with **no directives at all**
 exits `0`, so an exit code alone cannot tell "everything passed" from "nothing
@@ -91,7 +91,7 @@ does not.
 wrong shape. **A type that is not in the dictionary has no verifier, and a
 directive with no verifier turns the run red.**
 
-See **the directive dictionary** in [REFERENCE.md](../REFERENCE.md#the-directive-dictionary).
+See **the directive dictionary** in the [scan reference](scan-reference.md#the-directive-dictionary).
 
 After the `//x3:` prefix the rest is split on `:` into a category and its
 sub-types. A **payload** is whatever follows a colon that is itself followed by
@@ -194,7 +194,7 @@ const demoToken = "not-a-real-key"
 The JSON `code` field is the stable part of the output; `message` may be
 reworded at any time.
 
-See **scan error codes** in [REFERENCE.md](../REFERENCE.md#scan-error-codes).
+See **scan error codes** in the [scan reference](scan-reference.md#scan-error-codes).
 
 The checks run in that order and stop at the first failure, so one directive
 reports exactly one code.
@@ -215,7 +215,7 @@ reports exactly one code.
 }
 ```
 
-See **the scan report fields** in [REFERENCE.md](../REFERENCE.md#the-scan-report-fields).
+See **the scan report fields** in the [scan reference](scan-reference.md#the-scan-report-fields).
 
 Directives are sorted by file then line, and **there is no timestamp anywhere in
 the report, by design**: identical sources must produce identical bytes, so a
@@ -237,7 +237,7 @@ apart.
 }
 ```
 
-See **expectation fields** in [REFERENCE.md](../REFERENCE.md#expectation-fields).
+See **expectation fields** in the [scan reference](scan-reference.md#expectation-fields).
 
 ```
 BLOCK expectation_not_met: the ledger package keeps its guards
@@ -264,4 +264,4 @@ The law does not slacken: a run rooted at the configuration's own directory
 judges **every** expectation, and each has already pulled its subject into
 scope. A run rooted **outside** that tree is an error, not a pass.
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

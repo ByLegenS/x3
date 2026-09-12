@@ -34,7 +34,7 @@ own blindness as full coverage — the measure fails exactly where it is needed.
     "policy": "warn" } }
 ```
 
-See **the adoption report fields** in [REFERENCE.md](../REFERENCE.md#the-adoption-report-fields).
+See **the adoption report fields** in the [adoption reference](adoption-reference.md#the-adoption-report-fields).
 
 The spelling this project calls the engine by is declared too, and the line
 between a real call and a sentence about one is drawn where the match begins —
@@ -109,6 +109,6 @@ direction: they put no check in force.
 
 ### Findings
 
-See **adoption finding codes** in [REFERENCE.md](../REFERENCE.md#adoption-finding-codes).
+See **adoption finding codes** in the [adoption reference](adoption-reference.md#adoption-finding-codes).
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

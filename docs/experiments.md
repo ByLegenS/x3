@@ -58,6 +58,7 @@ step names below are the ones the gate prints.
 | `testdb control experiment` | a foreign name refused at the gate (`1`) **and our own name reaching an unreachable server (`2`)** — a gate that refused every name would also exit `1` |
 | `expect control experiment` | the count met, one guard short, the directives deleted, and the same tree with no expectation |
 | `public leak gate` | the published documents clean, and a planted tree in which **every** forbidden pattern speaks |
+| `reference split control experiment` | this document really split: **no table lost and no marker left behind**, and the families it derives identical to the pages the settings cap; then a table under no page and a marker with no table, both refusing to publish |
 | `public size gate` | every published document under its own cap, then **each cap in turn** asked with one line too many — one document over the line would leave the other caps unmeasured |
 | `public language gate` | the published documents in one language, and the template's **real** maintainer note planted; the plant is not invented text, so the experiment measures the assumption too — a note rewritten in English would leave the gate unable to prove itself, and it says so |
 | `comments baseline identity control experiment` | one file, four steps: the debt recorded (`1`, one entry written), the same tree frozen (`0`), **a new over-long block in that same file `1`** — named, with the old debt still held — and the frozen block re-indented `0`, because identity is the text and not its shape |
@@ -84,4 +85,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

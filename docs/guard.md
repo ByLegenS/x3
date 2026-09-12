@@ -60,7 +60,7 @@ look like a check that passed.**
 
 ### Exit codes
 
-See **guard exit codes** in [REFERENCE.md](../REFERENCE.md#guard-exit-codes).
+See **guard exit codes** in the [guard reference](guard-reference.md#guard-exit-codes).
 
 `1` carries two meanings — "blocked" and "the command itself exited 1". The
 report separates them: `decision` is `blocked` in the first case, and `launch`
@@ -83,11 +83,11 @@ entry the dictionary does not know turns the run red.
 
 ### Fields every guard has
 
-See **guard fields every kind has** in [REFERENCE.md](../REFERENCE.md#guard-fields-every-kind-has).
+See **guard fields every kind has** in the [guard reference](guard-reference.md#guard-fields-every-kind-has).
 
 ### `kind: "sql"`
 
-See **guard fields for kind sql** in [REFERENCE.md](../REFERENCE.md#guard-fields-for-kind-sql).
+See **guard fields for kind sql** in the [guard reference](guard-reference.md#guard-fields-for-kind-sql).
 
 An expectation is mandatory here: a query with no expectation is answered by an
 empty table. `sameRowsAs` is the third one, and the only one that reads a
@@ -101,7 +101,7 @@ empty table. `sameRowsAs` is the third one, and the only one that reads a
 
 ### `kind: "http"`
 
-See **guard fields for kind http** in [REFERENCE.md](../REFERENCE.md#guard-fields-for-kind-http).
+See **guard fields for kind http** in the [guard reference](guard-reference.md#guard-fields-for-kind-http).
 
 ```json
 { "name": "provider-agent-enabled", "kind": "http", "policy": "warn",
@@ -112,7 +112,7 @@ See **guard fields for kind http** in [REFERENCE.md](../REFERENCE.md#guard-field
 
 ### `kind: "exec"`
 
-See **guard fields for kind exec** in [REFERENCE.md](../REFERENCE.md#guard-fields-for-kind-exec).
+See **guard fields for kind exec** in the [guard reference](guard-reference.md#guard-fields-for-kind-exec).
 
 ### `kind: "steps"` — a trial, not a reading
 
@@ -124,7 +124,7 @@ script inside the project, and a script is what x3 exists to remove: reviewed by
 nobody, drifting when a path moves, never measured for whether it can still turn
 red.
 
-See **guard fields for kind steps** in [REFERENCE.md](../REFERENCE.md#guard-fields-for-kind-steps).
+See **guard fields for kind steps** in the [guard reference](guard-reference.md#guard-fields-for-kind-steps).
 
 A step takes `name`, `command`, `args`, `dir`, `env` (added to the inherited
 environment for that step only), `output` (the same `must` / `mustNot` / `retry`
@@ -196,7 +196,7 @@ the marshalled result.
   "decision": "blocked", "command": ["x3", "scan", "internal"] }
 ```
 
-See **the guard report fields** in [REFERENCE.md](../REFERENCE.md#the-guard-report-fields).
+See **the guard report fields** in the [guard reference](guard-reference.md#the-guard-report-fields).
 
 **No timestamp unless you ask for one**: the same configuration and the same
 answers must produce the same bytes.
@@ -233,4 +233,4 @@ runs that wrap a command and runs that only measure guards: an expectation a
 command-less run can never satisfy is stale, while a reason it does not need is
 simply not needed.
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

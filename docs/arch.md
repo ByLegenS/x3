@@ -45,7 +45,7 @@ That is this repository's own section; the engine holds itself to it on every
 A component is a name and a set of path patterns, declared here by path rather
 than labelled in the source, so the shape is reviewed in one place.
 
-See **component path patterns** in [REFERENCE.md](../REFERENCE.md#component-path-patterns).
+See **component path patterns** in the [arch reference](arch-reference.md#component-path-patterns).
 
 That is the whole syntax, and the omission is loud on purpose: a pattern starting
 with `!` is **refused, exit `2`**, in every section that takes patterns. In most
@@ -259,7 +259,7 @@ escape hatches they carry and the engine's own roster have a page of their own,
 
 ### Fields a rule has
 
-See **arch rule fields** in [REFERENCE.md](../REFERENCE.md#arch-rule-fields).
+See **arch rule fields** in the [arch reference](arch-reference.md#arch-rule-fields).
 
 Configuration is validated **strictly and up front**: an unknown key, a key
 belonging to another kind, a missing required key, a duplicate `name`, an
@@ -338,6 +338,6 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 ### Error codes
 
-See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
+See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

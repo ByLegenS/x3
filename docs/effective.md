@@ -47,7 +47,7 @@ has.
 
 ### Fields a check has
 
-See **effective check fields** in [REFERENCE.md](../REFERENCE.md#effective-check-fields).
+See **effective check fields** in the [effective reference](effective-reference.md#effective-check-fields).
 
 **Retries exist because the world lags the record** — a process reloads a moment
 after the row changes. One attempt is the default precisely so a retry is a
@@ -60,7 +60,7 @@ A reading is a `sql`, `http` or `exec` source, and every field documented under
 [Live guards in `x3.json`](guard.md#live-guards-in-x3json) applies unchanged. Two are
 added and two are **not allowed**:
 
-See **effective reading fields** in [REFERENCE.md](../REFERENCE.md#effective-reading-fields).
+See **effective reading fields** in the [effective reference](effective-reference.md#effective-reading-fields).
 
 `map` is what makes two spellings of the same setting comparable. A value the
 map does not cover is *not* an error — it goes into the comparison unchanged, so
@@ -88,4 +88,4 @@ with `-stamp`.
 Secrets follow the guards' law, and `TestEffectiveSecretNeverLeaves` holds it
 for this report specifically.
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

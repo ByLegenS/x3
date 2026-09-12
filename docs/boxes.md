@@ -53,7 +53,7 @@ leaves closing without proof free.
 
 ### The criteria
 
-See **boxes criteria fields** in [REFERENCE.md](../REFERENCE.md#boxes-criteria-fields).
+See **boxes criteria fields** in the [boxes reference](boxes-reference.md#boxes-criteria-fields).
 
 `match` is read with `^` and `$` bound to a **line**
 ([how](patterns.md#how-a-pattern-is-read)). The sharp edge is `absent`: a `pattern` that
@@ -228,7 +228,7 @@ one of the six criteria. Everything a criterion needs but a document should not
 repeat — the DSN variable, the runner `prefix`, the separators — lives in the
 kind, not in the line.
 
-See **boxes criteria written in prose** in [REFERENCE.md](../REFERENCE.md#boxes-criteria-written-in-prose).
+See **boxes criteria written in prose** in the [boxes reference](boxes-reference.md#boxes-criteria-written-in-prose).
 
 Place and expression split at the first space, so a path containing one is
 quoted, and **a quote that never closes is a configuration error** on that line
@@ -357,4 +357,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

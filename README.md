@@ -17,18 +17,18 @@ and the settings it reads. All of it is generated from the engine's own
 capability document at build time, so no page can describe a version that does
 not exist.
 
-The lookup tables — field names, error codes, exit codes — are in
-[REFERENCE.md](REFERENCE.md), written in the same run from the same document;
-every page links to the table it uses.
+The lookup tables — field names, error codes, exit codes — sit beside the
+guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
+and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.137.1`**
+**Current version: `v0.138.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `c093dbb727cf1432726f7e8ea3542d32d7382f0316d588f1d3c3007186451f6c` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `0c17c9110f77af9e66133ba3160ee87d2d5c4c232e41c590d29d4a166c979d48` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `254e25d9fbee84d2b84993156b24b6ba644389dbb019665cccfccb5b03db111f` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `7691404a98e614eec007a3a789de917792ad295ce01ea67194f08652c21be754` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -258,4 +258,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.137.1 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.138.0 capabilities=f63b177d435cdd61e34235067c446339025b12c519a1cb36f46e1e0052e6dd2c template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
