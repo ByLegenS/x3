@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.140.0`**
+**Current version: `v0.141.0`**
 
 | Page | What it covers |
 |---|---|
@@ -32,6 +32,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The engine read as a set](sets-roster.md) | the checks a settings file puts in force, the commands the binary carries, and the calls a gate script really makes |
 | [The container a value sits in](sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Is this call inside that condition](sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
+| [Where the container ends](sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -79,4 +80,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.140.0 capabilities=b8445c1227f160e93100c6d30aa776467b63ccee66c2b1d4455c262b73b1ed73 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.141.0 capabilities=766f6a0c8fc2af6b7d6fc9bc993bd7568b52aff3738b034a1bdf30eb171edf54 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

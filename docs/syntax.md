@@ -48,4 +48,4 @@ A check reads the files its `sources` match. Which files a check is **about**
 can also be asked of what a file holds: [Which files the check is
 about](syntax-subjects.md#which-files-the-check-is-about).
 
-<!-- x3-dist version=v0.140.0 capabilities=b8445c1227f160e93100c6d30aa776467b63ccee66c2b1d4455c262b73b1ed73 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.141.0 capabilities=766f6a0c8fc2af6b7d6fc9bc993bd7568b52aff3738b034a1bdf30eb171edf54 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

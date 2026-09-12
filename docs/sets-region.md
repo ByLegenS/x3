@@ -39,10 +39,9 @@ the direction the control experiment measures.
 | `region` | which **container** a value was found inside |
 
 `parts` with `join` already pairs a container with its value when a region holds
-**one** — the block is captured whole and the two pieces are glued. It breaks on
-the ordinary case: a region holding several values glues *all* of them into one
-name (`branch:a:b`) that no set will ever carry, and `each` drops the container
-instead. Measured before this was written; that gap is the whole reason for it.
+**one** — the block is captured whole and the pieces glued. It breaks on the
+ordinary case: several values in one region glue into one name (`branch:a:b`) no
+set carries, and `each` drops it instead. Measured before this was written.
 
 ### The laws
 
@@ -59,9 +58,10 @@ instead. Measured before this was written; that gap is the whole reason for it.
 
 ### Where a region ends, and what a comment does to it
 
-A region runs to the next boundary — **not** to the end of the function it names
-— so the doc comment of the *next* declaration sits inside it, and an inline
-example written there reads as production code:
+Unless a closing is written ([Where the container
+ends](sets-closing.md#where-the-container-ends)), a region runs to the next
+boundary — **not** to the end of the function it names — so the doc comment of
+the *next* declaration sits inside it, and it reads as production code:
 
 ```go
 func (m *App) ConnectionTypes() []Field { return []Field{{Key: "phone"}} }
@@ -77,4 +77,4 @@ drawn on the same blanked text** — a heading inside a comment cannot open a
 region either. The real fields are still read, so the green is measured rather
 than empty; both directions run over one tree.
 
-<!-- x3-dist version=v0.140.0 capabilities=b8445c1227f160e93100c6d30aa776467b63ccee66c2b1d4455c262b73b1ed73 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.141.0 capabilities=766f6a0c8fc2af6b7d6fc9bc993bd7568b52aff3738b034a1bdf30eb171edf54 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

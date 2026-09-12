@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the
 guides, one reference page per family, listed in [REFERENCE.md](REFERENCE.md)
 and written in the same run; every page links to the table it uses.
 
-**Current version: `v0.140.0`**
+**Current version: `v0.141.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `633e215dce84cadff1d6fa3806c264e33d724206f67e44b1436176d420d1393c` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `ad641614e074053e1885e8a73977a7c7f8aec0be5bcacb5fc95e8ea300c52d1c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `e64bd32e1448666984c9bd93ac4b061f0098a2ca22a69b51745ff0546c1776a0` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `6132d9fa3dfac884a819821b623f6bbd3d15e3daee83580fd6e4ce6e9563a053` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -170,6 +170,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The engine read as a set](docs/sets-roster.md) | the checks a settings file puts in force, the commands the binary carries, and the calls a gate script really makes |
 | [The container a value sits in](docs/sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Is this call inside that condition](docs/sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
+| [Where the container ends](docs/sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -260,4 +261,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.140.0 capabilities=b8445c1227f160e93100c6d30aa776467b63ccee66c2b1d4455c262b73b1ed73 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.141.0 capabilities=766f6a0c8fc2af6b7d6fc9bc993bd7568b52aff3738b034a1bdf30eb171edf54 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

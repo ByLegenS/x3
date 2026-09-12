@@ -75,9 +75,11 @@ a repeated group, which is why capture groups alone cannot do this.
 **Where the value stands.** A value can be right and still be in the wrong
 place. `region` carries the container a value sits in into the set
 ([The container a value sits in](sets-region.md#the-container-a-value-sits-in)),
-and `holds` turns that container into a question — *was this call written
-inside a condition that asks?* ([Is this call inside that
-condition](sets-holds.md#is-this-call-inside-that-condition)).
+`holds` turns that container into a question — *was this call written inside a
+condition that asks?* ([Is this call inside that
+condition](sets-holds.md#is-this-call-inside-that-condition)) — and `until`
+gives the container an end ([Where the container
+ends](sets-closing.md#where-the-container-ends)).
 
 **Prose is not code.** A name in a comment does not run, so `comments: "exempt"`
 drops comment text before the pattern reads (`checked` is the default); `syntax`
@@ -171,4 +173,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.140.0 capabilities=b8445c1227f160e93100c6d30aa776467b63ccee66c2b1d4455c262b73b1ed73 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.141.0 capabilities=766f6a0c8fc2af6b7d6fc9bc993bd7568b52aff3738b034a1bdf30eb171edf54 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
