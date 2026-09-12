@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.123.0`**
+**Current version: `v0.124.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `bbd493cc72e26a34d8239391e7300fb665a855c99d805212ac68ab8b800295c7` |
-| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `e24b759b97e931fa041400ea2f516bee36d4d561bd93bf39fb088233705c12bc` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.5 MB | `143472061d8f29ff384c390e3f94c4f6ba5fc9ed8be3ed28617479333ebed5d3` |
+| `x3-linux-amd64` | linux/amd64 | 14.1 MB | `6b0ec9e0fb45a76f541fc5bfd911ffba8cadedf65d06d9bfec32e93d2b4224f5` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -166,6 +166,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
 | [A baseline belongs to the root it measured](docs/baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
 | [A baseline two branches write](docs/baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
+| [One debt, one file, one writer](docs/baseline-segments.md) | the split that gives a region or a rule its own baseline file, and the two axes a part may own |
 | [Changes that must not travel alone](docs/docs.md) | a change under one path that requires a change under another in the same diff |
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
@@ -243,4 +244,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.123.0 capabilities=b0528e92f0eecaaed4d3d24aa0d548943df4de890c8d41d68593fea3187c3852 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.124.0 capabilities=2a78d3c8bbcbbd5a748b56e37baa25f6bc5b5c75586cf4c71127501f6048d067 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

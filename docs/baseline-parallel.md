@@ -20,56 +20,6 @@ merged:                 "count": 3, 2 findings      <- nobody was asked
 Adjacent records are the other half: there the merge *does* conflict, and
 resolving it means editing a data file by hand.
 
-### A segment owns its paths, and writes its own file
-
-```json
-{ "baseline": { "dir": "baselines",
-                "segments": { "billing": ["apps/billing/**"],
-                              "web":     ["services/web/**"] } } }
-```
-
-| Finding under | Written to |
-|---|---|
-| `apps/billing/**` | `baselines/comments.billing.json` |
-| `services/web/**` | `baselines/comments.web.json` |
-| anything else | `baselines/comments.json` |
-
-Two workers, each in its own region, now write two different files. Git has
-nothing to merge.
-
-`segments` is an **object**, so the parts a root configuration `include`s merge
-into it key by key: each region declares its own baseline where it declares
-everything else about itself. The directory stays single and is still resolved
-[beside the root configuration](configuration.md#a-relative-path-is-relative-to-the-configuration)
-— the split changes the file **name**, never the base.
-
-### The split divides the files, not the set
-
-Reading is unchanged: a finding is held if **any** of the files holds it, so
-declaring a segment on a tree that already has a baseline keeps every gate
-exactly as green as it was. The next `-update-baseline` re-routes each record to
-the file that owns it and says so:
-
-```text
-x3 comments: 612 finding(s) moved into the segment that owns them;
-             the debt did not change, only the file that holds it
-```
-
-A move is a third direction next to growth and shrink: the debt neither appears
-nor dies, so the growth refusal does not block it and the drop report does not
-claim it. It happens once.
-
-| Written this way | Result |
-|---|---|
-| a name that is not a file name | exit `2` — the name becomes part of a path |
-| a segment owning no path | exit `2` — nothing would ever be written to it |
-| `segments` without `dir` | exit `2` — the split lives under the directory |
-| one path in two segments | exit `2` — a finding has one home, or two runs write it |
-| the same id in two files | exit `2` — each run would believe the other froze it |
-
-The last two are the same law seen twice: **one debt, one record, one writer.**
-Give it two and the split has bought nothing.
-
 ### A broken baseline can still be repaired
 
 Such a file is refused with exit `2`, and the message names both ways it
@@ -83,4 +33,4 @@ list of 602`). Without it the only ways out were editing a data file by hand, or
 deleting the baseline and regenerating it, which writes **"I owe nothing"** over
 the whole debt.
 
-<!-- x3-dist version=v0.123.0 capabilities=b0528e92f0eecaaed4d3d24aa0d548943df4de890c8d41d68593fea3187c3852 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.124.0 capabilities=2a78d3c8bbcbbd5a748b56e37baa25f6bc5b5c75586cf4c71127501f6048d067 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
