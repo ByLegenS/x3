@@ -9,7 +9,7 @@ settings file, a script the browser loads at run time. The server still answers
 200 and the screen is simply blank.
 
 ```
-x3 syntax [-config <file>] [-out <file>] [-baseline <file>] [-update-baseline] [dir]
+x3 syntax [-config <file>] [-out <file>] [-check <names>] [-baseline <file>] [-update-baseline] [dir]
 ```
 
 The gate does not guess which parser a file wants; a project declares it, and
@@ -35,6 +35,13 @@ on a machine without the tool reports green having verified nothing. A project
 that genuinely wants it optional writes `"missing": "warn"`. A check whose
 sources match nothing is `empty_scope`.
 
+`-check` runs only the checks named, comma separated. It exists for the
+experiment that proves one check reads what its author thinks: such a test
+builds a tiny tree where every *other* check matches nothing, and the run would
+be `empty_scope` red for reasons the experiment is not about. Narrowing does not
+blind - the named check still measures, the report carries `selected`, and a
+name no check carries is a configuration error rather than a silent empty run.
+
 A `deny` check may also carry `directives: "skip"`, which keeps the engine's own
 `//x3:` lines out of what the pattern reads — [The engine's own
 lines](patterns.md#the-engines-own-lines). On `as` or `run` it is a configuration error:
@@ -50,4 +57,4 @@ about](syntax-subjects.md#which-files-the-check-is-about). And the tree a glob t
 path too wide, while a comment explaining a rule is not a breach of it: [What a
 check does not read](syntax-scope.md#what-a-syntax-check-does-not-read).
 
-<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

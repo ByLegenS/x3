@@ -27,8 +27,8 @@ value; it is a **set of rows** — every column, every constraint, every index.
 | `query` | no | left out, the guard's own query: *the same question, two databases*. Written, the other side may ask its own — two schemas that keep the same truth in different shapes |
 | `driver` | no | defaults to `pgx`, like the guard's own |
 
-`sameRowsAs` is an expectation, so it takes the place of `equals` and
-`contains`; writing it next to one of them is refused. A guard compares a set
+`sameRowsAs` is an expectation, so it takes the place of `equals`, `contains`
+and `notContains`; writing it next to one of them is refused. A guard compares a set
 or a value, never both — otherwise which reading turned it red is unreadable.
 
 ### One column, and a set
@@ -67,4 +67,4 @@ Nothing here creates it. [`x3 testdb`](testdb.md#a-fresh-database-for-this-run)
 does: it clones or creates one, runs the migrations as its setup steps, and
 hands the DSN over through the environment under the name this guard reads.
 
-<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

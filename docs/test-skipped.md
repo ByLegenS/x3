@@ -15,7 +15,7 @@ and says the same word.
 
 ```json
 { "test": {
-    "skips": { "pattern": "^\s*--- SKIP: (\S+)", "name": 1,
+    "skips": { "pattern": "^\\s*--- SKIP: (\\S+)", "name": 1,
                "policy": "block", "max": 0 } } }
 ```
 
@@ -42,4 +42,29 @@ all is a legitimate result and a gate that called it a fault would redden every
 healthy tree. Prove the reading once by making a test skip on purpose and
 watching the count move.
 
-<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+### Where the count can be written
+
+`skips` has two homes and they are not interchangeable.
+
+Inside `test` it belongs to the selective run, so the whole section has to hold:
+`units`, `imports` and `run` are each mandatory, and a settings file carrying
+`skips` alone is refused - without units no file belongs anywhere and nothing
+can be selected. A project that runs its own runner cannot adopt the reading
+there, and would end up writing the count a second time in a script of its own.
+
+The second home is the expectation written on a **wrapped** command, and it is
+open to any project whatever its runner is:
+
+```json
+{ "live": { "command": {
+    "skips": { "pattern": "^\\s*--- SKIP: (\\S+)", "name": 1, "max": 0 } } } }
+```
+
+`x3 guard -- <your runner>` reads what the runner printed, counts the lines the
+pattern matched and names the tests it counted. `pattern`, `name`, `max` and
+`listed` mean what they mean above; `policy` does not appear, because every
+expectation written on a wrapped command already binds. The runner's own exit
+code is the other half and it is read as well: a runner that says `ok` while
+skipping everything is red on the count alone.
+
+<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

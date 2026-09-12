@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.147.0`**
+**Current version: `v0.148.0`**
 
 ## guard exit codes
 
@@ -29,7 +29,7 @@
 | `dsnEnv` | yes | **name** of the variable holding the DSN; the DSN never appears in the file |
 | `query` | yes | its first row, first column is the observed value |
 | `driver` | no | defaults to `pgx`; a name this binary has not registered is a configuration error (exit `2`) |
-| `equals` / `contains` / `sameRowsAs` | one of them | the first two say what the observed value must be; the third compares row **sets** against a second connection (§ [Two schemas, one question](docs/guard-rows.md#two-schemas-one-question)) |
+| `equals` / `contains` / `notContains` / `sameRowsAs` | one of them | the first three say what the observed value must, or must not, be; the last compares row **sets** against a second connection (§ [Two schemas, one question](docs/guard-rows.md#two-schemas-one-question)) |
 
 ## guard fields for kind http
 
@@ -39,7 +39,7 @@
 | `status` | yes | the expected status code |
 | `headerEnv` | no | header name → **name** of the variable holding its value |
 | `jsonPath` | no | an RFC 6901 JSON Pointer into the body; without it the whole body is the value |
-| `equals` / `contains` | no | with only `status`, the status code alone is the assertion |
+| `equals` / `contains` / `notContains` | no | with only `status`, the status code alone is the assertion |
 
 ## guard fields for kind exec
 
@@ -47,7 +47,7 @@
 |---|---|---|
 | `command` | yes | executable to run |
 | `args` | no | its arguments |
-| `equals` / `contains` | no | what its trimmed stdout must be; without either, **exit code 0** is the assertion |
+| `equals` / `contains` / `notContains` | no | what its trimmed stdout must, or must not, say; without any of them, **exit code 0** is the assertion |
 
 ## guard fields for kind steps
 
@@ -55,7 +55,7 @@
 |---|---|---|
 | `steps` | yes | run **in order**; the first that does not hold ends the trial and names itself |
 | `workspace` | no | a temporary working area: `copy` (required within it), `remove`, `write` |
-| `equals` / `contains` | no | what the **last** step's output must be; without either, every step holding is the assertion |
+| `equals` / `contains` / `notContains` | no | what the **last** step's output must, or must not, say; without any of them, every step holding is the assertion |
 
 ## the guard report fields
 
@@ -71,4 +71,4 @@
 | `measured` | the wrapped command's output weighed against `live.command`; absent only when `live.unweighed` excuses it |
 | `startedAt` | present **only** with `-stamp` |
 
-<!-- x3-dist version=v0.147.0 capabilities=ec7474ac3ae437e0e7b4c481e6241021d5e7b6a9a998088c3a6178cf6d8f00af template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.148.0 capabilities=55e7b1ecf9f883aca1c04bd910648430f82c11bba1b1e2db63348f9a623d62d2 template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
