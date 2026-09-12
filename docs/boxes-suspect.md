@@ -88,4 +88,36 @@ The answer needs **no run at all**, and that is the point. In a shell that canno
 reach the runner, the database or the network, every criterion is unmeasured and
 a box closed on a vanished name looks exactly like the rest of the noise.
 
-<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+### A proof the prose shows and the tree no longer carries
+
+A box says more than its criterion. Its body names the exams that prove it —
+*"the gates for this: `TestCreditRateIsKept` · `TestTierShareIsNotZero`"* — and
+those sentences reach no runner at all. Rename the exam and the criterion goes
+red; rename it and the **sentence** stays, showing a proof nobody can open, and
+the next reader believes it.
+
+The shape of such a name belongs to the project, so it is declared:
+
+```json
+{ "boxes": { "evidence": { "names": ["\\b(Test[A-Z]\\w+)\\b"], "policy": "block" } } }
+```
+
+Each pattern captures exactly one group — the name — and the names found in a
+box's **prose** are looked up among the declarations of the tree. The criterion
+line itself is skipped: it is measured by its own law, and a name reported twice
+reads as two debts. `policy` defaults to the section's.
+
+**The state of the box is the whole rule.** A **closed** box naming a proof that
+no declaration carries is `box_dead_evidence`; an **open** box naming one is
+silent, because a plan is written that way — the criterion first, the exam after.
+Measured on a real production Go application: closed boxes named 66 such
+proofs and **44** of them were gone, open boxes named 6 and 3 were unwritten.
+Without the split, the one class that is a debt would arrive mixed with the one
+that is a plan, and nobody reads a gate that shouts at plans. That measurement
+is also why this finding **can** be frozen into a baseline, unlike a dead
+selector: a stale sentence is how a list was written, not a gate burning green,
+and a rule that cannot be adopted on a real tree never catches tomorrow's lie
+either. A declaration that reads no name at all is exit `2`, and so is a tree in
+which not one declaration can be read.
+
+<!-- x3-dist version=v0.160.0 capabilities=e88f95261480eb59757c7a6380cf3f12994a6220aec98dc46bd65ac5e6967e82 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

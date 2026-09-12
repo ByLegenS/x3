@@ -201,7 +201,8 @@ x3 boxes -baseline baselines/boxes.json -update-baseline   # freeze what stands 
 
 What may be frozen is **how the list is written today** — `box_uncovered`,
 `box_record`, `box_unlisted`, `box_unknown_state`, `box_owner`, `box_moved`,
-`box_suspect`. What may **never** be frozen is what the list *claims*:
+`box_suspect`, `box_dead_evidence`. What may **never** be frozen is what the list
+*claims*:
 `box_finished`, `box_unproven`, `box_unmeasured`, `box_dead_selector` and
 `dead_step_selector` (freezing them makes finished work sit open forever, closing
 without proof free, and a gate that measures nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
@@ -288,4 +289,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.160.0 capabilities=e88f95261480eb59757c7a6380cf3f12994a6220aec98dc46bd65ac5e6967e82 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

@@ -55,6 +55,20 @@ wrong, leaving a file in the tree is the cheap one. Measured on one repository's
 twelve declared procedure documents: one such line, holding one exam file, while
 all 34 lines that do run something begin with `./`, `.\` or an interpreter.
 
+**A comment in a gate is not a step.** A gate script explains itself: why a file
+is scanned, which defect was once measured, what the step used to be called.
+Those sentences name files by name and run nothing — the same class as the
+drawing above, in the language the script is written in. So a line is read as
+its **code**: a full-line comment holds nothing, and a name written after a real
+step (`go test ./src/ -run Parse   # was: src/legacy_test.go`) is not held
+either, while the step's own subject still is. The file is read whole rather than
+line by line, so a block comment is not mistaken for code on its second line, and
+a language whose comment syntax is unknown is read as all code — a `#` heading in
+a markdown procedure document is a heading, and still holds what it names.
+Measured on a real production Go application: two exam files were held by nothing
+but a plain comment (one Python `#`, one PowerShell `#`), and a third name stood
+in the `SUSPECT` list for the same reason.
+
 ### The engine's own example is a third place, and it is not declared
 
 A production file can carry an inline example, and that example's setup runs
@@ -96,4 +110,4 @@ false `held` for every test file it empties — measured, on three counts in one
 tree. An example whose body does not parse falls back to the plain reading:
 a line that cannot be read is not evidence that nothing is bound to it.
 
-<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.160.0 capabilities=e88f95261480eb59757c7a6380cf3f12994a6220aec98dc46bd65ac5e6967e82 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

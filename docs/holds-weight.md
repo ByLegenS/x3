@@ -41,6 +41,29 @@ names **several** places, any one of them covering the file is enough.
 Names are matched **as words**: a criterion saying `jeton` does not hold a
 declaration called `ton`, and one saying `Readiness` does not hold `Read`.
 
+### The exam a criterion names, and has not been written yet
+
+An **open** box may name a file together with the exam that will one day prove
+it — the criterion is written first, the exam follows. Until then that criterion
+matches nothing in that file, and a criterion that measures nothing cannot
+*stop* measuring: the silent green this mode exists to prevent cannot be born
+there. So a `pattern` criterion of an open box that names a file it does not
+match today holds nothing, and the file is free to go.
+
+Three things narrow the rule, each for its own reason:
+
+- **only an open box.** A closed one claims it measures the file today; if that
+  claim is false it is said elsewhere (`box_unproven`), and holding a file one
+  round too long is cheaper than deleting the subject of a claim.
+- **only `pattern`.** An `absent` criterion asks for something *not* to be
+  there, and removing the file would turn it into an empty green for good.
+- **the file's own text is read**, not the tree: the same exam declared in some
+  other package says nothing about this one.
+
+Measured in a pilot: two exam files were held by exactly this writing — an open
+box naming an exam that exists nowhere in the tree — and neither could be
+removed while that was read as a bond.
+
 ### A name whose file is gone
 
 A name already deleted declares nothing anywhere, so there is no file to weigh a
@@ -69,4 +92,4 @@ which records were actually weighed. The two mistakes are not equal: a wrong
 silent green this whole mode exists to prevent — so every class the engine
 cannot decide is counted on the bond side, and said out loud.
 
-<!-- x3-dist version=v0.159.0 capabilities=7f149416d4d1ff326e5dfdfc03d02ef69f7f13faf78170206823bb1ba5536ceb template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.160.0 capabilities=e88f95261480eb59757c7a6380cf3f12994a6220aec98dc46bd65ac5e6967e82 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
