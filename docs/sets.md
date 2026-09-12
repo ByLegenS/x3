@@ -27,6 +27,7 @@ giving each of them a message, so the user reads a raw key on screen.
 | `json` | the keys of one file, nested keys flattened to `a.b.c` | `keys:<pattern>` |
 | `regex` | one capture group, read **line by line** | the pattern itself |
 | `x3` | a settings file read as a **configuration**, or a script read as **calls** | `in-force`, `commands` or `invocations` |
+| `tree` | the paths themselves — which directories and which files exist | `dirs:<pattern>` or `files:<pattern>` |
 
 **What enters the set is what was captured**, not the whole key, so it can be
 compared with the constant that produced it. Because the extractor reads any text
@@ -163,4 +164,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.131.0 capabilities=0ae611848b4d163cdcc7ff33b586ecfda3da08f1e6cf326dffcd8d785144d8ea template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.132.0 capabilities=23f359762a38e46ab4ed0a73511695f04715a1903c0a0e86678febb6d036e65a template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

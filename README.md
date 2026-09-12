@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.131.0`**
+**Current version: `v0.132.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `1c331ff562c934308ec9df7b0464e3d4b5047ae508bf5ff676734d941f6ddce6` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `00e77d2fab10317e4d03619a76ac48506b47223313b826191d4a8fd0586336b9` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `57f6a7876deaa10eab9cf2a00c2d70536a70258b1e34951b37440753f5a492b0` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `91f500ce388ad577a5e4702b17ced4545c82a4fdda6615129b43f7b1f5c4b5a5` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -164,6 +164,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Where a restricted value may appear](docs/arch-flow.md) | the places a handle may stand in, and why asking about it is not one of the escapes |
 | [Prose is not code](docs/arch-prose.md) | the comment syntax that tells a rule's reading apart from the file's story, in every language and not only in Go |
 | [The two sets a rule compares](docs/sets.md) | the consistency kind, the extractors that read each side, and the escape hatches they carry |
+| [The tree read as a set](docs/sets-tree.md) | the paths themselves as one side of a comparison, so that a directory missing the very file a rule requires is still asked about |
 | [The engine read as a set](docs/sets-roster.md) | the checks a settings file puts in force, the commands the binary carries, and the calls a gate script really makes |
 | [The container a value sits in](docs/sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
@@ -252,4 +253,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.131.0 capabilities=0ae611848b4d163cdcc7ff33b586ecfda3da08f1e6cf326dffcd8d785144d8ea template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.132.0 capabilities=23f359762a38e46ab4ed0a73511695f04715a1903c0a0e86678febb6d036e65a template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
