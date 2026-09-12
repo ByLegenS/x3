@@ -254,4 +254,4 @@ configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.154.0 capabilities=7e5d428879f4d1e56871c497dea26f349c71094333cace058016a37fe08d08ca template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.155.0 capabilities=bd64cc3512a9fc65db0936bc54546917afbce4d7828169eb8afe0fe2307d36ce template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->

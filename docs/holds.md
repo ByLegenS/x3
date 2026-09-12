@@ -35,6 +35,19 @@ and all are named - a guess would be silent when right and wrong when not.
 criterion lean on this name", and it has to be answerable **before** the
 removal, not after it.
 
+**Every verdict carries its address.** The records live in two lists — the ones a
+criterion makes (`holds`, `unsure`) and the ones a declared place makes (`uses`,
+`suspect`) — so a reader looking in one of them sees the other's entries as
+verdicts with nothing behind them. Measured on one tree: of 25 `held` entries, 8
+were recorded in `holds` and 17 in `uses`; none was addressless, and 17 looked it.
+A verdict nobody can check is worse than no verdict, because the next step is
+deleting a file. So `resolved[].heldBy` names the places that made the verdict —
+`<document>#<box>` for a criterion, `<file>:<line>` for a place — and the terminal
+line prints them beside the verdict. It is collected **where the verdict is set**,
+not by scanning the report afterwards: a second pass could pick up a record that
+did not make the verdict, and once the two come from different sets they drift.
+A `free` entry carries none, because there is nothing to show.
+
 | `how` | The criterion | A search would |
 |---|---|---|
 | `text` | writes the name in its own words — `match`, `path`, `sources`, `query`, an argument | find the line, but not which box it belongs to, nor whether that box is open |
@@ -75,4 +88,4 @@ Red when a name is held **or** when a record could not be weighed, green when
 neither. The summary counts the criteria it read, so a green answer from a list
 carrying **no** criteria can be told apart from a green that measured something.
 
-<!-- x3-dist version=v0.154.0 capabilities=7e5d428879f4d1e56871c497dea26f349c71094333cace058016a37fe08d08ca template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
+<!-- x3-dist version=v0.155.0 capabilities=bd64cc3512a9fc65db0936bc54546917afbce4d7828169eb8afe0fe2307d36ce template=d6bc32c7a50d63dff3c2e3a215156b8f0c9ba214600907d4b4b40c9d4169d73d -->
