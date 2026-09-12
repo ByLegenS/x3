@@ -4,7 +4,7 @@
 
 ## The program a command name means
 
-Several settings hand the engine a command to run: a migration hook, the command
+Several settings hand the engine a command to run: a setup step, the command
 `testdb run` and `guard` wrap, the `command` criterion behind a box or a guard,
 and the external parser `syntax` calls. All of them take the command as a
 **name**, and a bare name is resolved against `PATH`.
@@ -42,4 +42,4 @@ the project can write out.
   "args": ["-c", "exec go run ./cmd/app -migrate"] } } }
 ```
 
-<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.129.0 capabilities=f407b41733163dd348e141d538fa5d3f1f5a9f6c3f9f9b5019029a55fdf4d2fc template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

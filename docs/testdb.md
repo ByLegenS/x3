@@ -69,7 +69,7 @@ born in 1970 and look infinitely stale. A stamp outside **2025-01-01 … now +
 ```json
 { "testdb": { "adminDsnEnv": "APP_ADMIN_DSN", "template": "app_test_template",
     "prefix": "apptest_", "dsnEnv": "APP_TEST_DSN", "maxAgeMinutes": 120,
-    "migrate": { "command": "./migrate", "args": ["up"], "timeoutMs": 60000 } } }
+    "setup": [{ "command": "./migrate", "args": ["up"], "timeoutMs": 60000 }] } }
 ```
 
 See **testdb settings** in [REFERENCE.md](../REFERENCE.md#testdb-settings).
@@ -79,8 +79,8 @@ name changed**, so credentials and options carry over; both PostgreSQL spellings
 are understood. **The creation time is in the name** — PostgreSQL does not record
 it — which is what lets `-stale` work on any server with no extra table and no
 privileges, and it is also why a database x3 did not name has no age and is
-never touched. **If the migration hook fails, the database is dropped**: a
-half-built schema is worse than none.
+never touched. **If a setup step fails, the database is dropped**: a half-built
+schema is worse than none.
 
 ### Secrets and errors
 
@@ -90,4 +90,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.129.0 capabilities=f407b41733163dd348e141d538fa5d3f1f5a9f6c3f9f9b5019029a55fdf4d2fc template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

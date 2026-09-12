@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.128.0`**
+**Current version: `v0.129.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `38a19476bb836f54286ddd2a550a0ab43f140548d93efed4631ea2c3669a10d7` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `0fd325efcb2c0ad9467fb71c1a999a51def0e08d15251dd8e8681bbe568d6766` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `32d9cd5754fede42699437791f0571410b69210f8fa44094ef2ce41b858722be` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `6dd7a1e6abb5a87cbb93ad83827476e6edff7fae5f4ba4653e32b2d0fd7e5482` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -197,6 +197,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [The program a command name means](docs/commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
+| [Getting the database ready](docs/testdb-setup.md) | the ordered steps a fresh database is prepared with, and the variables each one is handed |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
@@ -250,4 +251,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.129.0 capabilities=f407b41733163dd348e141d538fa5d3f1f5a9f6c3f9f9b5019029a55fdf4d2fc template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

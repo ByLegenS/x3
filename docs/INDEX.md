@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.128.0`**
+**Current version: `v0.129.0`**
 
 | Page | What it covers |
 |---|---|
@@ -59,6 +59,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The version, and how it updates itself](update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [The program a command name means](commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
 | [A fresh database for this run](testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
+| [Getting the database ready](testdb-setup.md) | the ordered steps a fresh database is prepared with, and the variables each one is handed |
 | [Speed, the cache, and what a run leaves behind](speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [A rule is declared where it applies](placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
@@ -69,4 +70,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.128.0 capabilities=796b04d7c3d74701288af9fa0577abc2b3913672a31190f52dd3e2d10c7a8e1e template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.129.0 capabilities=f407b41733163dd348e141d538fa5d3f1f5a9f6c3f9f9b5019029a55fdf4d2fc template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
