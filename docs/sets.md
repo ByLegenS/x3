@@ -72,6 +72,13 @@ a path missing on every run:
 Exactly one of `join` and `each` is written. RE2 keeps only the **last** match of
 a repeated group, which is why capture groups alone cannot do this.
 
+**Where the value stands.** A value can be right and still be in the wrong
+place. `region` carries the container a value sits in into the set
+([The container a value sits in](sets-region.md#the-container-a-value-sits-in)),
+and `holds` turns that container into a question — *was this call written
+inside a condition that asks?* ([Is this call inside that
+condition](sets-holds.md#is-this-call-inside-that-condition)).
+
 **Prose is not code.** A name in a comment does not run, so `comments: "exempt"`
 drops comment text before the pattern reads (`checked` is the default); `syntax`
 declares per-extension markers, and `quoted[].line` reaches the comment of a
@@ -164,4 +171,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.136.0 capabilities=199e2bbec4fea082717a184864ff858991f224bd6b83038c02d8f9b48f610c4c template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.137.0 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->

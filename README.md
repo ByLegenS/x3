@@ -21,14 +21,14 @@ The lookup tables — field names, error codes, exit codes — are in
 [REFERENCE.md](REFERENCE.md), written in the same run from the same document;
 every page links to the table it uses.
 
-**Current version: `v0.136.0`**
+**Current version: `v0.137.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `d40dc5d1feafae7f9ed780c88e3c723e3233466eec8a417c48e00b157f5a5735` |
-| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `fde9813aa97492159d4e9976b30ef7da6774f903ebe29368cf40cf2494d9b2e7` |
+| `x3-windows-amd64.exe` | windows/amd64 | 14.6 MB | `969535c58159da9e2b6f44f1e309c2d216815f640ed440eb118eaba32948149e` |
+| `x3-linux-amd64` | linux/amd64 | 14.2 MB | `eae0357c900944e216069e89fb5c7daceb79ccf8d3242397a96da462d4621c50` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -169,6 +169,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The tree read as a set](docs/sets-tree.md) | the paths themselves as one side of a comparison, so that a directory missing the very file a rule requires is still asked about |
 | [The engine read as a set](docs/sets-roster.md) | the checks a settings file puts in force, the commands the binary carries, and the calls a gate script really makes |
 | [The container a value sits in](docs/sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
+| [Is this call inside that condition](docs/sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -257,4 +258,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.136.0 capabilities=199e2bbec4fea082717a184864ff858991f224bd6b83038c02d8f9b48f610c4c template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
+<!-- x3-dist version=v0.137.0 capabilities=ffea64aad496c0c9166d36c68ab6bb408247d2a234a93d00c5f07efb99ce7f94 template=36de115a7d2b7ce379f073b81526b976f20d62ea52cb57c9054b36ca5cdb0a46 -->
