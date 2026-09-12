@@ -109,6 +109,27 @@ component may not spell such a name at all. Writing both is refused. [Comments
 are exempt](arch-prose.md#prose-is-not-code) in every language it reads; exemptions cover Go
 only, since a `.sql` file has nowhere to write one.
 
+**An owner no instance carries.** The pattern decides who the owner is, and it
+can be wrong: `db_session_token` gives `modules/session`, and if no module is
+called `session` then **no file can belong to it** — so every file spelling that
+name is a violation, and the rule invents work that does not exist. Measured on
+a real production Go application, one pattern produced **1601** such findings,
+another 372, a third 44, and the only way out was writing character classes ugly
+enough to exclude the words by hand.
+
+```json
+{ "owner": "modules/${owner}", "unknownOwner": "ignore" }
+```
+
+`ignore` says a captured word that names **no instance of the component** is not
+an ownership claim at all — the pattern over-matched, and only the project can
+know that. `report` is the default and keeps today's reading, so nothing changes
+for a rule already written.
+
+It cannot be used as an off switch: if **every** match was dropped, the rule
+weighed no ownership at all and the run is `empty_scope` red, naming how many
+were dropped. A setting that silences a rule completely has to say so.
+
 ### The `symbol` matcher — capabilities, not layers
 
 **Catches:** a component using a capability — encrypting, opening an outbound
@@ -357,4 +378,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in [REFERENCE.md](../REFERENCE.md#arch-error-codes).
 
-<!-- x3-dist version=v0.114.0 capabilities=c20396abae26df1648d6f2f7acb006448998f99e4002b7eaa056b56f8ba32092 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.115.0 capabilities=2952ef7095047d7743855a0fc84a96df30d195e198a70bd16abf8d35f8fbb94b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->

@@ -7,7 +7,7 @@ document in one run, so no two can describe different versions.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.114.0`**
+**Current version: `v0.115.0`**
 
 ## scan exit codes
 
@@ -101,6 +101,7 @@ document in one run, so no two can describe different versions.
 | `match` | `deps` only | `import`, `literal` or `symbol` |
 | `from`+`deny` / `to`+`allowFrom` | deps | the outward / inward question |
 | `pattern`+`owner` / `pattern`+`from` | literal | ownership / prohibition |
+| `unknownOwner` | literal | `report` (default) or `ignore` a captured owner no instance carries |
 | `marker` | required | the mark every file in `sources` must carry |
 | `counterpart`+`requires` | pairing | the file that must name this one |
 | `value`+`allow` | flow | the value to follow, and where it may appear |
@@ -289,4 +290,4 @@ document in one run, so no two can describe different versions.
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `migrate` | no | `command`, `args`, `timeoutMs`, run after creation with the DSN in the environment |
 
-<!-- x3-dist version=v0.114.0 capabilities=c20396abae26df1648d6f2f7acb006448998f99e4002b7eaa056b56f8ba32092 template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
+<!-- x3-dist version=v0.115.0 capabilities=2952ef7095047d7743855a0fc84a96df30d195e198a70bd16abf8d35f8fbb94b template=c40035a911f18207838ce450f42d40bb4e85fe48362e4b316bf413025402ab83 -->
