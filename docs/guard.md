@@ -25,10 +25,12 @@ the guard in front of it.
 | all pass | `launch` | the command runs; x3 exits with its exit code |
 | red, all of them `policy: warn` | `launch` | the command runs; each red is printed as `WARN` first |
 | at least one red with `policy: block` | `blocked` | **the command is never started**; x3 exits `1` |
+| a `block` guard could not run at all | `blocked` | **the command is never started**; x3 exits `2` |
 
 A guard that could not run at all — missing variable, unreachable host, unknown
 driver — counts as red. **A live guard whose answer is unknown is not an
-answer**, and the switch is fail-closed.
+answer**, and the switch is fail-closed. It gets its own exit code because
+stopping is only half the story: see [below](#i-could-not-measure-is-not-i-measured-and-it-is-red).
 
 ### Choosing which guards run
 
@@ -57,6 +59,24 @@ otherwise skip nothing and read as if it had), a selection that leaves no guard,
 and an empty tag. Whatever a selection dropped is named in the report's
 `skipped` list and in the stderr summary: **a check that did not run must never
 look like a check that passed.**
+
+### "I could not measure" is not "I measured, and it is red"
+
+Both stop the command, so for a long time both exited `1`. The gap is not
+cosmetic: a **control experiment** that breaks a guard on purpose and checks for
+a red gets its red either way — including on the day the guard measured nothing
+at all, because a variable was unset or the host was down. It passes while
+proving nothing. So a run that could not measure exits **`2`**:
+
+```
+ERROR ledger-rows (sql): environment variable APP_DSN is empty
+x3 guard: 1 guard(s) - 0 pass, 0 warn, 1 block, 1 of them unmeasured - command not started
+```
+
+Two reds are deliberately **outside** that count: one under `policy: warn` — a
+project may say a guard is allowed to be absent, and such a run still launches —
+and a `dead_baseline` record, which is not a failure to measure but the
+measurement that a frozen red is no longer produced.
 
 ### Exit codes
 
@@ -322,4 +342,4 @@ configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

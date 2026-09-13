@@ -2,15 +2,15 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.169.0`**
+**Current version: `v0.170.0`**
 
 ## guard exit codes
 
 | Code | Meaning |
 |---|---|
 | the command's own | the guards allowed the launch |
-| `1` | a `block` guard was red, and the command was never started |
-| `2` | the configuration or report could not be read or written, or the command could not start |
+| `1` | a `block` guard **ran** and disagreed; the command was never started |
+| `2` | nothing could be measured: a `block` guard could not run, or the configuration or report could not be read or written, or the command could not start |
 
 ## guard fields every kind has
 
@@ -66,6 +66,7 @@
 | `guards[].policy` | the policy applied to **this** guard — always present, so the report explains its own decision |
 | `expected` / `observed` / `detail` | what was wanted, what was seen, why it was red; secrets already redacted |
 | `summary` | `pass` + `warned` (red under `warn`) + `blocked` (red under `block`) |
+| `summary.unmeasured` | how many of the blocked reds **could not be measured**; absent when none were. It is a part of `blocked`, not a number beside it |
 | `skipped` | the guards a selection left out, by name; absent when nothing was dropped |
 | `decision` | `launch` or `blocked` |
 | `exit` | the command's exit code. **Absent when `decision` is `blocked`** — that absence is the proof the command never ran |
@@ -75,4 +76,4 @@
 | `summary.baselined` | how many reds the baseline held; they are neither passes nor blocks |
 | `startedAt` | present **only** with `-stamp` |
 
-<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

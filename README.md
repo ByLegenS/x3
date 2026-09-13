@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.169.0`**
+**Current version: `v0.170.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.6 MB | `e3b47fab42d7207704fabfe69894e4746b11ead787fcb98f20b0db78c78e442b` |
-| `x3-linux-amd64` | linux/amd64 | 15.2 MB | `14829e0f9b06967b05d6218402845cc1743304cac78239e48f75140b486b6f68` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.6 MB | `7e01f77be1739859bd1b5bcc301b6888027a5a4cfe42b71ba58a6d9d73df32eb` |
+| `x3-linux-amd64` | linux/amd64 | 15.2 MB | `4634db59aea4b3fcd86ea520637fcd532c40d323786e04aa4b60ecff41092d99` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -185,6 +185,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [A work list written as a document](docs/boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
+| [The directory a command criterion runs in](docs/boxes-workdir.md) | the working directory a run measures its commands in, declared by the project and stamped in every report |
 | [A criterion that brings its own expectation](docs/criterion-expect.md) | one kind is one runner, and the line names which of that runner's expectations weighs it |
 | [Work that is not needed yet](docs/criterion-condition.md) | the condition written beside a box, in the same words as its criteria |
 | [Three ways a criterion is lost in the writing](docs/criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
@@ -218,11 +219,13 @@ markers that split this document, so a page cannot be missing from it.
 | [Binding the gate without a permanent red](docs/adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
 | [What is left of a migration](docs/retire.md) | the files a project put on a ledger to delete, counted on every run beside the share of the beginning that is already gone |
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
+| [The environment a measurement needs](docs/environment.md) | the variables a project declares a run cannot measure without, and the commands the contract binds |
 | [The program a command name means](docs/commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
 | [A command started to measure cannot wait for a person](docs/unattended.md) | the console a measured child never inherits, the stdin it already reads as empty, and the streamed run this rule deliberately leaves alone |
 | [A run leaves nothing behind](docs/leftover.md) | the processes a run started and did not take with it, counted from the container they cannot escape rather than guessed from their names |
 | [A fresh database for this run](docs/testdb.md) | a template cloned per run, migrated, dropped, and the leftovers collected |
 | [Getting the database ready](docs/testdb-setup.md) | the ordered steps a fresh database is prepared with, and the variables each one is handed |
+| [The variables the wrapped command is handed](docs/testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
@@ -277,4 +280,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

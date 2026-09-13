@@ -51,6 +51,13 @@ gate is given one**; the `http` kind is control-tested in Go rather than in the
 gate script. Effective checks compare strings too, never remember, and `map` is
 a lookup table, not a rule.
 
+**The environment contract asks whether a variable is written, not whether
+anything answers.** `require` is a lookup: it cannot tell a DSN pointing at a
+dead host from one pointing at a live one, and it will not — a probe in front of
+*every* command is a network round trip and a second way for the entry point to
+fail. Reachability is measured where it has a policy, a timeout, redaction and a
+report: a guard.
+
 **`x3 testdb` speaks PostgreSQL only.** Nothing prevents two runs from sharing a
 template, and it keeps no record of its own beyond what it encodes in a name.
 
@@ -60,4 +67,4 @@ session a severed child is given can be broken by a grandchild that opens one of
 its own, and a container with a hole in it would report an empty one. On those
 machines the run says nothing rather than print an unmeasured green.
 
-<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
