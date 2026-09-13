@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.168.0`**
+**Current version: `v0.169.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.6 MB | `c22354cd02ed31eb94ca4a622b21a4e3b971784824929861c8c817fad9cc0baa` |
-| `x3-linux-amd64` | linux/amd64 | 15.2 MB | `36e179fb087aa980530befe78638c902e9cf98b1f94b5361b93c2898926822c2` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.6 MB | `e3b47fab42d7207704fabfe69894e4746b11ead787fcb98f20b0db78c78e442b` |
+| `x3-linux-amd64` | linux/amd64 | 15.2 MB | `14829e0f9b06967b05d6218402845cc1743304cac78239e48f75140b486b6f68` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -209,6 +209,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Traffic, written down](docs/record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](docs/replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
+| [A guard that builds what it measures](docs/guard-trial.md) | the teardown a trial runs whatever happened, so a gate that sets data up is not the thing that leaves it behind |
 | [The reds a live gate starts with](docs/guard-baseline.md) | freezing the checks a running system fails today, so that a new failure is the only one that speaks |
 | [Two schemas, one question](docs/guard-rows.md) | the row set a query answers with, weighed against the row set a second connection answers the same question with, and the difference named row by row |
 | [The setting on paper against the setting in force](docs/effective.md) | a recorded value compared with the value the running system actually uses |
@@ -276,4 +277,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.168.0 capabilities=2055aa1046c0ddd0acebf83de3caa300a0e2c6687181dd3af55254ee9dc3f629 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

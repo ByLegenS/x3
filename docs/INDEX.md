@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.168.0`**
+**Current version: `v0.169.0`**
 
 | Page | What it covers |
 |---|---|
@@ -72,6 +72,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Traffic, written down](record.md) | a run of the application recorded, redacted before it reaches the disk |
 | [The recording, sent again](replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
+| [A guard that builds what it measures](guard-trial.md) | the teardown a trial runs whatever happened, so a gate that sets data up is not the thing that leaves it behind |
 | [The reds a live gate starts with](guard-baseline.md) | freezing the checks a running system fails today, so that a new failure is the only one that speaks |
 | [Two schemas, one question](guard-rows.md) | the row set a query answers with, weighed against the row set a second connection answers the same question with, and the difference named row by row |
 | [The setting on paper against the setting in force](effective.md) | a recorded value compared with the value the running system actually uses |
@@ -95,4 +96,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.168.0 capabilities=2055aa1046c0ddd0acebf83de3caa300a0e2c6687181dd3af55254ee9dc3f629 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

@@ -37,4 +37,42 @@ red as everywhere else. A pattern that matches nothing leaves the side empty,
 and an empty side is `empty_scope`, not a tree full of debts: a mistyped pattern
 must not be able to write its own mistake onto the code.
 
-<!-- x3-dist version=v0.168.0 capabilities=2055aa1046c0ddd0acebf83de3caa300a0e2c6687181dd3af55254ee9dc3f629 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+### Directories a walk steps over
+
+**What it catches:** the clutter a gate cannot see. A source walk deliberately
+does not enter `vendor`, `testdata`, `node_modules`, or any name beginning with
+`.` or `_` — their insides are not this project's code, and reading `.git` on
+every run is the most expensive way to learn nothing. For *"which directories
+are here"* that same filter is blindness: a directory nobody can see is a
+directory no rule can judge, which makes it the first place a rule is escaped.
+
+```json
+{ "kind": "consistency", "compare": "left-subset-of-right",
+  "left":  { "from": "tree", "select": "dirs:*", "hidden": true },
+  "right": { "from": "json", "file": "layout.json", "select": "keys:*" } }
+```
+
+`hidden` belongs to `from: "tree"` and to nothing else — every other extractor
+reads the **inside** of a file, and a file the walk never reached has no inside
+to read. A reader that cannot honour it refuses it rather than accepting it in
+silence, because a declaration that opens nothing is worse than no declaration:
+it tells the person who wrote it that the question is being asked.
+
+**It cannot arrive through a star.** Nothing about `dirs:*` opens `.git`; the
+word has to be written. This is the same law a criterion's `sources` already
+follows — a skipped directory is entered only when it is *named* — and the
+reason is the same: a filter that a wildcard can lift is a filter that is gone
+the first time somebody writes `**`.
+
+**The declaration binds to the side that wrote it, not to the run.** In a
+settings file with ten rules, one declaring `hidden` must not put every file of
+`.git` and `vendor` in front of the other nine; they would drown in reds the
+person never asked for. Measured in one run of the control experiment: the
+declaring rule names three directories, and a second rule asking the *same
+question without the declaration* stays green beside it.
+
+`per` refuses the declaration: a comparison per instance binds every path to a
+component, a path under a skipped directory belongs to none, and the rule would
+open nothing while claiming to.
+
+<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

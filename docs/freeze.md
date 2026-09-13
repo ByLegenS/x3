@@ -90,6 +90,59 @@ The last two are where the modes part: in the set mode a value that is gone *is*
 the shrink, but here a key without a number leaves a ceiling standing for a file
 that may come back at its old size.
 
+### A floor under a frozen count
+
+**What it catches:** a rule that punishes **smallness**. *A part carrying one
+or two files should be rare* — a project splitting a directory into thirty
+folders of two files is exactly as unreviewable as the one hundred-and-sixty
+file directory it came from. Everything above freezes a ceiling, so that
+sentence had no way of being written: the number is allowed to fall to one, and
+falling is what the rule forbids.
+
+```json
+{ "freeze": { "baselines": [
+    { "name": "small-parts-are-rare",
+      "sources": ["**/*.go"], "exclude": ["**/*_test.go"],
+      "count": { "of": "files", "below": 3 },
+      "file": "baselines/small-parts.json" } ] } }
+```
+
+`below` is `min` read from the other side: `min` watches the keys **above** a
+number, `below` watches the keys **under** one. Writing it turns the frozen
+number from a ceiling into a **floor** — and that is the whole declaration.
+The direction is not a separate flag, because *"which side am I looking from"*
+and *"which way may this number not move"* are one question, and two fields
+would let a settings file answer them differently. `min` and `below` together,
+or `max` beside `below`, are configuration errors for the same reason.
+
+| Measured against a frozen floor | Result |
+|---|---|
+| a key under the floor that the baseline does not hold | **red** — `baseline_grew` |
+| a number below the frozen one | **red** — `count_fell`, both numbers named |
+| a number above the frozen one | green, **shrunk**; `-update` records it |
+| a key that rose out of the window | green, **shrunk** — the debt was paid |
+| nothing measured at all | **red** — `empty_scope` |
+
+The fourth row is where the two modes genuinely part, and the control
+experiment measures it on one tree: a directory whose count went from the
+frozen `3` to `4` is `count_grew` under a ceiling and a **debt repaid** under a
+floor. Under a ceiling a key that stops being measured is `dead_key`, because a
+file may come back at its old size; under a floor, leaving the window is the
+only way the debt can be paid, and calling it dead would put a red on the one
+outcome the gate exists to produce.
+
+`-update` follows the direction too: it refuses a number that **fell**, and it
+drops the keys that left the window. What the run prints follows it as well —
+`SHRUNK … above the frozen baseline`, and a refusal that says *"the measurement
+is below the frozen one; a frozen floor only rises"*. A sentence that is true in
+one mode and false in the other is worse than no sentence: it sends the reader
+looking the wrong way.
+
+**What is not here:** a floor with no baseline. `cap` is the ceiling that
+freezes nothing; its mirror — *"this directory must always hold at least three
+files, and owes nothing"* — is not built.
+
+
 ### The seal
 
 **What it catches:** a line quietly removed from something already published — a
@@ -158,4 +211,4 @@ limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
 
-<!-- x3-dist version=v0.168.0 capabilities=2055aa1046c0ddd0acebf83de3caa300a0e2c6687181dd3af55254ee9dc3f629 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.169.0 capabilities=8add3c844e8497d1ba6e332b2d1943eed701ede05258f37463f9c99f5684e33f template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
