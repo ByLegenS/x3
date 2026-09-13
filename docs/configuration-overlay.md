@@ -41,8 +41,13 @@ text nobody runs.
 **A fragment that lands on nothing is an error**, not a quiet pass: an
 experiment that stopped matching its rule would take its green from a rule it
 never touched. That covers a name no entry carries and text no value holds. The
-run exits `2`, the code for "could not measure". An entry is found by its
-`name`, or by its `label` where that is what names it.
+run exits `2`, the code for "could not measure".
+
+An entry is found by **the value, not the field**: a rule names itself with
+`name`, a measured value with `label`, a query with `fact`, and a project may
+use a word of its own. The entry whose text matches is the one; two matching
+entries are an error, because an overlay that cannot say which one it changed
+proves nothing.
 
 ### Narrowing a run to one rule
 
@@ -53,4 +58,4 @@ rule, a planted violation next to it, and none of the other rules reporting
 that they found no files there. The report prints `selected`, so a narrowed run
 can never be mistaken for a full one.
 
-<!-- x3-dist version=v0.188.0 capabilities=3ed63eb35ff5154bedb9ee178beb6824492e0e5a7ffad46b3e696480508c5780 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.189.0 capabilities=9a7cd46a34ab5ee267750ca4527c5531aca236f6beb0b372a232c54662ba795d template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
