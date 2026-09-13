@@ -64,6 +64,11 @@ follows — a skipped directory is entered only when it is *named* — and the
 reason is the same: a filter that a wildcard can lift is a filter that is gone
 the first time somebody writes `**`.
 
+`syntax`, `arch`, `boxes` and `secrets` all read their sources this way, which
+matters most for a **fixture tree**: an experiment keeps its planted files under
+a skipped name so no other rule trips over them, and the one rule that measures
+them writes that name.
+
 **The declaration binds to the side that wrote it, not to the run.** In a
 settings file with ten rules, one declaring `hidden` must not put every file of
 `.git` and `vendor` in front of the other nine; they would drown in reds the
@@ -75,4 +80,4 @@ question without the declaration* stays green beside it.
 component, a path under a skipped directory belongs to none, and the rule would
 open nothing while claiming to.
 
-<!-- x3-dist version=v0.198.0 capabilities=5a212239948f7f0b9a0d90e324cdd1e34c042af4a9543480a1a81b96b9e111f3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.198.1 capabilities=12a337686c2a132182d30265cdcac23ac92be6ed2bbccaee215dbd3593ea1fdd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
