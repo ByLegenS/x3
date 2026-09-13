@@ -27,9 +27,22 @@ x3 syntax -with experiments/term-as-a-warning.json -only the-old-term-cannot-com
 | a **map** over a list finds the entry by its `name` | "that rule's that field" has no other spelling |
 | a list is still **added** to a list | same law as the parts |
 
+A value that is **text** can be changed in place instead of retyped:
+
+```json
+{ "live": { "guards": { "no-test-company-left-behind":
+    { "query": { "replace": ["LIKE 'qa%'", "LIKE '%'"] } } } } }
+```
+
+Copying the whole query into the fragment would work today and rot tomorrow —
+the real query changes, the copy does not, and the experiment goes on measuring
+text nobody runs.
+
 **A fragment that lands on nothing is an error**, not a quiet pass: an
 experiment that stopped matching its rule would take its green from a rule it
-never touched. The run exits `2`, the code for "could not measure".
+never touched. That covers a name no entry carries and text no value holds. The
+run exits `2`, the code for "could not measure". An entry is found by its
+`name`, or by its `label` where that is what names it.
 
 ### Narrowing a run to one rule
 
@@ -40,4 +53,4 @@ rule, a planted violation next to it, and none of the other rules reporting
 that they found no files there. The report prints `selected`, so a narrowed run
 can never be mistaken for a full one.
 
-<!-- x3-dist version=v0.187.0 capabilities=b707b17016a8225a6448125a5aec52642c7b8cb711b138fdf7ebf7781dfd5bd4 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.188.0 capabilities=3ed63eb35ff5154bedb9ee178beb6824492e0e5a7ffad46b3e696480508c5780 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

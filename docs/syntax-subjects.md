@@ -39,4 +39,4 @@ red, with the condition written into the message. A condition nobody can see
 work is the quietest way to turn a gate off. The file is read once: the same
 bytes the condition read are the ones the check reads.
 
-<!-- x3-dist version=v0.187.0 capabilities=b707b17016a8225a6448125a5aec52642c7b8cb711b138fdf7ebf7781dfd5bd4 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.188.0 capabilities=3ed63eb35ff5154bedb9ee178beb6824492e0e5a7ffad46b3e696480508c5780 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
