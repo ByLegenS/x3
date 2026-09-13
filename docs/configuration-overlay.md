@@ -63,8 +63,9 @@ lands on nothing.
 
 ### Narrowing a run to one rule
 
-`-only` runs the named rules and nothing else (`syntax` spells it `-check`),
-and an unknown name is an error for the same reason. It is what lets an
+`-only` runs the named rules and nothing else — on `arch`, `freeze`, `secrets`
+and `docs`, next to the `guard -only` and `syntax -check` that were there
+already — and an unknown name is an error for the same reason. It is what lets an
 experiment run against a **fixture tree**: the real configuration, the real
 rule, a planted violation next to it, and none of the other rules reporting
 that they found no files there. The report prints `selected`, so a narrowed run
@@ -76,4 +77,4 @@ debt, and in a narrowed run those look unused. Calling them dead there would
 delete, as a side effect of an experiment, a line that a full run still needs.
 They come back as `unjudged_exemption`, a warning that says so.
 
-<!-- x3-dist version=v0.191.0 capabilities=83b452e07545327e5db6c267cadb8a809fb1d9fc81750f73e2b9851e3997d409 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.192.0 capabilities=a59d3bbcaa3163d60c6fdd9b9e043fe2d17ace7a081b3baa2cd4e0c02241e7dc template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
