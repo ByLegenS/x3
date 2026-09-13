@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.170.0`**
+**Current version: `v0.171.0`**
 
 ## testdb settings
 
@@ -17,4 +17,4 @@
 | `setup` | no | the steps run after creation, **in order**; each one `command`, `args`, `env`, `timeoutMs` (§ [A ready database is more than one command](testdb-setup.md#a-ready-database-is-more-than-one-command)) |
 | `runEnv` | no | the variables the **wrapped command** of `testdb run` is handed, on top of `dsnEnv`; same vocabulary as a step's `env` (§ [The variables the wrapped command is handed](testdb-run-env.md#the-variables-the-wrapped-command-is-handed)) |
 
-<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.171.0 capabilities=b3ee80044ca2375e9e2d5edb498234a5a45b2570d8c0b521eb7436c22a50a4bd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

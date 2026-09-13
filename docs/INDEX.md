@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.170.0`**
+**Current version: `v0.171.0`**
 
 | Page | What it covers |
 |---|---|
@@ -91,6 +91,8 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The variables the wrapped command is handed](testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [The rules an engine carries](profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
+| [What a project changes about a rule it did not write](profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
 | [A rule is declared where it applies](placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Is the release really published](published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
@@ -99,4 +101,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.171.0 capabilities=b3ee80044ca2375e9e2d5edb498234a5a45b2570d8c0b521eb7436c22a50a4bd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

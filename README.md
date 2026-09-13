@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.170.0`**
+**Current version: `v0.171.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.6 MB | `7e01f77be1739859bd1b5bcc301b6888027a5a4cfe42b71ba58a6d9d73df32eb` |
-| `x3-linux-amd64` | linux/amd64 | 15.2 MB | `4634db59aea4b3fcd86ea520637fcd532c40d323786e04aa4b60ecff41092d99` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `49375c9f3bfaa67a493fa3d811fa33c9acba01800963b718b0be8bdd73396da9` |
+| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `368db3de6430320c700f0c29d7b13da922b588f7e348e194570d5ccabd8628b9` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -99,6 +99,7 @@ x3 boxes -config x3.json .      # open work, in a file or in the documents
 x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
 x3 scope  -config x3.json .     # a change that must stay in its lane
 x3 placement -config x3.json    # a rule declared where the region it names can read it
+x3 profile -config x3.json      # the rules the engine carries, and what this project changed
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
 x3 outbound serve -listen :9101 -ledger out.jsonl                  # the far side, from the ledger
@@ -109,21 +110,20 @@ x3 adoption -config x3.json .   # how much of this engine the project actually r
 x3 published -config x3.json     # the release the pointer announces, tagged and pushed
 ```
 
-Exit codes are the same for every command: **0** green, **1** red, **2** usage
-or I/O error. When `guard` launches the command, the command's own exit code is
+Exit codes are the same for every command: **0** green, **1** red, **2** nothing
+was measured — usage, I/O, a refused configuration, or too old a binary. When `guard` launches the command, the command's own exit code is
 returned instead.
 
 Project configuration lives in one file, `x3.json`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `surface` section for the exported API, the `docs` section for coupled changes,
-the `secrets` section for the leak scan,
-the `boxes` section for the open-work list, the `record` section for
-what a recording must hide, the `replay` section for what may differ,
-the `cache` section for where a run may remember what it measured, the `live`
+the `secrets` section for the leak scan, the `boxes` section for the open-work
+list, the `record` section for what a recording must hide, the `replay` section
+for what may differ, the `cache` section for where a run may remember what it measured, the `live`
 section for the guards, the `effective` section for the recorded-versus-in-force
 comparisons, the `testdb` section for run-lifetime databases, the `adoption` section for
-which of these the project is actually running, the `published` section for the
-tags a release must carry. A large repository
+which of these the project runs, the `profile` section for the rule sets the
+engine carries, the `published` section for the tags a release must carry. A large repository
 splits that file: the root declares its parts with `include`, lists are added
 and objects merged, and anything else set twice stops the run. All of them are documented below, with the schema and a worked
 example.
@@ -228,6 +228,8 @@ markers that split this document, so a page cannot be missing from it.
 | [The variables the wrapped command is handed](docs/testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
+| [What a project changes about a rule it did not write](docs/profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
@@ -280,4 +282,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.170.0 capabilities=a9b75718df0998f4fdf50ebad2bd46683894cb2c1a425b50125b3ce994e4cb5b template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.171.0 capabilities=b3ee80044ca2375e9e2d5edb498234a5a45b2570d8c0b521eb7436c22a50a4bd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
