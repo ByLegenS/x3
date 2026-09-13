@@ -25,7 +25,7 @@ x3 syntax -with experiments/term-as-a-warning.json -only the-old-term-cannot-com
 |---|---|
 | a scalar is **overwritten** | in a part that is a clash; a fragment's whole job is to change a value |
 | a **map** over a list finds the entry by its `name` | "that rule's that field" has no other spelling |
-| a list is still **added** to a list | same law as the parts |
+| a list is **replaced** | the parts share one configuration and add their lists together; a fragment is written to change it, and "that pattern is now this" has no other spelling |
 
 A value that is **text** can be changed in place instead of retyped:
 
@@ -76,4 +76,4 @@ debt, and in a narrowed run those look unused. Calling them dead there would
 delete, as a side effect of an experiment, a line that a full run still needs.
 They come back as `unjudged_exemption`, a warning that says so.
 
-<!-- x3-dist version=v0.190.0 capabilities=0baf44f282fed2c99d88b24a56fbcc96dc3aaa6477ac5d753eddf755e2ee5fc1 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.191.0 capabilities=83b452e07545327e5db6c267cadb8a809fb1d9fc81750f73e2b9851e3997d409 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
