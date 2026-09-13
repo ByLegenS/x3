@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.176.0`**
+**Current version: `v0.177.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `e51e08dc073aade8e09fef16281f645fb2e919c983b97f0753728c3cccdd76ea` |
-| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `9daebbe1447e8d55dd4210835b27d3a3fd8e3bab5efdfd26e6df9fe773f9e01c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.8 MB | `ad24a996e86c48cdac6e041a04a19c765c3762d2822ff171d3885958ca5d6a63` |
+| `x3-linux-amd64` | linux/amd64 | 15.4 MB | `b58fc1792c70f7ce52d08319dd90329b4828fdb4df626f6aec4202f09e955d97` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -230,6 +230,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
+| [A rule written once and measured per item](docs/profile-items.md) | an item that fills more than one token at once, a token declared free text, and a rule the project writes itself |
 | [What a project changes about a rule it did not write](docs/profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
 | [What the engine carries today](docs/profile-library.md) | the rule sets, rule by rule: what each one measures, what it asks the project for, and what was measured and deliberately left out |
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
@@ -284,4 +285,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.176.0 capabilities=b557ad04f5f0efc6e52b7370ab28640203fa267a10c6b85b38ee9e370e6da5ff template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.177.0 capabilities=227cc35e8bdb07e3cf10686eee3fa0a683cc37b40b65fa933f681430fc453507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

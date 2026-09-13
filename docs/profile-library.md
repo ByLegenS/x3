@@ -81,6 +81,26 @@ and is red the moment the rows differ. `tables` is the prefix `go-parts` asks
 for, written once. `registry-table` is excluded: it is the migration runner's
 own bookkeeping, not schema a test run reproduces.
 
+### `go-livedb@2` — the same three, plus one rule for every other fact
+
+| Rule | Lands in | What it measures | Asks for |
+|---|---|---|---|
+| `{facts}-read-the-same-in-development-and-test` | `live.guards` | one check per fact the two databases must answer identically; the query lives **inside the item**, next to the name it is read for | `facts` (a list of items), `dev-dsn`, `test-dsn` |
+
+The three checks above are the schema facts every repository shares. Everything
+else a repository needs the two databases to agree on — a reference table's
+rows, a set of enum labels — has the same shape and a different query, so it is
+one rule measured once per item:
+
+```json
+"facts": [
+  { "facts": "reference-rows", "reads": "SELECT code FROM ref_codes ORDER BY code" },
+  { "facts": "enum-labels",    "reads": "SELECT unnest(enum_range(NULL::status))::text" } ]
+```
+
+`reads` is declared free text, so it may carry the spaces, quotes and
+parentheses a query needs; it never reaches the check's name.
+
 ### A whole settings file
 
 ```json
@@ -119,4 +139,4 @@ A secrets pattern has the same shape: an exemption that excuses nothing is
 reported dead, so the ranges a real repository excuses cannot travel with the
 pattern — the carried password pattern ships with **no** exemptions.
 
-<!-- x3-dist version=v0.176.0 capabilities=b557ad04f5f0efc6e52b7370ab28640203fa267a10c6b85b38ee9e370e6da5ff template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.177.0 capabilities=227cc35e8bdb07e3cf10686eee3fa0a683cc37b40b65fa933f681430fc453507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
