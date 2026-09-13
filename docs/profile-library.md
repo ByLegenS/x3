@@ -158,4 +158,4 @@ A secrets pattern has the same shape: an exemption that excuses nothing is
 reported dead, so the ranges a real repository excuses cannot travel with the
 pattern — the carried password pattern ships with **no** exemptions.
 
-<!-- x3-dist version=v0.186.0 capabilities=f976ab2dc440bddfdfc7d642635e7a2068a86c29f748967aa72348aa034af835 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.187.0 capabilities=b707b17016a8225a6448125a5aec52642c7b8cb711b138fdf7ebf7781dfd5bd4 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

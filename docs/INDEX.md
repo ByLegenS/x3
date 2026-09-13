@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.186.0`**
+**Current version: `v0.187.0`**
 
 | Page | What it covers |
 |---|---|
@@ -94,6 +94,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The variables the wrapped command is handed](testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [Changing one field for one run](configuration-overlay.md) | the settings fragment a run lays over the configuration, the list entry it finds by name, and the narrowing that makes an experiment measure one rule |
 | [The rules an engine carries](profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [A rule written once and measured per item](profile-items.md) | an item that fills more than one token at once, a token declared free text, and a rule the project writes itself |
 | [What a project changes about a rule it did not write](profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
@@ -108,4 +109,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.186.0 capabilities=f976ab2dc440bddfdfc7d642635e7a2068a86c29f748967aa72348aa034af835 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.187.0 capabilities=b707b17016a8225a6448125a5aec52642c7b8cb711b138fdf7ebf7781dfd5bd4 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.186.0`**
+**Current version: `v0.187.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.9 MB | `398364d43603b046a20059ad324f33284f2a0612733c69c356c2e0207870e765` |
-| `x3-linux-amd64` | linux/amd64 | 15.5 MB | `7ad7c0052923196a4ba3a719edff932dd59f244d6c67402b80b7654e3810e3ef` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.9 MB | `4bf632f92a81d1936383eebd407e01a3d537e15609deeb6656ba066c8d2bc796` |
+| `x3-linux-amd64` | linux/amd64 | 15.5 MB | `5c8c76ffeffbcbd545d8f31b417408fec4ce83767881ffde93bcb30e946a2c2f` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -231,6 +231,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The variables the wrapped command is handed](docs/testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [Changing one field for one run](docs/configuration-overlay.md) | the settings fragment a run lays over the configuration, the list entry it finds by name, and the narrowing that makes an experiment measure one rule |
 | [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [A rule written once and measured per item](docs/profile-items.md) | an item that fills more than one token at once, a token declared free text, and a rule the project writes itself |
 | [What a project changes about a rule it did not write](docs/profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
@@ -289,4 +290,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.186.0 capabilities=f976ab2dc440bddfdfc7d642635e7a2068a86c29f748967aa72348aa034af835 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.187.0 capabilities=b707b17016a8225a6448125a5aec52642c7b8cb711b138fdf7ebf7781dfd5bd4 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
