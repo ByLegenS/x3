@@ -60,4 +60,10 @@ a rule nobody declared.
 - An `exclude` that empties the whole set is `empty_scope` and red, the same
   as a `sources` glob that matches nothing.
 
-<!-- x3-dist version=v0.172.0 capabilities=aeb308bbc6445b368dba196cbd2cc9d24d585cf0fd3d47313e197f2672ef0a92 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+### The one line a reason reaches
+
+A denied pattern with one legitimate use is excused **on the line itself**: a `//x3:allow:syntax[:<check>]: <reason>` comment closes itself and the line under it — no reason and it doesn't parse (stays red); a `dead_exemption` (exit `2`) can't be frozen into a baseline.
+
+Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
+
+<!-- x3-dist version=v0.173.0 capabilities=57ce815639b00314721e5c09498e7664f1eec811a66ee4b666faa78c6939177b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

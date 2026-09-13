@@ -26,6 +26,13 @@ past the gate. The engine carries the rule sets instead, and a project calls one
 { "profile": { "use": ["go-monorepo@1"], "with": { "text": ["go", "json", "md"] } } }
 ```
 
+A token is text unless the carried rule declares it a **number**. A library
+file is JSON, so `"minimum": {cap}` cannot even be written; the rule writes
+`"minimum": "{cap}"` and names `cap` in its `numeric` list, and the quotes come
+off when the project fills it in. The project then writes the threshold and
+nothing else - `"clone": 4`, not `"clone": "4"`, because a call that reads like
+text would have to be filled in like text, and a quoted threshold is refused.
+
 `x3 profile -library` lists what the engine carries — rule by rule, with what
 each one measures, in [The library, rule by rule](profile-library.md#the-library-rule-by-rule) —
 and `x3 profile` prints what is in force in this project, with the full text of
@@ -70,4 +77,4 @@ With `"text": ["go", "json"]` the run carries two checks and the project wrote
 one word more. The rule's **name** must carry the token, or every copy would land
 in the list under one name and only the last would be read.
 
-<!-- x3-dist version=v0.172.0 capabilities=aeb308bbc6445b368dba196cbd2cc9d24d585cf0fd3d47313e197f2672ef0a92 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.173.0 capabilities=57ce815639b00314721e5c09498e7664f1eec811a66ee4b666faa78c6939177b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

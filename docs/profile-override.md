@@ -10,8 +10,18 @@ and each one leaves a trace in `x3 profile`:
 | | Written as | What it does |
 |---|---|---|
 | change | `override: { "<rule>": { ... } }` | replaces the fields named, keeps the rest |
+| change one | `override: { "<check>": { ... } }` | the same, for a single check an `each` rule grew |
 | switch off | `off: { "<rule>": "<reason>" }` | the rule does not run, and the sentence says why |
 | add | the section's own list | the project's own rules, beside the called ones |
+
+A rule measured once per item is not one rule to a project: each item becomes a
+check with its own name, and the threshold, source or exemption of one of them
+need not be those of its siblings. So an override may name **the check** rather
+than the rule - the filled-in name, `every-published-migration-under-db/one-is-sealed`
+rather than `every-published-migration-under-{migrations}-is-sealed` - and it
+reaches that one check alone. `x3 profile` prints the deviation beside the check
+it touched. Without this, one library rule with three thresholds is three copies
+of the rule's text in the project, and a copied rule stops following the library.
 
 **An override replaces; it does not add.** This is deliberately the opposite of
 the merge law that joins the parts of a split configuration, and for the opposite
@@ -32,7 +42,9 @@ changes nothing reads exactly like a setting that works.
 
 | Refused, exit `2` | Why |
 |---|---|
-| `override` or `off` names a rule no set in use carries | the line does nothing and reads as if it did |
+| `override` names neither a carried rule nor a check this call sets up | the line does nothing and reads as if it did; the message names both lists |
+| `off` names a rule no set in use carries | the same |
+| a rule is switched `off` and the project declares its name itself | `x3 profile` would print it off while every command that measures it ran the project's copy |
 | `with` fills a token no rule in force asks for | so does that one, and the message says whether a switched-off rule is the reason |
 | `off` with a blank reason | a gate quietly silenced |
 | the same rule overridden and switched off | one of the two lines does nothing |
@@ -43,9 +55,10 @@ changes nothing reads exactly like a setting that works.
 
 The library is carried **inside** the engine, so a call means the same thing on
 every machine; a project cannot add a set of its own to it, and cannot switch off
-one instance of an `each` rule without switching off all of them. `each` belongs
+one instance of an `each` rule without switching off all of them - it can change
+one, but not silence one. `each` belongs
 to called rules only: a project's own rule is still written once per item. And a
 called rule has no file of its own, so `x3 placement` — which asks which settings
 file a rule was declared in — does not weigh it.
 
-<!-- x3-dist version=v0.172.0 capabilities=aeb308bbc6445b368dba196cbd2cc9d24d585cf0fd3d47313e197f2672ef0a92 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.173.0 capabilities=57ce815639b00314721e5c09498e7664f1eec811a66ee4b666faa78c6939177b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
