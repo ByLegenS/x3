@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.166.1`**
+**Current version: `v0.167.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `3d6776890906bffb54608703e511c8696e31b91d0f510bdcebb7f380621c0ab8` |
-| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `c2e921fc6f4235b74846469135d7d36557b9cea0f175ab0a973cbd2da4d226f2` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `150598dbe0e930166af1656eac68e355a48bafc66fb95410111e3c80ead1b168` |
+| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `a51e036e9c0962ff8f3a8cd97d6a12c1466f7d57494e8ec613402b17575f48fc` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -185,6 +185,8 @@ markers that split this document, so a page cannot be missing from it.
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [A work list written as a document](docs/boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
+| [A criterion that brings its own expectation](docs/criterion-expect.md) | one kind is one runner, and the line names which of that runner's expectations weighs it |
+| [Work that is not needed yet](docs/criterion-condition.md) | the condition written beside a box, in the same words as its criteria |
 | [Three ways a criterion is lost in the writing](docs/criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](docs/boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [A departure that never happened](docs/boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
@@ -273,4 +275,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.166.1 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.167.0 capabilities=338d29f78c1f36d4f08e914b2bdbf61b8c06fe04a39837e64c63c6b4bebb0955 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

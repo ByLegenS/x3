@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.166.1`**
+**Current version: `v0.167.0`**
 
 | Page | What it covers |
 |---|---|
@@ -48,6 +48,8 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [A work list written as a document](boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
+| [A criterion that brings its own expectation](criterion-expect.md) | one kind is one runner, and the line names which of that runner's expectations weighs it |
+| [Work that is not needed yet](criterion-condition.md) | the condition written beside a box, in the same words as its criteria |
 | [Three ways a criterion is lost in the writing](criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [A departure that never happened](boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
@@ -92,4 +94,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.166.1 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.167.0 capabilities=338d29f78c1f36d4f08e914b2bdbf61b8c06fe04a39837e64c63c6b4bebb0955 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

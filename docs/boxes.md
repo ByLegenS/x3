@@ -170,6 +170,12 @@ criterion **once** more, only when the first output says one of `when`, and the
 second run *replaces* the first: "either attempt may hold" would be an escape
 hatch. Nothing here is specific to any runner.
 
+So **an unweighed command does not run.** A `command` criterion with no
+expectation at all is a configuration error where the list is written by
+machine, and `criterion_cannot_run` where it sits beside a box — counted under
+the `unweighed` cause, never green. Reading such a run by its exit code would
+make writing the criterion enough to close the box.
+
 #### A criterion that cannot run, and one that ran and measured nothing
 
 A `sql` criterion whose DSN is empty, or a `command` that cannot start, is
@@ -194,6 +200,13 @@ behind an unmeasured one. Both counts stand on the human line and in
 this run fail to measure" — and neither code may be frozen into a baseline. A
 `when` condition that could not be measured does **not** postpone a box: an
 unmeasurable condition would silence both directions at once.
+
+**A condition is counted and every wait is named.** `summary.conditions` and
+`summary.held` say how many were asked and how many held; each parked box is
+printed under `box_waiting`, and a run that wrote conditions and held none of
+them says so under `condition_never_held`. Both are warnings — a box that waits
+is legitimate — but a condition that is never true takes its box out of *both*
+directions, and an uncounted silence is how a list stops being measured.
 
 A list with no boxes is `empty_scope`: a list that says nothing does not say
 everything is finished.
@@ -371,4 +384,4 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.166.1 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.167.0 capabilities=338d29f78c1f36d4f08e914b2bdbf61b8c06fe04a39837e64c63c6b4bebb0955 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
