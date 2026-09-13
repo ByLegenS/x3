@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.174.0`**
+**Current version: `v0.175.0`**
 
 | Page | What it covers |
 |---|---|
@@ -94,7 +94,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [The rules an engine carries](profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [What a project changes about a rule it did not write](profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
-| [What the engine carries today](profile-library.md) | the two rule sets, rule by rule: what each one measures, what it asks the project for, and what was measured and deliberately left out |
+| [What the engine carries today](profile-library.md) | the rule sets, rule by rule: what each one measures, what it asks the project for, and what was measured and deliberately left out |
 | [A rule is declared where it applies](placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Is the release really published](published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
@@ -103,4 +103,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.175.0 capabilities=67925653b79a8165a912b94e81e1a9319d1f1981fe2afdcae635a3269b53ab60 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

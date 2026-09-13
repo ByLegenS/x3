@@ -97,4 +97,4 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.175.0 capabilities=67925653b79a8165a912b94e81e1a9319d1f1981fe2afdcae635a3269b53ab60 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

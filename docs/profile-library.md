@@ -4,11 +4,12 @@
 
 ## The library, rule by rule
 
-`x3 profile -library` prints this without reading any settings. There are two
-sets, and the split is not a taxonomy — it is what the caller has to **know**.
-The first asks a repository for nothing but its file extensions. The second
-asks it to name where its parts are, and a repository that has no such parts
-does not call it.
+`x3 profile -library` prints this without reading any settings. The sets split
+by what the caller has to **know**, not by taxonomy: one asks a repository for
+nothing but its file extensions, two ask it to name where its parts are (one a
+superset of the other — see [Two versions of one job](#two-versions-of-one-job)),
+and one asks it to name the databases it develops and tests against. A
+repository with no such facts does not call the set that needs them.
 
 ### `go-monorepo@1` — nine checks, one list token
 
@@ -38,6 +39,37 @@ does not call it.
 `family` is the name `arch.components` gives a set of sibling instances, and
 also the directory they sit in. Declaring the component stays the project's
 job: a component is a fact about one tree, and the library would be guessing.
+
+### `go-parts@2` — the same five, plus two about a declared instance
+
+| Rule | Lands in | What it measures | Asks for |
+|---|---|---|---|
+| `a-declared-{family}-instance-carries-{legs}` | `arch.rules` | an instance whose manifest calls it complete, missing one of the directories that completeness promised | `family`, `manifest`, `legs` (**list**) |
+| `a-declared-{family}-instance-carries-its-{entry}` | `arch.rules` | the same manifest, missing the entry script that would let anything run the instance | `family`, `manifest`, `entry` |
+
+#### Two versions of one job
+
+`go-parts@1` is not retired: a project that calls
+it keeps exactly the five checks above, forever — a library rule is carried
+inside the engine binary, so a project that named no version would have found
+its rules changing under it on somebody else's upgrade. `go-parts@2` carries
+the same five and adds the two that need a **manifest** — a fact `go-parts@1`
+never asked a project to name. A project with no manifest file has no reason
+to move; one that has both calls `go-parts@2` and drops nothing.
+
+### `go-livedb@1` — three checks that need two databases and a prefix
+
+| Rule | Lands in | What it measures | Asks for |
+|---|---|---|---|
+| `{tables}schema-columns-match-between-development-and-test` | `live.guards` | a column the development database carries that the migrations never produced in the test one | `tables`, `dev-dsn`, `test-dsn`, `registry-table` |
+| `{tables}schema-constraints-match-between-development-and-test` | `live.guards` | the same gap, for a constraint the application code already assumes is enforced | `tables`, `dev-dsn`, `test-dsn`, `registry-table` |
+| `{tables}schema-indexes-match-between-development-and-test` | `live.guards` | the same gap, for an index that changes a query's plan without changing its answer | `tables`, `dev-dsn`, `test-dsn`, `registry-table` |
+
+Each check runs one query against `dev-dsn` and the same query against
+`test-dsn`, and is red the moment the rows differ. `tables` is the same prefix
+`go-parts` asks for; a project that calls both writes it once. `registry-table`
+is excluded because it is the migration runner's own bookkeeping, not schema
+a test run is meant to reproduce.
 
 ### A whole settings file
 
@@ -95,4 +127,4 @@ excuses nothing is reported dead, so the address ranges a real repository
 excuses cannot travel with the pattern. The carried password pattern therefore
 ships with **no** exemptions, and a project adds its own with `override`.
 
-<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.175.0 capabilities=67925653b79a8165a912b94e81e1a9319d1f1981fe2afdcae635a3269b53ab60 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

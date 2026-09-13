@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.174.0`**
+**Current version: `v0.175.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `55f2906c63e7c0550f774f160496c044d29cb0b485e134906ce0dc2dffb28505` |
-| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `baf70d089e00e55a314c14129d5f6e3afa9e7727f2d81a6fb86d57c284fd8353` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `3795c547327603bc3c876e5c2a3e284bc6d8c536ef99b7b75302cd7285aceac9` |
+| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `a780dd3c7d626c193394507e31f5689d8615f40544ab5c9e64b317db3d1f2c8a` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -231,7 +231,7 @@ markers that split this document, so a page cannot be missing from it.
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [What a project changes about a rule it did not write](docs/profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
-| [What the engine carries today](docs/profile-library.md) | the two rule sets, rule by rule: what each one measures, what it asks the project for, and what was measured and deliberately left out |
+| [What the engine carries today](docs/profile-library.md) | the rule sets, rule by rule: what each one measures, what it asks the project for, and what was measured and deliberately left out |
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
@@ -284,4 +284,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.175.0 capabilities=67925653b79a8165a912b94e81e1a9319d1f1981fe2afdcae635a3269b53ab60 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
