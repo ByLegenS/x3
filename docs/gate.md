@@ -56,6 +56,27 @@ less but **wrong**. `needs` names an environment variable a step cannot run
 without. A skipped step is always **printed with its reason**: a step that goes
 quiet is a hole in a green run that nobody can see.
 
+
+### The variables a step declares
+
+`needs` says a step cannot run **without** a variable. `env` says what the step's
+own environment **is**:
+
+```json
+{ "name": "schema drift", "band": "full",
+  "env": { "APP_DEV_DSN": "${APP_DSN}" },
+  "trials": [ { "run": ["{bin}", "guard", "-only", "schemadrift"], "want": 0 } ] }
+```
+
+One address, two names, and both of them pointing at the same place in the same
+run — otherwise the same tree gives two different numbers in two gates. A shell
+script does this with a wrapper function around every step that shares a database;
+a list does it in the step itself, where it is read next to the step it belongs to.
+
+A declaration whose source is **empty** is red and the command does not run at
+all: a variable that quietly arrives blank is a step measuring something other
+than what it says. A value that is not `${...}` is used as itself.
+
 ### What parallel buys, measured
 
 The report prints the wall clock next to the work done — `1.5x faster than one
@@ -63,4 +84,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.183.0 capabilities=75f6b729bf910d853a7266c53cdcf9fa8cca6eb06e3733b5590c3fda04805477 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.184.0 capabilities=f04c8046b9e11540aefd6dfcb52716f98958f3c6b472749d4f14f69acc7e69c9 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
