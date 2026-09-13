@@ -62,10 +62,18 @@ announces it — so that is a configuration error (exit `2`), not a finding.
 
 An annotated tag and a lightweight one are read the same: `refs/tags/<tag>^{}` is
 preferred where the remote offers it, so a project that annotates its tags does
-not see every release reported as pointing somewhere else.
+not see every release reported as pointing somewhere else. The remote is asked
+for both the tag and its peeled form **by their exact names**, not by a pattern:
+`git ls-remote` only volunteers the peeled line on its own when the request is a
+glob, and a request for the exact ref alone hands back the tag **object**, not
+the commit it points at. Asking by name for both lines is what makes this read
+the same commit an annotated tag's own repository sees locally — measured once
+where an annotated tag was pushed unchanged (green, both sides read the same
+commit) and once where the tag was then moved to point at a later commit
+(red, `tag_differs_on_remote`, exactly as a lightweight tag moved the same way).
 
 **What it does not do.** It pushes nothing, creates no tag, and does not download
 the release. It answers one question: *is the version this publication announces
 actually obtainable?*
 
-<!-- x3-dist version=v0.175.0 capabilities=67925653b79a8165a912b94e81e1a9319d1f1981fe2afdcae635a3269b53ab60 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.176.0 capabilities=b557ad04f5f0efc6e52b7370ab28640203fa267a10c6b85b38ee9e370e6da5ff template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

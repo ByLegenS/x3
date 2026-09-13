@@ -5,11 +5,10 @@
 ## The library, rule by rule
 
 `x3 profile -library` prints this without reading any settings. The sets split
-by what the caller has to **know**, not by taxonomy: one asks a repository for
-nothing but its file extensions, two ask it to name where its parts are (one a
-superset of the other — see [Two versions of one job](#two-versions-of-one-job)),
-and one asks it to name the databases it develops and tests against. A
-repository with no such facts does not call the set that needs them.
+by what the caller has to **know**: one asks for nothing but file extensions,
+two ask where the parts are (one a superset of the other — see
+[Two versions of one job](#two-versions-of-one-job)), one asks for the two
+databases it develops and tests against.
 
 ### `go-monorepo@1` — nine checks, one list token
 
@@ -25,6 +24,19 @@ repository with no such facts does not call the set that needs them.
 | `no-file-passes-a-thousand-lines` | `freeze.baselines` | a file past a thousand lines; a ceiling, so it takes no debt | — |
 | `no-build-output-sits-in-the-tracked-tree` | `retire.groups` | a binary in the tree, whose source nobody can name; the count starts at zero | — |
 | `every-{text}-file-decodes-as-utf8` | `syntax.checks` | bytes the gate and the editor read as different letters | `text`: a **list** of extensions |
+
+### `go-monorepo@2` — the same nine, plus a status document's cap
+
+Carries the nine above and adds `the-document-{docs}-stays-under-its-line-cap`
+(`freeze.baselines`): a document past its declared line count, capped with no
+debt. Asks for `docs` (a **list**) and a default `max`. `go-monorepo@1` is not
+retired, for the reason `go-parts@1` is not.
+
+Measured: `"use": ["go-monorepo@2"]`, `docs` naming two documents and
+`"max": 120` is green at 118 and 190 lines while the second carries
+`"override": { "the-document-docs/HANDOFF.md-stays-under-its-line-cap": { "cap":
+{ "of": "lines", "max": 200 } } }`; grow the first to 121 and it is red under
+its filled-in name; drop the override and the second goes red at 190 too.
 
 ### `go-parts@1` — five checks that need the project to name its parts
 
@@ -49,13 +61,12 @@ job: a component is a fact about one tree, and the library would be guessing.
 
 #### Two versions of one job
 
-`go-parts@1` is not retired: a project that calls
-it keeps exactly the five checks above, forever — a library rule is carried
-inside the engine binary, so a project that named no version would have found
-its rules changing under it on somebody else's upgrade. `go-parts@2` carries
-the same five and adds the two that need a **manifest** — a fact `go-parts@1`
-never asked a project to name. A project with no manifest file has no reason
-to move; one that has both calls `go-parts@2` and drops nothing.
+`go-parts@1` is not retired: a project that calls it keeps those five checks
+forever — a library rule is carried inside the engine binary, so a project that
+named no version would find its rules changing on somebody else's upgrade.
+`go-parts@2` adds the two that need a **manifest**, a fact `go-parts@1` never
+asked for: a project without one has no reason to move, one with both drops
+nothing.
 
 ### `go-livedb@1` — three checks that need two databases and a prefix
 
@@ -65,56 +76,38 @@ to move; one that has both calls `go-parts@2` and drops nothing.
 | `{tables}schema-constraints-match-between-development-and-test` | `live.guards` | the same gap, for a constraint the application code already assumes is enforced | `tables`, `dev-dsn`, `test-dsn`, `registry-table` |
 | `{tables}schema-indexes-match-between-development-and-test` | `live.guards` | the same gap, for an index that changes a query's plan without changing its answer | `tables`, `dev-dsn`, `test-dsn`, `registry-table` |
 
-Each check runs one query against `dev-dsn` and the same query against
-`test-dsn`, and is red the moment the rows differ. `tables` is the same prefix
-`go-parts` asks for; a project that calls both writes it once. `registry-table`
-is excluded because it is the migration runner's own bookkeeping, not schema
-a test run is meant to reproduce.
+Each check runs one query against `dev-dsn` and the same against `test-dsn`,
+and is red the moment the rows differ. `tables` is the prefix `go-parts` asks
+for, written once. `registry-table` is excluded: it is the migration runner's
+own bookkeeping, not schema a test run reproduces.
 
 ### A whole settings file
 
 ```json
-{
-  "profile": {
-    "use": ["go-monorepo@1", "go-parts@1"],
-    "with": {
-      "text": ["go", "json", "md", "sql", "ps1"],
-      "family": "services",
-      "tables": "sand_",
-      "migrations": ["db/migrations", "services/alpha/migrations"],
-      "seal": "build/baselines/migration-seal.json",
-      "builders": "build/release*.ps1"
-    }
-  },
-  "arch": { "components": { "services": ["services/*/**"] } },
-  "secrets": { "sources": ["**/*.go", "**/*.ps1", "**/*.md", "**/*.sql"] },
-  "freeze": {
-    "baselines": [
-      { "name": "migration-seal",
-        "sources": ["db/migrations/*.sql", "services/*/migrations/*.sql"],
-        "seal": { "of": "content" }, "file": "build/baselines/migration-seal.json" }
-    ]
-  }
-}
+{ "profile": { "use": ["go-monorepo@1", "go-parts@1"], "with": {
+  "text": ["go", "json", "md", "sql", "ps1"], "family": "services",
+  "tables": "sand_", "clone": 4,
+  "migrations": ["db/migrations", "services/alpha/migrations"],
+  "seal": "build/baselines/migration-seal.json",
+  "builders": "build/release*.ps1" } } }
 ```
 
-Measured on that tree: **22 lines of settings, 20 checks in force** — fifteen
-rules, of which two list tokens build seven. Writing the same twenty checks into
-the project's own sections is **245 lines** (both counted with one formatter).
-The number that matters is not the difference but the slope: by hand every new
-extension or migration directory costs another block, and in the call it costs
-one list item.
+The same file also declares `arch.components`, `secrets.sources` and the seal
+baseline the migration rule freezes against: a call brings rules, not the facts
+a rule is measured against.
 
-Three rules ask for `secrets.sources`, `arch.components` and a seal baseline —
-a call brings rules, not the facts a rule is measured against.
+Measured on that tree (the gate's own sandbox, `check.ps1`): **23 lines of
+settings, 20 checks in force** — fifteen rules, of which two list tokens build
+seven. The same twenty checks written into the project's own sections are
+**245 lines** (both counted with one formatter). What matters is the slope: by
+hand every new extension or migration directory costs another block, in the
+call one list item.
 
 ### What a carried rule may not be
 
-This engine has one law that shapes the whole library: **a check that measured
-nothing is not a green.** An empty subject set stops the run wherever it is
-found. So a rule can only be carried if the set it calls has subjects by the
-time it is called, and three candidates were dropped after being written and
-measured:
+One law shapes the whole library: **a check that measured nothing is not a
+green.** A rule can only be carried if the set it calls has subjects by the time
+it is called; three candidates were written, measured and dropped:
 
 | Candidate | Why it is not carried |
 |---|---|
@@ -122,9 +115,8 @@ measured:
 | a ceiling on the code that grows, frozen per file | the same, from the other side: a repository with no file near the threshold freezes nothing, so the threshold became a cap, which needs no baseline and no token |
 | every build tag has its own vet step | both sides may legitimately be empty: no tag in the tree, no tag on the gate line |
 
-A secrets pattern has the same shape for a different reason: an exemption that
-excuses nothing is reported dead, so the address ranges a real repository
-excuses cannot travel with the pattern. The carried password pattern therefore
-ships with **no** exemptions, and a project adds its own with `override`.
+A secrets pattern has the same shape: an exemption that excuses nothing is
+reported dead, so the ranges a real repository excuses cannot travel with the
+pattern — the carried password pattern ships with **no** exemptions.
 
-<!-- x3-dist version=v0.175.0 capabilities=67925653b79a8165a912b94e81e1a9319d1f1981fe2afdcae635a3269b53ab60 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.176.0 capabilities=b557ad04f5f0efc6e52b7370ab28640203fa267a10c6b85b38ee9e370e6da5ff template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
