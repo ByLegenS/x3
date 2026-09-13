@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.173.0`**
+**Current version: `v0.174.0`**
 
 ## guard exit codes
 
@@ -57,6 +57,8 @@
 | `workspace` | no | a temporary working area: `copy` (required within it), `remove`, `write` |
 | `equals` / `contains` / `notContains` | no | what the **last** step's output must, or must not, say; without any of them, every step holding is the assertion |
 | `after` | no | the teardown: steps that run **whatever happened**, all of them ([A guard that builds what it measures](guard-trial.md#a-guard-that-builds-what-it-measures)) |
+| `when` | no | the answer this step waits for: `step` (an earlier step of the same phase) and `holds`; a step a later `when` names does not end the trial when it goes red ([A trial that asks and then chooses](guard-branch.md)) |
+| `capture` | no | the **name** this step's output is handed on under; later steps and the teardown read it as `${NAME}`, and the value itself is kept out of the report |
 
 ## the guard report fields
 
@@ -76,4 +78,4 @@
 | `summary.baselined` | how many reds the baseline held; they are neither passes nor blocks |
 | `startedAt` | present **only** with `-stamp` |
 
-<!-- x3-dist version=v0.173.0 capabilities=57ce815639b00314721e5c09498e7664f1eec811a66ee4b666faa78c6939177b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

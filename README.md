@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.173.0`**
+**Current version: `v0.174.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `d5ce421c4cbc617d6e2dd6b87ccb86be81dc1bffaf68e9e4f5521dbbb97ee215` |
-| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `c4c9f8f4919d9868675a7cadabf70d26757d3de71bf782ac1cb649d1c51b576c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `55f2906c63e7c0550f774f160496c044d29cb0b485e134906ce0dc2dffb28505` |
+| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `baf70d089e00e55a314c14129d5f6e3afa9e7727f2d81a6fb86d57c284fd8353` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -211,6 +211,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The recording, sent again](docs/replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](docs/guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
 | [A guard that builds what it measures](docs/guard-trial.md) | the teardown a trial runs whatever happened, so a gate that sets data up is not the thing that leaves it behind |
+| [A trial that asks and then chooses](docs/guard-branch.md) | the condition a step runs behind, and the value one step hands to the step after it |
 | [The reds a live gate starts with](docs/guard-baseline.md) | freezing the checks a running system fails today, so that a new failure is the only one that speaks |
 | [Two schemas, one question](docs/guard-rows.md) | the row set a query answers with, weighed against the row set a second connection answers the same question with, and the difference named row by row |
 | [The setting on paper against the setting in force](docs/effective.md) | a recorded value compared with the value the running system actually uses |
@@ -283,4 +284,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.173.0 capabilities=57ce815639b00314721e5c09498e7664f1eec811a66ee4b666faa78c6939177b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

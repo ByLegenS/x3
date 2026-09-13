@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.173.0`**
+**Current version: `v0.174.0`**
 
 | Page | What it covers |
 |---|---|
@@ -74,6 +74,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The recording, sent again](replay.md) | compared field by field, with what is allowed to differ written down |
 | [The live world, before the command](guard.md) | `sql`, `http`, `exec` and multi-step trials, each one a warning or a block |
 | [A guard that builds what it measures](guard-trial.md) | the teardown a trial runs whatever happened, so a gate that sets data up is not the thing that leaves it behind |
+| [A trial that asks and then chooses](guard-branch.md) | the condition a step runs behind, and the value one step hands to the step after it |
 | [The reds a live gate starts with](guard-baseline.md) | freezing the checks a running system fails today, so that a new failure is the only one that speaks |
 | [Two schemas, one question](guard-rows.md) | the row set a query answers with, weighed against the row set a second connection answers the same question with, and the difference named row by row |
 | [The setting on paper against the setting in force](effective.md) | a recorded value compared with the value the running system actually uses |
@@ -102,4 +103,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.173.0 capabilities=57ce815639b00314721e5c09498e7664f1eec811a66ee4b666faa78c6939177b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.174.0 capabilities=d93fced1b50bbfae74208fb418bfd6eca6564e54ff1a75fa4aca6bb65e49d13a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
