@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.182.1`**
+**Current version: `v0.183.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.9 MB | `be9d64be22ede0e69da5767f127db0df9949f9e0a9ae205c304492c6257bc26b` |
-| `x3-linux-amd64` | linux/amd64 | 15.5 MB | `c93cf8bdcdf38bc1429034083bf1133c793a4ca68f5055ce75b6c1c6ec463450` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.9 MB | `d621affae0868a976d1612639db6b6bbd4ba736638a91e5db084c62476bd4416` |
+| `x3-linux-amd64` | linux/amd64 | 15.5 MB | `8daf229fb60d305fe52417018a57ebdd9ad0103912dcd176512335f32994c874` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -200,6 +200,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The file a shell decodes before it runs it](docs/syntax-encoding.md) | the bytes a parser reads its own way and the shell reads another, and the mark that settles it |
 | [The parser that reads the name](docs/syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](docs/syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
+| [Where the pattern does not look](docs/syntax-outside.md) | the container a fallback declares for itself, counted out of scope rather than excluded, and the multi-line tag a line-by-line search never sees |
 | [Which files the check is about](docs/syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
 | [What a check does not read](docs/syntax-scope.md) | the file a source glob takes but the check must not weigh, and the comment that explains the rule rather than breaking it |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
@@ -288,4 +289,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.182.1 capabilities=d9f8809140f0347085cd14cf3fb90078cc8cc53159db9f424d361b1326745806 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.183.0 capabilities=75f6b729bf910d853a7266c53cdcf9fa8cca6eb06e3733b5590c3fda04805477 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
