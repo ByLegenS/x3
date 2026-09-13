@@ -48,4 +48,4 @@ Two runs of one tree that measured in different places now **differ in their
 bytes**, and the field that differs names the reason. A run that declares
 `workdir` produces the same bytes from anywhere.
 
-<!-- x3-dist version=v0.189.0 capabilities=9a7cd46a34ab5ee267750ca4527c5531aca236f6beb0b372a232c54662ba795d template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.190.0 capabilities=0baf44f282fed2c99d88b24a56fbcc96dc3aaa6477ac5d753eddf755e2ee5fc1 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

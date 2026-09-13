@@ -49,6 +49,18 @@ use a word of its own. The entry whose text matches is the one; two matching
 entries are an error, because an overlay that cannot say which one it changed
 proves nothing.
 
+A field can also be **removed**: `null` deletes it, and there is no other
+spelling for "this is not there any more". The most common experiment is
+exactly that — take an exemption away and see whether the rule still looks:
+
+```json
+{ "arch": { "rules": { "every-delete-route-hangs-on-a-guard":
+    { "left": { "skip": null } } } } }
+```
+
+Removing something that is not there is an error, like every other overlay that
+lands on nothing.
+
 ### Narrowing a run to one rule
 
 `-only` runs the named rules and nothing else (`syntax` spells it `-check`),
@@ -58,4 +70,10 @@ rule, a planted violation next to it, and none of the other rules reporting
 that they found no files there. The report prints `selected`, so a narrowed run
 can never be mistaken for a full one.
 
-<!-- x3-dist version=v0.189.0 capabilities=9a7cd46a34ab5ee267750ca4527c5531aca236f6beb0b372a232c54662ba795d template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+**A narrowed run passes no dead-declaration judgement.** The rules that did not
+run would have used some of the tree's exemptions and some of the baseline's
+debt, and in a narrowed run those look unused. Calling them dead there would
+delete, as a side effect of an experiment, a line that a full run still needs.
+They come back as `unjudged_exemption`, a warning that says so.
+
+<!-- x3-dist version=v0.190.0 capabilities=0baf44f282fed2c99d88b24a56fbcc96dc3aaa6477ac5d753eddf755e2ee5fc1 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
