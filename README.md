@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.181.0`**
+**Current version: `v0.182.1`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.9 MB | `990ebe79f0eb3529f2e0899c7aae901eef2272fc2091fd6d3bb1a8144ae1d2d8` |
-| `x3-linux-amd64` | linux/amd64 | 15.5 MB | `50d3f0ee4e55b484adfdd5c2a3a1e0f7e50181ca60f993a7922d4badd6298f98` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.9 MB | `be9d64be22ede0e69da5767f127db0df9949f9e0a9ae205c304492c6257bc26b` |
+| `x3-linux-amd64` | linux/amd64 | 15.5 MB | `c93cf8bdcdf38bc1429034083bf1133c793a4ca68f5055ce75b6c1c6ec463450` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -196,6 +196,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
 | [What a gate's line holds](docs/holds-selectors.md) | the selector a gate hands its runner and the package its step runs, both read by declared patterns, next to the bare word that cannot be weighed |
 | [Files no compiler reads](docs/syntax.md) | JSON, YAML, TOML, SQL and the rest, parsed anyway; a missing parser is red |
+| [A forbidden list the database writes](docs/syntax-fromdb.md) | the values nobody can keep by hand, read at gate time and searched as literal text |
 | [The file a shell decodes before it runs it](docs/syntax-encoding.md) | the bytes a parser reads its own way and the shell reads another, and the mark that settles it |
 | [The parser that reads the name](docs/syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](docs/syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
@@ -287,4 +288,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.181.0 capabilities=1a9351c155124be5fc4e7f4118f2dedbf12d6f0a6eeee5ab73c45b798a6faed1 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.182.1 capabilities=d9f8809140f0347085cd14cf3fb90078cc8cc53159db9f424d361b1326745806 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
