@@ -88,7 +88,9 @@ own environment **is**:
 A trial can carry `env` of its own, and it wins over the step's: one command,
 two arms, two environments. `${NAME}` also opens **inside** a value
 (`"sandbox;${PATH}"`), and `${NAME:-fallback}` gives an unwritten variable a
-default that lives in the settings rather than in a script.
+default that lives in the settings rather than in a script. The same opening
+happens in a command's **arguments**: a step whose target changes from machine
+to machine carries its default where the step is read.
 
 One address, two names, and both of them pointing at the same place in the same
 run — otherwise the same tree gives two different numbers in two gates. A shell
@@ -106,4 +108,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.196.0 capabilities=42c9e4d25b581df1ee169b0e61079459d286eff37cd1289ab08a0064586cddf3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.197.0 capabilities=5a212239948f7f0b9a0d90e324cdd1e34c042af4a9543480a1a81b96b9e111f3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
