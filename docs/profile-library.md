@@ -68,6 +68,25 @@ named no version would find its rules changing on somebody else's upgrade.
 asked for: a project without one has no reason to move, one with both drops
 nothing.
 
+### `rulebook@1` — four checks that hold a document to what it says
+
+A project's rulebook is read as instruction: the paths it names, the packages it
+tells people to test, the gates it claims are enforced. Each of those is a promise
+the tree can be measured against, and a stale one teaches the reader to distrust
+the whole page.
+
+| Rule | Lands in | What it measures | Asks for |
+|---|---|---|---|
+| `paths-the-rulebook-names-still-point-somewhere` | `arch.rules` | a path the document names and the tree no longer carries | `rulebook`, `trees`, `least-paths` |
+| `packages-the-rulebook-tests-still-exist` | `arch.rules` | a package the document tells people to test, which is not there | `rulebook`, `runner` |
+| `engine-rules-the-rulebook-claims-are-really-in-force` | `arch.rules` | a gate the document claims and the settings do not run - believed, and false | `rulebook`, `claims`, `claim`, `settings`, `least-gates` |
+| `root-holds-only-the-declared-directories` | `arch.rules` | a top-level directory nobody declared: a decision nobody made | `map`, `declares` |
+
+The thresholds (`least-paths`, `least-gates`) are the check measuring **itself**:
+a document that suddenly names far fewer paths than it used to is not a clean
+document, it is a pattern reading the wrong lines - and without a floor that
+failure passes as a green.
+
 ### `go-livedb@1` — three checks that need two databases and a prefix
 
 | Rule | Lands in | What it measures | Asks for |
@@ -139,4 +158,4 @@ A secrets pattern has the same shape: an exemption that excuses nothing is
 reported dead, so the ranges a real repository excuses cannot travel with the
 pattern — the carried password pattern ships with **no** exemptions.
 
-<!-- x3-dist version=v0.180.0 capabilities=ecb1c78593b9d424c2fc8f64fef7ec5045f07d669c43fc94ae2bfe643ccd47a3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.181.0 capabilities=1a9351c155124be5fc4e7f4118f2dedbf12d6f0a6eeee5ab73c45b798a6faed1 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

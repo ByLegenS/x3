@@ -56,6 +56,31 @@ needs spaces, quotes and parentheses, so a rule may declare a token `text`:
 That is the whole fence: the engine says which kind of token is legitimate
 where, instead of widening the grammar everywhere and hoping.
 
+### A token that carries a shape
+
+Some of what varies between copies is not a word but a **list**: the files one
+check reads, the exclusions another carries. A token declared `shape` takes a
+list or an object instead of a string.
+
+```json
+{ "each": "spelling", "per": ["where", "pattern"], "shape": ["where"], "text": ["pattern"],
+  "rule": { "name": "no-file-writes-a-{spelling}", "sources": "{where}", "deny": "{pattern}" } }
+```
+
+The rule writes `"{where}"` — quotes and all, because the library file is JSON
+and has to parse before anything is filled in — and the filling takes the quotes
+away with the value it puts there. It was measured before it was designed: in a
+production settings file eight checks of one shape carried **seven different
+source lists**, so a token holding one string could not have carried them and the
+eight copies would have stayed.
+
+The fence is the same as free text's: a shape may not sit in a rule's **name** and
+may not be the `each` token, because a name is what a project writes to override
+or switch a check off and a list cannot be written twice the same way. A value
+that is neither a list nor an object is refused — the rule would be left looking
+for quotes that are no longer there.
+
+
 ### A rule the project writes itself
 
 The same shape is open to a project for a rule the library will never carry —
@@ -107,4 +132,4 @@ it once with `each`, and let the list carry what differs. `allow` takes a shape
 and a **reason** for a repetition kept on purpose — and counts it, rather than
 hiding it, because how much was kept deliberately is a measure too.
 
-<!-- x3-dist version=v0.180.0 capabilities=ecb1c78593b9d424c2fc8f64fef7ec5045f07d669c43fc94ae2bfe643ccd47a3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.181.0 capabilities=1a9351c155124be5fc4e7f4118f2dedbf12d6f0a6eeee5ab73c45b798a6faed1 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
