@@ -73,4 +73,38 @@ every check it grew. Drop an item and the check it stood for is simply gone —
 which is what the [control experiment](experiments.md#control-experiments) measures in both
 directions.
 
-<!-- x3-dist version=v0.179.0 capabilities=116ad936bbb1770fa7b9943d0e260c0d4b0c19403f36195912282fd84f5d23a4 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+### The settings measuring their own repetition
+
+A settings file grows two ways, and only one of them is a problem.
+
+Writing a **new check** is growth nobody should slow down: a cap on it makes the
+cheapest way past the gate *"write no rule"*, which is the exact trap a count of
+files sets when it rewards merging them. Copying an **existing** check is the
+other way — three, five, eight items whose only difference is a pattern or a
+path. That one is measurable, and until it is measured it is free: the author of
+eight copies and the author of one list get the same green.
+
+```json
+"profile": { "repeat": { "limit": 2, "vary": 4, "policy": "warn" } }
+```
+
+Every array of objects in the file is grouped by **shape** — the set of field
+names, plus `kind` where there is one; a name, a `why` or a `reason` is not part
+of a shape. A shape written more than `limit` times is reported with the lines it
+costs and the names that share it.
+
+`vary` is what keeps the measure honest. Before a cluster is reported, the engine
+counts the **leaves that change** from item to item: a leaf that stays the same
+becomes the carried rule's body, and a leaf that varies becomes one token of the
+list. Past `vary` leaves there is no single rule to write — those items are
+separate work that happens to live in one array, and reporting them would tell
+the author to do something that cannot be done. Measured on this engine's own
+gate: the sixteen steps share a shape and vary in dozens of leaves, so they are
+not a cluster; a project's eight syntax checks vary in two, and they are.
+
+A reported cluster carries its own remedy, which is the rest of this page: write
+it once with `each`, and let the list carry what differs. `allow` takes a shape
+and a **reason** for a repetition kept on purpose — and counts it, rather than
+hiding it, because how much was kept deliberately is a measure too.
+
+<!-- x3-dist version=v0.180.0 capabilities=ecb1c78593b9d424c2fc8f64fef7ec5045f07d669c43fc94ae2bfe643ccd47a3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
