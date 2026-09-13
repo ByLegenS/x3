@@ -47,6 +47,11 @@ needs spaces, quotes and parentheses, so a rule may declare a token `text`:
   check off, and a name carrying a sentence cannot be written twice the same.
 - its value is **escaped into JSON** when it is filled in, so a quote it carries
   cannot break out of the rule; control characters are refused.
+- it is one line of **at most 4 000 characters**. The ceiling is a reading
+  limit, not a fence — the escaping does not care how long a value is — and it
+  was measured rather than chosen: in a production settings file three of
+  twelve live queries ran past the first ceiling of 400, the longest at 1 061,
+  so that number was refusing real work.
 
 That is the whole fence: the engine says which kind of token is legitimate
 where, instead of widening the grammar everywhere and hoping.
@@ -68,4 +73,4 @@ every check it grew. Drop an item and the check it stood for is simply gone —
 which is what the [control experiment](experiments.md#control-experiments) measures in both
 directions.
 
-<!-- x3-dist version=v0.177.0 capabilities=227cc35e8bdb07e3cf10686eee3fa0a683cc37b40b65fa933f681430fc453507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.178.0 capabilities=54f398d2473ab315d287936bb139a4a4a8a6c757fd8db1bd45c258f9417f4c2b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
