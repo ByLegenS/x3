@@ -72,6 +72,25 @@ a path missing on every run:
 Exactly one of `join` and `each` is written. RE2 keeps only the **last** match of
 a repeated group, which is why capture groups alone cannot do this.
 
+**Which file the match sits in.** Two sets can both be sets of **files** — the
+templates that spell a class, and the sibling scripts that write the address —
+and no capture group can build either, because a file's name is not written in
+its own text. `yields` puts the file in the set instead of the captured word:
+`"file"` is the path, `"file:stem"` the path without its extension, and the stem
+is what lets `screens/x.html` and `screens/x.js` meet as one screen.
+
+```json
+"left":  { "from": "regex", "sources": ["ui/**/*.html"],
+           "select": "\\bvt-tabs?\\b", "yields": "file:stem" },
+"right": { "from": "regex", "sources": ["ui/**/*.js"],
+           "select": "history\\.replaceState", "yields": "file:stem" }
+```
+
+The pattern then carries **no** capture group — a group nobody reads is the rule
+misread — and `parts`, `join` and `each` are refused: they split or multiply a
+**value**, and here there is no value to split. A naming `region` is refused for
+the same reason; there is nothing for its name to prefix.
+
 **Where the value stands.** A value can be right and still be in the wrong
 place. `region` carries the container a value sits in into the set
 ([The container a value sits in](sets-region.md#the-container-a-value-sits-in)),
@@ -186,4 +205,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.198.1 capabilities=12a337686c2a132182d30265cdcac23ac92be6ed2bbccaee215dbd3593ea1fdd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.199.0 capabilities=d8d415baeff182346e237675f6562709057860adba6aaecd080c1a172d9dc335 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
