@@ -60,4 +60,25 @@ its own name; a project calling it through a variable (`& $bin scan`) says so
 with `invoke`, a list of patterns each carrying one capture group — the same
 field, spelled the same way, that [`x3 adoption`](adoption.md#x3-adoption) reads.
 
-<!-- x3-dist version=v0.185.0 capabilities=1ee338e5c8d1ec7040cc5325fc6cbca863abdaec69e021877be96075e8ad3a4a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+
+### `gate:runs` — the command lines the gate itself carries
+
+Once the gate's step list is settings rather than a script, the call `python
+a.py --flag` is written `["python", "a.py", "--flag"]`, and every rule that read
+the old text stops matching. `gate:runs` reads the call from the **structure**
+and hands it back as one line, so the pattern that read the script keeps working:
+
+```json
+{ "left":  { "from": "x3", "file": "x3.json", "select": "gate:runs",
+             "parts": "\{bin\} ([a-z][a-z:]*)", "each": true },
+  "right": { "from": "x3", "file": "x3.json", "select": "commands" },
+  "compare": "left-subset-of-right" }
+```
+
+That pair asks whether every engine command the gate runs is a command the
+engine has: a step calling `syntaxx` fails at run time with a usage line, and
+the failure reads like the step's own red. `parts`, `join` and `each` work here
+for the reason they work on a pattern — the value is text, and pulling a script
+name out of a command line is what a pattern is for.
+
+<!-- x3-dist version=v0.186.0 capabilities=f976ab2dc440bddfdfc7d642635e7a2068a86c29f748967aa72348aa034af835 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

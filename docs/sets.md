@@ -26,7 +26,7 @@ giving each of them a message, so the user reads a raw key on screen.
 | `go` | string constants of a named type | `const-set:<Type>` |
 | `json` | the keys of one file, nested keys flattened to `a.b.c` | `keys:<pattern>` |
 | `regex` | one capture group, read **line by line** | the pattern itself |
-| `x3` | a settings file read as a **configuration**, or a script read as **calls** | `in-force`, `commands` or `invocations` |
+| `x3` | a settings file read as a **configuration**, or a script read as **calls** | `in-force`, `commands`, `invocations` or `gate:runs` |
 | `tree` | the paths themselves — which directories and which files exist | `dirs:<pattern>` or `files:<pattern>` |
 
 **What enters the set is what was captured**, not the whole key, so it can be
@@ -186,4 +186,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.185.0 capabilities=1ee338e5c8d1ec7040cc5325fc6cbca863abdaec69e021877be96075e8ad3a4a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.186.0 capabilities=f976ab2dc440bddfdfc7d642635e7a2068a86c29f748967aa72348aa034af835 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
