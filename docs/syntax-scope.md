@@ -66,4 +66,4 @@ A denied pattern with one legitimate use is excused **on the line itself**: a `/
 
 Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
 
-<!-- x3-dist version=v0.197.0 capabilities=5a212239948f7f0b9a0d90e324cdd1e34c042af4a9543480a1a81b96b9e111f3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.198.0 capabilities=5a212239948f7f0b9a0d90e324cdd1e34c042af4a9543480a1a81b96b9e111f3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
