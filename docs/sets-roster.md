@@ -60,4 +60,4 @@ its own name; a project calling it through a variable (`& $bin scan`) says so
 with `invoke`, a list of patterns each carrying one capture group — the same
 field, spelled the same way, that [`x3 adoption`](adoption.md#x3-adoption) reads.
 
-<!-- x3-dist version=v0.166.0 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.166.1 capabilities=700dbe940b140793e41e42e490d83047f37b1785c874bd4abd92b96b07164b37 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
