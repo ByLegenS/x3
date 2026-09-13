@@ -26,8 +26,10 @@ past the gate. The engine carries the rule sets instead, and a project calls one
 { "profile": { "use": ["go-monorepo@1"], "with": { "text": ["go", "json", "md"] } } }
 ```
 
-`x3 profile -library` lists what the engine carries; `x3 profile` prints what is
-in force in this project, rule by rule, with the full text of each one. **A call
+`x3 profile -library` lists what the engine carries — rule by rule, with what
+each one measures, in [The library, rule by rule](profile-library.md#the-library-rule-by-rule) —
+and `x3 profile` prints what is in force in this project, with the full text of
+each rule. **A call
 is not allowed to make a settings file unreadable** — whoever reads the settings
 today sees every rule, and that has to survive the call.
 
@@ -68,4 +70,4 @@ With `"text": ["go", "json"]` the run carries two checks and the project wrote
 one word more. The rule's **name** must carry the token, or every copy would land
 in the list under one name and only the last would be read.
 
-<!-- x3-dist version=v0.171.0 capabilities=b3ee80044ca2375e9e2d5edb498234a5a45b2570d8c0b521eb7436c22a50a4bd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.172.0 capabilities=aeb308bbc6445b368dba196cbd2cc9d24d585cf0fd3d47313e197f2672ef0a92 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

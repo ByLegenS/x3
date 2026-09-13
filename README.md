@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.171.0`**
+**Current version: `v0.172.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `49375c9f3bfaa67a493fa3d811fa33c9acba01800963b718b0be8bdd73396da9` |
-| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `368db3de6430320c700f0c29d7b13da922b588f7e348e194570d5ccabd8628b9` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.7 MB | `a24a50bb838fef3348c78cb8c87768c9db638df0101c5d8e9908986a9b0abded` |
+| `x3-linux-amd64` | linux/amd64 | 15.3 MB | `1d56bb843c9d37af56b6a3cf26254bd5b694c94c8a097be0eece6757efcdde79` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -230,6 +230,7 @@ markers that split this document, so a page cannot be missing from it.
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
 | [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [What a project changes about a rule it did not write](docs/profile-override.md) | the fields it replaces, the rule it switches off with a reason, and the line that stops pointing at anything |
+| [What the engine carries today](docs/profile-library.md) | the two rule sets, rule by rule: what each one measures, what it asks the project for, and what was measured and deliberately left out |
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
@@ -282,4 +283,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.171.0 capabilities=b3ee80044ca2375e9e2d5edb498234a5a45b2570d8c0b521eb7436c22a50a4bd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.172.0 capabilities=aeb308bbc6445b368dba196cbd2cc9d24d585cf0fd3d47313e197f2672ef0a92 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
