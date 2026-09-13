@@ -135,4 +135,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.195.0 capabilities=00ffb69052afa011f5eac569de6759cd846b5505632fb672e2d7d4d6990b2c44 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.196.0 capabilities=42c9e4d25b581df1ee169b0e61079459d286eff37cd1289ab08a0064586cddf3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

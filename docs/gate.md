@@ -57,6 +57,23 @@ without. A skipped step is always **printed with its reason**: a step that goes
 quiet is a hole in a green run that nobody can see.
 
 
+### A red the step can live with
+
+Some reds are not the tree's fault: the tool is not installed on this machine,
+the vulnerability database could not be reached. A gate written as a script
+handles those with a branch that reads the output and downgrades the colour —
+and every project writes that branch again, differently.
+
+```json
+{ "run": ["govulncheck", "./..."], "want": 0,
+  "tolerate": ["loading vulnerability database", "executable file not found"],
+  "because": "the network's failure is not this repository's red" }
+```
+
+`because` is required. A tolerated red nobody explained is never questioned
+again, and the difference between "the database was unreachable" and "the
+check has been off for a month" is exactly that sentence.
+
 ### The variables a step declares
 
 `needs` says a step cannot run **without** a variable. `env` says what the step's
@@ -67,6 +84,11 @@ own environment **is**:
   "env": { "APP_DEV_DSN": "${APP_DSN}" },
   "trials": [ { "run": ["{bin}", "guard", "-only", "schemadrift"], "want": 0 } ] }
 ```
+
+A trial can carry `env` of its own, and it wins over the step's: one command,
+two arms, two environments. `${NAME}` also opens **inside** a value
+(`"sandbox;${PATH}"`), and `${NAME:-fallback}` gives an unwritten variable a
+default that lives in the settings rather than in a script.
 
 One address, two names, and both of them pointing at the same place in the same
 run — otherwise the same tree gives two different numbers in two gates. A shell
@@ -84,4 +106,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.195.0 capabilities=00ffb69052afa011f5eac569de6759cd846b5505632fb672e2d7d4d6990b2c44 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.196.0 capabilities=42c9e4d25b581df1ee169b0e61079459d286eff37cd1289ab08a0064586cddf3 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
