@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.167.0`**
+**Current version: `v0.168.0`**
 
 | Page | What it covers |
 |---|---|
@@ -78,6 +78,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [How much of this engine actually runs](adoption.md) | the project measured against the engine's own command table |
 | [How the engine is called](adoption-invoke.md) | the spelling a project calls the engine by, the prose and the printed lines that are not calls, and where the line between them is drawn |
 | [Binding the gate without a permanent red](adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
+| [What is left of a migration](retire.md) | the files a project put on a ledger to delete, counted on every run beside the share of the beginning that is already gone |
 | [The version, and how it updates itself](update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [The program a command name means](commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
 | [A command started to measure cannot wait for a person](unattended.md) | the console a measured child never inherits, the stdin it already reads as empty, and the streamed run this rule deliberately leaves alone |
@@ -94,4 +95,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.167.0 capabilities=338d29f78c1f36d4f08e914b2bdbf61b8c06fe04a39837e64c63c6b4bebb0955 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.168.0 capabilities=2055aa1046c0ddd0acebf83de3caa300a0e2c6687181dd3af55254ee9dc3f629 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->

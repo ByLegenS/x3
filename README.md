@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.167.0`**
+**Current version: `v0.168.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 15.5 MB | `150598dbe0e930166af1656eac68e355a48bafc66fb95410111e3c80ead1b168` |
-| `x3-linux-amd64` | linux/amd64 | 15.1 MB | `a51e036e9c0962ff8f3a8cd97d6a12c1466f7d57494e8ec613402b17575f48fc` |
+| `x3-windows-amd64.exe` | windows/amd64 | 15.6 MB | `c22354cd02ed31eb94ca4a622b21a4e3b971784824929861c8c817fad9cc0baa` |
+| `x3-linux-amd64` | linux/amd64 | 15.2 MB | `36e179fb087aa980530befe78638c902e9cf98b1f94b5361b93c2898926822c2` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -215,6 +215,7 @@ markers that split this document, so a page cannot be missing from it.
 | [How much of this engine actually runs](docs/adoption.md) | the project measured against the engine's own command table |
 | [How the engine is called](docs/adoption-invoke.md) | the spelling a project calls the engine by, the prose and the printed lines that are not calls, and where the line between them is drawn |
 | [Binding the gate without a permanent red](docs/adoption-policy.md) | the policy object, the laws an exception carries, and the finding that audits the exceptions themselves |
+| [What is left of a migration](docs/retire.md) | the files a project put on a ledger to delete, counted on every run beside the share of the beginning that is already gone |
 | [The version, and how it updates itself](docs/update.md) | the embedded tag, the self-update, the pinned checksum and the minimum version gate |
 | [The program a command name means](docs/commands.md) | a declared command resolved before it runs, so a failure names the program that actually ran rather than the name that was written |
 | [A command started to measure cannot wait for a person](docs/unattended.md) | the console a measured child never inherits, the stdin it already reads as empty, and the streamed run this rule deliberately leaves alone |
@@ -275,4 +276,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.167.0 capabilities=338d29f78c1f36d4f08e914b2bdbf61b8c06fe04a39837e64c63c6b4bebb0955 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
+<!-- x3-dist version=v0.168.0 capabilities=2055aa1046c0ddd0acebf83de3caa300a0e2c6687181dd3af55254ee9dc3f629 template=dc09b1bbb2d660b8d4128f8b3c106398aba2584e6aea0ed894d6a3e548e0fdf0 -->
