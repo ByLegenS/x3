@@ -27,7 +27,15 @@ each check is exactly one of four kinds:
 `as` names a parser the engine carries — `yaml`, `json` and `toml`. The first is
 what the engine's own settings are written in; the other two are there because a
 project it checks may hold them. The list stays this short because a
-format half-understood is worse than one not understood at all. `run` names an
+format half-understood is worse than one not understood at all.
+
+**`json` is read strictly.** A key written twice in the same object is a finding,
+not a shrug. The parsers do not agree on what such a file means — most keep the
+last one and say nothing — so the first line sits there dead, and the person who
+edits it watches the text refuse to change with no explanation on offer. A file
+being parseable should mean it is known what it says when read.
+
+`run` names an
 external parser: the path is appended, and a non-zero exit is a finding carrying
 the parser's own first line. `deny` is the other half of the same problem — text
 that parses but means nothing in this format — and it needs a `reason`. The
@@ -65,4 +73,4 @@ A denied word is often legitimate somewhere else in the same tree — another
 language's own keyword or type. Those lines are excluded rather than denied:
 [The word another language owns](syntax-ignore.md#the-word-another-language-owns).
 
-<!-- x3-dist version=v0.216.0 capabilities=9fac88d16268b9269a7a5d613bfdc28284a783b809b52dea3ebb11eb41f02671 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.217.0 capabilities=d5a549f6a4e0603d8c785a64d94e45a05d5266e6a799b7912be83923b7cde7b3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
