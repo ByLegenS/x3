@@ -73,7 +73,7 @@ reason that is not about taste: the declaration and the example that takes it
 **must arrive together**. Declared alone, it is a dead declaration and red;
 written alone, the example does not compile and is red. Where the configuration
 and the sources are edited by different hands — a migration in which one person
-owns `x3.json` and another owns the packages — those two reds are a deadlock,
+owns `x3.yaml` and another owns the packages — those two reds are a deadlock,
 and neither half can be landed first. A declaration that lives in the same file
 as the example that needs it has no such seam.
 
@@ -117,4 +117,4 @@ package. The engine records which example asked for each import, so the finding
 lands on that one and says why — `"net/http/httptest" imported and not used; the
 import was written because this example names it` — and the neighbours still run.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

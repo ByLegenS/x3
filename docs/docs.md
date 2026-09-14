@@ -8,7 +8,7 @@
 documentation, a migration without its release note.
 
 ```
-x3 docs [-config <file>] [-out <file>] [-scope auto|working|head] [-reason <text>] [dir]
+x3 docs [-config <file>] [-out <file>] [-scope auto|working|head] [-changed <files>] [-reason <text>] [dir]
 ```
 
 ```json
@@ -32,6 +32,19 @@ The default is not a convenience: checking the last commit while the tree is
 dirty would count documentation that has not been written yet. **A directory
 that is not a repository is red**, not green.
 
+`-changed a.go,b.sql` says the list outright and **git is not asked at all**;
+the report's scope reads `given`, so nobody mistakes it for a diff. What this
+check measures is what a change must bring with it — where the list of changed
+files came from is the caller's business, not the rule's.
+
+It exists because the rule could not otherwise be experimented on. Its control
+experiment has to produce a change, and producing one meant `git init` plus a
+commit inside a fixture tree — a repository inside a repository. Measured in the
+pilot project: the experiment stayed in a shell script for months for exactly
+this reason, and when that project's settings moved to YAML the script stopped
+parsing them, so the rule ran with no experiment behind it at all. With
+`-changed`, the experiment is five lines of gate settings and needs no tree.
+
 ### Exemption, with a reason
 
 ```
@@ -52,4 +65,4 @@ marker, the `docs gate` step's own control experiment (a rule whose counterpart
 directory cannot exist, which must exit `1`) exited `0` instead. The exemption
 had excused the experiment.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

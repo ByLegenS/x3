@@ -70,7 +70,7 @@ too: base36 accepts letters, so a hand-written `apptest_backup_v2` would read as
 born in 1970 and look infinitely stale. A stamp outside **2025-01-01 … now +
 24 h** is not a stamp, and the name is not ours.
 
-### `testdb` in `x3.json`
+### `testdb` in `x3.yaml`
 
 ```json
 { "testdb": { "adminDsnEnv": "APP_ADMIN_DSN", "template": "app_test_template",
@@ -96,4 +96,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

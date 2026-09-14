@@ -17,7 +17,7 @@ own settings file.
 
 ```json
 { "left":  { "from": "regex", "file": "RULES.md", "select": "`x3: ([a-z-]+)`" },
-  "right": { "from": "x3", "file": "x3.json", "select": "in-force" },
+  "right": { "from": "x3", "file": "x3.yaml", "select": "in-force" },
   "compare": "left-subset-of-right" }
 ```
 
@@ -55,7 +55,7 @@ second: the checker that never runs looks green, and the checker that does run
 looks missing.
 
 ```json
-{ "left":  { "from": "x3", "file": "x3.json", "select": "commands" },
+{ "left":  { "from": "x3", "file": "x3.yaml", "select": "commands" },
   "right": { "from": "x3", "file": "gate.ps1", "select": "invocations" },
   "compare": "left-subset-of-right" }
 ```
@@ -74,9 +74,9 @@ the old text stops matching. `gate:runs` reads the call from the **structure**
 and hands it back as one line, so the pattern that read the script keeps working:
 
 ```json
-{ "left":  { "from": "x3", "file": "x3.json", "select": "gate:runs",
+{ "left":  { "from": "x3", "file": "x3.yaml", "select": "gate:runs",
              "parts": "\{bin\} ([a-z][a-z:]*)", "each": true },
-  "right": { "from": "x3", "file": "x3.json", "select": "commands" },
+  "right": { "from": "x3", "file": "x3.yaml", "select": "commands" },
   "compare": "left-subset-of-right" }
 ```
 
@@ -86,4 +86,4 @@ the failure reads like the step's own red. `parts`, `join` and `each` work here
 for the reason they work on a pattern — the value is text, and pulling a script
 name out of a command line is what a pattern is for.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

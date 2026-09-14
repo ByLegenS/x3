@@ -34,13 +34,12 @@ See **how a rule reads a file** in the [arch reference](arch-reference.md#how-a-
 same shape: `line` openers, `block` pairs, and `quoted` runs where a comment
 marker means nothing. The embedded list covers `.go` `.js` `.ts` `.java` `.c`
 `.cpp` `.cs` `.py` `.ps1` `.sh` `.sql` `.yaml` `.yml` `.css` `.html` `.json`
-`.toml`. The two settings formats are there for the same reason the rest are: a
-rule that reads a settings file asks the same question in every project, and
-what a format does with comments is a fact about the format, not a choice a
-project makes. JSON carries none, and its strings are still declared because a
-pattern reads inside them; TOML opens a comment with `#` and has four string
-forms, the multi-line `"""` and `'''` among them — written out, because three
-quotes read as one empty string would swallow the rest of the file.
+`.toml`. Settings formats are there for the same reason the rest are: a rule that
+reads a settings file asks the same question in every project, and what a format
+does with comments is a fact about the format, not a choice a project makes. The
+engine's own settings are YAML, which opens a comment with `#`; the others stay
+in the list because a project the engine checks may hold them, and a file nobody
+declared is read as code from end to end.
 
 **An extension nobody declared has no comments, and the whole file is code.** A
 rule of this kind falls on every file a project points it at — a dictionary, a
@@ -91,4 +90,4 @@ unreachable —
 `comments: "checked"` reads the prose again, and on the engine's own two-sided
 test tree it takes the same run from 14 findings to 28.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

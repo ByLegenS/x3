@@ -60,10 +60,10 @@ uncached one.
 
 Some of what a gate reads is not source but state the project keeps beside it:
 the frozen baselines, a findings baseline, the open-work list, the cache. They
-are read through one reader — the same one that reads `x3.json` — and it **drops
+are read through one reader — the same one that reads `x3.yaml` — and it **drops
 a leading byte order mark**. Windows tools write one while Go's JSON decoder
 calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

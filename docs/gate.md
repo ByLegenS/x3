@@ -59,15 +59,15 @@ after, and `{tree}` is where it stands.
 ```json
 "trees": {
   "sample": {
-    "base":  { "x3.json": "{ … }", "data.json": "{ \"ok\": true }" },
+    "base":  { "x3.yaml": "{ … }", "data.json": "{ \"ok\": true }" },
     "limbs": { "green": {}, "broken": { "data.json": "{ \"ok\": tru" },
                "pruned": { "data.json": null } } } },
 "steps": [
   { "name": "planted tree", "band": "fast", "trials": [
     { "say": "the base alone parses", "tree": "sample:green",
-      "run": "{bin} syntax -config {tree}/x3.json {tree}", "want": 0 },
+      "run": "{bin} syntax -config {tree}/x3.yaml {tree}", "want": 0 },
     { "say": "a limb that breaks a file", "tree": "sample:broken",
-      "run": "{bin} syntax -config {tree}/x3.json {tree}", "want": 1 } ] } ]
+      "run": "{bin} syntax -config {tree}/x3.yaml {tree}", "want": 1 } ] } ]
 ```
 
 A limb nobody declared, and a `null` over a file the base never laid, are both
@@ -154,4 +154,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

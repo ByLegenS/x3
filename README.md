@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.208.0`**
+**Current version: `v0.210.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 16.3 MB | `2a21babe7dea187057c9b27cb9871a070799441fb49aa2a39e2f5d8d12b969f9` |
-| `x3-linux-amd64` | linux/amd64 | 15.9 MB | `74ee7528c2c71e7256b84e01f1fa3f36c407162723de626f9ef0a12560bc1cb4` |
+| `x3-windows-amd64.exe` | windows/amd64 | 16.6 MB | `8f0a0a375922b8399c9316de5e19acf1f175926f0bc751bc87bf5a8e03ca2bb1` |
+| `x3-linux-amd64` | linux/amd64 | 16.2 MB | `ef046e99155e5a1c3cd7a7b68e6aec4f9e0f4ac63985606b44f8fdf507c2c2b2` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -230,7 +230,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Getting the database ready](docs/testdb-setup.md) | the ordered steps a fresh database is prepared with, and the variables each one is handed |
 | [The variables the wrapped command is handed](docs/testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
-| [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.yaml` from a live project |
 | [A region that runs on its own](docs/configuration-regions.md) | `extends`, the anchor a region measures against, and why a combiner names its parent instead of copying it |
 | [Changing one field for one run](docs/configuration-overlay.md) | the settings fragment a run lays over the configuration, the list entry it finds by name, and the narrowing that makes an experiment measure one rule |
 | [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
@@ -291,4 +291,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

@@ -49,7 +49,7 @@ that is always red is a gate somebody switches off.
                             "reason": "per-request id, not behavior" } ] } }
 ```
 
-Declared in `x3.json`, never inside the ledger, always with a reason — and an
+Declared in `x3.yaml`, never inside the ledger, always with a reason — and an
 exemption that silenced nothing is `dead_exemption` and **red**. `normalize`
 rules are not held to this: a rule for a field that did not appear says nothing
 about whether it is still needed.
@@ -146,4 +146,4 @@ replay is for. **Encrypted calls are refused, not tunnelled** — a `CONNECT` ge
 x3's own, and believing you recorded a call you did not is worse than knowing you
 did not.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

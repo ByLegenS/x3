@@ -86,7 +86,7 @@ See **guard exit codes** in the [guard reference](guard-reference.md#guard-exit-
 report separates them: `decision` is `blocked` in the first case, and `launch`
 with an `exit` field in the second.
 
-## Live guards in `x3.json`
+## Live guards in `x3.yaml`
 
 Guards are **declared, not coded**. There is no Go file per guard and no plugin:
 the engine knows three general source kinds — `sql`, `http`, `exec` — plus
@@ -342,4 +342,4 @@ configuration is refused: *"live.unwrapped is written but live.command is not"*.
 That is what keeps the reason from outliving the expectation it was written for.
 A blank reason is refused for the same reason a blank `unweighed` is.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

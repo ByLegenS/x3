@@ -10,17 +10,17 @@ first. The second needs the region's own file to be **runnable**, and that is
 where a copied configuration fails three different ways.
 
 ```toml
-# apps/web/x3.toml — the combiner. The root never reads this file.
-extends = '../../x3.toml'
+# apps/web/x3.yaml — the combiner. The root never reads this file.
+extends = '../../x3.yaml'
 include = ['x3/*.toml']
 ```
 
 ```toml
-# x3.toml — the root reads the leaves, not the combiners.
+# x3.yaml — the root reads the leaves, not the combiners.
 include = ['apps/*/x3/*.toml', 'core/x3/*.toml']
 ```
 
-The pattern `apps/*/x3/*.toml` does not reach `apps/web/x3.toml`, one directory
+The pattern `apps/*/x3/*.toml` does not reach `apps/web/x3.yaml`, one directory
 up. So a combiner is never a part, and the rule that a part may not declare
 parts is never in the way. A part may not name a parent either: the file a run is
 pointed at is the one that says where its settings come from.
@@ -59,4 +59,4 @@ the root run wearing another name.
 | the same region with the globals copied instead | `2` — the baseline refuses the second root |
 | a leaf part that names a parent | `2` — settings error |
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

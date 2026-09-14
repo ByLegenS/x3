@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.208.0`**
+**Current version: `v0.210.0`**
 
 | Page | What it covers |
 |---|---|
@@ -93,7 +93,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Getting the database ready](testdb-setup.md) | the ordered steps a fresh database is prepared with, and the variables each one is handed |
 | [The variables the wrapped command is handed](testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](speed.md) | measured timings, the incremental cache, and the files the engine reads back |
-| [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.yaml` from a live project |
 | [A region that runs on its own](configuration-regions.md) | `extends`, the anchor a region measures against, and why a combiner names its parent instead of copying it |
 | [Changing one field for one run](configuration-overlay.md) | the settings fragment a run lays over the configuration, the list entry it finds by name, and the narrowing that makes an experiment measure one rule |
 | [The rules an engine carries](profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
@@ -110,4 +110,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

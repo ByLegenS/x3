@@ -81,9 +81,9 @@ The mirror holds too: a part reaching past its own region is red
 weighs two of them cannot be owned by either.
 
 ```
-BLOCK x3.json: arch.rules[checkout-marks-its-payment]: declared_away_from_its_region
+BLOCK x3.yaml: arch.rules[checkout-marks-its-payment]: declared_away_from_its_region
         every place it names is under "apps/checkout", but it is declared in
-        x3.json; move it to apps/checkout/x3.json and name that file in "include"
+        x3.yaml; move it to apps/checkout/x3.yaml and name that file in "include"
         names: apps/checkout/**
 ```
 
@@ -107,4 +107,4 @@ at all, and a run where **nothing** named one is red (`nothing_measured`): a
 gate that saw no subject can never go red, and the count is the only thing that
 says so.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

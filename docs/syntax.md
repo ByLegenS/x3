@@ -24,8 +24,9 @@ each check is exactly one of four kinds:
       "reason": "a backslash escape inside an attribute is not valid here" } ] } }
 ```
 
-`as` names a parser the engine carries — `json` and `toml`, the two formats
-settings themselves may be written in. The list stays this short because a
+`as` names a parser the engine carries — `yaml`, `json` and `toml`. The first is
+what the engine's own settings are written in; the other two are there because a
+project it checks may hold them. The list stays this short because a
 format half-understood is worse than one not understood at all. `run` names an
 external parser: the path is appended, and a non-zero exit is a finding carrying
 the parser's own first line. `deny` is the other half of the same problem — text
@@ -64,4 +65,4 @@ A denied word is often legitimate somewhere else in the same tree — another
 language's own keyword or type. Those lines are excluded rather than denied:
 [The word another language owns](syntax-ignore.md#the-word-another-language-owns).
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

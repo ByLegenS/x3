@@ -61,7 +61,7 @@ document is a way of keeping it measured, never a way around the measurement. Al
 three run in `check.ps1` as well, each with a two-way control experiment.
 
 The publish directory is configuration and never a constant in the code:
-`-DistDir` wins, then `X3_DIST_DIR`, then `dist.dir` in `x3.json`.
+`-DistDir` wins, then `X3_DIST_DIR`, then `dist.dir` in `x3.yaml`.
 
 ## Using x3 from another project
 
@@ -71,7 +71,7 @@ The directives are plain comments, so the consuming project's compiler never see
 them and its dependency graph never learns that x3 exists.
 
 **Pin a version, and let the engine fetch itself.** The project writes the
-version it requires into its own `x3.json`
+version it requires into its own `x3.yaml`
 ([the minimum version gate](update.md#the-minimum-version-gate)) and calls
 [`x3 update`](update.md#x3-update) to obtain that binary. Nothing else about x3 is
 tracked: no downloader, no checksum file, no path.
@@ -100,4 +100,4 @@ configuration: see [Expectations](scan.md#expectations).
 migrated until its x3 equivalent has been seen to go red on a deliberately broken
 input.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

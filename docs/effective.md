@@ -23,7 +23,7 @@ Unlike `x3 guard` this launches nothing, so stdout is free for the report.
 | at least one divergent `policy: block` | `1` | the record and the world disagree |
 | a source could not be read at all | as above | **red** — an unknown answer is not an answer |
 
-## Effective checks in `x3.json`
+## Effective checks in `x3.yaml`
 
 Built out of the same three source kinds; what changes is the *role* a source
 plays — one is the record, the rest are the world.
@@ -57,7 +57,7 @@ red.
 ### Fields a reading has
 
 A reading is a `sql`, `http` or `exec` source, and every field documented under
-[Live guards in `x3.json`](guard.md#live-guards-in-x3json) applies unchanged. Two are
+[Live guards in `x3.yaml`](guard.md#live-guards-in-x3yaml) applies unchanged. Two are
 added and two are **not allowed**:
 
 See **effective reading fields** in the [effective reference](effective-reference.md#effective-reading-fields).
@@ -88,4 +88,4 @@ with `-stamp`.
 Secrets follow the guards' law, and `TestEffectiveSecretNeverLeaves` holds it
 for this report specifically.
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

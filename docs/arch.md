@@ -6,7 +6,7 @@
 
 **What it catches:** the shape a project claims in prose — "the core does not
 know the modules", "only the entry point wires them" — drifting from the shape
-it has. The rules live in `x3.json`, the verifier in the engine: the project's
+it has. The rules live in `x3.yaml`, the verifier in the engine: the project's
 names never enter a verifier.
 
 **All nine rule kinds are built:** `deps` with three matchers (`import` reads the
@@ -23,7 +23,7 @@ x3 arch [-config <file>] [-out <file>] [-baseline <file>] [-update-baseline] [di
 gate's default: a language has a universal default, an architecture does not, and
 an invented default architecture is the most dangerous silent green there is.
 
-### `arch` in `x3.json`
+### `arch` in `x3.yaml`
 
 ```json
 { "arch": {
@@ -318,7 +318,7 @@ which field — for `deps`, per matcher, so `pattern` is a `literal` field and
 wrong kind is the one that looks convincing, and it is refused by name:
 
 ```
-x3 arch: x3.json: arch: rules[0]: r: absent, allow belong elsewhere,
+x3 arch: x3.yaml: arch: rules[0]: r: absent, allow belong elsewhere,
   not to "deps:literal"; a setting that is read by nobody is a setting that
   was never written
 ```
@@ -385,4 +385,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
