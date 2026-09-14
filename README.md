@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.205.0`**
+**Current version: `v0.206.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 16.3 MB | `d94b91e0bbaf52add45466441537e4eb0d6bdc1fc389246dd9bb96126901aa68` |
-| `x3-linux-amd64` | linux/amd64 | 15.9 MB | `6964cb489084a0adb56173f329d6e48be02af0bd3c66555de18804f504ccd17c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 16.3 MB | `af50dd9685df2af742799247472830628b6f9d869239f106d00426c3918f2f26` |
+| `x3-linux-amd64` | linux/amd64 | 15.9 MB | `badc36eb9b57ce077f011eac4d0f6d3b2416e2be2887c42b63129629ebd85ca7` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -231,6 +231,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The variables the wrapped command is handed](docs/testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](docs/speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](docs/configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [A region that runs on its own](docs/configuration-regions.md) | `extends`, the anchor a region measures against, and why a combiner names its parent instead of copying it |
 | [Changing one field for one run](docs/configuration-overlay.md) | the settings fragment a run lays over the configuration, the list entry it finds by name, and the narrowing that makes an experiment measure one rule |
 | [The rules an engine carries](docs/profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [A rule written once and measured per item](docs/profile-items.md) | an item that fills more than one token at once, a token declared free text, and a rule the project writes itself |
@@ -290,4 +291,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.205.0 capabilities=d6ad45075401095d1e70395be01cd18df995c1892b169a7b9c527f3de04694ef template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.206.0 capabilities=a38184d80f559a5a5303f02071461ecadf58f86c7f6dc305b47c0fa8530235e7 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.205.0`**
+**Current version: `v0.206.0`**
 
 | Page | What it covers |
 |---|---|
@@ -94,6 +94,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The variables the wrapped command is handed](testdb-run-env.md) | the names a wrapped command reads its fresh database under |
 | [Speed, the cache, and what a run leaves behind](speed.md) | measured timings, the incremental cache, and the files the engine reads back |
 | [One configuration, split across files](configuration.md) | `include`, how lists and objects merge, and a real `x3.json` from a live project |
+| [A region that runs on its own](configuration-regions.md) | `extends`, the anchor a region measures against, and why a combiner names its parent instead of copying it |
 | [Changing one field for one run](configuration-overlay.md) | the settings fragment a run lays over the configuration, the list entry it finds by name, and the narrowing that makes an experiment measure one rule |
 | [The rules an engine carries](profile.md) | a rule set called in one line, and the tokens a project fills in so one rule can be measured many times |
 | [A rule written once and measured per item](profile-items.md) | an item that fills more than one token at once, a token declared free text, and a rule the project writes itself |
@@ -109,4 +110,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.205.0 capabilities=d6ad45075401095d1e70395be01cd18df995c1892b169a7b9c527f3de04694ef template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.206.0 capabilities=a38184d80f559a5a5303f02071461ecadf58f86c7f6dc305b47c0fa8530235e7 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
