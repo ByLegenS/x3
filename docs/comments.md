@@ -64,8 +64,8 @@ against `//x3:`, the `#` and `--` spellings were weighed as narrative — what w
 measured was not what had been written but which file it sat in. A directive is
 an **audit**; the diet is about narrative.
 
-Ten languages are built in (`.go`, `.js`, `.java`, `.cpp`, `.py`, `.ps1`,
-`.yaml`, `.yml`, `.sql`, `.lua`); an extension that is not among them is skipped
+Eleven languages are built in (`.go`, `.js`, `.java`, `.cpp`, `.py`, `.ps1`,
+`.yaml`, `.yml`, `.toml`, `.sql`, `.lua`); an extension that is not among them is skipped
 rather than guessed at, and a project adds its own with `openers`.
 
 An exemption carries a reason and a dead one is red. It may sit **above or
@@ -97,4 +97,4 @@ held, and writes an empty baseline, which is a declaration of no debt at all. Th
 diff of the new file is worth reading: whatever the old identity was hiding
 appears in it.
 
-<!-- x3-dist version=v0.203.0 capabilities=946153aa5d36b1f206cd445d674818f840c1cfb66d0b2a98c804ead808e48b75 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.204.0 capabilities=41701dcad713a65970ef474bbfb69b898e3d48348570dce97b7bc95a8d2db4cd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

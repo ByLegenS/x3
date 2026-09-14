@@ -32,6 +32,14 @@ an error for the command that needs it. Ordering is by file name, so the merged
 configuration is the same on every run and machine. A project that does not
 split pays nothing.
 
+**A settings file may be written in TOML.** Every file the configuration is read
+from — the root, a part named by `include`, an overlay ledger — is parsed by its
+extension: `.toml` as TOML, anything else as JSON. One place decides and the bytes
+become the same map either way, so nothing downstream is told which format they
+came from, and a repository may hold both while it moves. TOML pays where settings
+are read by people: comments, and `'''` for a pattern JSON would make you escape.
+One check still reads the file's own bytes — see [Gaps](gaps.md#gaps-we-know-about).
+
 **A relative path written in the configuration is relative to the
 configuration.** `baseline.dir` and `cache.dir` are resolved against the
 directory of the root configuration file — the same base `include` patterns
@@ -89,4 +97,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.203.0 capabilities=946153aa5d36b1f206cd445d674818f840c1cfb66d0b2a98c804ead808e48b75 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.204.0 capabilities=41701dcad713a65970ef474bbfb69b898e3d48348570dce97b7bc95a8d2db4cd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

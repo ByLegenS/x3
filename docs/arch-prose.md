@@ -33,11 +33,14 @@ See **how a rule reads a file** in the [arch reference](arch-reference.md#how-a-
 `syntax` is the field `adoption`, `extract` and `freeze` already use, with the
 same shape: `line` openers, `block` pairs, and `quoted` runs where a comment
 marker means nothing. The embedded list covers `.go` `.js` `.ts` `.java` `.c`
-`.cpp` `.cs` `.py` `.ps1` `.sh` `.sql` `.yaml` `.yml` `.css` `.html` `.json`.
-`.json` is there for the same reason the rest are: a rule that reads a settings
-file asks the same question in every project, and JSON carrying no comment at
-all is a fact about the format, not a choice a project makes. Its strings are
-declared, because a pattern reads inside them.
+`.cpp` `.cs` `.py` `.ps1` `.sh` `.sql` `.yaml` `.yml` `.css` `.html` `.json`
+`.toml`. The two settings formats are there for the same reason the rest are: a
+rule that reads a settings file asks the same question in every project, and
+what a format does with comments is a fact about the format, not a choice a
+project makes. JSON carries none, and its strings are still declared because a
+pattern reads inside them; TOML opens a comment with `#` and has four string
+forms, the multi-line `"""` and `'''` among them — written out, because three
+quotes read as one empty string would swallow the rest of the file.
 
 **An extension nobody declared has no comments, and the whole file is code.** A
 rule of this kind falls on every file a project points it at — a dictionary, a
@@ -88,4 +91,4 @@ unreachable —
 `comments: "checked"` reads the prose again, and on the engine's own two-sided
 test tree it takes the same run from 14 findings to 28.
 
-<!-- x3-dist version=v0.203.0 capabilities=946153aa5d36b1f206cd445d674818f840c1cfb66d0b2a98c804ead808e48b75 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.204.0 capabilities=41701dcad713a65970ef474bbfb69b898e3d48348570dce97b7bc95a8d2db4cd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
