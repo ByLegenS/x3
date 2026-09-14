@@ -10,6 +10,11 @@ the name in a rule turned down to `policy: "warn"` last month, which is exactly
 the day the claim became false. `from: "x3"` reads the file **as a
 configuration**, so the set carries the engine's verdict rather than the text.
 
+**An overlay does not reach it:** `-with` changes what this run *executes*, and
+the file such a rule reads is the measurement's **subject** — it belongs to the
+tree under examination. Write the state you want measured into the fixture's
+own settings file.
+
 ```json
 { "left":  { "from": "regex", "file": "RULES.md", "select": "`x3: ([a-z-]+)`" },
   "right": { "from": "x3", "file": "x3.json", "select": "in-force" },
@@ -81,4 +86,4 @@ the failure reads like the step's own red. `parts`, `join` and `each` work here
 for the reason they work on a pattern — the value is text, and pulling a script
 name out of a command line is what a pattern is for.
 
-<!-- x3-dist version=v0.199.0 capabilities=d8d415baeff182346e237675f6562709057860adba6aaecd080c1a172d9dc335 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.200.0 capabilities=b89d16cfb4e239cd640f0a1bf0055a95eb38b7f0ea0138dee1599ed0d8160d79 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
