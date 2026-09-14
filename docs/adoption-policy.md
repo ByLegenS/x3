@@ -38,4 +38,4 @@ is the quiet way a gate goes blind, so `dead_policy` is **always** a block: a
 project that could soften the audit of its own softening would have written a
 permanent exemption in two lines.
 
-<!-- x3-dist version=v0.200.0 capabilities=b89d16cfb4e239cd640f0a1bf0055a95eb38b7f0ea0138dee1599ed0d8160d79 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.201.0 capabilities=4d27b4a136bda5010e31cb2176fd3134dddf1c7c105fb91703e147ea84a2f5cf template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

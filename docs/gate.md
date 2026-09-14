@@ -25,15 +25,23 @@ imposes is the script's limit, not the work's.
   "stamp": "main.version",
   "steps": [
     { "name": "gofmt", "band": "fast",
-      "trials": [ { "say": "every file formatted", "run": ["gofmt", "-l", "."], "want": 0, "not": ".go" } ] },
+      "trials": [ { "say": "every file formatted", "run": "gofmt -l .", "want": 0, "not": ".go" } ] },
     { "name": "language gate", "band": "fast",
       "trials": [
-        { "say": "this repository", "run": ["{bin}", "lang", "."], "want": 0 },
-        { "say": "a planted sample", "run": ["{bin}", "lang", "testdata/red"], "want": 1 }
+        { "say": "this repository", "run": "{bin} lang .", "want": 0 },
+        { "say": "a planted sample", "run": "{bin} lang testdata/red", "want": 1 }
       ] }
   ]
 }
 ```
+
+**`run` takes a line or a list.** A line is split the way a shell splits one:
+spaces separate, and a quoted span (`"` or `'`) stays one argument. A list is
+taken as written. Measured in a production repository before this was allowed:
+of the gate's 3 264 lines, **1 929 were the `run` array alone** — 210 calls, each
+spread over nine lines. A gate list is read; a call spread over nine lines is
+scanned, not read. The list form stays, because it is how an argument carrying a
+space is written without quoting, and how generated settings write it.
 
 `{bin}` is the binary the gate builds before any step runs — built first on
 purpose, because steps run in parallel and one of them producing the file the
@@ -108,4 +116,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.200.0 capabilities=b89d16cfb4e239cd640f0a1bf0055a95eb38b7f0ea0138dee1599ed0d8160d79 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.201.0 capabilities=4d27b4a136bda5010e31cb2176fd3134dddf1c7c105fb91703e147ea84a2f5cf template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
