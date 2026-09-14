@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.206.0`**
+**Current version: `v0.207.0`**
 
 ## component path patterns
 
@@ -69,4 +69,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.206.0 capabilities=a38184d80f559a5a5303f02071461ecadf58f86c7f6dc305b47c0fa8530235e7 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.207.0 capabilities=1035c1e3b02f7988670af256ea54d32fb4f09fe9686f0bacea84d06acb79df17 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

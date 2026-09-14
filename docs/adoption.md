@@ -111,4 +111,28 @@ direction: they put no check in force.
 
 See **adoption finding codes** in the [adoption reference](adoption-reference.md#adoption-finding-codes).
 
-<!-- x3-dist version=v0.206.0 capabilities=a38184d80f559a5a5303f02071461ecadf58f86c7f6dc305b47c0fa8530235e7 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+**A rule may say what it is for.** Any named rule in the settings takes an
+optional `why` — one sentence, next to the rule, that `x3 arch -out` carries
+into the report:
+
+```toml
+[[arch.rules]]
+name = 'no-handler-reaches-the-database'
+why = 'a handler that queries directly cannot be reused behind a queue'
+```
+
+A comment cannot do this job. A comment stays in the file: the engine does not
+know it, no report carries it, and nothing can count it. `why` is data, and
+being countable is the whole point — `adoption` reports `rules_without_why`,
+so a rulebook can watch its own reasons the way it watches anything else.
+
+The field is **optional on purpose, and the pressure comes from the count**.
+Made mandatory, a repository with sixty rules writes sixty sentences in one
+sitting and most of them are invented. An invented reason is worse than none:
+it stops the next person from removing a rule, for a reason that was never
+true. Written as a count, the number goes into the report, the project sets the
+policy it wants, and the debt comes down as reasons are actually written.
+
+| `dead_policy` | `policy` excepts a code this run does not produce — always a block |
+
+<!-- x3-dist version=v0.207.0 capabilities=1035c1e3b02f7988670af256ea54d32fb4f09fe9686f0bacea84d06acb79df17 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

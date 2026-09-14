@@ -31,6 +31,13 @@ declared name, which makes the binding hold anyway, and the only cost is an
 example reading differently from the rest of the project. What is checked is
 that the name is writable at all.
 
+**`adoption` has no baseline, so its counts cannot be frozen.** Every other
+gate that reports a debt can write it down and refuse growth; this one reports
+and moves on. For `rules_without_why` that is the difference between a debt
+that erodes and a number that drifts: a project can add an unexplained rule
+today and the count simply reads one higher. A project that wants the ratchet
+sets the policy to `block` and pays it down first.
+
 **Expectations count directives, and only from `scan`.** They say a minimum,
 never a maximum, and cannot say "these two exact directives".
 
@@ -75,4 +82,4 @@ type — freeze a value set with `freeze` if the number is the contract. The
 surface is the union across build constraints, so a platform-only symbol is in
 it. And it measures the API a caller *writes*, never what a call *does*.
 
-<!-- x3-dist version=v0.206.0 capabilities=a38184d80f559a5a5303f02071461ecadf58f86c7f6dc305b47c0fa8530235e7 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.207.0 capabilities=1035c1e3b02f7988670af256ea54d32fb4f09fe9686f0bacea84d06acb79df17 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
