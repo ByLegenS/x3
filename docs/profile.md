@@ -77,4 +77,4 @@ With `"text": ["go", "json"]` the run carries two checks and the project wrote
 one word more. The rule's **name** must carry the token, or every copy would land
 in the list under one name and only the last would be read.
 
-<!-- x3-dist version=v0.223.0 capabilities=9758d454d034926ff5a20a6322988ed5a966f9d12ffbaba1034a0396b6314b97 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.224.0 capabilities=da2ab63904964d870f4b5777d938cfcd52ee28641dd7c184a6ba3706a58111af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.223.0`**
+**Current version: `v0.224.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 19.9 MB | `8ca98d7f79040c4cd9e2722b01b5823b84867c21271d9537bbbcc73d4e15e027` |
-| `x3-linux-amd64` | linux/amd64 | 19.4 MB | `b96bc3ce2a49ce6e2bc4c955e28e69b5319e4b735953b6e8e219c9ecf2d8e847` |
+| `x3-windows-amd64.exe` | windows/amd64 | 19.9 MB | `285e4dfdbbc750fb00b9dd327d6537974f3741829c92dfdd43cfb278170ddf03` |
+| `x3-linux-amd64` | linux/amd64 | 19.4 MB | `d4dc8c0f3d27e34b514c5806305653985b66df0fab4ca5c7b321768afd2d49b5` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -174,6 +174,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The container a value sits in](docs/sets-region.md) | the section, block or card a value was written inside, carried into the set so it can be weighed against what the value itself says |
 | [Is this call inside that condition](docs/sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
 | [Where the container ends](docs/sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
+| [The names a template calls](docs/sets-template.md) | the root names a markup expression reads, the names the script beside it offers, and the mixin chain that is followed rather than listed |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -295,4 +296,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.223.0 capabilities=9758d454d034926ff5a20a6322988ed5a966f9d12ffbaba1034a0396b6314b97 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.224.0 capabilities=da2ab63904964d870f4b5777d938cfcd52ee28641dd7c184a6ba3706a58111af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

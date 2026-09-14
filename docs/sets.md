@@ -28,6 +28,7 @@ giving each of them a message, so the user reads a raw key on screen.
 | `regex` | one capture group, read **line by line** | the pattern itself |
 | `x3` | a settings file read as a **configuration**, or a script read as **calls** | `in-force`, `commands`, `invocations` or `gate:runs` |
 | `tree` | the paths themselves — which directories and which files exist | `dirs:<pattern>` or `files:<pattern>` |
+| `template` | a markup file's expressions, or the script that feeds it | `calls` or `bindings` |
 
 **What enters the set is what was captured**, not the whole key, so it can be
 compared with the constant that produced it. Because the extractor reads any text
@@ -232,4 +233,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.223.0 capabilities=9758d454d034926ff5a20a6322988ed5a966f9d12ffbaba1034a0396b6314b97 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.224.0 capabilities=da2ab63904964d870f4b5777d938cfcd52ee28641dd7c184a6ba3706a58111af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
