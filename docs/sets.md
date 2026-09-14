@@ -142,6 +142,33 @@ side no instance can read is `empty_scope`. Asked per instance instead, every
 correctly silent application would shout; not asked at all, an unreadable side
 would pass as agreement.
 
+### `left-disjoint-from-right` — one name, two homes
+
+**Catches:** a boundary that erodes by **addition**. The other comparisons ask
+whether two sets still agree; this one asks that a name never stand in both. A
+split dictionary, a namespace divided between a core and the parts built on it,
+an ownership prefix — each is a line drawn through a set of names, and no build
+fails when a name is written on both sides. What fails is the reading: whichever
+side loads last wins, so the screen shows a text nobody chose, while the person
+who added the second copy watches their own version work.
+
+```json
+{ "kind": "consistency", "sources": ["screens/**/*.js"],
+  "left":  { "from": "json", "file": "core.json", "select": "keys:*" },
+  "right": { "from": "json", "file": "app.json",  "select": "keys:*" },
+  "compare": "left-disjoint-from-right" }
+```
+
+Every value standing on both sides is `set_mismatch`, one finding per name.
+Direction does not apply — a shared name is shared from either end — but the
+sides are still read separately, so `skip` sifts only its own side and a side no
+file can read is `empty_scope` as everywhere else.
+
+**It is the boundary that is declared, not the contents.** Neither file has to
+list anything in particular, so the rule holds while both sets grow. "The core
+dictionary contains exactly these keys" dies at the next honest addition; this
+one speaks only when the line itself is crossed.
+
 ### `left-exists-on-disk` — does the path still point at something?
 
 **Catches:** a gate carrying a path constant that keeps working after the path
@@ -205,4 +232,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.215.0 capabilities=cd8fa8e546bc67b7323831ec5fdf30a6b1f6686c528907907a45a93054264111 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.216.0 capabilities=9fac88d16268b9269a7a5d613bfdc28284a783b809b52dea3ebb11eb41f02671 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -172,6 +172,7 @@ The baseline holds a fingerprint per file, and the file it lives in is readable:
 | a sealed file whose content changed | **red** — `seal_broken`, both fingerprints named |
 | a sealed file that is gone | **red** — `dead_key` |
 | a file the seal does not hold | green — a new migration is not a broken promise |
+| the same, under `"every": true` | **red** — `unsealed`; the class is sealed as a whole |
 | the baseline file does not exist | **red** — nothing is sealed yet |
 | nothing measured at all | **red** — `empty_scope` |
 
@@ -179,6 +180,15 @@ The baseline holds a fingerprint per file, and the file it lives in is readable:
 refuses to rewrite a fingerprint that changed or to drop one that vanished — a
 seal that rewrites itself seals nothing. Lifting a seal therefore means editing
 the baseline file by hand, which is a diff somebody reviews.
+
+**A class sealed as a whole.** Some sets are not a growing list but a closed
+class — the files that carry a project's own law, a contract nobody may extend
+quietly. There, a file the seal does not hold is the dangerous one: its content
+is never measured, so a new file dropped beside the law reads as law and the gate
+stays green. `"every": true` makes an unheld file `unsealed` and red. The default
+stays `false`, because the common case really is a growing list. `-update` still
+only adds, so a legitimate new member of the class costs exactly one reviewed
+diff — which is the point: the addition is seen.
 
 The missing-file row is the one that is easy to get wrong. A seal greets an
 unknown file with green, so a seal that was never applied would be green
@@ -211,4 +221,4 @@ limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
 
-<!-- x3-dist version=v0.215.0 capabilities=cd8fa8e546bc67b7323831ec5fdf30a6b1f6686c528907907a45a93054264111 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.216.0 capabilities=9fac88d16268b9269a7a5d613bfdc28284a783b809b52dea3ebb11eb41f02671 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

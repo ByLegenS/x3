@@ -323,6 +323,38 @@ x3 arch: x3.yaml: arch: rules[0]: r: absent, allow belong elsewhere,
   was never written
 ```
 
+### A rule that waits for a condition
+
+Some decisions are correct **today** and wrong the moment the tree changes. One
+part keeping its own copy of a mechanism is right while it is the only one — the
+abstraction is written when the second user appears — and on the day the second
+arrives, nobody remembers that.
+
+Written as an ordinary rule it is red on a correct tree and gets deleted within a
+week; written nowhere it is a sentence in a document. `when` is the third option:
+the rule stands in the settings and measures nothing until the tree itself says
+the condition is met.
+
+```json
+{ "name": "no-app-writes-its-own-price-arithmetic", "kind": "vocabulary",
+  "in": "apps", "terms": { "words": ["tokencost"] },
+  "when": { "set": { "from": "tree", "select": "dirs:apps/*" }, "atLeast": 2 } }
+```
+
+The condition is a **set and a size**: any extractor the engine has, read before
+the rule runs, and the number of values it must carry (`atLeast`, default `1`).
+A count, because this is how such decisions are phrased — *once there is a
+second one*.
+
+**A rule that is waiting says so**, with `waiting: condition not met: 1 of 2` in
+the report. Skipping it silently would be the same as deleting it, with a dead
+line in the settings as the only difference.
+
+**An unreadable condition does not hold**: a set nothing can be extracted from
+counts as zero, so the rule waits rather than firing on a tree it failed to read.
+It is measured for every kind and in both passes — a condition whose meaning
+depended on which kind carried it would be no condition at all.
+
 ### Scope integrity
 
 A rule that matched nothing is `empty_scope` and red — engine behavior, not
@@ -385,4 +417,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.215.0 capabilities=cd8fa8e546bc67b7323831ec5fdf30a6b1f6686c528907907a45a93054264111 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.216.0 capabilities=9fac88d16268b9269a7a5d613bfdc28284a783b809b52dea3ebb11eb41f02671 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

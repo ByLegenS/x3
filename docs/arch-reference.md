@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.215.0`**
+**Current version: `v0.216.0`**
 
 ## component path patterns
 
@@ -33,6 +33,8 @@
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
 | `per` | consistency | compare each instance of a component with **itself** |
 | `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
+| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-exists-on-disk` |
+| `when` | no | the set and the size that turn this rule on; until then it waits |
 | `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `minimum` | no | the fewest subjects the rule must see |
@@ -69,4 +71,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.215.0 capabilities=cd8fa8e546bc67b7323831ec5fdf30a6b1f6686c528907907a45a93054264111 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.216.0 capabilities=9fac88d16268b9269a7a5d613bfdc28284a783b809b52dea3ebb11eb41f02671 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
