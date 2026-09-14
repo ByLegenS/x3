@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.212.0`**
+**Current version: `v0.213.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 16.6 MB | `aac72fde18f800100c2ce8134ea8d1222ec918b208155e08e765db07ae3c9cb1` |
-| `x3-linux-amd64` | linux/amd64 | 16.2 MB | `cd880ec21d6d495b584246c049aac569ef6e77fa6da2affd34139bed83149dcb` |
+| `x3-windows-amd64.exe` | windows/amd64 | 16.7 MB | `077c0c115578c4eea90641b0ff48d0097ee03f1f29b285ab5d35bf65ec784d52` |
+| `x3-linux-amd64` | linux/amd64 | 16.3 MB | `79d3ad78a607689a83d50fce5bd511176c3bf3918d47488bdee23a5bb7af4e4f` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -242,6 +242,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [The gate itself, running in parallel](docs/gate.md) | the steps in the settings rather than in a script, each with the exit it expects, run at once instead of one after another |
+| [Running the work itself](docs/do.md) | the build, the services and the deployment, declared as steps instead of written as a shell script |
 | [Making the release itself](docs/release.md) | the binaries built twice, the pages generated from one source, and the gates that run before anything is written |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
@@ -293,4 +294,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.212.0 capabilities=da3a722568f3d1ebb21543007ea193dfcffeaf10de739e53365cac0c7b0b5873 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.213.0 capabilities=f60b889e641897e52daf3f936af2ca5e03d88f986b31c320450e70c499a0c20a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
