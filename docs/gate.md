@@ -35,6 +35,14 @@ imposes is the script's limit, not the work's.
 }
 ```
 
+### Overlays can live in one ledger
+
+`-with <file>` takes an overlay. `-with <file>:<name>` takes one **out of** a
+ledger — a file whose top-level keys are overlays. One file per overlay measured
+32 files in a production repository, averaging fifteen lines each; thirty-two
+files in a directory are not a list, they are a pile, and comparing two of them
+meant opening two files. A name the ledger does not carry stops the run.
+
 ### A trial can run on a planted tree
 
 A control experiment needs a small wrong tree to measure against. Keeping those
@@ -146,4 +154,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.202.0 capabilities=b7444b0c0fe5258026b96f39e4e34386e7733f4a960eaeceb1deb4973a1dd59a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.203.0 capabilities=946153aa5d36b1f206cd445d674818f840c1cfb66d0b2a98c804ead808e48b75 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
