@@ -35,6 +35,36 @@ imposes is the script's limit, not the work's.
 }
 ```
 
+### A trial can run on a planted tree
+
+A control experiment needs a small wrong tree to measure against. Keeping those
+trees on disk looks harmless and is not: measured in a production repository,
+nineteen experiments held **420 files of which only 140 were unique** — 67% was
+one limb copying another limb's `go.mod`. A copy goes stale the day the base
+changes, and four hundred files are not read, they are scanned.
+
+`gate.trees` declares them instead. A tree has a **base** and **limbs**; a limb
+writes only what differs, and `null` removes a file the base laid. The trial
+names `"<tree>:<limb>"`, the engine plants it before the call and removes it
+after, and `{tree}` is where it stands.
+
+```json
+"trees": {
+  "sample": {
+    "base":  { "x3.json": "{ … }", "data.json": "{ \"ok\": true }" },
+    "limbs": { "green": {}, "broken": { "data.json": "{ \"ok\": tru" },
+               "pruned": { "data.json": null } } } },
+"steps": [
+  { "name": "planted tree", "band": "fast", "trials": [
+    { "say": "the base alone parses", "tree": "sample:green",
+      "run": "{bin} syntax -config {tree}/x3.json {tree}", "want": 0 },
+    { "say": "a limb that breaks a file", "tree": "sample:broken",
+      "run": "{bin} syntax -config {tree}/x3.json {tree}", "want": 1 } ] } ]
+```
+
+A limb nobody declared, and a `null` over a file the base never laid, are both
+settings errors — a limb quietly running on an empty directory measures nothing.
+
 **`run` takes a line or a list.** A line is split the way a shell splits one:
 spaces separate, and a quoted span (`"` or `'`) stays one argument. A list is
 taken as written. Measured in a production repository before this was allowed:
@@ -116,4 +146,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.201.0 capabilities=4d27b4a136bda5010e31cb2176fd3134dddf1c7c105fb91703e147ea84a2f5cf template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.202.0 capabilities=b7444b0c0fe5258026b96f39e4e34386e7733f4a960eaeceb1deb4973a1dd59a template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
