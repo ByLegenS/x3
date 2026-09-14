@@ -33,4 +33,4 @@ exemption list would silence a verdict; a count keeps a growing blind spot
 visible. A tree with no history is exit `2`, for the same reason as everywhere
 else here: a rule that cannot read would call every departure a typo.
 
-<!-- x3-dist version=v0.218.0 capabilities=08640cf4836f2f3e781bb3050febbbcde162994bb4b474649fba3ace5b74d688 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.219.0 capabilities=d43625b748b998cf7dfd9a15e7cc521aa49e38fea68caca749b54b42fcc4254e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
