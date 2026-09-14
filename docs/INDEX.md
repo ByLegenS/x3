@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.219.0`**
+**Current version: `v0.220.0`**
 
 | Page | What it covers |
 |---|---|
@@ -106,10 +106,11 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The gate itself, running in parallel](gate.md) | the steps in the settings rather than in a script, each with the exit it expects, run at once instead of one after another |
 | [Running the work itself](do.md) | the build, the services and the deployment, declared as steps instead of written as a shell script |
 | [Making the release itself](release.md) | the binaries built twice, the pages generated from one source, and the gates that run before anything is written |
+| [Writing the documents the engine measures](emit.md) | the generated work list, plan or status page produced from a report through the project's own template, and the check that says when the copy on disk stopped matching |
 | [Is the release really published](published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.219.0 capabilities=d43625b748b998cf7dfd9a15e7cc521aa49e38fea68caca749b54b42fcc4254e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.220.0 capabilities=e4ce14129172cba712b0b7618de277b9b18687e55ac113928be89b82592f1fbc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

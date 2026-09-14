@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.219.0`**
+**Current version: `v0.220.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 16.7 MB | `edca6595dd2b80a44e69107e229188f2338d399c67161fcf8eabd147b702d4d1` |
-| `x3-linux-amd64` | linux/amd64 | 16.3 MB | `11859c3a4bd3d44aa0e5360da8b6add55094544b68f6f3c83de1872074489d95` |
+| `x3-windows-amd64.exe` | windows/amd64 | 19.8 MB | `c971cd130d1be87bc118aa99bb97696087295556265ebdfc75de0c63ff94e316` |
+| `x3-linux-amd64` | linux/amd64 | 19.3 MB | `63a50e3c8af515ce0578809b4a363b6b65cbfd75843c879a8dfc526c58dc4157` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -244,6 +244,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The gate itself, running in parallel](docs/gate.md) | the steps in the settings rather than in a script, each with the exit it expects, run at once instead of one after another |
 | [Running the work itself](docs/do.md) | the build, the services and the deployment, declared as steps instead of written as a shell script |
 | [Making the release itself](docs/release.md) | the binaries built twice, the pages generated from one source, and the gates that run before anything is written |
+| [Writing the documents the engine measures](docs/emit.md) | the generated work list, plan or status page produced from a report through the project's own template, and the check that says when the copy on disk stopped matching |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
@@ -294,4 +295,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.219.0 capabilities=d43625b748b998cf7dfd9a15e7cc521aa49e38fea68caca749b54b42fcc4254e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.220.0 capabilities=e4ce14129172cba712b0b7618de277b9b18687e55ac113928be89b82592f1fbc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

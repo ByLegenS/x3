@@ -67,6 +67,14 @@ A step carries exactly one verb, and the verbs are:
 | `set` | a value — `stamp`, `file:<path>`, `line:<file>:<pattern>`, `env:<NAME>`, `now:<layout>` |
 | `done` | ends the task **green**, here. A mode has its own end ("just stop the services"), and writing that end as a condition on every later step is a condition somebody forgets when they add the next one |
 | `fail` | stops, and says why |
+| `show` | prints a **section of a document**: `from`/`until` are patterns, `max` a ceiling (40 by default). A `from` that matches nothing is **red** — a section that was renamed would otherwise print as an empty one, and an empty urgent-work list reads as "nothing is urgent" |
+
+`show` exists because the thing a session or a deployment has to read at its
+start is usually **already written** in a document — the urgent list, the
+deployment window, today's count. Every script that prints those is a second
+copy of the document's structure, and it goes quiet the day a heading changes.
+Measured in the pilot: a 212-line session-brief script, a third of it repeating
+warnings that also lived in the project's own status file.
 
 Two verbs in one step is a settings error, not a convenience: which of them ran
 first cannot be read off the file, and which of them failed cannot be read off
@@ -156,4 +164,4 @@ The same three fields are how a deployment gate reads a live number — the hour
 a company takes calls in, the calls running right now — and stops on it, instead
 of holding a copy of those numbers in the settings where they go stale.
 
-<!-- x3-dist version=v0.219.0 capabilities=d43625b748b998cf7dfd9a15e7cc521aa49e38fea68caca749b54b42fcc4254e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.220.0 capabilities=e4ce14129172cba712b0b7618de277b9b18687e55ac113928be89b82592f1fbc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
