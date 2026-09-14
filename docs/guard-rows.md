@@ -67,4 +67,4 @@ Nothing here creates it. [`x3 testdb`](testdb.md#a-fresh-database-for-this-run)
 does: it clones or creates one, runs the migrations as its setup steps, and
 hands the DSN over through the environment under the name this guard reads.
 
-<!-- x3-dist version=v0.220.0 capabilities=e4ce14129172cba712b0b7618de277b9b18687e55ac113928be89b82592f1fbc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.221.0 capabilities=d4b07743c9bac761f11a24b7a91677457223fd8c99cb54ebbc0fcc2c2150033c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

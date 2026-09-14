@@ -93,6 +93,26 @@ component in its own `deny` list, or it would exempt everything. In the inward
 form a component's own files are always inside, and a file in no declared
 component is outside.
 
+#### What a binary **embeds**, not only what it names
+
+`transitive: true` follows the import of the import. Measured in a production
+repository: a worker binary imported no application at all and **shipped two** —
+through an installation package in between. A rule that reads only direct
+imports called that binary clean, while the deployment carried the applications
+with it, which is the one thing separate binaries exist to avoid.
+
+```json
+{ "kind": "deps", "match": "import", "from": "entry",
+  "deny": ["apps"], "transitive": true }
+```
+
+The finding carries the **trail** (`cmd/worker -> internal/boot -> apps/call`)
+and there is one per forbidden **instance**, not per path: two applications
+embedded through the same package are two findings, so removing one changes the
+count. Without the trail the rule would send its reader looking for an import
+that is not in their file. Today's embeddings belong in the baseline; what the
+rule then catches is the **next** one.
+
 ### The `literal` matcher — names the compiler never sees
 
 **Catches:** a table, queue or bucket name spelled by a component that does not
@@ -132,6 +152,14 @@ for a rule already written.
 It cannot be used as an off switch: if **every** match was dropped, the rule
 weighed no ownership at all and the run is `empty_scope` red, naming how many
 were dropped. A setting that silences a rule completely has to say so.
+
+`ownerCase: "lower"` (or `"upper"`) folds the captured owner before it is
+matched against instance names. Measured: an application's code was written in
+capitals in the source (`"CALL"`) while its instance was lowercase
+(`apps/call`), and because the two could not be tied together that claim never
+reached the engine — it stayed in a hand-written gate for months. The fold is
+**declared, not guessed**: a matcher that quietly compares case-insensitively
+would also quietly call two different names one.
 
 ### The `symbol` matcher — capabilities, not layers
 
@@ -417,4 +445,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.220.0 capabilities=e4ce14129172cba712b0b7618de277b9b18687e55ac113928be89b82592f1fbc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.221.0 capabilities=d4b07743c9bac761f11a24b7a91677457223fd8c99cb54ebbc0fcc2c2150033c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

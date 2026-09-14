@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.220.0`**
+**Current version: `v0.221.0`**
 
 ## component path patterns
 
@@ -21,6 +21,8 @@
 | `from`+`deny` / `to`+`allowFrom` | deps | the outward / inward question |
 | `pattern`+`owner` / `pattern`+`from` | literal | ownership / prohibition |
 | `unknownOwner` | literal | `report` (default) or `ignore` a captured owner no instance carries |
+| `ownerCase` | literal | `lower` or `upper`: the spelling the captured owner is folded to before it is matched against instance names |
+| `transitive` | `deps:import` | follow the import of the import: what this component **embeds**, not only what it names |
 | `marker` | required | the mark every file in `sources` must carry |
 | `counterpart`+`requires` | pairing | the file that must name this one |
 | `satisfiedBy` | pairing | what else counts as a counterpart |
@@ -71,4 +73,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.220.0 capabilities=e4ce14129172cba712b0b7618de277b9b18687e55ac113928be89b82592f1fbc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.221.0 capabilities=d4b07743c9bac761f11a24b7a91677457223fd8c99cb54ebbc0fcc2c2150033c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
