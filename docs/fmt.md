@@ -33,10 +33,17 @@ A comment may still MOVE — a block written after the last key of a mapping is
 re-indented under the list above it, and that is the writer's own ambiguity, not
 a loss. What is refused is a comment that disappears.
 
+**Counted line by line, not block by block.** The parser sometimes splits one
+block of comment lines across two nodes, and writing it back rejoins them:
+nothing is lost, yet the block as a whole no longer matches. Measured against a
+real settings file, that was enough to have a clean file refused, and the
+refusal moved every time a list item was added above it. A line survives both
+the splitting and the rejoining, and still counts a loss as a loss.
+
 A file that does not parse is refused with exit `2`, not passed over: calling an
 unreadable configuration "formatted" is how a gate goes blind.
 
 **Formatting is stable.** Running it twice produces the same bytes; the gate's
 own experiment proves it with the formatter's output as a fixture.
 
-<!-- x3-dist version=v0.217.0 capabilities=d5a549f6a4e0603d8c785a64d94e45a05d5266e6a799b7912be83923b7cde7b3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.218.0 capabilities=08640cf4836f2f3e781bb3050febbbcde162994bb4b474649fba3ace5b74d688 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
