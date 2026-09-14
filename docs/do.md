@@ -5,7 +5,7 @@
 ## `x3 do`
 
 ```
-x3 do <task> [-config <file>] [-root <dir>] [-with <flags>] [-dry] [-out <file>]
+x3 do <task> [-config <file>] [-root <dir>] [-with <flags>] [-set <name=value>] [-dry] [-out <file>]
 ```
 
 **Catches:** the other half of the shell scripts. `x3 gate` took the ones that
@@ -60,9 +60,12 @@ A step carries exactly one verb, and the verbs are:
 | `send` | a local file to a host (`to:` names where) |
 | `start` | a detached process; `log:` is where its output goes |
 | `halt` | stops processes by name, and **counts** the ones that stopped |
+| `alive` | measures that those processes are **up** — a start is not a measurement |
 | `wait` | knocks on a URL or `host:port` until it answers |
 | `prune` | trims a directory: `drop` goes entirely, `groups` keep their last `keeps` |
+| `scan` | looks for files in directories: name matching `match`, body matching `find`, and **not** named in `except`. Exit 0 none, 1 some — so `want` asks either "is this here" or "is this gone" |
 | `set` | a value — `stamp`, `file:<path>`, `line:<file>:<pattern>`, `env:<NAME>`, `now:<layout>` |
+| `done` | ends the task **green**, here. A mode has its own end ("just stop the services"), and writing that end as a condition on every later step is a condition somebody forgets when they add the next one |
 | `fail` | stops, and says why |
 
 Two verbs in one step is a settings error, not a convenience: which of them ran
@@ -76,6 +79,10 @@ Measured: a runner that accepts anything turns a misspelled flag into a silent
 skip — the run is not red, it is the **wrong work**, finished green. The same
 measurement is why `when:` and `unless:` write their condition into the report
 when a step is skipped.
+
+`-set name=value` hands the task a value it reads as `{name}`, so a task can take
+the command or the target it acts on without a flag name being invented for each
+one. A step that writes the same name overrides it.
 
 A condition is a flag name, a flag name behind `!`, or a comparison — `{waiting}
 > 0`, `{env} == production`. Both sides are numbers when both parse as numbers,
@@ -120,5 +127,33 @@ Four of the rules above are not design, they are repairs:
 - **`env:` belongs to the step, not the run.** A build step leaving `GOWORK=off`
   behind was inherited by the check that ran next; the check could not see half
   the tree and five services never started.
+- **A shield that cannot see where it looks is not a shield.** `scan` refuses a
+  directory that is not there (exit 2) instead of walking past it. Measured: two
+  paths went stale after a move, the scan skipped them silently, and the check
+  said "passed" while checking nothing — the exact thing it existed to prevent.
 
-<!-- x3-dist version=v0.213.0 capabilities=f60b889e641897e52daf3f936af2ca5e03d88f986b31c320450e70c499a0c20a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### Reading a value out of a machine, and deciding on it
+
+`into:` puts a step's output into a name, `code:` puts its exit code there, and
+`keep: true` lets the task go on past a red so the next step can act on what
+happened:
+
+```yaml
+- say: update
+  on: production
+  write: true
+  run: bash /root/update.sh
+  code: updated
+  keep: true
+- say: roll back if it failed
+  when: '{updated} > 0'
+  on: production
+  write: true
+  run: bash /root/rollback.sh
+```
+
+The same three fields are how a deployment gate reads a live number — the hours
+a company takes calls in, the calls running right now — and stops on it, instead
+of holding a copy of those numbers in the settings where they go stale.
+
+<!-- x3-dist version=v0.214.0 capabilities=9b1b278891437d001d6045741896bb0ec8589e4e9043a97b655b47cc4eb26738 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
