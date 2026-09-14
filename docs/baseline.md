@@ -86,7 +86,24 @@ something was deleted, and somewhere else a new finding appeared.
 |---|---|
 | a finding the baseline does not hold | never written — naming it, `GROWTH <id>` |
 | an entry the run no longer produces | **always dropped** — naming it, `DROPPED <id>` |
+| a finding of a rule the baseline never names | **adopted** — naming it, `ADOPTED <n> of "<rule>"` |
 | both at once | the drop lands, the growth stays out, the run still exits `1` |
+
+### A new rule gets the same beginning
+
+The opening balance is **per rule**, for the same reason a missing file is a
+beginning: a project that adds a rule to an engine it already uses had no way to
+freeze that rule's current violations — they counted as growth, growth is never
+written, and the rule was born permanently red. Measured consequence: moving a
+check into the engine looked *more expensive* than leaving it in a hand-written
+script with its own debt file, which is the opposite of what the baseline is
+for.
+
+So a finding whose **rule name has never appeared in the baseline** is adopted
+on the next refresh, and said out loud — `ADOPTED 7 finding(s) of "…"`. A rule
+the baseline already names cannot grow, exactly as before. Renaming a rule is
+not a way around it: the old name's entries go `dead_baseline` red in the same
+run.
 
 Dropping an entry can only make the gate **stricter** — the debt it excused is
 gone, so nothing can hide behind it — which is why it needs no permission from
@@ -106,4 +123,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.221.0 capabilities=d4b07743c9bac761f11a24b7a91677457223fd8c99cb54ebbc0fcc2c2150033c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.222.0 capabilities=9de5e96d77a9d53a81db486cc6fc1d698e4ca72efcb8a827c79db9539eeafafb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
