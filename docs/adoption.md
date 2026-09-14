@@ -111,6 +111,17 @@ direction: they put no check in force.
 
 See **adoption finding codes** in the [adoption reference](adoption-reference.md#adoption-finding-codes).
 
+**A settings file that is still JSON without a reason.** Once any part of the
+configuration is written in TOML, the ones left in JSON are asked why. The
+question is not *"are there two formats"* — one of them may have to stay:
+TOML has no `null`, so a file that deletes a field by writing one cannot be
+anything but JSON, and the count says how many are held there for that reason.
+What it reports is the rest: the files a half-finished migration left behind.
+The null is looked for in the VALUE, not in the text — the word inside a string
+is not a deletion, and a measure that read the text would sentence that file to
+JSON forever.
+
+
 **A rule may say what it is for.** Any named rule in the settings takes an
 optional `why` — one sentence, next to the rule, that `x3 arch -out` carries
 into the report:
@@ -135,4 +146,4 @@ policy it wants, and the debt comes down as reasons are actually written.
 
 | `dead_policy` | `policy` excepts a code this run does not produce — always a block |
 
-<!-- x3-dist version=v0.207.0 capabilities=1035c1e3b02f7988670af256ea54d32fb4f09fe9686f0bacea84d06acb79df17 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.208.0 capabilities=7998061dd4341914eb33c2d03af2f76ddef6c12a4470579e97dc1100b2051507 template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
