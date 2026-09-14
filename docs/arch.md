@@ -265,6 +265,13 @@ comparison is between **instances**, so `across` needs a single star, and with
 fewer than two the rule is `empty_scope`. **Identifier normalization is off**:
 with it on, two deliberately separate but similar bodies would be caught too.
 
+Files the compiler never sees are read too, and a body there is a **balanced
+brace block** in what remains after the language's own comments are dropped —
+nested blocks are not counted separately, or one copy would break into dozens of
+findings. Measured: a repository's two front ends could hold the same body all
+day, because a file with no syntax tree made the rule report `empty_scope`
+instead — half of the duplicated code was never asked about.
+
 ### `vocabulary` — the words a layer must not know
 
 **Catches:** the core *knowing* a module without calling it — the name living in
@@ -445,4 +452,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.222.0 capabilities=9de5e96d77a9d53a81db486cc6fc1d698e4ca72efcb8a827c79db9539eeafafb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.223.0 capabilities=9758d454d034926ff5a20a6322988ed5a966f9d12ffbaba1034a0396b6314b97 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
