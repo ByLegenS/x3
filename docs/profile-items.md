@@ -113,9 +113,9 @@ eight copies and the author of one list get the same green.
 "profile": { "repeat": { "limit": 2, "vary": 4, "policy": "warn" } }
 ```
 
-Every array of objects in the file is grouped by **shape** — the set of field
-names, plus `kind` where there is one; a name, a `why` or a `reason` is not part
-of a shape. A shape written more than `limit` times is reported with the lines it
+Every array of objects in the **merged** configuration — merged, because copying
+is what a project does when it splits — is grouped by **shape**: the set of field
+names, plus `kind` where there is one; a name, `why` or `reason` is not part of it. A shape written more than `limit` times is reported with the lines it
 costs and the names that share it.
 
 `vary` is what keeps the measure honest. Before a cluster is reported, the engine
@@ -132,4 +132,4 @@ it once with `each`, and let the list carry what differs. `allow` takes a shape
 and a **reason** for a repetition kept on purpose — and counts it, rather than
 hiding it, because how much was kept deliberately is a measure too.
 
-<!-- x3-dist version=v0.204.0 capabilities=41701dcad713a65970ef474bbfb69b898e3d48348570dce97b7bc95a8d2db4cd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.205.0 capabilities=d6ad45075401095d1e70395be01cd18df995c1892b169a7b9c527f3de04694ef template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

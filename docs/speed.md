@@ -38,7 +38,10 @@ again.
 An entry is used only when three things match: the **engine version**, a
 **fingerprint of the whole configuration**, and the file's **content hash**.
 Guessing which section affects which checker would be cheaper and would
-eventually be wrong.
+eventually be wrong. *Whole* includes every part the root declares, each under
+its own name: a fingerprint taken from the root alone would not move when a rule
+in a part changed, and the next run would answer that changed rule out of a warm
+cache — a stale answer, given as a fresh one.
 
 | Command | Full scan | Cached | Cache size |
 |---|---|---|---|
@@ -63,4 +66,4 @@ calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.204.0 capabilities=41701dcad713a65970ef474bbfb69b898e3d48348570dce97b7bc95a8d2db4cd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.205.0 capabilities=d6ad45075401095d1e70395be01cd18df995c1892b169a7b9c527f3de04694ef template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->

@@ -38,7 +38,7 @@ extension: `.toml` as TOML, anything else as JSON. One place decides and the byt
 become the same map either way, so nothing downstream is told which format they
 came from, and a repository may hold both while it moves. TOML pays where settings
 are read by people: comments, and `'''` for a pattern JSON would make you escape.
-One check still reads the file's own bytes — see [Gaps](gaps.md#gaps-we-know-about).
+With no `-config` a command reads `x3.json`, or `x3.toml` when that is absent.
 
 **A relative path written in the configuration is relative to the
 configuration.** `baseline.dir` and `cache.dir` are resolved against the
@@ -97,4 +97,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.204.0 capabilities=41701dcad713a65970ef474bbfb69b898e3d48348570dce97b7bc95a8d2db4cd template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.205.0 capabilities=d6ad45075401095d1e70395be01cd18df995c1892b169a7b9c527f3de04694ef template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
