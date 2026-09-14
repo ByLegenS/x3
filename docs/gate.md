@@ -6,6 +6,7 @@
 
 ```
 x3 gate [-config <file>] [-band fast|commit|full] [-only <names>] [-workers <n>] [-out <file>]
+        [-changed] [-red-exit <n>]
 ```
 
 **Catches:** a gate that lives in a shell script — which every project then writes
@@ -34,6 +35,17 @@ imposes is the script's limit, not the work's.
   ]
 }
 ```
+
+### A hook can run the gate at the end of every turn
+
+`x3 gate -band fast -changed -red-exit 2` — two flags for callers that are not a
+person reading the output. `-changed` measures nothing when the working tree is
+clean, so a hook that fires every turn costs nothing on the turns that wrote no
+files; when git cannot be read the gate **runs anyway**, because a gate that
+cannot read its own input must not go quiet. `-red-exit <n>` picks the code a red
+step returns (1 by default): hook protocols differ, and without the flag a
+project had to wrap the gate in a script that only translated one number into
+another.
 
 ### Overlays can live in one ledger
 
@@ -154,4 +166,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.214.0 capabilities=9b1b278891437d001d6045741896bb0ec8589e4e9043a97b655b47cc4eb26738 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.215.0 capabilities=cd8fa8e546bc67b7323831ec5fdf30a6b1f6686c528907907a45a93054264111 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
