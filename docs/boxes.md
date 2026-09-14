@@ -384,4 +384,28 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news.
 
-<!-- x3-dist version=v0.211.0 capabilities=d8bdbea477b5b442d659b914f06c59ddba4cea900aba3ef50049efcd80cd0951 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+
+### What one run costs
+
+Two things make a large list expensive, and both are handled inside one run.
+
+**The tree is walked once.** A criterion opens its own path window, so a list of
+a thousand criteria used to mean a thousand walks of the same tree. Measured in a
+production repository: 1 572 criteria over 1 772 files - 2.8 million directory
+entries, and the command alone took 39 seconds. The walk is now remembered for
+the run. Only the LISTING is kept, not file contents: handing two criteria the
+same byte slice would show one of them what the other rewrote in place.
+
+**Boxes that only read files are measured side by side.** A file-reading
+criterion shares nothing, so its concurrency needs no declaring. A criterion that
+starts a process or opens a database is not like that, and its concurrency is
+still opened by writing `workers` - two runs reaching the same resource do not
+make the gate faster, they make it untrustworthy.
+
+**Database criteria reuse one pool.** `*sql.DB` is already a pool; opening and
+closing it per query threw that pool away on every question.
+
+Measured end to end in the same repository: **39 s to 27 s**, with the finding
+set identical, byte for byte.
+
+<!-- x3-dist version=v0.212.0 capabilities=da3a722568f3d1ebb21543007ea193dfcffeaf10de739e53365cac0c7b0b5873 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
