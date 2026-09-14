@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.210.0`**
+**Current version: `v0.211.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 16.6 MB | `8f0a0a375922b8399c9316de5e19acf1f175926f0bc751bc87bf5a8e03ca2bb1` |
-| `x3-linux-amd64` | linux/amd64 | 16.2 MB | `ef046e99155e5a1c3cd7a7b68e6aec4f9e0f4ac63985606b44f8fdf507c2c2b2` |
+| `x3-windows-amd64.exe` | windows/amd64 | 16.6 MB | `f262ed9c940f79bd92a3c04f9811882310defe631ba248da75d6a860a4453642` |
+| `x3-linux-amd64` | linux/amd64 | 16.2 MB | `ec63fbba5f59af27d50f6b0416a11c05142526de5cf9266c80f31c54465b73e7` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -68,7 +68,7 @@ It reads the newest published tag, downloads the binary for this platform,
 verifies its SHA256 against the published list and only then replaces the file
 it is running from. A sum that does not match is refused and nothing is
 touched. `x3 update -check` answers the same question without installing
-anything, and a project can require a minimum version in its own `x3.json` so
+anything, and a project can require a minimum version in its own `x3.yaml` so
 that an old binary refuses to run at all.
 
 ### Pin a version
@@ -89,32 +89,33 @@ passes because its tool was missing is worse than no gate at all.
 
 ```
 x3 scan  ./internal/...         # directives in the source
-x3 lang  -config x3.json .      # one language outside comments
-x3 arch  -config x3.json .      # which component may import which
-x3 freeze -config x3.json .     # frozen lists that only shrink
-x3 surface -config x3.json .    # the exported API, which may only grow
-x3 docs  -config x3.json .      # changes that must not travel alone
-x3 secrets -config x3.json .    # credentials that got into the source
-x3 boxes -config x3.json .      # open work, in a file or in the documents
-x3 syntax -config x3.json .     # files no compiler reads, parsed anyway
-x3 scope  -config x3.json .     # a change that must stay in its lane
-x3 placement -config x3.json    # a rule declared where the region it names can read it
-x3 profile -config x3.json      # the rules the engine carries, and what this project changed
+x3 lang  -config x3.yaml .      # one language outside comments
+x3 arch  -config x3.yaml .      # which component may import which
+x3 freeze -config x3.yaml .     # frozen lists that only shrink
+x3 surface -config x3.yaml .    # the exported API, which may only grow
+x3 docs  -config x3.yaml .      # changes that must not travel alone
+x3 secrets -config x3.yaml .    # credentials that got into the source
+x3 boxes -config x3.yaml .      # open work, in a file or in the documents
+x3 syntax -config x3.yaml .     # files no compiler reads, parsed anyway
+x3 scope  -config x3.yaml .     # a change that must stay in its lane
+x3 placement -config x3.yaml    # a rule declared where the region it names can read it
+x3 profile -config x3.yaml      # the rules the engine carries, and what this project changed
+x3 fmt   -check                 # the settings, written the one way, comments kept
 x3 record -listen :9100 -target http://localhost:8080 -ledger api.jsonl  # traffic, written down
 x3 replay -target http://localhost:8080 -ledger api.jsonl          # and compared with it
 x3 outbound serve -listen :9101 -ledger out.jsonl                  # the far side, from the ledger
-x3 guard -config x3.json -- go test ./...   # live checks, then the command
-x3 guard:effective -config x3.json          # the setting on paper vs in force
-x3 testdb run -config x3.json -- go test ./...   # a fresh database for this run
-x3 adoption -config x3.json .   # how much of this engine the project actually runs
-x3 published -config x3.json     # the release the pointer announces, tagged and pushed
+x3 guard -config x3.yaml -- go test ./...   # live checks, then the command
+x3 guard:effective -config x3.yaml          # the setting on paper vs in force
+x3 testdb run -config x3.yaml -- go test ./...   # a fresh database for this run
+x3 adoption -config x3.yaml .   # how much of this engine the project actually runs
+x3 published -config x3.yaml     # the release the pointer announces, tagged and pushed
 ```
 
 Exit codes are the same for every command: **0** green, **1** red, **2** nothing
 was measured — usage, I/O, a refused configuration, or too old a binary. When `guard` launches the command, the command's own exit code is
 returned instead.
 
-Project configuration lives in one file, `x3.json`: the `language` section for
+Project configuration lives in one file, `x3.yaml`: the `language` section for
 the language gate, the `arch` section for the architecture rules, the `freeze`
 section for the frozen baselines, the `surface` section for the exported API, the `docs` section for coupled changes,
 the `secrets` section for the leak scan, the `boxes` section for the open-work
@@ -181,6 +182,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A baseline two branches write](docs/baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [One debt, one file, one writer](docs/baseline-segments.md) | the split that gives a region or a rule its own baseline file, and the two axes a part may own |
 | [Changes that must not travel alone](docs/docs.md) | a change under one path that requires a change under another in the same diff |
+| [The settings, written one way](docs/fmt.md) | the configuration and its parts rewritten with comments and key order kept |
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
@@ -291,4 +293,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.211.0 capabilities=d8bdbea477b5b442d659b914f06c59ddba4cea900aba3ef50049efcd80cd0951 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

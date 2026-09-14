@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.210.0`**
+**Current version: `v0.211.0`**
 
 | Page | What it covers |
 |---|---|
@@ -44,6 +44,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A baseline two branches write](baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [One debt, one file, one writer](baseline-segments.md) | the split that gives a region or a rule its own baseline file, and the two axes a part may own |
 | [Changes that must not travel alone](docs.md) | a change under one path that requires a change under another in the same diff |
+| [The settings, written one way](fmt.md) | the configuration and its parts rewritten with comments and key order kept |
 | [Credentials in the source](secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](boxes.md) | every box against the criteria that would prove it done, in both directions |
@@ -110,4 +111,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.210.0 capabilities=e3305c71f849b117968238c071cae00adc610cb5ba3b82e7db2a75aaae129e4b template=8b180c04f72b592ba2c6db66547668cfa8fbdb9f09c6051bca2ba17e518cab2b -->
+<!-- x3-dist version=v0.211.0 capabilities=d8bdbea477b5b442d659b914f06c59ddba4cea900aba3ef50049efcd80cd0951 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
