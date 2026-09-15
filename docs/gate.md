@@ -107,6 +107,27 @@ convenience, never a precondition: the opposite would leave a project whose gate
 is red unable to run the gate that shows it. `-tune`, asked for on purpose, does
 report the failure and exits 2.
 
+### A step that cannot have changed is not run again
+
+```
+x3 gate [-cache <file>] [-no-cache]
+```
+
+Most of a mature gate measures **the gate itself**: steps that build a made-up
+tree, run the engine against it and check what it says. Measured in a production
+application: of 254 trials, **169 ran in a made-up tree** and cost 516 seconds of
+every run — 55% of the total. Those trials cannot see the repository's own code,
+so a commit to it cannot change their answer. They depend on the engine's version
+and on the settings, and both are already in the cache's salt.
+
+A step is remembered only when **every** trial in it carries a `tree`. One trial
+reading the real repository puts the whole step outside the cache: a step is one
+thing, and half of it remembered would be a gate reporting on work it did not do.
+
+⛔ **Only green is stored** — the same law the rest of the engine follows. A red
+step enters no cache, so a fix is always measured, and a fault that is still there
+is never hidden by a memory of the day it passed.
+
 ### A hook can run the gate at the end of every turn
 
 `x3 gate -band fast -changed -red-exit 2` — two flags for callers that are not a
@@ -237,4 +258,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.236.0 capabilities=0404dfff5599fb2a9906b1290469feca3f5aa590935bb31b0eaa64dc378030ef template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.237.0 capabilities=31121a8487e25ce23e1f82e0cc6cd42327fdb42f00f845464ae9d2a1d459abfc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

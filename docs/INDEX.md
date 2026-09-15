@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.236.0`**
+**Current version: `v0.237.0`**
 
 | Page | What it covers |
 |---|---|
@@ -114,4 +114,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.236.0 capabilities=0404dfff5599fb2a9906b1290469feca3f5aa590935bb31b0eaa64dc378030ef template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.237.0 capabilities=31121a8487e25ce23e1f82e0cc6cd42327fdb42f00f845464ae9d2a1d459abfc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
