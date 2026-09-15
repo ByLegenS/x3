@@ -68,6 +68,7 @@ A step carries exactly one verb, and the verbs are:
 | `done` | ends the task **green**, here. A mode has its own end ("just stop the services"), and writing that end as a condition on every later step is a condition somebody forgets when they add the next one |
 | `fail` | stops, and says why |
 | `show` | prints a **section of a document**: `from`/`until` are patterns, `max` a ceiling (40 by default). A `from` that matches nothing is **red** — a section that was renamed would otherwise print as an empty one, and an empty urgent-work list reads as "nothing is urgent" |
+| `block` | a group of steps in **one** ssh session on `on:` — each inner step still named, weighed and classified on its own |
 
 `show` exists because the thing a session or a deployment has to read at its
 start is usually **already written** in a document — the urgent list, the
@@ -79,6 +80,59 @@ warnings that also lived in the project's own status file.
 Two verbs in one step is a settings error, not a convenience: which of them ran
 first cannot be read off the file, and which of them failed cannot be read off
 the report. A step with no verb is worse — it shows up as "ran".
+
+### `block` — many remote steps, one session
+
+`block` comes from a measurement, not a preference. Every `on:` step is a
+**separate `ssh` process**, and one handshake costs **591 ms** (measured
+2026-09-14 against the pilot's production host: three sequential calls, 1 773 ms
+total). A deployment chain written as forty `on:` steps spends 24 seconds
+waiting — and, worse, opens forty separate connections, each its own chance to
+drop mid-chain and leave the server half-updated.
+
+Connection multiplexing is not the answer: Windows' OpenSSH client does **not**
+support `ControlMaster` — measured, `getsockname failed: Not a socket`, and the
+connection dies, while the control run without multiplexing is green. The fix
+had to be portable, so it lives in the engine rather than in an ssh option.
+
+```yaml
+- say: update chain
+  on: production
+  write: true
+  block:
+    - say: services stop
+      run: systemctl stop app-api app-worker
+    - say: binaries move into place
+      run: mv /opt/app/bin/server.new /opt/app/bin/server
+    - say: health
+      run: curl -fsS http://127.0.0.1:8080/
+```
+
+**A block is not a script**, and the difference is exactly where the engine keeps
+looking:
+
+- every inner step is **named in the settings** and weighed on its own — `want`,
+  `says`, `not` and `keep` all hold inside a block
+- every inner command is **classified separately**, so a destructive line cannot
+  hide inside one, and a block that changes anything still has to say
+  `write: true`
+- the report carries the inner results under `steps:`, so "where did it stop" is
+  **read off the report**, not guessed from a log
+
+The chain stops at the first red, the same rule the outer loop follows. `set -e`
+is deliberately **not** used: it would kill the session without telling anyone
+the exit code, and the report needs that code. Each step is followed by a marker
+line carrying its index and status. The marker is **random per run** — a fixed
+one would be taken for a step boundary the day some command prints it.
+
+A step whose marker never arrives **did not run**, and is reported that way.
+That is how a dropped connection is told apart from a step that failed: the
+first ends the session with steps still unreported, the second names its own
+exit code.
+
+Inside a block the verb is `run`, and an inner step names no `on:`, `dir:` or
+`env:` — the session belongs to the block, and in a remote shell `cd` and an
+assignment are simply commands.
 
 ### A flag nobody declared is named, not swallowed
 
@@ -118,6 +172,21 @@ a hole in it is worse than no gate, because a list that does not name a command
 would otherwise wave every new one through. Each link of a chain is weighed on
 its own, a redirection makes a reading command a writing one, and quotes are not
 separators: `psql -tAc 'SELECT … WHERE at > now()'` is one link, and it reads.
+
+A pattern in these lists is wrong in **two directions**, and both were measured
+on 2026-09-14 while the pilot's deployment chain moved into settings:
+
+| The pattern | What was wrong | Which way it fails |
+|---|---|---|
+| `^curl\s+(-[sSILk]+…` | no `f` flag, so `curl -fsS …/health` — the most common health probe there is — classified as **writes** | a **blindness**: the gate stops work that was only ever reading |
+| `^ip\s+(addr\|route)\b` | any `ip route` line matched, `ip route replace default via …` included | a **hole**: the command that changes a machine's egress address never reached the gate |
+| no `strings` in the list | reading a version out of a deployed binary classified as **writes** | a blindness |
+| `>` anywhere means writes | `strings … 2>/dev/null \| grep …` counted as a redirection | a blindness — `/dev/null` is not a file, it is a bin, and writing to it writes nothing |
+
+The second is the dangerous one, and the shape of the repair is the lesson: the
+verb is now **required** (`show`, `list`, `get`, or nothing at all), because a
+family name says what a command is *about*, never what it *does to* the machine.
+A blindness costs a turn; a hole costs the thing the gate exists for.
 
 ### What was measured into these steps
 
@@ -164,4 +233,4 @@ The same three fields are how a deployment gate reads a live number — the hour
 a company takes calls in, the calls running right now — and stops on it, instead
 of holding a copy of those numbers in the settings where they go stale.
 
-<!-- x3-dist version=v0.224.0 capabilities=da2ab63904964d870f4b5777d938cfcd52ee28641dd7c184a6ba3706a58111af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.227.0 capabilities=ad014d184539122fb19290fd330c7a06ba97b5a91634019f996a53cfd50650f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

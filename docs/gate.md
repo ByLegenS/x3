@@ -36,6 +36,36 @@ imposes is the script's limit, not the work's.
 }
 ```
 
+### The steps run at once — and so does everything they call
+
+**Measured in a production Go application on 32 logical cores:** the gate ran 32
+steps at once, and each step's own tools spread across all 32 cores as well —
+32 × 32 = 1 024 threads on 32 cores. The processor sat at **99.6% busy** and the
+work still finished late: 44 compiler processes taking turns on 32 cores, each
+one hauling its own data back into the cache on every turn. Two layers of
+parallelism, neither aware of the other.
+
+`gate.env` declares what every step's environment carries, and `{cores}` opens to
+one step's share of the machine: processors ÷ workers, never below one.
+
+```json
+"gate": { "workers": 24, "env": { "GOMAXPROCS": "{cores}" } }
+```
+
+| The same tree, the same steps, nothing removed | Wall | Total work |
+|---|---:|---:|
+| 32 workers, no budget | 1:58 | 2 012 s |
+| 24 workers, `{cores}` | **1:49** | **1 558 s** |
+
+⛔ **The engine names no tool.** It hands out the share as `{cores}`; which
+variable carries it is the project's word (`GOMAXPROCS`, `MAKEFLAGS`, …), and a
+project that wants a flat number simply writes one. A step's own `env` and a
+trial's `env` write over this one, in that order.
+
+**Busy is not useful.** The measured difference between a share of 1 and a share
+of 2 was noise (1:49 ↔ 1:47), so the division is enough; a separate ratio field
+would only be one more number to get wrong.
+
 ### A hook can run the gate at the end of every turn
 
 `x3 gate -band fast -changed -red-exit 2` — two flags for callers that are not a
@@ -166,4 +196,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.224.0 capabilities=da2ab63904964d870f4b5777d938cfcd52ee28641dd7c184a6ba3706a58111af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.227.0 capabilities=ad014d184539122fb19290fd330c7a06ba97b5a91634019f996a53cfd50650f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
