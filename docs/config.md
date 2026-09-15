@@ -165,13 +165,30 @@ every run — 55% of the total. Those trials cannot see the repository's own cod
 so a commit to it cannot change their answer. They depend on the engine's version
 and on the settings, and both are already in the cache's salt.
 
-A step is remembered only when **every** trial in it carries a `tree`. One trial
-reading the real repository puts the whole step outside the cache: a step is one
-thing, and half of it remembered would be a gate reporting on work it did not do.
+A step is remembered when the engine can name everything it reads: either **every**
+trial carries a `tree` (nothing in the repository reaches it), or the step declares
+its files in `touches` and their contents go into the key. One trial reading a
+repository the step never declared puts the whole step outside the cache — a step
+is one thing, and half of it remembered would be a gate reporting on work it did
+not do.
 
-⛔ **Only green is stored** — the same law the rest of the engine follows. A red
-step enters no cache, so a fix is always measured, and a fault that is still there
-is never hidden by a memory of the day it passed.
+⛔ **The key carries the binary the gate measures with.** A gate that builds its
+own tool from the repository (`gate.build`) would otherwise remember a step across
+an edit to that tool: the version stamp is a git tag and does not move when a
+source file does.
+
+⛔ **Red is stored too, and comes back red.** An earlier version kept only green,
+reasoning that a stored red repeats a sentence this run never measured. The same
+is true of green — so that rule was defending the *key*, not the colour. Once the
+key carries the content of everything the step reads, both colours are equally
+sound: the inputs did not change, so neither did the result. Measured in a
+production application: two full runs back to back on an untouched tree ran the
+same 57 steps twice (59 578 ms, then 57 200 ms, 9 red both times). Every one of
+those seconds bought an answer that was already known.
+
+⛔ **A remembered red is counted red.** The summary looks at the colour of every
+step, not only of the ones that ran — otherwise a fault would go quiet on the
+second run, which is the one failure this whole feature could cause.
 
 ### One step written once, run per application
 
@@ -202,22 +219,84 @@ measures is exactly what a gate exists to prevent.
 ### A step whose files did not change
 
 ```json
-{ "name": "whatsapp worker", "touches": ["apps/whatsapp/**", "core/**"], "trials": [...] }
+{ "name": "messaging worker", "touches": ["apps/messaging/**", "core/**"], "trials": [...] }
 ```
 
-A step that declares what it reads is skipped when none of it changed in this
-run. This is the same law as the step cache, applied to the steps that do look at
-the repository: one reads a made-up tree and is skipped when the **settings** are
-unchanged, the other reads the real one and is skipped when **its own files** are.
+`touches` is the step's cache key: the content of every file it names is hashed
+into the key, and the step runs only when one of them changed since it last ran.
+This is the same law as the step cache, applied to the steps that do look at the
+repository: one reads a made-up tree and is remembered while the **settings** hold
+still, the other reads the real one and is remembered while **its own files** do.
+
+⛔ **The question is "since this step last ran", not "since the last commit".** An
+earlier version asked git what had changed and skipped the steps that did not match
+— which answers a different question. Switching branches, committing, or doing
+nothing at all moves git's answer without moving a step's input. Worse, a skip like
+that had to *assume* a colour, and it assumed green: a step that was red, whose
+files were not in the last commit, came back green without being measured. Content
+in the key removes the guess — the step returns the result it actually produced.
 
 ⛔ **A step that declares nothing runs every time.** The engine does not guess
 what a step reads: a wrong guess shows something green that was never measured,
 and it does so in silence. Writing `touches` is the project's decision, and it
 documents the step's scope in the same line.
 
-⛔ **The change set is read once**, not per step — `git status` per step is one
-process per step. If git cannot be read the list stays empty and no step is
-skipped: a gate that cannot see its own input does not fall silent, it runs.
+### One scope for the whole gate, and the steps that cannot have one
+
+```json
+{ "gate": { "reads": ["apps/**", "core/**", "settings.json"],
+            "steps": [ { "name": "ledger ↔ production", "volatile": true, "trials": [...] } ] } }
+```
+
+`gate.reads` is the scope every step inherits when it declares no `touches` of its
+own; a step's own declaration replaces it. Measured in a production application:
+of 73 steps only **5** declared a scope, because declaring one meant repeating the
+same twelve roots 68 times — so 68 steps re-ran on every gate, and two consecutive
+runs on an untouched tree measured 57 steps twice. The cost of repeating yourself
+was being paid in seconds.
+
+⛔ **A scope has to be honest, not narrow.** A list naming every measured root of
+the repository is already enough to answer "nothing changed at all", which is the
+case that costs the most. Narrowing it — this step reads only this application —
+is a second, separate gain, made one step at a time and measured.
+
+### A step whose input is a database
+
+```json
+{ "name": "ledger reconciliation",
+  "state": "x3 testdb state -env APP_DSN",
+  "trials": [...] }
+```
+
+`state` names a command that **prints** the step's non-file input; its output goes
+into the key. The step is remembered while that line holds still and runs again
+the moment it moves. The engine does not know what is being asked — the project
+writes the command, so a project on another kind of store writes another command.
+`x3 testdb state` is the one the engine ships: one line summarising the database,
+measured at **1.4 s** against a remote server, in place of steps that cost 76 and
+78 seconds every run.
+
+⛔ **A state command that fails leaves the step unremembered.** A gate that cannot
+read the state must not assume the state did not move.
+
+⛔ **`volatile: true` says the step's input is not a file**: database rows, the
+network, the clock. Such a step inherits no scope, is never remembered, and runs
+every time. It is a separate word on purpose. A reconciliation step in a production
+application asked twenty-four queries of a live schema while declaring a file scope
+in the settings; the database can move without a single file moving, so the gate
+skipped it as *"nothing it reads has changed"* and **counted it green while it was
+red**. Declaring both a file scope and `volatile` is refused rather than resolved:
+a reader could not tell which one the engine believed. So is declaring both
+`state` and `volatile`: one says the input can be read, the other says it cannot.
+Prefer `state` wherever the input can be printed — `volatile` is for what cannot,
+such as a step that builds the database it measures.
+
+⛔ **The file set is hashed once**, not per step, and only the files some step
+declares. Measured in a production repository: 1 142 source files, 19.9 MB, hashed
+in full in **206 ms** — which is also the whole of what a timestamp check could
+save. A timestamp lies in both directions: a checkout refreshes it with the content
+unchanged, and a copy carries an old one onto new content. The second is not a
+slow gate, it is a green one that measured nothing.
 
 ### A hook can run the gate at the end of every turn
 
@@ -349,4 +428,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.242.0 capabilities=b8cb8c7a6e7c864c029dbc252c3bc950c60fe3791bb873dd769cc8c6a9e75fe8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.243.0 capabilities=c7077cbd61138529959e547c78db26fb217208722c1374e5a010ecbede5e906b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

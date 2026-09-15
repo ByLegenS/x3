@@ -106,7 +106,7 @@ with it, which is the one thing separate binaries exist to avoid.
   "deny": ["apps"], "transitive": true }
 ```
 
-The finding carries the **trail** (`cmd/worker -> internal/boot -> apps/call`)
+The finding carries the **trail** (`cmd/worker -> internal/boot -> apps/orders`)
 and there is one per forbidden **instance**, not per path: two applications
 embedded through the same package are two findings, so removing one changes the
 count. Without the trail the rule would send its reader looking for an import
@@ -156,7 +156,7 @@ were dropped. A setting that silences a rule completely has to say so.
 `ownerCase: "lower"` (or `"upper"`) folds the captured owner before it is
 matched against instance names. Measured: an application's code was written in
 capitals in the source (`"CALL"`) while its instance was lowercase
-(`apps/call`), and because the two could not be tied together that claim never
+(`apps/orders`), and because the two could not be tied together that claim never
 reached the engine — it stayed in a hand-written gate for months. The fold is
 **declared, not guessed**: a matcher that quietly compares case-insensitively
 would also quietly call two different names one.
@@ -452,4 +452,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.242.0 capabilities=b8cb8c7a6e7c864c029dbc252c3bc950c60fe3791bb873dd769cc8c6a9e75fe8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.243.0 capabilities=c7077cbd61138529959e547c78db26fb217208722c1374e5a010ecbede5e906b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

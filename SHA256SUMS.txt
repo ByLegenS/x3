@@ -1,2 +1,2 @@
-f6b0af04b433be3b54cdd73a6d98eaccefffccae5e62f31ea6942107771790dd  x3-windows-amd64.exe
-3674b2364be31af380dd06afb899350cb58b90d4816296316fbbcccee6aa1ce6  x3-linux-amd64
+b0bfa83af2df140eb6bbb97937111a2545cbf4b69bb58be037becc7535e66acc  x3-windows-amd64.exe
+3206e11895fe3baf92b905e3ab8fa40fe0b4a96fed1cc62e8db7844f5c0169ca  x3-linux-amd64
