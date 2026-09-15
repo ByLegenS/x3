@@ -31,6 +31,17 @@ reason; it is what you reach for when a suite is green and you do not trust it.
 A full run is per-unit too in this mode, and `run.all` is not used - that
 argument is the argument of the **one** call.
 
+**The units run in parallel.** Isolation is not a reason to run in single file:
+the units are independent, which is why the mode exists at all. Measured in a
+production application: 61 units with a database each took **183 s in single
+file** while the work itself was 32 s — the rest was every unit waiting for its
+own database (0.18x overlap). Run in parallel the same suite took **56 s** (0.84x
+overlap). Output is written **in unit order, not finish order**: interleaved
+lines from parallel runs leave the reader unable to tell which line belongs to
+which unit, and the timing parser reads that same stream. The worker count is
+`GOMAXPROCS`, because this run may itself be a step inside a gate that is already
+running its steps in parallel.
+
 ### A database per unit
 
 `-fresh-db` gives every unit a database of its own, created before its run and
@@ -56,4 +67,4 @@ created and left behind outlives the run that left it. What that preparer sets
 up is the `testdb` section's business, and a run layer that knew about databases
 would be dead weight in every project that has none.
 
-<!-- x3-dist version=v0.233.0 capabilities=78be6a6944cb9d9d97cea8113ab43bbf0740902426cf469414793bfb9d383db1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.234.0 capabilities=9f12c58f89ab3369f973cb2c3fd95a15da32c0bd523ee5835e1018aaa8f49b4d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

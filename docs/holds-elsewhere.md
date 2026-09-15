@@ -110,4 +110,4 @@ false `held` for every test file it empties — measured, on three counts in one
 tree. An example whose body does not parse falls back to the plain reading:
 a line that cannot be read is not evidence that nothing is bound to it.
 
-<!-- x3-dist version=v0.233.0 capabilities=78be6a6944cb9d9d97cea8113ab43bbf0740902426cf469414793bfb9d383db1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.234.0 capabilities=9f12c58f89ab3369f973cb2c3fd95a15da32c0bd523ee5835e1018aaa8f49b4d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
