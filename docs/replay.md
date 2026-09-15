@@ -146,4 +146,4 @@ replay is for. **Encrypted calls are refused, not tunnelled** — a `CONNECT` ge
 x3's own, and believing you recorded a call you did not is worse than knowing you
 did not.
 
-<!-- x3-dist version=v0.240.0 capabilities=8190eee2153544255253017f12a8094a9da98484468950701ac007cc6b9abd00 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.241.0 capabilities=eb0a7cf194d8e4250c5d8843c3e5d980f79429060071d772db86448102ecd210 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

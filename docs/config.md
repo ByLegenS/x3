@@ -22,6 +22,25 @@ neither declared nor idle — `fmt` runs every turn and asks for nothing. Writte
 as "not used" the inventory reports a gap that is not there, and the reader goes
 off to close it.
 
+### A long line nobody types twice
+
+```json
+{ "alias": { "full": "gate", "quick": "gate -band fast", "suite": "test -fresh-db" } }
+```
+
+`x3 quick` runs `x3 gate -band fast`. The caller's own arguments are appended, so
+`x3 quick -out report.yaml` works and adds to the alias rather than replacing it.
+
+A command line that is not remembered is either typed wrong or not typed at all.
+Measured in a production application on the day this was written: a gate run
+without its database variable declared reported **18 red and a false 71 seconds**
+— the line itself was right; what was missing was writing all of it every time.
+
+⛔ **An alias cannot shadow a real command.** The table is consulted only for a
+name the engine does not know, so `x3 gate` is always the engine's own gate even
+if a project writes an alias by that name. Letting settings rename a tool's own
+commands means the same command doing two different things in two repositories.
+
 ⛔ **It is binding, not decorative.** `-check` writes nothing and exits 1 when the
 file on disk is not what this run would write. As a gate step it means a change
 to the settings cannot land while the inventory still describes yesterday's
@@ -304,4 +323,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.240.0 capabilities=8190eee2153544255253017f12a8094a9da98484468950701ac007cc6b9abd00 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.241.0 capabilities=eb0a7cf194d8e4250c5d8843c3e5d980f79429060071d772db86448102ecd210 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
