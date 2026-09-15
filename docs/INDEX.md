@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.239.0`**
+**Current version: `v0.240.0`**
 
 | Page | What it covers |
 |---|---|
@@ -105,6 +105,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A rule is declared where it applies](placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [The gate itself, running in parallel](gate.md) | the steps in the settings rather than in a script, each with the exit it expects, run at once instead of one after another |
+| [What this project asks of the engine](config.md) | the generated inventory: shortcuts, declared and idle capabilities, and every gate step with its scope |
 | [Running the work itself](do.md) | the build, the services and the deployment, declared as steps instead of written as a shell script |
 | [Making the release itself](release.md) | the binaries built twice, the pages generated from one source, and the gates that run before anything is written |
 | [Writing the documents the engine measures](emit.md) | the generated work list, plan or status page produced from a report through the project's own template, and the check that says when the copy on disk stopped matching |
@@ -114,4 +115,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.239.0 capabilities=10d9c3c1d915b27d22dbf343c4ebaa44b17ab60bb6073a976b4b7c42d799f084 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.240.0 capabilities=8190eee2153544255253017f12a8094a9da98484468950701ac007cc6b9abd00 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

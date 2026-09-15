@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.239.0`**
+**Current version: `v0.240.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 19.9 MB | `70d57d35bcfbdf215500b3e8a5a8ed1f5a0ca511687648d1b3212dcefd35a469` |
-| `x3-linux-amd64` | linux/amd64 | 19.5 MB | `d8be881faa5eaa9f05c93279324aa0bee0b6b90c40cada61a5e7e261d902d6a8` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.0 MB | `f75c197c5c6f7f7cb34349d537c9668a4f977b65312a8d4380c335cdac7ac163` |
+| `x3-linux-amd64` | linux/amd64 | 19.5 MB | `e7644dcbdbbf622a83ff26f03039e47a84d86069d4a1256b44b78aaca9c9ea47` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -243,6 +243,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A rule is declared where it applies](docs/placement.md) | the region a rule's paths fall in, the settings file that has to hold it, and the rule that weighs two regions and belongs to neither |
 | [Releases, and calling the engine from another project](docs/releases.md) | reproducible builds, and the gate script that pins a tag and a checksum |
 | [The gate itself, running in parallel](docs/gate.md) | the steps in the settings rather than in a script, each with the exit it expects, run at once instead of one after another |
+| [What this project asks of the engine](docs/config.md) | the generated inventory: shortcuts, declared and idle capabilities, and every gate step with its scope |
 | [Running the work itself](docs/do.md) | the build, the services and the deployment, declared as steps instead of written as a shell script |
 | [Making the release itself](docs/release.md) | the binaries built twice, the pages generated from one source, and the gates that run before anything is written |
 | [Writing the documents the engine measures](docs/emit.md) | the generated work list, plan or status page produced from a report through the project's own template, and the check that says when the copy on disk stopped matching |
@@ -296,4 +297,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.239.0 capabilities=10d9c3c1d915b27d22dbf343c4ebaa44b17ab60bb6073a976b4b7c42d799f084 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.240.0 capabilities=8190eee2153544255253017f12a8094a9da98484468950701ac007cc6b9abd00 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
