@@ -73,7 +73,8 @@ born in 1970 and look infinitely stale. A stamp outside **2025-01-01 … now +
 ### `testdb` in `x3.yaml`
 
 ```json
-{ "testdb": { "adminDsnEnv": "APP_ADMIN_DSN", "template": "app_test_template",
+{ "testdb": { "adminDsnEnv": "APP_ADMIN_DSN",
+    "template": { "name": "app_test_template", "from": ["migrations/**"] },
     "prefix": "apptest_", "dsnEnv": "APP_TEST_DSN", "maxAgeMinutes": 120,
     "setup": [{ "command": "./migrate", "args": ["up"], "timeoutMs": 60000 }] } }
 ```
@@ -88,6 +89,38 @@ privileges, and it is also why a database x3 did not name has no age and is
 never touched. **If a setup step fails, the database is dropped**: a half-built
 schema is worse than none.
 
+### The setup runs once, not once per database
+
+Measured in a production application (2026-09-15): five gate steps each built
+their own throwaway database, and **26.7 s of every one of them** was the same
+migration applied again — around 130 s of work to produce one schema five times.
+
+```json
+{ "testdb": { "template": { "name": "app_test_template", "from": ["migrations/**"] } } }
+```
+
+With a template, the setup steps run **into the template**, once, and every
+database after that is `CREATE DATABASE ... TEMPLATE` — a copy, not a migration.
+
+**Freshness is in the name, not in a stamp table.** The template's real name
+carries a digest of the files `from` names (`app_test_template_a1b2c3d4`). A
+changed migration changes the name, so the next run builds a new template and the
+old one ages out. A stamp table would put the question "is this template stale?"
+*inside* the template — and answering it would mean connecting, while a database
+with an open connection cannot be cloned.
+
+⛔ **`from` is required.** A template with no declared sources cannot be known to
+be fresh: the day a migration changes it would quietly hand out the old schema,
+and every test would pass against the wrong database.
+
+⛔ **Two steps racing to build it is normal, and it is settled in the database.**
+The gate runs its steps in parallel, so several can see "no template" at once. A
+PostgreSQL advisory lock keyed on the template name makes one build it while the
+others wait — a file lock would only work on one machine, and nothing else in the
+engine assumes there is only one. The build lands under a temporary name and is
+renamed only when the setup finished: a half-built template standing under the
+real name would be cloned as if it were ready.
+
 ### Secrets and errors
 
 The maintenance DSN is named by environment variable only, and its value is
@@ -96,4 +129,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.230.0 capabilities=763f5bce5b32f40c71c555bd608c5842ac33b94c161e541eddeb6df547e07ab5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.231.0 capabilities=f14f5a4bcc3e21610cfc2dc2e9f83279e51b5774778e90563a0a20156120f17f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
