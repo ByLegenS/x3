@@ -291,6 +291,13 @@ a reader could not tell which one the engine believed. So is declaring both
 Prefer `state` wherever the input can be printed — `volatile` is for what cannot,
 such as a step that builds the database it measures.
 
+⛔ **A tree the walk does not enter can still be a dependency.** Fixture
+directories (`testdata`) are skipped by every scan, but a test runs on top of
+them: change a fixture and the answer changes. A step's memory therefore carries
+the **content digest of every fixture tree** the run walked past, not just the
+files it opened. Not entering and not depending on are different things, and
+the first silently implied the second.
+
 ⛔ **The file set is hashed once**, not per step, and only the files some step
 declares. Measured in a production repository: 1 142 source files, 19.9 MB, hashed
 in full in **206 ms** — which is also the whole of what a timestamp check could
@@ -428,4 +435,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.243.0 capabilities=c7077cbd61138529959e547c78db26fb217208722c1374e5a010ecbede5e906b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.243.1 capabilities=2ff8d9ad5565f9c3af62beac2a1b5982ef4358added096ac298d4ec7f0bbf7df template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
