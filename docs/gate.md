@@ -97,7 +97,11 @@ steps red than the others, the points did not do the same work and their times
 cannot be compared — a red step exits without finishing, which shortens the wall
 clock and flatters the point that broke. Measured in a production application: the
 same tree run without its database declared reported 18 red in 71 s, and with it
-11 red in 111 s. A tuning run like that writes nothing and says why — and then
+11 red in 111 s. A tuning run like that writes nothing and **names the steps that
+moved** — a count alone sends the reader back to run the gate by hand twice to
+find out which one is unsteady, and that name was already in the report. Two
+points that leave the same number red but not the same steps are just as
+incomparable, and are reported the same way. A tuning run like that says why — and then
 **the gate runs anyway**, one worker per processor. A measurement is a
 convenience, never a precondition: the opposite would leave a project whose gate
 is red unable to run the gate that shows it. `-tune`, asked for on purpose, does
@@ -233,4 +237,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.229.0 capabilities=23e99edb7f1d9424d551d132a606da50723e256a8538cf5f9cf1daee7f3d828a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.230.0 capabilities=763f5bce5b32f40c71c555bd608c5842ac33b94c161e541eddeb6df547e07ab5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
