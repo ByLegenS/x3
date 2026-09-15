@@ -128,6 +128,26 @@ thing, and half of it remembered would be a gate reporting on work it did not do
 step enters no cache, so a fix is always measured, and a fault that is still there
 is never hidden by a memory of the day it passed.
 
+### A step whose files did not change
+
+```json
+{ "name": "whatsapp worker", "touches": ["apps/whatsapp/**", "core/**"], "trials": [...] }
+```
+
+A step that declares what it reads is skipped when none of it changed in this
+run. This is the same law as the step cache, applied to the steps that do look at
+the repository: one reads a made-up tree and is skipped when the **settings** are
+unchanged, the other reads the real one and is skipped when **its own files** are.
+
+⛔ **A step that declares nothing runs every time.** The engine does not guess
+what a step reads: a wrong guess shows something green that was never measured,
+and it does so in silence. Writing `touches` is the project's decision, and it
+documents the step's scope in the same line.
+
+⛔ **The change set is read once**, not per step — `git status` per step is one
+process per step. If git cannot be read the list stays empty and no step is
+skipped: a gate that cannot see its own input does not fall silent, it runs.
+
 ### A hook can run the gate at the end of every turn
 
 `x3 gate -band fast -changed -red-exit 2` — two flags for callers that are not a
@@ -258,4 +278,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.238.0 capabilities=31121a8487e25ce23e1f82e0cc6cd42327fdb42f00f845464ae9d2a1d459abfc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.239.0 capabilities=10d9c3c1d915b27d22dbf343c4ebaa44b17ab60bb6073a976b4b7c42d799f084 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

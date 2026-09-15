@@ -66,4 +66,4 @@ count cannot be trusted the engine says nothing rather than print a green it did
 not measure — and a line repeated on every run is the first line anyone stops
 reading. The gap is named on the gaps page.
 
-<!-- x3-dist version=v0.238.0 capabilities=31121a8487e25ce23e1f82e0cc6cd42327fdb42f00f845464ae9d2a1d459abfc template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.239.0 capabilities=10d9c3c1d915b27d22dbf343c4ebaa44b17ab60bb6073a976b4b7c42d799f084 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
