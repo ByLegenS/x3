@@ -80,4 +80,4 @@ question without the declaration* stays green beside it.
 component, a path under a skipped directory belongs to none, and the rule would
 open nothing while claiming to.
 
-<!-- x3-dist version=v0.243.2 capabilities=da726653351dbbe2db81062b11393d6c4505651eec6367273b074422dc95a457 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.244.0 capabilities=d82970a9b9432f374af372f9d0e3dd0b82c05968ef6bf9d9c3be8f3ca0a02a05 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

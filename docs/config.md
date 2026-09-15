@@ -307,6 +307,23 @@ the **content digest of every fixture tree** the run walked past, not just the
 files it opened. Not entering and not depending on are different things, and
 the first silently implied the second.
 
+⛔ **An answer that came from a command, not a file, is an input too.** A step
+that asks the version control system *"what changed?"* gets a list back, and when
+that list comes back empty the step opens **no file at all** — its whole
+observation is the settings it loaded. Nothing in the tree is then in the key, so
+the step is remembered until a settings file moves, and in between a real change
+goes unmeasured. Measured in a production application: a *documentation ↔ code*
+step answered **green from the cache and red without it, on the same tree at the
+same moment** — a finding the gate had lost. So the engine records the question
+as well: every command it runs against the repository's history is stored as
+*where it was asked, what was asked, and the digest of the answer*, and
+validating a memory **asks it again**. The question is checked last, because a
+file digest reads the disk while a question starts a process.
+
+⛔ **A recorded question can only be a bare program name.** The memory is a text
+file and the check runs what it finds in it; a name carrying a path separator is
+neither recorded nor run.
+
 ⛔ **The file set is hashed once**, not per step, and only the files some step
 declares. Measured in a production repository: 1 142 source files, 19.9 MB, hashed
 in full in **206 ms** — which is also the whole of what a timestamp check could
@@ -444,4 +461,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.243.2 capabilities=da726653351dbbe2db81062b11393d6c4505651eec6367273b074422dc95a457 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.244.0 capabilities=d82970a9b9432f374af372f9d0e3dd0b82c05968ef6bf9d9c3be8f3ca0a02a05 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
