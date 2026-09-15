@@ -150,6 +150,15 @@ did, on the first package of the 111. The count is still reported (`0 red,
 65 measured nothing`), because the number itself says where the suite is not
 looking.
 
+⛔ **The default worker count is `GOMAXPROCS`, not the processor count.**
+Measured: a suite that `fan` finished in 66 s on its own took **193 s** inside a
+gate running 24 steps at the same time — two layers of parallelism again, 24
+steps each fanning 32 items across 32 processors. A step's share is already
+written in the gate's environment (`gate.env`, `{cores}`); `fan` reads it instead
+of inventing a number, and a step that deserves more says so in its own `env`.
+Outside a gate `GOMAXPROCS` is the processor count, so a suite run on its own
+loses nothing.
+
 **The template is built once, before the fan opens.** Otherwise the whole first
 wave of workers finds no template, one builds it and the rest wait on the lock —
 the parallelism would be spent waiting.
@@ -162,4 +171,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.232.0 capabilities=cd152fab91681cf14f364a8be9adb26569a95605d58e2e1aba63de4fcbd479fd template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.233.0 capabilities=78be6a6944cb9d9d97cea8113ab43bbf0740902426cf469414793bfb9d383db1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

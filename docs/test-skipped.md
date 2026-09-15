@@ -67,4 +67,4 @@ expectation written on a wrapped command already binds. The runner's own exit
 code is the other half and it is read as well: a runner that says `ok` while
 skipping everything is red on the count alone.
 
-<!-- x3-dist version=v0.232.0 capabilities=cd152fab91681cf14f364a8be9adb26569a95605d58e2e1aba63de4fcbd479fd template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.233.0 capabilities=78be6a6944cb9d9d97cea8113ab43bbf0740902426cf469414793bfb9d383db1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
