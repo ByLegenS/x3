@@ -58,4 +58,4 @@ A `why` written with nothing in it is refused with exit `2`. An empty reason
 reads like a reason and says nothing; the hand that wrote the field meant to
 write a sentence.
 
-<!-- x3-dist version=v0.241.0 capabilities=eb0a7cf194d8e4250c5d8843c3e5d980f79429060071d772db86448102ecd210 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.242.0 capabilities=b8cb8c7a6e7c864c029dbc252c3bc950c60fe3791bb873dd769cc8c6a9e75fe8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

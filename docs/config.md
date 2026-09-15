@@ -173,6 +173,32 @@ thing, and half of it remembered would be a gate reporting on work it did not do
 step enters no cache, so a fix is always measured, and a fault that is still there
 is never hidden by a memory of the day it passed.
 
+### One step written once, run per application
+
+```json
+{ "name": "vet · {each}", "each": { "dirs": "apps/*" },
+  "touches": ["{each}/**", "core/**"],
+  "trials": [{ "run": "go vet ./{each}/...", "want": 0 }] }
+```
+
+A repository with three applications should not carry three copies of the same
+step, and one with a thousand should not carry a thousand. `each.dirs` matches
+directories on disk and the step is produced once per match, with `{each}` opened
+to that directory in the name, the commands, the environment and the scope.
+
+**The list lives on disk, not in the settings.** A new application is measured the
+day it is created; nobody has to remember to copy a step, and no copy goes stale
+on its own.
+
+⛔ **Each copy carries its own scope.** Written with `{each}` in `touches`, a copy
+reads only its own tree — so a change to one application does not run the other's
+steps. That is where the saving is; multiplying alone would only shorten the
+settings file.
+
+⛔ **A pattern that matches nothing is an error**, not a silent gap: a dead
+pattern removes a step from the gate without anyone noticing, and a tree nobody
+measures is exactly what a gate exists to prevent.
+
 ### A step whose files did not change
 
 ```json
@@ -323,4 +349,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.241.0 capabilities=eb0a7cf194d8e4250c5d8843c3e5d980f79429060071d772db86448102ecd210 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.242.0 capabilities=b8cb8c7a6e7c864c029dbc252c3bc950c60fe3791bb873dd769cc8c6a9e75fe8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
