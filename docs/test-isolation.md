@@ -69,10 +69,31 @@ passed only `dsnEnv`, while the project's tests read the variable named in
 package that is red in five runs out of five showed up green. A mode whose whole
 promise is isolation had none, and said nothing.
 
+### Only the units that need a database
+
+```json
+{ "test": { "database": { "reaches": ["core/storage"] } } }
+```
+
+A database per unit is not free: measured in a production application, the same
+suite took **22.7 s with no database and 65 s with one per unit** — 42 seconds of
+setup. `database.reaches` names the units whose reach means "this one talks to a
+database"; every unit that reaches one of them is prepared, and the rest are not.
+
+⛔ **A unit that is not prepared is handed those variables EMPTY, not left
+alone.** The caller's environment may already carry a DSN — a gate step declares
+one — and an unprepared unit that sees it writes to the *development* database,
+silently, because it stays green. An empty variable says so on the first line.
+
+Declared narrowly it can cost more than it saves: in that same application a
+two-root list pushed the suite to 86 s and left three units red for want of a
+DSN, and widening the roots to the truth brought it back to 66 s — the width of
+the unnarrowed run. Measure before writing it.
+
 The engine's run layer does not know what a database is. It calls a preparer
 before each unit and a closer after it, on **every** exit path - a database
 created and left behind outlives the run that left it. What that preparer sets
 up is the `testdb` section's business, and a run layer that knew about databases
 would be dead weight in every project that has none.
 
-<!-- x3-dist version=v0.235.0 capabilities=359c2e8b7c5fea74d87d120a32d4b6d923539b0ed9d2c8eb2be50c7125ba6d96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.236.0 capabilities=0404dfff5599fb2a9906b1290469feca3f5aa590935bb31b0eaa64dc378030ef template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
