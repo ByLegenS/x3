@@ -5,7 +5,7 @@
 ## `x3 gate`
 
 ```
-x3 gate [-config <file>] [-band fast|commit|full] [-only <names>] [-workers <n>] [-out <file>]
+x3 gate [-config <file>] [-band fast|commit|full] [-only <names>] [-workers <n>] [-tune] [-out <file>]
         [-changed] [-red-exit <n>]
 ```
 
@@ -65,6 +65,39 @@ trial's `env` write over this one, in that order.
 **Busy is not useful.** The measured difference between a share of 1 and a share
 of 2 was noise (1:49 ↔ 1:47), so the division is enough; a separate ratio field
 would only be one more number to get wrong.
+
+### The worker count is the machine's, not the project's
+
+The peak sits in a different place on every machine: processors, disk, database
+and the mix of steps all move it. A number found by hand once becomes a number
+nobody dares touch, and the day the machine changes it is quietly wrong.
+
+`-tune` runs the gate at four worker counts — the processor count and its three
+quarters, half and quarter — and reports the peak:
+
+```
+x3 gate -tune
+x3 gate: measuring this machine's worker count - 4 full run(s)
+x3 gate: 24 worker(s) on 32 processor(s) - 32:118204ms 24:108094ms* 16:121530ms 8:186402ms
+```
+
+The result is written **beside the cache, not into the settings**: a worker count
+is a property of the machine, and a machine's number pushed into a shared file is
+wrong for everyone else who reads it. The record carries the processor count that
+produced it, so a binary copied to another machine — or a virtual machine that
+grew — measures again instead of trusting a number that no longer describes
+anything.
+
+**A gate with no declared `workers` tunes itself.** There is no command to
+remember: an absent setting is what triggers the measurement, a stored one is
+read, and `-tune` forces a fresh measurement over both.
+
+⛔ **The measurement checks itself.** If one point leaves a different number of
+steps red than the others, the points did not do the same work and their times
+cannot be compared — a red step exits without finishing, which shortens the wall
+clock and flatters the point that broke. Measured in a production application: the
+same tree run without its database declared reported 18 red in 71 s, and with it
+11 red in 111 s. A tuning run like that writes nothing and says why.
 
 ### A hook can run the gate at the end of every turn
 
@@ -196,4 +229,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.227.0 capabilities=ad014d184539122fb19290fd330c7a06ba97b5a91634019f996a53cfd50650f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.228.0 capabilities=b0cc2c8264c0a7273678fc24026ff67c881b6f49da751e9fe3698afacae3da12 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
