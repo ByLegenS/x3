@@ -97,4 +97,4 @@ held, and writes an empty baseline, which is a declaration of no debt at all. Th
 diff of the new file is worth reading: whatever the old identity was hiding
 appears in it.
 
-<!-- x3-dist version=v0.243.1 capabilities=2ff8d9ad5565f9c3af62beac2a1b5982ef4358added096ac298d4ec7f0bbf7df template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.243.2 capabilities=da726653351dbbe2db81062b11393d6c4505651eec6367273b074422dc95a457 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

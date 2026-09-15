@@ -291,6 +291,15 @@ a reader could not tell which one the engine believed. So is declaring both
 Prefer `state` wherever the input can be printed — `volatile` is for what cannot,
 such as a step that builds the database it measures.
 
+⛔ **The cache says why it missed.** `X3_CACHE_WHY=1` makes a step that ran
+again name the input that moved: `"architecture" ran again: dir ops/tmp/log
+changed`. Without it, finding out why a step re-ran on a tree nobody touched
+means guessing — and the answer is often that the run itself wrote into the tree
+it measures. Measured in a production application: a step kept re-running
+because the operator was redirecting the gate's own log into a directory that
+step scans. That is not a cache fault, and no amount of reasoning about the
+cache would have found it.
+
 ⛔ **A tree the walk does not enter can still be a dependency.** Fixture
 directories (`testdata`) are skipped by every scan, but a test runs on top of
 them: change a fixture and the answer changes. A step's memory therefore carries
@@ -435,4 +444,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.243.1 capabilities=2ff8d9ad5565f9c3af62beac2a1b5982ef4358added096ac298d4ec7f0bbf7df template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.243.2 capabilities=da726653351dbbe2db81062b11393d6c4505651eec6367273b074422dc95a457 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
