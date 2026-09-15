@@ -121,6 +121,39 @@ engine assumes there is only one. The build lands under a temporary name and is
 renamed only when the setup finished: a half-built template standing under the
 real name would be cloned as if it were ready.
 
+### One database per item, not one per suite
+
+```
+x3 testdb fan -list "go list ./..." -- go test {item} -v -count=1
+```
+
+`fan` runs a **list command**, takes each output line as an item, and gives every
+item its own database — items in parallel, output written one block per item.
+
+Measured in a production application (2026-09-15): a suite of 111 packages shared
+a single throwaway database. The packages ran in parallel, saw each other's rows,
+and five of the ten red steps were that contamination. Putting the packages in a
+line would have fixed it by making the suite single-file. Giving each one its own
+database costs, with a template, about a second and a half — which is what makes
+isolation affordable in the first place. The same suite: **98 s → 66 s**, and the
+contamination is gone.
+
+**The engine knows neither `go test` nor packages.** The items come from whatever
+command is given, and `{item}` in the command line is replaced with each one; the
+same mechanism serves another language's suite, or a sequence of migrations.
+Where the placeholder is absent the item is appended, which is the common case.
+
+⛔ **Blindness is asked of the run, not of the item.** A package with no test
+files measures nothing, and that is normal; a *run* that measured nothing is not.
+Asked per item, one empty package would turn the whole suite red — measured, it
+did, on the first package of the 111. The count is still reported (`0 red,
+65 measured nothing`), because the number itself says where the suite is not
+looking.
+
+**The template is built once, before the fan opens.** Otherwise the whole first
+wave of workers finds no template, one builds it and the rest wait on the lock —
+the parallelism would be spent waiting.
+
 ### Secrets and errors
 
 The maintenance DSN is named by environment variable only, and its value is
@@ -129,4 +162,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.231.0 capabilities=f14f5a4bcc3e21610cfc2dc2e9f83279e51b5774778e90563a0a20156120f17f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.232.0 capabilities=cd152fab91681cf14f364a8be9adb26569a95605d58e2e1aba63de4fcbd479fd template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
