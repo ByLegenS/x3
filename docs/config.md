@@ -302,6 +302,59 @@ and nothing is done to it: an observation replaces the inherited scope the momen
 the step leaves one, so the ones that stay are exactly the ones running a command
 the engine cannot see into.
 
+⛔ **A record's key is generated, never typed.** A step's entry used to be filed
+under its own display name — `go vet (integration) · apps/whatsapp`, a sentence
+written for a human, with spaces, punctuation and whatever language the project
+speaks. A free-form label doing an identifier's job fails the same way every time:
+somebody improves the wording, and the match silently disappears. The key is now a
+digest of the step's definition; the label lives inside the record
+(`data.result.name`), so a person reading the file still sees which step it is while
+nothing machine-facing depends on the words. The digest covers the **whole**
+definition, name included: leaving the name out would let two steps land on one
+identity, and a cache that hands back the wrong record says it measured something it
+did not. Renaming a step costs one extra run; a collision costs a false green.
+
+⛔ **A filter that selects nothing is a green that measured nothing.** `-only` looks
+for text inside a step's name, so a renamed step or one mistyped letter in a shortcut
+turns the whole run into `0 ran, 0 red, exit 0` — measured, and it is the loudest
+possible argument against carrying a closed set as free text. Every pattern must now
+hold at least one step; one that holds none stops the run and names itself, with exit
+2, because this is not a finding but a failure to measure. The engine's other
+commands already enforced this; it was missing where it cost the most.
+
+⛔ **A run declares its reading, or it is bound to every byte.** Two more commands now
+say what they read: an inline example is a **directive** and the code it measures is
+compiled, so `x3 case` binds to the code and not to the prose around it; a criterion's
+pattern defaults to reading code, so `x3 boxes` does the same unless a criterion asks
+for `reading: text`. Measured in a production application: one sentence rewritten in a
+core file ran those two steps for **34 s** and **50 s**.
+
+⛔ **A record names paths the way the repository does.** Every path a step's memory
+carries is written relative to the repository root. Absolute paths tie the record to
+one machine and one directory: move the checkout, clone it elsewhere, or open a
+second working copy of the same tree, and every one of those keys is dead — silently,
+because a miss looks exactly like a change. Measured in a production application:
+one gate cache held **5 309 absolute paths**; the file also halved, from 0.8 MB to
+0.4 MB.
+
+⛔ **The salt carries the gate's own section, not the whole configuration.** The
+older fingerprint hashed every settings file into the salt, and a salt that does not
+match discards the entire cache — so a comment added to any settings file made all
+82 steps forget. That was right before observations existed: nobody could say which
+section reached which measurement, and forgetting everything was the honest answer.
+It is no longer a guess. A step that runs the engine reports the settings files it
+**read** (23 of them in the pilot), so the configuration is already in the record,
+per file and precise. Keeping it in the salt as well counted it twice — once exactly,
+once wholesale. Measured after the change: editing `x3/arch.yaml` re-runs the one
+step that reads it, names the file, and leaves the other 81 alone.
+
+⛔ **An alias that carries a command's name never runs, and says so.** Resolution
+only looks at the settings when a name is **unknown**, so an alias called `docs` can
+never shadow `x3 docs` — that rule is deliberate, because a tool whose own names can
+be overridden from settings does two different things in two repositories. What was
+missing is the noise: the alias sat there looking like a shortcut and quietly ran
+something else every time. `x3 config` now refuses the configuration and names it.
+
 ⛔ **Another command's cache is not this step's input either.** A run reads its own
 cache and writes over it, so the gate leaves its own cache directory out of every
 record. That exclusion used to follow the gate's cache wherever `-cache` put it —
@@ -592,4 +645,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.248.0 capabilities=dffebd956ea8894bdb647790ff20f0482f47e163ac3cdd5d0cc950e56f2fe723 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.249.0 capabilities=13b2a10b301e1e17806104037af6cab6ede1f1713ffc6fec2f0c24691d84d625 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
