@@ -51,6 +51,38 @@ deliberate: a dead `ignore` makes a run **narrower** than the tree justifies, a
 dead `tests` pattern only makes it **wider**. The dead-escape-hatch law guards
 the direction that can hide a failure.
 
+### A sentence rewritten runs no test
+
+A file whose change is only **prose** reaches no unit. Its comment spans are
+removed from both sides — the working copy and the same file at the base
+revision — and if what is left is byte-for-byte identical, the file is listed in
+the report and touches nothing.
+
+Measured on a real production Go application, 113 units, one core file:
+
+| The change, in one file | units touched | units affected |
+|---|---:|---:|
+| one sentence rewritten | **0** | **35** (only the tree's other pending edit) |
+| one local variable renamed | 1 | 41 |
+| one `//go:build` line added | 1 | 41 |
+
+Before this, the first row cost exactly what the second did: a comment and a
+function body were the same change to the selection.
+
+⛔ **A directive is not prose.** `//go:build` decides whether a file compiles at
+all, and the third row is the control: adding one runs the units, and the report
+does not list the file.
+
+⛔ **Not knowing means changed.** A list handed in by the caller (`given` scope)
+has no base to compare against; a revision git cannot resolve, a file that is not
+in the base at all, a language whose comment syntax nobody declared — all four
+fall to the closed side and the file runs its units. A narrowing that guesses is
+the one failure this whole command could cause.
+
+⛔ **The narrowing says so out loud.** `x3 test: 1 file(s) changed in prose only,
+reaching no unit: …` — otherwise someone edits a file, sees no test run, and has
+no way to ask whether that was right.
+
 ### Which unit a file belongs to
 
 | The file | Its unit |
@@ -155,4 +187,4 @@ to do, and that walk grows with the repository. For a runner **without** a cache
 of its own — most of them — the first three rows would look very different. The
 engine does not assume either case; it measures.
 
-<!-- x3-dist version=v0.247.0 capabilities=4ea540eccdbf794b36dfc5cac77ea0a03b23ecbdaf61b901ad9f2d97108bcc01 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.248.0 capabilities=dffebd956ea8894bdb647790ff20f0482f47e163ac3cdd5d0cc950e56f2fe723 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

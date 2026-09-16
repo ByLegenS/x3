@@ -528,6 +528,18 @@ less but **wrong**. `needs` names an environment variable a step cannot run
 without. A skipped step is always **printed with its reason**: a step that goes
 quiet is a hole in a green run that nobody can see.
 
+⛔ **An undeclared `needs` is worse than a missing one, and it was measured.** In
+the pilot, 14 of 82 steps read a database and none of them said so. Run without
+the connection string they did not skip — they **ran and went red**, and the
+summary could not tell a missing environment from a finding: **21 red, of which
+only 13 were real**. Worse, a step that goes red this way is remembered like any
+other: five of those reds survived into a later run that *did* have the database,
+which then reported a fault measured on a broken machine. With `needs` declared,
+the same tree reports **14 skipped, 8 red** — and every one of the 8 is in the
+13 the database run finds. A skipped step is never remembered, so nothing leaks
+into the run that has the environment: giving the variable back brought the same
+13 reds, named identically.
+
 
 ### A red the step can live with
 
@@ -580,4 +592,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.247.0 capabilities=4ea540eccdbf794b36dfc5cac77ea0a03b23ecbdaf61b901ad9f2d97108bcc01 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.248.0 capabilities=dffebd956ea8894bdb647790ff20f0482f47e163ac3cdd5d0cc950e56f2fe723 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
