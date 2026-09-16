@@ -144,6 +144,75 @@ again, and the report names the file and says `code … changed`.
 cost of ignorance picks a direction: a step that sees too much runs for nothing,
 a step that sees too little goes green without measuring.
 
+### A body is not an input to every step either
+
+A rule that asks *"what does this package import"*, *"is there a declaration of
+this name"* or *"does this file declare anything that runs"* cannot change its
+answer when the inside of a function is rewritten. Comment-free hashing does not
+help it: renaming a local variable is code.
+
+So there is a third reading. A file read as a **surface** is hashed by its
+package clause, its import list (aliases and blank imports included), every
+declaration's **signature**, every constant and variable's value, and **every
+directive line anywhere in the file**. Function bodies do not enter it.
+
+| Reading | The step is bound to | Freed from |
+|---|---|---|
+| `text` | every byte | nothing |
+| `code` | the file without its prose | comment edits |
+| `surface` | declarations, signatures, imports, directives | function bodies |
+
+⛔ **A directive is not prose and is never dropped** — from either of the two
+narrow readings. `//go:build` decides whether a file compiles at all, `//go:embed`
+decides what ships inside the binary, and `//x3:allow` decides which finding is
+forgiven. All three are written with a comment marker, and a digest that dropped
+them would not notice an exemption being **added**: the gate would then repeat an
+answer measured before the exemption silenced a finding. They are weighed wherever
+they stand — including inside a body, which is where an exemption is often needed.
+
+⛔ **A file the parser cannot read has no surface.** The digest comes back empty,
+nothing matches it, and the step runs. Calling a broken file "unchanged on the
+surface" would be a green measured on a tree that does not build.
+
+**The reading is per file, not per run.** A rule set is narrow but the walk is
+wide: `x3 arch` reads the whole tree to build the component map and the import
+graph, even when the selected rule only looks at four dictionaries. Asking "what
+is this *run's* reading" therefore applies the widest rule to every file it
+touched. Each file is now asked separately — *which rules actually open you?* — and
+files no rule opens are bound to their surface, because the only things the run
+took from them are a component (a path), an import list and an exemption line.
+
+This holds because every place that consumes a parsed file is behind that same
+question. The three places that are not are exactly the three the surface carries:
+the component map reads the path, the dependency graph reads the imports, the
+exemption tally reads the directives.
+
+Measured on a real production Go application, 82 gate steps, one core file
+touched, nothing else — the same edit twice, once inside a body and once in a
+signature:
+
+| | one local variable renamed | one named result added |
+|---|---:|---:|
+| steps that ran | **45 of 82** (was 53) | **53 of 82** |
+| serial work | **158 s** (was 287 s) | 350 s |
+| wall clock | **19 s** (was 25 s) | 27 s |
+| steps woken by a surface | **0** | **8**, each naming the file |
+
+The eight steps that sleep through the body edit are the same eight that the
+signature edit wakes. Both directions were measured on the same tree, and the run
+carried the same 21 red steps, named identically, before and after.
+
+⛔ **A run that does not report what it opened is bound to nothing it measures.**
+This was found while measuring the above and is the more serious half of it:
+`x3 syntax` read its files with the plain file reader instead of the engine's,
+so its observation held 23 settings files and **not one of the 800 sources it
+scanned**. A gate step built on it survived any source edit and repeated its last
+answer without running. Every engine reader that opens a project file now reports
+it — syntax checks, paired files, generated documents, document length, live
+settings. The reading mode is a speed question; this one was a correctness
+question, and it is why a narrow reading has to be declared by the rule rather
+than guessed by the cache.
+
 ### The worker count is the machine's, not the project's
 
 The peak sits in a different place on every machine: processors, disk, database
@@ -222,6 +291,23 @@ those seconds bought an answer that was already known.
 ⛔ **A remembered red is counted red.** The summary looks at the colour of every
 step, not only of the ones that ran — otherwise a fault would go quiet on the
 second run, which is the one failure this whole feature could cause.
+
+⛔ **A step that declares no scope is named.** A step without `touches` inherits
+the gate-wide `reads`, and that reads as *"my scope is wide"* to whoever wrote the
+settings, when what it says is *"I wrote no scope"*. The run reports how many
+steps did that and the report lists them by name — measured in a production
+application: **65 of 82**. The report is where the list belongs; sixty-five names
+on the terminal every run is a wall nobody reads. The step is not wrong to inherit,
+and nothing is done to it: an observation replaces the inherited scope the moment
+the step leaves one, so the ones that stay are exactly the ones running a command
+the engine cannot see into.
+
+⛔ **Another command's cache is not this step's input either.** A run reads its own
+cache and writes over it, so the gate leaves its own cache directory out of every
+record. That exclusion used to follow the gate's cache wherever `-cache` put it —
+which meant that moving the gate's cache made the *other* commands' caches, still
+sitting where the settings declare, look like ordinary repository files. Both are
+excluded now: the one in use and the one the settings name.
 
 ### One step written once, run per application
 
@@ -494,4 +580,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.246.0 capabilities=4f1a37a491395b0e5cd5d4d96d7e34f6b21ad5d80bdf668240e5db1e8016af49 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.247.0 capabilities=4ea540eccdbf794b36dfc5cac77ea0a03b23ecbdaf61b901ad9f2d97108bcc01 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
