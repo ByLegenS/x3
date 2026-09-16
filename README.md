@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.244.0`**
+**Current version: `v0.245.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.0 MB | `892d87d0d0ad7c902b9119bf0935b75059ab1ea44711242ab14fe20ca24996e9` |
-| `x3-linux-amd64` | linux/amd64 | 19.5 MB | `a115088276888b1a6ef33a6ed14b3ce7d0295e9642c5b29b695c977f4013a945` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.6 MB | `cf84a7ba6ebdbd62e06b423bbd82185853060ac4c53e4a77517d9bc3bc8fb7e6` |
+| `x3-linux-amd64` | linux/amd64 | 20.1 MB | `b2eab4fb8e6a7fe2d18c5a5fb08497151c801ce884d6c5adba7188089c5e04be` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -248,6 +248,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Making the release itself](docs/release.md) | the binaries built twice, the pages generated from one source, and the gates that run before anything is written |
 | [Writing the documents the engine measures](docs/emit.md) | the generated work list, plan or status page produced from a report through the project's own template, and the check that says when the copy on disk stopped matching |
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
+| [What a change actually reaches](docs/symbols.md) | a table of normalized declaration hashes, stable across gofmt and comment edits, so a cache can be given the proof it is missing |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
@@ -297,4 +298,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.244.0 capabilities=d82970a9b9432f374af372f9d0e3dd0b82c05968ef6bf9d9c3be8f3ca0a02a05 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.245.0 capabilities=d9ca554260a11d0a48aa845570577bee9115e6128761ad5702b284c958dc88a3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
