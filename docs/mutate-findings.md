@@ -153,4 +153,4 @@ matters for planning: **0.35 s of wall clock per mutant** on 32 processors,
 which puts a repository of twenty thousand lines at a few hours — a night, not
 a decision.
 
-<!-- x3-dist version=v0.245.0 capabilities=d9ca554260a11d0a48aa845570577bee9115e6128761ad5702b284c958dc88a3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.246.0 capabilities=4f1a37a491395b0e5cd5d4d96d7e34f6b21ad5d80bdf668240e5db1e8016af49 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

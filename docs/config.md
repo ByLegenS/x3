@@ -111,6 +111,39 @@ trial's `env` write over this one, in that order.
 of 2 was noise (1:49 ↔ 1:47), so the division is enough; a separate ratio field
 would only be one more number to get wrong.
 
+### A comment is not an input to every step
+
+A run that calls the engine reports what it read, and the cache binds the step to
+those bytes. But most measurements never look at prose: a rule about imports, a
+dictionary check, a containment rule — none of them change their answer when a
+sentence above the code is rewritten. Binding them to the whole file makes every
+comment edit re-run them.
+
+So the observation now carries **how** a file was read, not only **that** it was
+read. A command that asks for no comments (`x3 arch`, unless a rule declares
+`comments: checked`) records a code reading, and the cache hashes that file with
+its comment spans **removed**. ⛔ Removed, not blanked: blanking preserves line
+length, so lengthening a sentence still moves the digest — measured, and the
+first cut of this bought nothing because of it.
+
+Measured on a real production Go application, one comment line edited in one core
+file, nothing else:
+
+| | bound to the file | bound to the code |
+|---|---:|---:|
+| steps that ran | 34 of 82 | **25 of 82** |
+| serial work | 149 s | **45 s** |
+| slowest step | a dictionary rule, 18.2 s | the comment-length gate, 8.5 s |
+
+The slowest step in the second column is the one that **measures comments** — it
+runs, and it should. Both directions were measured: editing only the comment
+leaves those rules skipped; editing one line of code in the same file runs them
+again, and the report names the file and says `code … changed`.
+
+⛔ **Not knowing a language's comment syntax means the whole file is code.** The
+cost of ignorance picks a direction: a step that sees too much runs for nothing,
+a step that sees too little goes green without measuring.
+
 ### The worker count is the machine's, not the project's
 
 The peak sits in a different place on every machine: processors, disk, database
@@ -461,4 +494,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.245.0 capabilities=d9ca554260a11d0a48aa845570577bee9115e6128761ad5702b284c958dc88a3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.246.0 capabilities=4f1a37a491395b0e5cd5d4d96d7e34f6b21ad5d80bdf668240e5db1e8016af49 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
