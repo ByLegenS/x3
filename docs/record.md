@@ -76,4 +76,4 @@ on to the application. When the target does not answer the client is told so wit
 `502` and **no line is written**: that answer came from the proxy, not from the
 application.
 
-<!-- x3-dist version=v0.253.0 capabilities=90771c9baba0dd9cb9a7fb8f5bd2261bb484beb53539596f848bf8e09cae8e61 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.254.0 capabilities=5a022222804a5437879de7a20265d24c78a8318e16fa7efe1a306c225a5d0cad template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

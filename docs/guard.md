@@ -15,8 +15,7 @@ x3 guard [-config <file>] [-report <file>] [-only <tags>] [-skip <tags>] [-stamp
 `-report` is the only way a report is written: **stdout belongs to the launched
 command**. The command is started with x3's **own environment and working
 directory** — nothing added, removed or rewritten — and its exit code is
-returned verbatim, so a launched test run behaves exactly as it would without
-the guard in front of it.
+returned verbatim, so a launched run behaves as it would without the guard.
 
 ### The decision rule
 
@@ -37,8 +36,7 @@ stopping is only half the story: see [below](#i-could-not-measure-is-not-i-measu
 One file usually holds every guard a project has, but the gate that starts a
 worker has no business waiting on a guard belonging to a different binary.
 `tags` plus `-only` / `-skip` pick a subset **out of the same file**, so a
-narrower run is still the file everybody reviews rather than a second copy that
-drifts.
+narrower run is still the file everybody reviews.
 
 ```json
 { "name": "database-reachable", "kind": "sql", "tags": ["db", "slow"],
@@ -64,9 +62,8 @@ look like a check that passed.**
 
 Both stop the command, so for a long time both exited `1`. The gap is not
 cosmetic: a **control experiment** that breaks a guard on purpose and checks for
-a red gets its red either way — including on the day the guard measured nothing
-at all, because a variable was unset or the host was down. It passes while
-proving nothing. So a run that could not measure exits **`2`**:
+a red gets its red either way — including on the day it measured nothing at all.
+It passes while proving nothing. So a run that could not measure exits **`2`**:
 
 ```
 ERROR ledger-rows (sql): environment variable APP_DSN is empty
@@ -105,19 +102,39 @@ entry the dictionary does not know turns the run red.
 
 See **guard fields every kind has** in the [guard reference](guard-reference.md#guard-fields-every-kind-has).
 
+### The fields every guard shares are written once
+
+Guards of one file repeat themselves. Measured in a production repository
+(2026-09-20): **26 of 26** records wrote the same two fields — the connection
+variable and the kind. `live.defaults` writes them once and each record says
+only its own difference.
+
+```json
+"live": {
+  "defaults": { "kind": "sql", "dsnEnv": "APP_DB_DSN" },
+  "guards": [
+    { "name": "no-order-without-a-customer",
+      "query": "select count(*) from orders where customer_id is null",
+      "equals": "0" },
+    { "name": "the-read-replica-is-not-behind", "dsnEnv": "APP_REPLICA_DSN",
+      "query": "select 1", "equals": "1" } ] }
+```
+
+A record's own value wins; the default never writes over a written field, and a
+field a default supplies counts as **written** — the kind dictionary sees it and
+judges it exactly as if the record had spelled it out. Two reds guard it: a
+`defaults` block that defaults nothing, and a **default every record overrides**
+— a default nobody reads shortens nothing but tells the reader that all records
+carry it, and nobody looks for the truth that split in two. A default the
+records cannot carry is refused where it is spread, and the message says so,
+because its line number belongs to the merged list and not to the file.
+
 ### `kind: "sql"`
 
 See **guard fields for kind sql** in the [guard reference](guard-reference.md#guard-fields-for-kind-sql).
 
 An expectation is mandatory here: a query with no expectation is answered by an
-empty table. `sameRowsAs` is the third one, and the only one that reads a
-**set**: [Two schemas, one question](guard-rows.md#two-schemas-one-question).
-
-```json
-{ "name": "schema-current", "kind": "sql", "policy": "block",
-  "dsnEnv": "APP_DATABASE_URL",
-  "query": "select max(version)::text from schema_migrations", "equals": "0117" }
-```
+empty table.
 
 ### `kind: "http"`
 
@@ -139,10 +156,8 @@ See **guard fields for kind exec** in the [guard reference](guard-reference.md#g
 **What it catches:** a question that is not a fact you can read but an
 experiment — *"does this module still compile once the application is removed
 from the tree?"* Copy the tree, take the application out, build what is left,
-put everything back. Without a multi-step kind the only way to write that is a
-script inside the project, and a script is what x3 exists to remove: reviewed by
-nobody, drifting when a path moves, never measured for whether it can still turn
-red.
+put everything back. Without a multi-step kind that has to be a script inside
+the project, and a script is what x3 exists to remove.
 
 See **guard fields for kind steps** in the [guard reference](guard-reference.md#guard-fields-for-kind-steps).
 
@@ -166,12 +181,11 @@ expectation the [work list](boxes.md#the-criteria) writes, read against both str
 ```
 
 The copy is taken from the **working tree**, not from the last commit: if an
-uncommitted change crossed the boundary, the trial should see it in the same
-run. Three things are refused rather than run, each closing a way to a silent
-green: a trial with **no steps** (it would pass every time), a `copy` path that
-is **not on disk** (a build that fell because a source was missing is red for
-the wrong reason), and a `remove` path that is **not there** (a trial measuring
-an absence it never created is green by construction).
+uncommitted change crossed the boundary, the trial should see it in the same run.
+Three things are refused rather than run, each closing a way to a silent green: a
+trial with **no steps** (it would pass every time), a `copy` path that is **not on
+disk** (a build that fell because a source was missing is red for the wrong
+reason), and a `remove` path that is **not there** (green by construction).
 
 Absolute paths and `..` are refused everywhere in a trial — a `remove` that
 climbed out of the copy would delete from the working tree, and no gate may
@@ -181,13 +195,9 @@ the output that reaches the report: the person reading the red opens the file
 **in the repository**, not a copy that no longer exists.
 
 Removal on every exit path is not the whole of it: a **killed** run has no exit
-path. Cancel the gate and the process tree closes with the copy still on disk
-and nothing left to collect it. So sweeping the leftovers is the first act of
-every trial — the same answer `testdb` reached for the same reason. The sweep
-goes by **age**: a second x3 running right now has a working area under the same
-name, and taking it would shoot a live trial in the foot. It reaches no other
-name, and it cannot be switched off, because a sweep that can be switched off is
-switched off the day it is inconvenient.
+path, so sweeping the leftovers is the first act of every trial — the same
+answer `testdb` reached. The sweep goes by **age**, leaving the working area a
+second x3 is using; it reaches no other name and cannot be switched off.
 
 `write` is what makes the control experiment possible from the configuration
 alone: the same trial with one file written into the copy has to go red, and a
@@ -195,9 +205,8 @@ trial whose red has never been seen is not a trial.
 
 **A step behind a red step did not fail - it never ran.** The trial stops at the
 first step that does not hold, so every step after it is neither green nor red,
-and a report that leaves this to be inferred is read wrong by the only reader
-that cannot infer: a wrapper parsing the JSON. So the failing step is reported by
-**position** and the rest are counted:
+and a report leaving that to be inferred is read wrong by a wrapper parsing the
+JSON. So the failing step is reported by **position** and the rest are counted:
 
 ```
 want: 3 step(s) that hold
@@ -205,8 +214,7 @@ got:  step 1 of 3 "the core compiles with no application in the tree",
       and the 2 step(s) after it did not run: the command exits 1
 ```
 
-A trial that holds all the way through says nothing of the sort, and the command
-behind the guard launches.
+A trial that holds all the way through says nothing of the sort.
 
 ### Secrets never enter the report
 
@@ -239,9 +247,8 @@ answers must produce the same bytes.
 ## The command the run wraps
 
 Guards run **before** the command and can say nothing about it. What is left is
-the command's exit code — and that is half a criterion, because a runner that
-finds nothing to run also exits zero. A gate step narrowed with a selector
-(`go test -run Manifest`) keeps passing on the day its package empties out.
+the command's exit code — half a criterion: a runner that finds nothing to run
+also exits zero, so `go test -run Manifest` passes when its package empties out.
 
 So the wrapped command's output is weighed too, against `live.command`:
 
@@ -261,18 +268,14 @@ nothing — and `measured` carries the verdict: `pass`, `fail`, or `error`.
 **Both directions are closed.** An expectation with no command to measure is a
 dead expectation; a wrapped command with no expectation is a silent green. Both
 stop the run. The only way past is the reason — `"unweighed": "<why it cannot be
-weighed>"` written in place of `command` — and that reason is printed on every
-run that wraps something, so an excused gate never becomes a quiet one. It
-excuses **weighing**, not the protection below; a runner announcing it had
-nothing to run is still red under an `unweighed` configuration.
+weighed>"` written in place of `command` — printed on every run that wraps
+something, so an excused gate never becomes quiet. It excuses **weighing**, not
+the protection below: a runner announcing nothing to run is still red under it.
 
 **One configuration, two kinds of run.** A project usually runs the same
 configuration twice: wrapped around its build or test command, and on its own as
 a plain health check. The second kind wraps nothing, so the dead-expectation
-question — asked of a single run — would refuse it, and the project would end up
-either not writing `command` at all (a silent green) or keeping a second
-configuration file beside the first (and a configuration split in two is the one
-where half of it goes stale). The way through is written down and justified:
+question would refuse it. The way through is written down and justified:
 
 ```json
 "live": { "guards": [ … ],
@@ -280,17 +283,15 @@ where half of it goes stale). The way through is written down and justified:
   "unwrapped": "the same configuration also runs as a plain health check, with no command to wrap" }
 ```
 
-`unwrapped` excuses **only** the dead-expectation question. The expectation stays
-where it is: a run that *does* wrap a command still weighs its output, and a
-command that breaks is still red with the expectation's own words. The reason is
-printed on every command-less run, so an excused gate never becomes a quiet one.
+`unwrapped` excuses **only** the dead-expectation question: a run that *does*
+wrap a command still weighs its output, and a command that breaks is still red
+with the expectation's own words. The reason is printed on every such run.
 
 **A runner that measured nothing does not make a green.** `go test -run <pattern>`
 exits **0** when the pattern matches nothing, and so does a package with no test
 file in it. That zero reads as "the work is done", and an expectation cannot be
-relied on to catch it, because `unweighed` excuses writing one — measured on a
-gate step whose packages had emptied out and burned green for months. So the
-output is read for that announcement **whether or not one was written**:
+relied on to catch it, because `unweighed` excuses writing one. So the output is
+read for that announcement **whether or not one was written**:
 
 ```json
 "live": { "blind": { "when": ["go test"],
@@ -308,22 +309,20 @@ red included, so "I measured and it failed" keeps its name — and the reading i
 **Every wrapper reads it, not just this one.** `x3 testdb run -- <command>` is a
 gate step too, and nothing stands between its exit code and the gate, so the same
 zero arrives there unweighed. It reads the same `live.blind` block from the same
-file: two keys for one hole would be shaped in one place and forgotten in the
-other. A `live` section is not required for it - the protection is a floor, not
+file. A `live` section is not required for it - the protection is a floor, not
 something a project earns by writing guards - and `off` is printed there as well.
 
 **A package with no test file may be a success, not a blindness.** Once a
 package's claims move into examples the engine itself runs, its test file is
-gone and the runner announces it — and a protection asking only whether the
-sentence *appeared* cannot tell that apart from a `-run` pattern matching
-nothing. Measured mid-migration: one fully melted package reddened a run
-covering forty, and every further step added another. So `says` carries only
-sentences that are a fault on their own, while `melted` carries the line that is
-first **asked about its subject**: the name it captures resolves to a directory,
-and a directory declaring examples is where the measure lives. A subject
-resolving to no directory is never excused — not knowing is paid for in red —
-and neighbours do not answer for each other. The same sentence written into
-`says` overrides all of it: a sentence listed there is a fault by declaration.
+gone and the runner announces it — which a protection asking only whether the
+sentence *appeared* cannot tell apart from a `-run` pattern matching nothing.
+Measured mid-migration: one fully melted package reddened a run covering forty.
+So `says` carries only sentences that are a fault on their own, while `melted`
+carries the line that is first **asked about its subject**: the name it captures
+resolves to a directory, and a directory declaring examples is where the measure
+lives. A subject resolving to no directory is never excused, and neighbours do
+not answer for each other. The same sentence written into `says` overrides all
+of it: a sentence listed there is a fault by declaration.
 
 The default names a runner, which `must`/`mustNot` deliberately never do; the
 difference is that it is a *default*. Another runner writes its own line
@@ -336,10 +335,9 @@ removed. A `melted` pattern that does not compile, or whose `name` points at a
 capture group the pattern does not have, is a configuration error — a group that
 cannot be read names no subject, and would excuse everything or nothing.
 
-**A dead excuse is red too.** `unwrapped` written with no `command` beside it
-excuses nothing — a run that wraps no command was never in question — so the
-configuration is refused: *"live.unwrapped is written but live.command is not"*.
-That is what keeps the reason from outliving the expectation it was written for.
-A blank reason is refused for the same reason a blank `unweighed` is.
+**A dead excuse is red too.** `unwrapped` with no `command` beside it excuses
+nothing — a run that wraps no command was never in question — so it is refused:
+*"live.unwrapped is written but live.command is not"*. That keeps the reason from
+outliving the expectation. A blank reason is refused like a blank `unweighed`.
 
-<!-- x3-dist version=v0.253.0 capabilities=90771c9baba0dd9cb9a7fb8f5bd2261bb484beb53539596f848bf8e09cae8e61 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.254.0 capabilities=5a022222804a5437879de7a20265d24c78a8318e16fa7efe1a306c225a5d0cad template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

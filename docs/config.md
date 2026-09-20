@@ -807,6 +807,75 @@ after, and `{tree}` is where it stands.
 A limb nobody declared, and a `null` over a file the base never laid, are both
 settings errors — a limb quietly running on an empty directory measures nothing.
 
+### A limb can graft the base instead of rewriting it
+
+Limbs are mostly one line apart. Measured in a production repository
+(2026-09-20): four limbs of one tree rewrote the same source file whole, each
+differing from the next by a single signature. Writing the whole file was the
+only way to say that, because a limb had two choices — never mention the file
+(the base arrives) or write all of it. Moving the file to the base does not
+help: it would then arrive in the limbs that must not carry it.
+
+A limb file written as a block with `graft` edits the base body in place. Every
+occurrence of `find` becomes `with`; the rest of the file comes from the base,
+and stays correct the day the base changes.
+
+```json
+"limbs": {
+  "orphan": { "apps/one/core.go": { "graft": [
+      { "find": "const owner = \"alpha\"\n", "with": "" } ] } },
+  "renamed": { "apps/one/core.go": { "graft": [
+      { "find": "const owner", "with": "const steward" },
+      { "find": "const band",  "with": "const tier" } ] } } }
+```
+
+**A graft that does not hold is red.** If the base body does not carry `find`,
+the limb is not planted and the trial fails — silently counting it as "no
+change" would let the tree measure something nobody wrote, which is the most
+dangerous blindness a gate has. The red names the file and prints it **as the
+base actually laid it**, numbered, so whoever owes the red can see what was
+measured:
+
+```
+  a graft whose text the base never carried exit=-1 (want 0)
+      the file "apps/one/core.go" as the base laid it:
+           1| package core
+           2|
+           3| const owner = "alpha"
+           4| const band = "one"
+      tree "marked:stale": "stale" looks for "const keeper" in
+      "apps/one/core.go" to graft, and it is not there
+```
+
+Grafting onto a path the base never laid is the same error. A graft whose `find`
+is empty, or equal to its `with`, is refused at load: it would be a limb that is
+its own base.
+
+### A step can carry the command its trials share
+
+Trials of one step usually differ in their *inputs* and *expectations*, not in
+their command. Measured in a production repository (2026-09-20): of **266**
+`- run:` lines, **118** were the same command written again. A YAML anchor
+(`&`/`*`) takes that down in bytes and not in lines — the reader still sees 266
+commands and cannot tell which one carries the difference.
+
+A step may write `run` once; every trial with no `run` of its own borrows it.
+
+```json
+{ "name": "planted limbs", "band": "fast",
+  "run": "{bin} arch -config {tree}/x3.yaml {tree}",
+  "trials": [
+    { "say": "the base carries both marks", "tree": "marked:plain", "want": 0 },
+    { "say": "the graft dropped one",  "tree": "marked:orphan", "want": 1 },
+    { "say": "and this one asks something else",
+      "run": "{bin} syntax -config {tree}/x3.yaml {tree}", "want": 0 } ] }
+```
+
+A trial's own `run` always wins; the default never writes over a written line.
+Two reds guard it: a trial with no command in either place, and a **default
+every trial overrides** — a default nothing borrows is a command the reader
+believes is running.
+
 **`run` takes a line or a list.** A line is split the way a shell splits one:
 spaces separate, and a quoted span (`"` or `'`) stays one argument. A list is
 taken as written. Measured in a production repository before this was allowed:
@@ -900,4 +969,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.253.0 capabilities=90771c9baba0dd9cb9a7fb8f5bd2261bb484beb53539596f848bf8e09cae8e61 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.254.0 capabilities=5a022222804a5437879de7a20265d24c78a8318e16fa7efe1a306c225a5d0cad template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
