@@ -233,4 +233,4 @@ The same three fields are how a deployment gate reads a live number — the hour
 a company takes calls in, the calls running right now — and stops on it, instead
 of holding a copy of those numbers in the settings where they go stale.
 
-<!-- x3-dist version=v0.258.0 capabilities=bb94b04083cd136c94068e1b728efbc4ce0d3fd27edd8ab823eb8d64e79c7e43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.259.0 capabilities=514b644a982aad9983e637ec479d1155bd2a9366a9e890d2693f85adad7b4d72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

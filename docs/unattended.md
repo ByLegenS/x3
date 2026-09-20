@@ -66,4 +66,4 @@ killed when the run's context ends, but a parent killed outright still leaves
 it behind — on Windows that was already true before, since no parent takes its
 children down with it. What happens to those survivors is the next page.
 
-<!-- x3-dist version=v0.258.0 capabilities=bb94b04083cd136c94068e1b728efbc4ce0d3fd27edd8ab823eb8d64e79c7e43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.259.0 capabilities=514b644a982aad9983e637ec479d1155bd2a9366a9e890d2693f85adad7b4d72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

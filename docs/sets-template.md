@@ -45,4 +45,4 @@ and the script feeding it become two instances that never meet. The stem groups
 them — `parts/chip.html` and `parts/chip.js` are one instance — and each side
 reads only the files of its own kind out of the scope they share.
 
-<!-- x3-dist version=v0.258.0 capabilities=bb94b04083cd136c94068e1b728efbc4ce0d3fd27edd8ab823eb8d64e79c7e43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.259.0 capabilities=514b644a982aad9983e637ec479d1155bd2a9366a9e890d2693f85adad7b4d72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

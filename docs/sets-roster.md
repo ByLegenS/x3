@@ -86,4 +86,19 @@ the failure reads like the step's own red. `parts`, `join` and `each` work here
 for the reason they work on a pattern — the value is text, and pulling a script
 name out of a command line is what a pattern is for.
 
-<!-- x3-dist version=v0.258.0 capabilities=bb94b04083cd136c94068e1b728efbc4ce0d3fd27edd8ab823eb8d64e79c7e43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+⭐ **And the same pair measures the other direction.** `select: "roster"` is the
+engine's own list of capabilities, read from the engine rather than from the
+settings, so a project whose tree does not contain the engine can still ask it:
+
+```json
+{ "left":  { "from": "x3", "file": "x3.yaml", "select": "roster",
+             "skip": { "^mutate$": "why this project does not run it" } },
+  "right": { "from": "x3", "file": "x3.yaml", "select": "gate:runs",
+             "parts": "\{bin\} ([a-z][a-z:]*)", "each": true },
+  "compare": "left-subset-of-right" }
+```
+
+A capability the engine ships and no step runs is now a `set_mismatch` with a
+name, and the only way past it is to run it or write down why not.
+
+<!-- x3-dist version=v0.259.0 capabilities=514b644a982aad9983e637ec479d1155bd2a9366a9e890d2693f85adad7b4d72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
