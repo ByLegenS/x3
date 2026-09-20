@@ -117,4 +117,4 @@ package. The engine records which example asked for each import, so the finding
 lands on that one and says why — `"net/http/httptest" imported and not used; the
 import was written because this example names it` — and the neighbours still run.
 
-<!-- x3-dist version=v0.250.0 capabilities=96ca39ab4786b45b9750319ad62467e417e5c13c6ed211793e24b02e5240b9d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.251.0 capabilities=afc340dcc5f8c970f5f882eca66efe6964bd88c714036e10400e0d559b2fdd13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

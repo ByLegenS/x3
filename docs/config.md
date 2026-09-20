@@ -50,8 +50,8 @@ and it is wrong.
 ## `x3 gate`
 
 ```
-x3 gate [-config <file>] [-band fast|commit|full] [-only <names>] [-workers <n>] [-tune] [-out <file>]
-        [-changed] [-red-exit <n>]
+x3 gate [-config <file>] [-band fast|commit|full] [-only <names>] [-region <names>] [-workers <n>]
+        [-tune] [-out <file>] [-changed] [-red-exit <n>]
 ```
 
 **Catches:** a gate that lives in a shell script — which every project then writes
@@ -80,6 +80,81 @@ imposes is the script's limit, not the work's.
   ]
 }
 ```
+
+### A step belongs to a region
+
+A band says **how deep** a step measures: `fast` < `commit` < `full`. A region
+says **where it belongs**. They are two axes and neither stands in for the other.
+
+```yaml
+gate:
+  regions: [db, docs]          # names no directory carries - the kind axis
+  steps:
+    - name: the store's own rules
+      region: store            # one name
+      trials: [...]
+    - name: the store's schema
+      region: [store, db]      # or several - a schema guard belongs to both
+      trials: [...]
+```
+
+```
+x3 gate -region store
+x3 gate: full band - 3 step(s): 2 ran, 1 skipped, 0 red - 46 ms on 8 worker(s)
+== a step that declares no region  (skipped: declares no region, so no region run can pick it)
+```
+
+**A step carries at least one region and may carry several.** A schema guard
+belongs to the application it serves *and* to the database; a rule that had to
+pick one of the two would leave the other blind.
+
+**Where the names come from.** Two places, one namespace — a step writes a name
+and never learns which half it came from:
+
+| Axis | Declared in | The name is |
+|---|---|---|
+| place | `placement.regions` (the same settings file) | the last part of a directory the pattern names: `apps/store` → `store` |
+| kind | `gate.regions` | the word itself: `db`, `docs` |
+
+⛔ **A name nobody declared is red, not a new region.** One typo would move a
+step into a region no run ever picks, and that step would never be measured
+again — a green nobody earned.
+
+```
+x3 gate: step "a step naming a region nobody declared" names region "stroe";
+         no region carries that name (known: store)
+```
+
+⛔ **A region nobody measures is red too.** `-region store` with no step in
+`store` is a run that always passes, so the engine says so instead of printing a
+green summary over zero measurements.
+
+### Why a region and not another band
+
+**Measured, 2026-09-19, in a production Go application.** A migration dropped two
+tables. Five guards kept asking for them and returned `SQLSTATE 42P01`. The
+engine counted that red **correctly** — and nobody saw it for a day, because
+those five steps sat in `band: full`, and that band is only run by hand.
+
+The band had been used as a place to put steps, and a band is a depth, not a
+place. A step parked one rung too high is a step that is never run again. A
+region carries the same steps without hiding them: `x3 gate -region db` picks
+them by what they measure, and the band stays free to mean depth.
+
+⛔ **A region run still respects the band.** `-region store` narrows *which*
+steps may run; the band still says how deep. The two narrowings compose, and
+the skip reason always names which one did it.
+
+⛔ **A step that declares no region is named, not hidden.** No region run can
+ever pick it, so the summary counts it and the report lists it by name:
+
+```
+-- 1 of 3 step(s) declare no region and no region run will ever pick them; the report names them
+```
+
+⛔ **The name is `region`, not `scope`.** `scope` is taken in this engine: it is
+a directive's reach (`decl`, `file`, `pkg`, `line` — see [Scopes](scan.md#scopes)).
+Giving one word to two ideas is a debt this engine has already paid once.
 
 ### The steps run at once — and so does everything they call
 
@@ -645,4 +720,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.250.0 capabilities=96ca39ab4786b45b9750319ad62467e417e5c13c6ed211793e24b02e5240b9d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.251.0 capabilities=afc340dcc5f8c970f5f882eca66efe6964bd88c714036e10400e0d559b2fdd13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
