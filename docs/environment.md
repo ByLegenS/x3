@@ -49,4 +49,4 @@ timeout, redaction and a report: a `sql` or `http` guard in `x3 guard`. A weaker
 second answer to the same question, running everywhere, would be the one that
 gets trusted.
 
-<!-- x3-dist version=v0.256.0 capabilities=fa3e67e334a5b8a37230b623314cac744fcb5746e03b293374c476b004b09434 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.257.0 capabilities=fa3e67e334a5b8a37230b623314cac744fcb5746e03b293374c476b004b09434 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
