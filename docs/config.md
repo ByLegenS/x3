@@ -286,6 +286,33 @@ x3 gate: step "one step per directory · each/store" names region "each/store";
 exit 2
 ```
 
+### A capability nobody runs
+
+The gate refuses a step whose command the engine does not have. The other
+direction is a `consistency` rule with the roster on the **left**: a capability
+the engine ships and no step invokes is a `set_mismatch`, and it must be either
+run or explained.
+
+```
+x3 arch
+BLOCK rule every-capability-the-engine-has-is-a-capability-some-step-runs:
+      set_mismatch  "mutate" is on the left and not on the right
+```
+
+**Measured, 2026-09-20, on this engine's own gate.** First run: **14 block**,
+every one of them real. Eleven were a choice the settings make visible — no
+section is declared for them, so there is nothing here to measure — and three
+were not. Running the three found faults that had been invisible for as long as
+nobody ran them: a command dispatched but missing from the roster, a test
+asserting the call order of a parallel preparer over an unlocked slice, and a
+runner with no `-count=1`, whose "(cached)" lines meant 41 units reported no
+time at all.
+
+⛔ **This is why the rule is not a warning.** Every capability was written to be
+used; one that is never invoked is not a capability the project has, it is a
+file nobody reads. A reason, written next to the name, is a decision. Silence is
+not.
+
 ### The verbs a machine can read
 
 `x3 gate -regions` prints what this configuration declares and runs nothing:
@@ -1095,4 +1122,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.257.0 capabilities=fa3e67e334a5b8a37230b623314cac744fcb5746e03b293374c476b004b09434 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.258.0 capabilities=bb94b04083cd136c94068e1b728efbc4ce0d3fd27edd8ab823eb8d64e79c7e43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
