@@ -50,8 +50,10 @@ and it is wrong.
 ## `x3 gate`
 
 ```
-x3 gate [-config <file>] [-band fast|commit|full] [-only <names>] [-region <names>] [-workers <n>]
-        [-tune] [-out <file>] [-changed] [-red-exit <n>]
+x3 gate [-config <file>] [-band fast|commit|full] [--full] [-only <names>] [-region <names>]
+        [-workers <n>] [-tune] [-out <file>] [-changed] [-red-exit <n>] [--force]
+x3 <region> [--full] [--force] [flags of x3 gate]
+x3 --full   [--force] [flags of x3 gate]
 ```
 
 **Catches:** a gate that lives in a shell script — which every project then writes
@@ -100,8 +102,8 @@ gate:
 
 ```
 x3 gate -region store
-x3 gate: full band - 3 step(s): 2 ran, 1 skipped, 0 red - 46 ms on 8 worker(s)
-== a step that declares no region  (skipped: declares no region, so no region run can pick it)
+== a step filed somewhere else entirely  (skipped: outside this region (belongs to db))
+x3 gate: commit band - 3 step(s): 2 ran, 1 skipped, 0 red - 42 ms on 8 worker(s)
 ```
 
 **A step carries at least one region and may carry several.** A schema guard
@@ -145,16 +147,103 @@ them by what they measure, and the band stays free to mean depth.
 steps may run; the band still says how deep. The two narrowings compose, and
 the skip reason always names which one did it.
 
-⛔ **A step that declares no region is named, not hidden.** No region run can
-ever pick it, so the summary counts it and the report lists it by name:
+⛔ **A gate step with no region does not load.** Once a settings file
+declares regions at all, every step belongs to one. Counting the loose ones
+names today's debt; only a refusal stops tomorrow's, because a step no region
+run can pick is a capability that will never be measured again.
 
 ```
--- 1 of 3 step(s) declare no region and no region run will ever pick them; the report names them
+x3 gate -config region-loose.yaml
+x3 gate: step "a step nobody filed under a region" declares no region, and 1 of 2
+         step(s) do not; this configuration declares regions (store), so a step
+         outside every one of them is a step no region run can pick
+exit 2
+
+x3 gate -config region.yaml
+x3 gate: full band - 3 step(s): 3 ran, 0 skipped, 0 red - 50 ms on 16 worker(s)
+exit 0
+```
+
+⛔ **A settings file that declares no region at all is not touched by this
+rule.** There is no region to pick, so no step is unreachable, and refusing
+there would take the gate away from every project that has not adopted regions
+yet. What is forbidden is adopting them **halfway**. Such a run still says where
+it stands:
+
+```
+-- 1 of 1 step(s) declare no region and no region run will ever pick them; the report names them
 ```
 
 ⛔ **The name is `region`, not `scope`.** `scope` is taken in this engine: it is
 a directive's reach (`decl`, `file`, `pkg`, `line` — see [Scopes](scan.md#scopes)).
 Giving one word to two ideas is a debt this engine has already paid once.
+
+### A region is a verb of its own
+
+A region the settings file declares **is a verb**, with no alias written
+anywhere:
+
+```
+x3 store                 the same run as  x3 gate -region store -band commit
+x3 store --full          that region, every band
+x3 --full                every region, every band
+x3 store --force         that region again, whatever the cache holds
+```
+
+**Measured, on one tree, one fixture of three steps:**
+
+| Run | Result |
+|---|---|
+| `x3 store` | `commit band - 3 step(s): 2 ran, 1 skipped, 0 red - 46 ms` |
+| `x3 gate -region store -band commit` | `commit band - 3 step(s): 2 ran, 1 skipped, 0 red - 42 ms` |
+| `x3 web` | `commit band - 3 step(s): 1 ran, 2 skipped, 0 red - 40 ms` |
+
+⛔ **No alias is written for it.** The engine already knows the name: the
+settings file declares it and the steps carry it. Asking every project to write
+a second table of the same names is asking it to keep one truth in two places,
+and the second copy goes stale — this engine paid that debt once already
+(`face` / `config` / `surface`).
+
+⛔ **The bare verb runs the `commit` band, not `full`.** If a region verb
+opened every band by itself, `--full` would add nothing and the interface would
+promise what it does not do. `--full` is the word that opens the band; it never
+changes **which** region runs.
+
+```
+x3 store          -config region-band.yaml   commit band - 2 step(s): 1 ran, 1 skipped
+x3 store --full   -config region-band.yaml   full band   - 2 step(s): 2 ran, 0 skipped
+```
+
+**`--force` is an axis of its own** — the long name of `-no-cache`, and it
+combines with everything. Without it a run answers from the cache whatever
+nothing has changed for:
+
+```
+x3 store --full            cold    2 ran, 0 skipped - 44 ms
+x3 store --full            warm    0 ran, 2 skipped -  0 ms   (cached: nothing this step reads has changed)
+x3 store --full --force    forced  2 ran, 0 skipped - 45 ms
+x3 store --full            warm    0 ran, 2 skipped -  0 ms   (the forced run did not poison the cache)
+```
+
+⛔ **A command name wins over a region name, and the engine says so.** A
+settings file cannot take over `x3 release`; if it declares a region by that
+name, the region is still reachable, and every gate run prints how:
+
+```
+-- region "release" is also a command name: "x3 release" runs the command;
+   reach that region with "x3 gate -region release"
+```
+
+⛔ **An unknown word names all three places it was looked for.** Otherwise
+the person who mistyped a region name never learns that regions are verbs at
+all, and sits down to write an alias:
+
+```
+x3 stroe
+unknown command: stroe - it is not a command, not an alias, and not a region
+                 (regions here: db, store, web)
+exit 2
+```
 
 ### The steps run at once — and so does everything they call
 
@@ -720,4 +809,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.251.0 capabilities=afc340dcc5f8c970f5f882eca66efe6964bd88c714036e10400e0d559b2fdd13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.252.0 capabilities=3ed7af678967f94585d43ee9355f1770a870cfbd29028c170e635da8a0eccbb9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
