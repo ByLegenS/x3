@@ -245,6 +245,97 @@ unknown command: stroe - it is not a command, not an alias, and not a region
 exit 2
 ```
 
+### A multiplied step files itself
+
+`each` writes one step per directory. A copy that had to be *told* its region by
+hand would put the directory list back into the settings file — the very
+blindness `each` exists to remove: open a new directory, forget to update that
+one line, and it enters no region run at all.
+
+`{each|base}` opens to the **last part** of the matched directory, which is
+exactly how a place-axis region is named:
+
+```yaml
+gate:
+  regions: [store, web]
+  steps:
+    - name: 'one step per directory · {each}'
+      region: '{each|base}'
+      each:
+        dirs: each/*
+      trials: [...]
+```
+
+One line, one region per directory, and a directory opened tomorrow is filed the
+day it appears:
+
+```
+x3 store -config region-each.yaml    1 ran, 1 skipped
+x3 web   -config region-each.yaml    1 ran, 1 skipped
+x3 gate  -config region-each.yaml    2 ran, 0 skipped
+```
+
+⛔ **`{each}` is the path, `{each|base}` is the name.** Both open; only one of
+them is a region name, and writing the other is red rather than a silent
+region nobody declared:
+
+```
+x3 gate -config region-each-path.yaml
+x3 gate: step "one step per directory · each/store" names region "each/store";
+         no region carries that name (known: store, web)
+exit 2
+```
+
+### The region field is not a place
+
+A step's `region:` and the place axis (`x3 placement`) ask two
+different questions, and neither answers the other's:
+
+| Axis | The question | The answer comes from |
+|---|---|---|
+| place (`x3 placement`) | which **file** should this rule be written in? | the directories the rule's paths name |
+| region (`region:`) | which **run** should this step be picked by? | the name the step declares |
+
+⛔ **`x3 placement` does not read the field.** If it did, a region name that
+happens to match a root directory — `vtcore`, `docs`, `tools` — would read as a
+*path*, and a step that changed in no other way would be told to move.
+
+**Measured, 2026-09-20, in a production Go application.** The settings adopted
+regions: 74 declarations gained a `region:` line and nothing else moved. The
+place axis went from **0 block to 27 block**, every one of them false.
+
+```
+x3 placement -config region-field.yaml
+2 region(s) - 1 settings file(s) - 3 of 6 declaration(s) name a region - 0 block
+```
+
+⛔ **And it was not closed with exemptions.** 27 `allow` entries would have
+silenced the run and taught every future step to ask for a 28th. The field is
+simply not evidence; the fence it seemed to breach — *a part's reach is its own
+directory, never a line written inside it* — stands untouched, because reading
+the field is what would have turned it into a one-line exemption.
+
+⛔ **The place axis still measures, from the paths alone.** The verdict names
+the region the **paths** name, even when the step declares another:
+
+```
+x3 placement -config region-field-astray.yaml
+BLOCK gate.steps[a rule whose every path is in one region, filed under another name]:
+      declared_away_from_its_region
+      every place it names is under "alpha", but it is declared in
+      region-field-astray.yaml; move it to alpha/region-field-astray.yaml
+exit 1
+```
+
+That step declares `region: beta`. The declaration neither silenced the finding
+nor redirected it.
+
+⛔ **A step may name several regions, and only one of them being a directory
+does not file it there.** A declaration reading `region: [alpha, papers]`, where
+`alpha` is also a directory and `papers` is a kind-axis name, used to be judged
+as though `alpha` were the only place it named — one region out of two, and a
+block. It names no place at all.
+
 ### The steps run at once — and so does everything they call
 
 **Measured in a production Go application on 32 logical cores:** the gate ran 32
@@ -809,4 +900,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.252.1 capabilities=7ae082559b5249018e688f6f081d90bccfd6cbf925a715a2042ae93b4162d973 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.253.0 capabilities=90771c9baba0dd9cb9a7fb8f5bd2261bb484beb53539596f848bf8e09cae8e61 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

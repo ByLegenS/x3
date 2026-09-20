@@ -82,4 +82,4 @@ type — freeze a value set with `freeze` if the number is the contract. The
 surface is the union across build constraints, so a platform-only symbol is in
 it. And it measures the API a caller *writes*, never what a call *does*.
 
-<!-- x3-dist version=v0.252.1 capabilities=7ae082559b5249018e688f6f081d90bccfd6cbf925a715a2042ae93b4162d973 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.253.0 capabilities=90771c9baba0dd9cb9a7fb8f5bd2261bb484beb53539596f848bf8e09cae8e61 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
