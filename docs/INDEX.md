@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.249.0`**
+**Current version: `v0.250.0`**
 
 | Page | What it covers |
 |---|---|
@@ -65,7 +65,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The file a shell decodes before it runs it](syntax-encoding.md) | the bytes a parser reads its own way and the shell reads another, and the mark that settles it |
 | [The parser that reads the name](syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
-| [Where the pattern does not look](syntax-outside.md) | the container a fallback declares for itself, counted out of scope rather than excluded, and the multi-line tag a line-by-line search never sees |
+| [Where the pattern does not look](syntax-outside.md) | the container a fallback declares for itself, counted out of scope rather than excluded, and the match a line-by-line search would have to cross a line end to see |
 | [Which files the check is about](syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
 | [What a check does not read](syntax-scope.md) | the file a source glob takes but the check must not weigh, and the comment that explains the rule rather than breaking it |
 | [A change that stays in its lane](scope.md) | a declared lane, and the change that enters it and also reaches outside |
@@ -116,4 +116,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.249.0 capabilities=13b2a10b301e1e17806104037af6cab6ede1f1713ffc6fec2f0c24691d84d625 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.250.0 capabilities=96ca39ab4786b45b9750319ad62467e417e5c13c6ed211793e24b02e5240b9d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

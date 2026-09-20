@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.249.0`**
+**Current version: `v0.250.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.7 MB | `85c8fe297024b934ee89bdd3ad3a9cc3b7b4fef9111c649a09ea28f6d1a91176` |
-| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `cfc71a6e87d25c8a88a06c934d70a7f61663665909ed843adad23c7a62bb2907` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.7 MB | `b99ad61c0f81e0480b6b7674fb522ac2fff110098c8293745904f83419668d5a` |
+| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `5269c7bf7919dd0a0439b328ad5ef1b1cca6aa543d6e8b8c2edf3a0efb31a789` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -203,7 +203,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The file a shell decodes before it runs it](docs/syntax-encoding.md) | the bytes a parser reads its own way and the shell reads another, and the mark that settles it |
 | [The parser that reads the name](docs/syntax-content.md) | the outside parser that decides what to read from the file name and passes a file it never checked, and the content handed to it instead |
 | [The word another language owns](docs/syntax-ignore.md) | the lines a denied pattern catches but must not count, excluded in the grammar the credential scan already uses, and the exclusion that stopped excluding anything |
-| [Where the pattern does not look](docs/syntax-outside.md) | the container a fallback declares for itself, counted out of scope rather than excluded, and the multi-line tag a line-by-line search never sees |
+| [Where the pattern does not look](docs/syntax-outside.md) | the container a fallback declares for itself, counted out of scope rather than excluded, and the match a line-by-line search would have to cross a line end to see |
 | [Which files the check is about](docs/syntax-subjects.md) | the subject set bound to what a file holds rather than to where it sits, and the elimination that is counted |
 | [What a check does not read](docs/syntax-scope.md) | the file a source glob takes but the check must not weigh, and the comment that explains the rule rather than breaking it |
 | [A change that stays in its lane](docs/scope.md) | a declared lane, and the change that enters it and also reaches outside |
@@ -298,4 +298,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.249.0 capabilities=13b2a10b301e1e17806104037af6cab6ede1f1713ffc6fec2f0c24691d84d625 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.250.0 capabilities=96ca39ab4786b45b9750319ad62467e417e5c13c6ed211793e24b02e5240b9d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

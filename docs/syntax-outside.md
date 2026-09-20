@@ -39,13 +39,32 @@ a self-contained element carry the marker itself
 ### What the pattern reads at once
 
 `reads` is `line` by default: the pattern is searched line by line and a line is
-at most one finding. A tag written one attribute per line is then invisible -
-the opening and the identity are never on the same line - and the check goes
-narrower than it reads without saying so.
+at most one finding.
 
 `"reads": "file"` searches the whole text. Every match is a finding (two tags on
 one line are two violations) and the line reported is the one the match begins
 on. The default does not change: every gate written so far was measured at one
 finding per line.
 
-<!-- x3-dist version=v0.249.0 capabilities=13b2a10b301e1e17806104037af6cab6ede1f1713ffc6fec2f0c24691d84d625 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### The match that crosses a line end
+
+**A line-by-line search does not make a pattern a line pattern.** `\s` matches a
+newline, so `Waive\(\s*""\s*\)` accepts a line break between the paren and the
+empty reason. Split the call and the line reading never sees it - the rule was
+there, the pattern was right, and the answer was green. **That green is the
+harm:** a missing rule is distrusted, a silent one is believed. So a pattern
+whose own text can reach past a line end (`\s`, `[\s\S]`, `(?s).`, a literal
+`
+`; `.` alone cannot) is searched over the whole file as well, and every match
+that **contains** a newline is a finding. `summary.crossed` counts them: how
+many a line-by-line reading could not structurally have seen. The counting is
+unchanged - a crossing match whose first line already carries a finding is
+dropped - and on a live tree of 9657 files under 35 checks the report before and
+after was byte-identical.
+
+⛔ **An anchor is a declaration, so an anchored pattern is never widened.** `^`
+and `$` mean *line* end to a reading that splits lines and *text* end to one that
+does not; running the pattern in both modes would silently change what its own
+anchors say. The one that gets widened is the one that went narrow in silence.
+
+<!-- x3-dist version=v0.250.0 capabilities=96ca39ab4786b45b9750319ad62467e417e5c13c6ed211793e24b02e5240b9d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
