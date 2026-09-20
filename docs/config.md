@@ -816,9 +816,9 @@ only way to say that, because a limb had two choices — never mention the file
 (the base arrives) or write all of it. Moving the file to the base does not
 help: it would then arrive in the limbs that must not carry it.
 
-A limb file written as a block with `graft` edits the base body in place. Every
-occurrence of `find` becomes `with`; the rest of the file comes from the base,
-and stays correct the day the base changes.
+A limb file written as a block with `graft` edits the base body in place: `find`
+becomes `with` where the base carries it, the rest of the file comes from the
+base, and it stays correct the day the base changes.
 
 ```json
 "limbs": {
@@ -850,6 +850,32 @@ measured:
 Grafting onto a path the base never laid is the same error. A graft whose `find`
 is empty, or equal to its `with`, is refused at load: it would be a limb that is
 its own base.
+
+**A graft that lands in more than one place is red too.** Measured in a
+production repository (2026-09-20): a base carried two identical bodies, a short
+`find` hit both, and two trees went unwritten because the only way to be unique
+was a seven-line `find` that no longer showed the difference it was there to
+show. Not holding was red while holding twice was silent — the half of the
+promise that was missing. The red says **how many** and **on which lines**, so
+whoever writes the graft knows how to narrow it:
+
+```
+      tree "doubled:crowded": "crowded" looks for "marker: \"regex:const owner\""
+      in "x3.yaml" to graft, and the base carries it 2 times, on lines 8, 13;
+      a graft lands in one place, so either look for something the base carries
+      once, or write "all: true" to land in all of them
+```
+
+Landing everywhere on purpose is written down:
+
+```json
+"wide": { "x3.yaml": { "graft": [
+    { "find": "regex:const owner", "with": "regex:const keeper", "all": true } ] } }
+```
+
+The default is **one** because a written intent is readable and a silent default
+is not. The other way round was the shipped behaviour, and it was the one the
+production repository could not use.
 
 ### A step can carry the command its trials share
 
@@ -969,4 +995,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.254.0 capabilities=5a022222804a5437879de7a20265d24c78a8318e16fa7efe1a306c225a5d0cad template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.255.0 capabilities=83aee35d143ce0c5a588733de19a5c5368735fe1b0101e6c869d606a6fd44a69 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

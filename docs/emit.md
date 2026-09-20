@@ -148,15 +148,15 @@ is an anchor two documents define, because the rewrite would have to guess.
 
 ### The gates run before anything is written
 
-The generated text is staged first, the gates named in `gates` run **on the staged
-tree**, and only a green run reaches the release directory. Writing first and
-reverting on red would leave the publication wrong for as long as the gate takes.
-On red the staged tree is kept, named in the message, so the text that failed can
-be read rather than regenerated.
+The generated text **and the binaries** are staged first, the gates named in
+`gates` run **on the staged tree**, and only a green run reaches the release
+directory — pages, checksums and `LATEST` cross over at one moment, because a
+pointer announcing a version whose pages describe the one before it is a silently
+broken publication. On red the staged text is kept and named in the message.
 
 Each gate file brings its own sections: a `secrets` section measures the generated
 text for leaks (a local path, a home directory, an address) and, with a second
 file, for language; a `freeze` section holds each published document under its own
 line cap. A page with no cap declared is not a page this repository publishes.
 
-<!-- x3-dist version=v0.254.0 capabilities=5a022222804a5437879de7a20265d24c78a8318e16fa7efe1a306c225a5d0cad template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.255.0 capabilities=83aee35d143ce0c5a588733de19a5c5368735fe1b0101e6c869d606a6fd44a69 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
