@@ -50,10 +50,10 @@ and it is wrong.
 ## `x3 gate`
 
 ```
-x3 gate [-config <file>] [-band fast|commit|full] [--full] [-only <names>] [-region <names>]
-        [-workers <n>] [-tune] [-out <file>] [-changed] [-red-exit <n>] [--force]
-x3 <region> [--full] [--force] [flags of x3 gate]
-x3 --full   [--force] [flags of x3 gate]
+x3 gate [-config <file>] [-band fast|commit|full] [-full] [-only <names>] [-region <names>]
+        [-workers <n>] [-tune] [-out <file>] [-changed] [-red-exit <n>] [-force]
+x3 <region> [-full] [-force] [flags of x3 gate]
+x3 --full   [-force] [flags of x3 gate]
 ```
 
 **Catches:** a gate that lives in a shell script — which every project then writes
@@ -809,4 +809,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.252.0 capabilities=3ed7af678967f94585d43ee9355f1770a870cfbd29028c170e635da8a0eccbb9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.252.1 capabilities=7ae082559b5249018e688f6f081d90bccfd6cbf925a715a2042ae93b4162d973 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
