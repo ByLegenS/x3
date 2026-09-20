@@ -286,6 +286,106 @@ x3 gate: step "one step per directory · each/store" names region "each/store";
 exit 2
 ```
 
+### The verbs a machine can read
+
+`x3 gate -regions` prints what this configuration declares and runs nothing:
+one verb per line, its step count beside it, and a mark on any whose name a
+command owns.
+
+```
+x3 gate -regions
+apps    19
+call    16
+db       8
+scan     1   shadowed-by-command
+```
+
+⛔ **Nothing that teaches the verbs keeps a copy.** A session hook, a README, an
+agent's context: each reads this. **Measured, 2026-09-20** — on the day a
+project's aliases became engine verbs, the hand-written list in its session hook
+still taught two that had been deleted hours earlier, so every new agent started
+with commands that do not exist. A copied list is stale the moment the
+configuration moves, and this one went stale inside a day.
+
+### The union of the verbs is counted, not assumed
+
+Every gate run prints how many steps the region verbs can reach:
+
+```
+-- 11 region verb(s) reach 78 of 78 step(s)
+-- 1 region verb(s) reach 1 of 2 step(s); 1 reachable only with
+   "x3 gate -region": a step behind a shadowed region
+```
+
+A step no verb reaches is a step the **full gate alone** runs, and that is the
+one thing the region axis exists to make unnecessary. One step files itself
+under a region whose name a command owns, and the count says so — the region
+still works with `-region`, but it is not a verb, and a reader who was told
+otherwise would learn the wrong command.
+
+⛔ **Per-step rules cannot answer this.** A step declares a region (R3) and
+declares the right one (R5) and both measure a single step. Whether the *set* of
+verbs covers the *set* of steps is a different question, and it stayed unasked
+until it was printed.
+
+### A region that contains regions
+
+`placement.regions: [apps/*]` names one region per directory. The pattern's own
+**stem** is a region too, so one verb runs every leaf under it:
+
+```
+x3 internal -config region-group.yaml    3 step(s): 2 ran, 1 skipped
+x3 probe    -config region-group.yaml    3 step(s): 1 ran, 2 skipped
+```
+
+⛔ **The stem is not a band.** `x3 apps` still narrows to what changed and what
+it affects; it is a wide region, not a deep one. The reason it exists is that
+"measure all of them" had only one spelling — the full gate — and a full gate
+does not finish in a repository with a thousand applications, so nobody runs it
+and the checks inside it stop being measured.
+
+⛔ **Only leaves that carry a step are swept in.** A pattern names every
+directory under it, and most carry no step at all; sweeping those in would make
+the run refuse a region nobody measures. And a kind-axis region is never swept
+in: `apps` is a place, `db` is not under it.
+
+### A step that touches a region it did not declare
+
+Declaring *a* region is not the same as declaring the *right* one. A step that
+names one region and measures five is filed where nobody looks: the other four
+regions' runs skip it, so what it measures there is never measured — the same
+silence the region axis exists to end, one floor down.
+
+The engine answers it with **observation, not intent**: the paths a step opened
+while it ran, which the cache already collects. Every place-axis region those
+paths fall under must appear in `region:`.
+
+```
+x3 gate -config region-read.yaml
+== a step that reads one region and files itself under the other RED
+   reads 1 region(s) it does not declare: narrow (internal/narrow/narrow.go);
+   a run of those regions skips this step, so what it measures there is never
+   measured
+exit 1
+```
+
+**Measured, 2026-09-20, in a production Go application.** One step runs
+`x3 freeze`, declares a single region and reads five it does not — the
+baselines it weighs hold entries from four separate trees. Two more steps were
+caught the same way in the same run. On the engine's own gate, 24 steps ran and
+none were caught.
+
+⛔ **Two things are deliberately not derived.** The configuration's own parts
+are skipped: reading a settings file that lives inside a region is not measuring
+that region, and without this every running step was caught for reading
+`apps/*/x3/*.yaml` alone. And the kind axis (`db`, `docs`) is untouched — a name
+no directory carries cannot come from a path, and deriving it would call a
+correct declaration incomplete.
+
+⚠️ **The rule speaks when the step runs.** A step answered from the cache was
+already measured on the run that filled it, and a rule that fired on a cached
+answer would report the same fault every day until someone changed the file.
+
 ### The region field is not a place
 
 A step's `region:` and the place axis (`x3 placement`) ask two
@@ -297,7 +397,7 @@ different questions, and neither answers the other's:
 | region (`region:`) | which **run** should this step be picked by? | the name the step declares |
 
 ⛔ **`x3 placement` does not read the field.** If it did, a region name that
-happens to match a root directory — `vtcore`, `docs`, `tools` — would read as a
+happens to match a root directory — `core`, `docs`, `tools` — would read as a
 *path*, and a step that changed in no other way would be told to move.
 
 **Measured, 2026-09-20, in a production Go application.** The settings adopted
@@ -558,7 +658,7 @@ the step leaves one, so the ones that stay are exactly the ones running a comman
 the engine cannot see into.
 
 ⛔ **A record's key is generated, never typed.** A step's entry used to be filed
-under its own display name — `go vet (integration) · apps/whatsapp`, a sentence
+under its own display name — `go vet (integration) · apps/store`, a sentence
 written for a human, with spaces, punctuation and whatever language the project
 speaks. A free-form label doing an identifier's job fails the same way every time:
 somebody improves the wording, and the match silently disappears. The key is now a
@@ -719,7 +819,7 @@ Prefer `state` wherever the input can be printed — `volatile` is for what cann
 such as a step that builds the database it measures.
 
 ⛔ **The cache says why it missed.** `X3_CACHE_WHY=1` makes a step that ran
-again name the input that moved: `"architecture" ran again: dir ops/tmp/log
+again name the input that moved: `"architecture" ran again: dir build/tmp/log
 changed`. Without it, finding out why a step re-ran on a tree nobody touched
 means guessing — and the answer is often that the run itself wrote into the tree
 it measures. Measured in a production application: a step kept re-running
@@ -995,4 +1095,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.255.0 capabilities=83aee35d143ce0c5a588733de19a5c5368735fe1b0101e6c869d606a6fd44a69 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.256.0 capabilities=fa3e67e334a5b8a37230b623314cac744fcb5746e03b293374c476b004b09434 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
