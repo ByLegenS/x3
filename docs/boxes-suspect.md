@@ -120,4 +120,4 @@ and a rule that cannot be adopted on a real tree never catches tomorrow's lie
 either. A declaration that reads no name at all is exit `2`, and so is a tree in
 which not one declaration can be read.
 
-<!-- x3-dist version=v0.280.0 capabilities=58a2ead7a400e6078ca976b616db133a69cd564d8ef2bd3b9b9fb76bcd6cc0a9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.281.0 capabilities=83a4b9dd63c379aca921acdbe708b32f71583d7a32a1250e0b9bf8b2a3c50a52 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -376,6 +376,64 @@ directory under it, and most carry no step at all; sweeping those in would make
 the run refuse a region nobody measures. And a kind-axis region is never swept
 in: `apps` is a place, `db` is not under it.
 
+### A region's verb can be shorter than its directory
+
+A region verb that is not the directory name: a region's name was the last part
+of its directory and nothing else, so a tree
+called `apps/whatsapp` could only ever answer to `x3 whatsapp`. `placement.verbs`
+maps a short verb onto a directory, beside the patterns that already declare it:
+
+```yaml
+placement:
+  regions:
+    - internal/probe
+    - internal/narrow
+  verbs:
+    nr: internal/narrow
+```
+
+```
+x3 nr     -config region-verb.yaml   2 step(s): 1 ran, 1 skipped, 0 red
+x3 narrow -config region-verb.yaml   unknown command: narrow - it is not a
+                                     command, not an alias, and not a region
+                                     (regions here: nr, probe)
+```
+
+⛔ **The verb REPLACES the directory name, it never joins it.** Two names split
+one region in half: one step would declare `wa` and another `whatsapp`, each run
+would measure its own half, and the half nobody ran would be green because
+nothing looked at it. The long form says the same thing and lists what does
+exist - `x3 gate -region narrow` answers `no such region: "narrow" (known: nr,
+probe)`.
+
+⛔ **A multiplied step writes `{each|verb}`**, which opens to the verb where one
+is mapped and to the directory's last part where none is - so one line works in
+a repository that has a mapping and in one that does not:
+
+```yaml
+region: '{each|verb}'
+each:
+  dirs: each/*
+```
+
+`{each|base}` is untouched and still means what its name says. It is not only a
+region line: it is written in step names, command arguments and trial text, and
+resolving it through the mapping would have changed a step's name and a command's
+path without the author asking.
+
+⛔ **Three verbs are refused at load, each with the name in the message.**
+
+| What is written | Why the gate will not start |
+|---|---|
+| a verb an engine command owns (`docs: internal/probe`) | `x3 docs` runs the command forever; a directory name only *warns* here, because the directory is there for other reasons - a verb is written on purpose and its only job is to be called |
+| a verb a kind-axis `regions:` entry also spells (`db`) | the two axes share one name space, so a run of that name would pick both sets of steps and no output would say which |
+| a verb on a directory no `regions:` pattern reaches | it renames nothing, and `x3 nr` would answer *no region carries that name* while the settings file plainly carries it |
+
+📌 **Nothing else is named after a region**, so a rename orphans no file
+(measured 2026-09-21): baseline parts are `baseline.segments` keys their author
+writes, and configuration parts are `include:` globs. The engine derives no file
+name from a region name, and a verb changes only what a run is called.
+
 ### A step that touches a region it did not declare
 
 Declaring *a* region is not the same as declaring the *right* one. A step that
@@ -620,6 +678,16 @@ anything.
 **A gate with no declared `workers` tunes itself.** There is no command to
 remember: an absent setting is what triggers the measurement, a stored one is
 read, and `-tune` forces a fresh measurement over both.
+
+⛔ **A stored measurement is worth only as much as the reader that finds it.**
+The record sits under `cache.dir`, so whatever resolves that setting must know
+the **whole** section. Measured in a production application, 2026-09-21: a
+second reader of `cache` here knew only `dir`, so the day `cache.slots` was
+declared it refused the section, the stored number became unreadable, and the
+gate measured the machine again on **every** run — four full runs, **6 min 45 s**
+before the first step of the narrow run that was actually asked for, with
+`gate-tune.yaml` sitting untouched beside the cache the whole time. One section,
+one reader.
 
 ⛔ **The measurement checks itself.** If one point leaves a different number of
 steps red than the others, the points did not do the same work and their times
@@ -1217,4 +1285,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.280.0 capabilities=58a2ead7a400e6078ca976b616db133a69cd564d8ef2bd3b9b9fb76bcd6cc0a9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.281.0 capabilities=83a4b9dd63c379aca921acdbe708b32f71583d7a32a1250e0b9bf8b2a3c50a52 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

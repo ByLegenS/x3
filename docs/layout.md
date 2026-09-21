@@ -78,4 +78,4 @@ that shells out reports green on every machine where the tool is missing, which
 is the silent-green class this engine exists to catch. The engine also **writes
 no file**: it says the line is going to move, it does not move it.
 
-<!-- x3-dist version=v0.280.0 capabilities=58a2ead7a400e6078ca976b616db133a69cd564d8ef2bd3b9b9fb76bcd6cc0a9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.281.0 capabilities=83a4b9dd63c379aca921acdbe708b32f71583d7a32a1250e0b9bf8b2a3c50a52 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
