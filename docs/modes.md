@@ -117,9 +117,22 @@ x3 boxes -search <pattern>
 ```
 
 The pattern is a regular expression and it is matched against what a person
-would search for: the box's id, its title, and the criteria that were met when
-it closed. It is not matched against the raw line — a search for `pattern`
-would otherwise find every record, because that word is a field name.
+would search for: the box's id, its title, its **body**, and the criteria that
+were met when it closed. It is not matched against the raw line — a search for
+`pattern` would otherwise find every record, because that word is a field name.
+
+The body is the half that makes the archive answerable. A word a person
+remembers is almost never in the title:
+
+```
+x3 boxes -search "silenced digit"
+rounded-price	2026-09-21T07:35:44Z	archive/2026-09.jsonl
+	the gate must refuse a price nobody can read
+x3 boxes -search: 1 record(s) match "silenced digit" - 1 record(s) read from 1 part(s) of archive
+```
+
+The same archive line read by an engine whose records carry no body answers `0
+record(s) match` — the record is there, the sentence is not.
 
 ```
 x3 boxes -search "three modes"
@@ -141,4 +154,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.261.0 capabilities=54924539b0ea0f017aa261150d06b1489d2ad062239ab6ba561478230dfe669e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.262.0 capabilities=a3bffcba54192a1718e3d64d08edf50dc8d1998d223b0a35a41478599ed20fa6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

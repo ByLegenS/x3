@@ -24,6 +24,28 @@ The list lives in its own file (`{ "boxes": { "file": "docs/OPEN-WORK.json" } }`
 because it changes weekly while the configuration changes yearly. That is this
 repository's own list, and `check.ps1` runs this command against it.
 
+### What a title cannot hold
+
+A title names the work in one line. Everything else it needed — why it is owed,
+what was measured, what the next person must not undo — goes in `body`, and
+**nothing measures it**:
+
+```json
+{ "id": "rounded-price", "title": "the gate must refuse a price nobody can read",
+  "body": "The kurus below one lira disappear.\nA rounded price is a silenced digit.",
+  "state": "open",
+  "done": [{ "when": "pattern", "sources": ["src.go"], "match": "price" }] }
+```
+
+The engine reads no form, no length and no section in it. A body it interpreted
+would be a second criterion, and the box would go red from two places at once.
+
+It travels: a box carries its body into the deferred list and back, and into the
+archive — which is the only reason it exists. Measured on the pilot tree: 861
+boxes carried 781 KB of body, two thirds of the written list, against a mean
+title of 60 characters. **A list that keeps only titles is a list nobody can
+search a year later**, and closed work is exactly the work nobody remembers.
+
 ### A box that is not needed yet
 
 Some work is owed only once something else happens — a second tenant, a version
@@ -410,4 +432,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.261.0 capabilities=54924539b0ea0f017aa261150d06b1489d2ad062239ab6ba561478230dfe669e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.262.0 capabilities=a3bffcba54192a1718e3d64d08edf50dc8d1998d223b0a35a41478599ed20fa6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

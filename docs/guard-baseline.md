@@ -30,4 +30,4 @@ just been frozen, in the same breath. The dead-expectation question is not asked
 of a refresh either: a run that wraps nothing neither meets `live.command` nor
 contradicts it.
 
-<!-- x3-dist version=v0.261.0 capabilities=54924539b0ea0f017aa261150d06b1489d2ad062239ab6ba561478230dfe669e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.262.0 capabilities=a3bffcba54192a1718e3d64d08edf50dc8d1998d223b0a35a41478599ed20fa6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
