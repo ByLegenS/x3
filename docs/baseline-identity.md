@@ -46,4 +46,14 @@ under the subtree: a component holds no gate configuration and is not at fault
 for it. The guard that refuses a declared place reading nothing is unchanged
 and fires from every root.
 
-<!-- x3-dist version=v0.269.0 capabilities=e1d7f168c9961472843c7484d60d548c18b8e20ad4ecdb60720f2c6782881b9d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+**An empty answer is an answer, once the question is narrow enough.** A list
+that holds no box is fatal from the root: a pattern that quietly stops matching
+reports zero, and zero reads as *"nothing is owed"*. Narrowed to one component
+the same sentence is wrong — a component with no work left is not at fault, and
+*"what is still open here"* has to be allowed to answer *"nothing"*. A run whose
+root sits under the configuration's anchor therefore reports `0 box` and exits
+`0`; from the anchor itself, or from above it, the block is unchanged. Measured
+on one tree, one configuration: `x3 boxes` blocked with `empty_scope` and exited
+`1`, `x3 boxes <component>` exited `0`.
+
+<!-- x3-dist version=v0.270.0 capabilities=c1708adb86ecf17a5e707ff7a68a213ebf4cc7289c61332fc28c39cf6b498ee5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
