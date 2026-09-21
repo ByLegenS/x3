@@ -92,4 +92,4 @@ which records were actually weighed. The two mistakes are not equal: a wrong
 silent green this whole mode exists to prevent — so every class the engine
 cannot decide is counted on the bond side, and said out loud.
 
-<!-- x3-dist version=v0.274.0 capabilities=4dae4b91281a799975aea6fa8efeb63a5f41d822b439d2abcba2a001602ca760 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.275.0 capabilities=a186d7b62d4c0d1683260322b5bc10fbb601b9da7bb6918567062dbf9145dd7c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
