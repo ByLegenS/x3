@@ -325,77 +325,6 @@ What may be frozen is **how the list is written today** — `box_uncovered`,
 without proof free, and a gate that measures nothing green), `empty_scope`, and the gate's own health codes. A baseline buys time to write the criteria; it does not buy permission to
 stop asking the two questions.
 
-### A list that is finished, and where it goes next
-
-Every criterion so far reads one **item**. This one reads a whole **document**,
-because a list can fail as a list while every item in it is written correctly.
-
-```json
-{ "markdown": { "retire": { "from": "ongoing", "to": "done",
-    "bare": true, "empty": true,
-    "few": [ { "open": 2, "finished": 1 }, { "open": 5, "percent": 75 } ] } } }
-```
-
-`from` is the part of a path that says "this document is open work", `to` is what
-replaces it, and **both are the project's words**. `bare` finds a document among
-the open lists carrying no box at all (`list_has_no_box`), `empty` one where
-nothing is open any more (`list_finished`), and `few` one where a threshold holds
-(`list_nearly_finished`).
-
-`bare` is why the rule walks **documents** rather than boxes: a file with no box
-produces nothing to walk past, so the one failure that leaves work completely
-invisible is exactly the one a box-by-box gate cannot see — and its finding does
-not say "move this", because what it needs is boxes. Each `few` threshold is "at
-most this many open, and this much finished", and **the finished half is
-required**: `open` alone would retire a one-item plan nobody has started, filing
-work nobody has begun under work that is done.
-
-**The engine does not write the list out.** Turning the report into a page
-somebody reads over breakfast is formatting, and a gate that also published
-documents would own two contracts.
-
-### Work that moved rather than finished
-
-An item is sometimes closed because it was written down somewhere else: the work
-did not finish, its **place** changed.
-
-```json
-{ "markdown": { "moved": { "match": "^\\s*moved to `([^`]+)`\\s*$", "roots": ["docs"] } } }
-```
-
-An item whose body carries that line is outside **both** directions — its criteria
-are not run, and it is not `box_uncovered` either. The pattern is the project's
-own and its **first capture group** is where the work went. It is not free: saying
-"moved" would otherwise be the cheapest way to silence a criterion, so the target
-has to **exist**, and one nothing can be found at is `box_moved`. A marker that
-matches nothing is **not** red — the item simply keeps its criteria, so the
-failure is loud rather than blind.
-
-### A scope that can be narrowed
-
-```json
-{ "boxes": { "sources": ["docs/**/*.md"], "exclude": ["docs/external/**"] } }
-```
-
-The law is `arch`'s and `freeze`'s, shared in one place: a pattern that takes no
-document out is `dead_exclusion`, an empty list is refused, and a scope holding no
-box is `empty_scope`. `exclude` narrows documents, so it may not be written beside
-`file` — a machine-written list has no scope to narrow.
-
-### A document that can carry a signature
-
-A `manual` criterion holds when `signed` records that the looking happened.
-
-```markdown
-- [x] the installer works on a clean machine
-      criterion: by-hand the release owner - the installer runs on a clean machine - signed 2026-09-07
-```
-
-`separator` splits who looks from what they see; `signed` splits what they see
-from the record that they did. Both are the project's own words, and if the kind
-declares no `signed` marker a manual criterion can never hold — correct rather
-than convenient.
-
 ### Who a manual criterion may wait on
 
 ```json
@@ -406,7 +335,7 @@ A `manual` criterion whose `by` matches one of those names is `box_owner`. This 
 a **prohibition**, not an escape hatch, so it does not shout when it matches
 nothing — a rule that catches nothing is good news. It asks the **open** list;
 the deferred list may wait on such an owner and says how
-often ([why](export.md#the-second-destination-work-a-person-measures)).
+often ([why](modes.md#three-modes-of-a-work-list)).
 
 
 ### What one run costs
@@ -432,4 +361,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.266.0 capabilities=18c70b926630faa8d7d66999a11daa2192e028a7743d6838a08dd46443183b96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

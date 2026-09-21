@@ -33,9 +33,9 @@ reading, the finding says so rather than leaving the number unexplained:
 ^ and $ read a line here, not the whole file - read the other way it would count 1
 ```
 
-**Four patterns are not read this way**, their subject being one line or one
+**Three patterns are not read this way**, their subject being one line or one
 value: `syntax` `deny`, `secrets` `patterns[].match` and `ignore[].match`,
-`boxes` `markdown.moved.match`, and `arch` `literal` `pattern` — that last one
+and `arch` `literal` `pattern` — that last one
 looks for a **name**, so `^name$` means "the whole literal is this name".
 
 ### The engine's own lines
@@ -87,4 +87,4 @@ two apart.
 matches anything. Which ending a repository stores is git's question, not this
 engine's.
 
-<!-- x3-dist version=v0.266.0 capabilities=18c70b926630faa8d7d66999a11daa2192e028a7743d6838a08dd46443183b96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

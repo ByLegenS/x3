@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.266.0`**
+**Current version: `v0.267.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.9 MB | `d2010069be02468c7612d0901d9d3dc69d6cb41c3f6a25dcc414acab55c36dfb` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `70815d3eaa0cfb4662dcb97048d4290eb24ce3668c798316986f70f3b077a69d` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.7 MB | `2bbcf827eded275e5c302dec44e25552dd93a50fbca975475c59cec6721a0b67` |
+| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `cfe255f80acba2b80ad67d1a612dec68c3b50fcbdbd0b81571aa6b27727f05b6` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -187,16 +187,12 @@ markers that split this document, so a page cannot be missing from it.
 | [Credentials in the source](docs/secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](docs/comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](docs/boxes.md) | every box against the criteria that would prove it done, in both directions |
-| [A work list written as a document](docs/boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
 | [The directory a command criterion runs in](docs/boxes-workdir.md) | the working directory a run measures its commands in, declared by the project and stamped in every report |
 | [A criterion that brings its own expectation](docs/criterion-expect.md) | one kind is one runner, and the line names which of that runner's expectations weighs it |
 | [Work that is not needed yet](docs/criterion-condition.md) | the condition written beside a box, in the same words as its criteria |
-| [Three ways a criterion is lost in the writing](docs/criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](docs/boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [A departure that never happened](docs/boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
 | [Three modes of a work list](docs/modes.md) | open, deferred and archived work, and which of the three a run reads |
-| [A list of documents, carried to the machine](docs/export.md) | the one-shot migration from checkboxes in prose to the machine-written list |
-| [The history a document carries](docs/keep.md) | every box inside the documents written to the archive as it stands, measuring nothing |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -301,4 +297,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.266.0 capabilities=18c70b926630faa8d7d66999a11daa2192e028a7743d6838a08dd46443183b96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

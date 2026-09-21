@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.266.0`**
+**Current version: `v0.267.0`**
 
 ## boxes criteria fields
 
@@ -16,14 +16,4 @@
 | `command` | `command`, `args`, `output`, `timeoutMs` | it exits `0` **and** its output meets `output` |
 | `manual` | `by`, `seen`, `signed` | `signed` is written |
 
-## boxes criteria written in prose
-
-| `when` | The rest of the line is read as |
-|---|---|
-| `file`, `gone` | a path |
-| `pattern`, `absent` | a place, then the expression; the place matches the file **and** everything under it |
-| `sql` | the query, `==`, the value it must give |
-| `command` | arguments appended to `prefix`; `argument: "word"` demands exactly one |
-| `manual` | who looks, the separator, what they must see |
-
-<!-- x3-dist version=v0.266.0 capabilities=18c70b926630faa8d7d66999a11daa2192e028a7743d6838a08dd46443183b96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

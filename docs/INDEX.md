@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.266.0`**
+**Current version: `v0.267.0`**
 
 | Page | What it covers |
 |---|---|
@@ -49,16 +49,12 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Credentials in the source](secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
 | [Open work, measured](boxes.md) | every box against the criteria that would prove it done, in both directions |
-| [A work list written as a document](boxes-document.md) | the checkboxes inside a note read as boxes, the states a project declares, and how a criterion is written beside an item - in prose or inside a table |
 | [The directory a command criterion runs in](boxes-workdir.md) | the working directory a run measures its commands in, declared by the project and stamped in every report |
 | [A criterion that brings its own expectation](criterion-expect.md) | one kind is one runner, and the line names which of that runner's expectations weighs it |
 | [Work that is not needed yet](criterion-condition.md) | the condition written beside a box, in the same words as its criteria |
-| [Three ways a criterion is lost in the writing](criterion-writing.md) | the key that is not the criterion key, the sentence handed to a runner, and the place written as a line number |
 | [Criteria that stopped measuring](boxes-suspect.md) | the criterion that cannot fail, and the selector whose name has left the tree |
 | [A departure that never happened](boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
 | [Three modes of a work list](modes.md) | open, deferred and archived work, and which of the three a run reads |
-| [A list of documents, carried to the machine](export.md) | the one-shot migration from checkboxes in prose to the machine-written list |
-| [The history a document carries](keep.md) | every box inside the documents written to the archive as it stands, measuring nothing |
 | [Before a name is removed](holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -119,4 +115,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.266.0 capabilities=18c70b926630faa8d7d66999a11daa2192e028a7743d6838a08dd46443183b96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
