@@ -882,6 +882,48 @@ one state between them; the fourth is rarely asked for again and only grows the
 file. The slot that falls is the one asked for longest ago, and the run-count
 ceiling (`stale`) still applies to each slot on its own.
 
+⭐ **How many slots is the project's call, not the engine's.** Three is a
+default, not a law: a repository where several agents move the tree crosses more
+than three states in a session, and the fourth crossing drops the oldest slot and
+brings the miss back. `cache.slots` sets the number — `1` reproduces the single
+slot the engine had before, `5` holds a five-state walk, and the ceiling is 32. A
+number outside `1..32` is refused with the file named, rather than quietly
+clipped, because a settings file that says one thing while the engine does
+another is a settings file nobody re-reads. Measured in the pilot's own gate
+cache (2026-09-21): **1 150 278 B across 38 slots — 30 270 B per slot**, so the
+cost of raising the number is linear in the slots actually filled, and only keys
+that are really revisited fill them.
+
+```yaml
+cache:
+  dir: ~/.x3cache/myproject
+  slots: 10
+```
+
+Control experiment `cache slots control experiment`: with `slots: 1` a walk of
+a → b → a measures three times; with nothing declared, a walk of a → b → c → d → a
+measures five times, because three slots cannot hold four states; with `slots: 5`
+the same walk answers the last step from the cache (`0 ran, 1 skipped`). The three
+arms run over the **same fixture trees** and differ only in that one number.
+
+⭐ **A record the salt no longer fits is still a witness.** The salt is the
+engine version plus the settings fingerprint, and results under an old salt are
+dead the moment either moves — but what the record observed about the **tree**
+(which path was read, under which digest) does not age with the engine. Until now
+a settings edit emptied the merge base, so the first **narrow** run after it threw
+away every path the other steps had read; a path that then really moved while it
+was forgotten was never named. The file now has a second compartment: results
+under the current salt in `entries`, and records whose salt moved in `observed`.
+`observed` is never served as an answer — a moved salt still measures everything
+again — it is only read by `x3 snapshot`, and it retires on the same run-count
+ceiling as any other slot (twenty runs), so nothing accumulates.
+
+Control experiment `cache salt observation control experiment`: after a settings
+edit, a run narrowed to one step still leaves `one.txt` — a path only the *other*
+step ever read — `unchanged` in the snapshot, and names it `changed` when it
+really moves. With the carry-over removed, those two arms go red and the rest stay
+green.
+
 ⭐ **The cache directory can live outside the working copy.** `cache.dir` expands
 `~` to the home directory and `$NAME` / `${NAME}` from the environment before it
 is resolved; an expanded path that is absolute is used as written, and a relative
@@ -1175,4 +1217,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.279.0 capabilities=2d4dbaa4fd0947e09be46fbdc475aa6d2c15d07d65a13b06f643f87f8c988536 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.280.0 capabilities=58a2ead7a400e6078ca976b616db133a69cd564d8ef2bd3b9b9fb76bcd6cc0a9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
