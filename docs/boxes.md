@@ -382,7 +382,9 @@ than convenient.
 
 A `manual` criterion whose `by` matches one of those names is `box_owner`. This is
 a **prohibition**, not an escape hatch, so it does not shout when it matches
-nothing — a rule that catches nothing is good news.
+nothing — a rule that catches nothing is good news. It asks the **open** list;
+the deferred list may wait on such an owner and says how
+often ([why](export.md#the-second-destination-work-a-person-measures)).
 
 
 ### What one run costs
@@ -408,4 +410,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.260.0 capabilities=8004fa03548574d60563f63f663d52673559fe0003df4bd6e444d702ee9ac59d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.261.0 capabilities=54924539b0ea0f017aa261150d06b1489d2ad062239ab6ba561478230dfe669e template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
