@@ -31,7 +31,7 @@ Four states, and the third is the one a read-list alone cannot give you:
 |---|---|
 | `changed` | no remembered digest of this path matches what is on disk today |
 | `unchanged` | one of them does — the gate still has a valid memory of it |
-| `new` | the path lives in a walked directory and no record has ever named it |
+| `new` | a walked directory's *name list* has moved, and no record has ever named this path in it |
 | `gone` | a record names it and the disk no longer holds it |
 
 **No second record is written.** The union was measured before it was designed:
@@ -45,6 +45,22 @@ and a file nobody tracks is as visible as one everybody does. That is also why
 `new` works: a directory is remembered by the digest of its *name list*, so a
 file no step will ever open still shows up the moment it lands.
 
+**`new` means "the listing moved", not "nobody read it".** The digest is
+*asked*, and a directory whose name list still matches the record has had
+nothing arrive in it — so a file no rule will ever open, sitting there since
+the first commit, is **not** a change. Until this was asked, it was: every run,
+for ever. In the engine's own tree that was one file
+(`internal/release/testdata/VERSION`, which `x3 docs` counted as an eighth
+change while only seven paths had moved); in the pilot it was **595**, because
+a settings edit moves the cache salt, a narrow run then rewrites the record
+with only its own steps (see `cache.Save`), and every path the other steps had
+read is forgotten at once.
+
+When a listing *has* moved, every unread name in that directory is counted, not
+just the one that arrived — which name it was cannot be recovered from a
+digest, and counting too few is passing without measuring. The next run records
+that listing again, so the over-count lasts exactly one run.
+
 **Each path is weighed in its own terms.** A path the gate reads whole is
 judged by its content; one it reads as *code* is not moved by a comment; one it
 reads as a *surface* is not moved by a function body. The snapshot is what the
@@ -56,4 +72,4 @@ One limit, named: a slot holds several states of the same path (see
 the honest answer to "would the gate re-measure this?", not to "was this file
 ever touched?".
 
-<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.279.0 capabilities=2d4dbaa4fd0947e09be46fbdc475aa6d2c15d07d65a13b06f643f87f8c988536 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

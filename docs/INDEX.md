@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.278.0`**
+**Current version: `v0.279.0`**
 
 | Page | What it covers |
 |---|---|
@@ -113,6 +113,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Is the release really published](published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [What a change actually reaches](symbols.md) | a table of normalized declaration hashes, stable across gofmt and comment edits, so a cache can be given the proof it is missing |
 | [How the engine reaches git](git.md) | every git call through one package, and one declared sentence when git is not on the machine |
+| [A configuration that cannot call git](gate-forbid.md) | the programs no step may invoke, declared by the project, measured in the command position only |
 | [A snapshot the cache keeps](snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
 | [A change read without git](scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
@@ -120,4 +121,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.279.0 capabilities=2d4dbaa4fd0947e09be46fbdc475aa6d2c15d07d65a13b06f643f87f8c988536 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.278.0`**
+**Current version: `v0.279.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `ae0242841ef53390f7e90f1ab1959c79b93db7fb09576a3cb6658dc0583ee9e8` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `c9a2ba0a26d0eae09cbc9fc9ea71f8741631cf6fbfd8198fecfb5f6204877145` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `e6ca25228556a1db72641e6125bb9a280411790f89f5825dc55e1834af0222a0` |
+| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `3d97c8ad4ea43456814cd043cea7f8d17f8d5a8dada93bb21f72869ef25bd376` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -251,6 +251,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Is the release really published](docs/published.md) | the tag a publication announces, measured in every repository and on every remote, and against the commit that carries the announcement |
 | [What a change actually reaches](docs/symbols.md) | a table of normalized declaration hashes, stable across gofmt and comment edits, so a cache can be given the proof it is missing |
 | [How the engine reaches git](docs/git.md) | every git call through one package, and one declared sentence when git is not on the machine |
+| [A configuration that cannot call git](docs/gate-forbid.md) | the programs no step may invoke, declared by the project, measured in the command position only |
 | [A snapshot the cache keeps](docs/snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
 | [A change read without git](docs/scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
@@ -302,4 +303,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.279.0 capabilities=2d4dbaa4fd0947e09be46fbdc475aa6d2c15d07d65a13b06f643f87f8c988536 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
