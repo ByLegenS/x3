@@ -854,6 +854,59 @@ because the operator was redirecting the gate's own log into a directory that
 step scans. That is not a cache fault, and no amount of reasoning about the
 cache would have found it.
 
+⭐ **A key holds more than one answer, so going back is free.** A step's key is
+built from its **definition** — the settings, the binary under measurement, the
+state line — and never from the tree. A dirty tree and a clean tree therefore land
+on the same key, and while a key held one entry every crossing erased the other:
+editing a file and putting it back measured the step **twice**. A key now holds up
+to **three slots**, each one a set of inputs and the answer they produced; a run
+walks the slots and takes the first whose every digest still holds. Measured on
+the engine's own tree (52 steps, 2026-09-21):
+
+| The tree | before | after |
+|---|---|---|
+| steady state | 1 ran, 51 skipped · 983 ms | 1 ran, 51 skipped · 976 ms |
+| one file edited | 3 ran, 49 skipped · 6 263 ms | 3 ran, 49 skipped · 6 173 ms |
+| **the edit reverted** | **3 ran, 49 skipped · 6 097 ms** | **1 ran, 51 skipped · 972 ms** |
+
+The round trip stopped costing a second full measurement. Branch switching,
+stashing and any other tool that moves the tree and moves it back pays the same
+way, which is why the setting exists at all.
+
+⛔ **Slots are capped because they are not free.** The same record measured on
+disk: one tree state, 52 keys, 52 slots, **663 168 B** — 12 753 B per slot; two
+states, 104 slots, **1 323 174 B**; returning to the first state left the file
+**unchanged at 1 323 174 B**, because the state that came back reused its own
+slot rather than opening a third. Three slots hold the way out, the way back and
+one state between them; the fourth is rarely asked for again and only grows the
+file. The slot that falls is the one asked for longest ago, and the run-count
+ceiling (`stale`) still applies to each slot on its own.
+
+⭐ **The cache directory can live outside the working copy.** `cache.dir` expands
+`~` to the home directory and `$NAME` / `${NAME}` from the environment before it
+is resolved; an expanded path that is absolute is used as written, and a relative
+one still lands beside the settings file.
+
+```json
+{ "cache": { "dir": "~/.x3cache/my-project" } }
+```
+
+A relative directory ties the cache to the **working copy**. A second tree of the
+same repository — a worktree, a clone, a throwaway copy — is born with an empty
+cache, and a warm cache is deleted together with the tree that held it: one cold
+run for every tree, every time. Naming a directory outside the tree makes every
+copy of the repository share one warm cache. Both are legitimate; the settings say
+which.
+
+⛔ **A shared directory means two runs can write at once.** Writing is therefore
+read-merge-write under a per-file advisory lock, and the file itself is replaced
+atomically (written beside, then renamed): a run that started before another run's
+write still keeps that write's slots instead of erasing them, and a run killed
+mid-write cannot leave a half-written cache behind — which would silently forget
+everything. A lock that cannot be taken within two seconds, or one whose owner
+died thirty seconds ago, is stepped over: a lost cache write is slowness, a
+deadlocked gate is a stop.
+
 ⛔ **A tree the walk does not enter can still be a dependency.** Fixture
 directories (`testdata`) are skipped by every scan, but a test runs on top of
 them: change a fixture and the answer changes. A step's memory therefore carries
@@ -1122,4 +1175,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.272.0 capabilities=46500cb8ad080cc4b9df6cfb91418347928fab317327288705dd32ff203740a5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.273.0 capabilities=a635c171f924344b5f1ed4f6642936fdd96ee6c6e45326f5da82cd46c60ed4a1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
