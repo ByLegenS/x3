@@ -43,8 +43,20 @@ each is a separate step somebody can forget:
 | `tag_differs_on_remote` | here and on the remote, the tag names different commits |
 | `tag_off_the_line` | the tagged commit is not an ancestor of `HEAD` — the tag sits on work this line does not carry |
 | `tag_is_not_the_release_commit` | the tag names a commit whose claim file announces another version |
+| `tag_behind_tree` | the tag is where it should be, and commits have landed after it — code that is not released |
 | `claim_unreadable` | the announcement itself could not be read |
 | `remote_unreachable` | the remote could not be asked |
+
+**A tag in the right place is not a publication that is current.** No question
+above asks whether the tree moved past the announced version. Measured here: the
+tag was pushed, on the release commit, matching the remote, two commits had
+landed after it, and the run stayed green. Uncommitted edits are not counted -
+a gate red on every saved file is a colour nobody reads.
+
+```
+BLOCK . (origin): tag_behind_tree
+	LATEST announces v0.259.0 and . has 3 commit(s) after it: code that is not released is code nobody can install
+```
 
 **The claim is read from the committed `HEAD`, not from the working tree.** A
 publish run that has written a new pointer but has not committed it has announced
@@ -76,4 +88,4 @@ commit) and once where the tag was then moved to point at a later commit
 the release. It answers one question: *is the version this publication announces
 actually obtainable?*
 
-<!-- x3-dist version=v0.259.0 capabilities=514b644a982aad9983e637ec479d1155bd2a9366a9e890d2693f85adad7b4d72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.260.0 capabilities=8004fa03548574d60563f63f663d52673559fe0003df4bd6e444d702ee9ac59d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

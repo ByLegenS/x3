@@ -42,4 +42,4 @@ blindly would break every parser that expects a path. And `stdin` on a check tha
 starts no process — `as` or `deny` — is a configuration error: there is nothing
 to feed.
 
-<!-- x3-dist version=v0.259.0 capabilities=514b644a982aad9983e637ec479d1155bd2a9366a9e890d2693f85adad7b4d72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.260.0 capabilities=8004fa03548574d60563f63f663d52673559fe0003df4bd6e444d702ee9ac59d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
