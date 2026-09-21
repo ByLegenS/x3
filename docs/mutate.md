@@ -142,4 +142,4 @@ nothing, so `baseline_red` stops the run), it fills the toolchain's build cache
 for everything that follows, and it **measures** each unit, so a slow unit gets
 a proportionally longer ceiling instead of being called caught for being slow.
 
-<!-- x3-dist version=v0.277.0 capabilities=24ec30cc5e89aabb1c59d96598a88558c2b727254225c52e18266bdec09ef0a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -18,19 +18,27 @@ would refute every honest `gone` criterion ever written.
 { "boxes": { "suspect": { "gone": true } } }
 ```
 
-So the question goes to the repository's **history** instead of its tree: *was
-this path ever here?* A path no commit on any branch has carried is `box_suspect`
-— the same class as a criterion pointing at `go.mod`, from the other direction.
-Measured on a real production Go application: of 16 such criteria, 11 named a
-path the history carries, 2 were build outputs, and **3** named a path that was
-never there.
+So the question goes to the engine's **own record** instead of the tree: *did
+any run this tree remembers ever read that path?* The gate writes down every
+file each step reads, so the cache is a history of the tree in the engine's own
+hand. A path the record has never seen is `box_suspect` — the same class as a
+criterion pointing at `go.mod`, from the other direction. Measured on a real
+production Go application: of 16 such criteria, 11 named a path the record
+carries, 2 were build outputs, and **3** named a path that was never there.
 
-Those build outputs are the edge, and they are not excused by hand. A path git is
-told to ignore cannot be asked about at all — the history has nothing to say
-either way — so git itself is asked whether it ignores the path, and the ones it
-does are dropped from the rule and **counted** in the summary as `untracked`. An
-exemption list would silence a verdict; a count keeps a growing blind spot
-visible. A tree with no history is exit `2`, for the same reason as everywhere
-else here: a rule that cannot read would call every departure a typo.
+(The question used to go to the repository's commit history. It no longer does:
+the engine answers it from what it measured itself, so a tree with no version
+control answers just as well as one with it.)
 
-<!-- x3-dist version=v0.277.0 capabilities=24ec30cc5e89aabb1c59d96598a88558c2b727254225c52e18266bdec09ef0a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+Those build outputs are the edge, and they are not excused by hand. A path the
+project tells its tools to ignore is never read by a step either, so the record
+has nothing to say about it — x3 reads the ignore rules itself (`.gitignore`
+files, parsed in `internal/source`, with no tool invoked) and the paths they
+cover are dropped from the rule and **counted** in the summary as `untracked`.
+An exemption list would silence a verdict; a count keeps a growing blind spot
+visible. A tree whose record is missing — no `cache.dir` declared, or declared
+and never filled — is exit `2`, in two separate sentences, for the same reason
+as everywhere else here: a rule that cannot read would call every departure a
+typo.
+
+<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

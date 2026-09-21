@@ -83,4 +83,76 @@ The control experiment runs the *same command on the same tree* twice, with
 `env: {PATH: ''}` the only difference — so the answer cannot have come from the
 tree.
 
-<!-- x3-dist version=v0.277.0 capabilities=24ec30cc5e89aabb1c59d96598a88558c2b727254225c52e18266bdec09ef0a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### A version read from a file
+
+**A repository that already writes its version down should not be asked git for
+it.** `release.version` names the file:
+
+```yaml
+release:
+  version: VERSION
+```
+
+With that line the number comes from the file, and the tag becomes a
+**confirmation** rather than a source. The chain is four steps and none of them
+is silent:
+
+| The tree | The answer |
+|---|---|
+| file declared, git absent | the file, and the note says no tag confirms it |
+| file declared, tree sits past its tag | the file, and the note names what the tree sits at |
+| file declared, tree sits **on** a tag that disagrees | **red**, naming both values |
+| nothing declared | the tag, exactly as before |
+| nothing declared and no git | no answer — `there is no source for this tree's version` |
+
+A tag speaks only for the commit it names. One commit later the tree is something
+else and that tag confirms nothing, which is why bumping the file before tagging —
+the ordinary order of work — is not a contradiction. On the **same** commit a
+disagreement is one, and choosing a side quietly would hide it:
+
+```
+VERSION says v1.2.0, the tag says v1.1.9; a file and a tag on the SAME commit
+cannot disagree - move the tag or fix the file
+```
+
+**The second effect is the one that pays for the work.** `git describe` was being
+called with `--dirty`, so the version string changed with the state of the working
+tree. That string is embedded in the built binary, and the binary's digest is part
+of the gate's cache key — so an edit anywhere moved the key and emptied the cache
+for every step, twice, on the way there and back. A version read from a file
+carries no `-dirty` suffix and does not move.
+
+`x3 release -dry` answers the question on its own, building nothing:
+
+```
+x3 release: v1.2.0, read from VERSION; confirmed by the tag - nothing is built
+```
+
+The **version file control experiment** runs four arms on one tree: the file with
+`env: {PATH: ''}`, the file with git installed, no declaration with git, and no
+declaration without it. The confirmation rule itself is a pure function measured
+by inline examples, because the one input a fixture tree cannot be given is a
+git tag — planting one would mean running git to test not running git.
+
+### A publish only runs where it is declared
+
+`x3 published` asks git for local and remote tags. That is the one git call that
+stays legitimate — but only where a project actually publishes through tags. A
+project that does not needs the command to **say it has nothing to do**, not to
+fail:
+
+```
+x3 published: x3.yaml: this project declares no release; nothing to check
+```
+
+Exit `0`. Every git call in that command is born after the configuration is
+read, so where nothing is declared git is never asked — measurable, because the
+same command with `env: {PATH: ''}` prints the same sentence and never names the
+absence of git.
+
+A declaration that **is** written is still measured as before, and one that is
+written but cannot be measured is still exit `2` (`claim wants file`). The three
+states stay apart: nothing declared is not the same as declared-and-broken, and
+neither is the same as green.
+
+<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

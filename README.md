@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.277.0`**
+**Current version: `v0.278.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `32de599e6f1fa7c04f50944f53043cec8d4033999c17fb9ae38bd3830624b5ad` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `c22488f0c85fdc2225753876ac93d634ce342430fc92ba569129a573c8bfbb96` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `ae0242841ef53390f7e90f1ab1959c79b93db7fb09576a3cb6658dc0583ee9e8` |
+| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `c9a2ba0a26d0eae09cbc9fc9ea71f8741631cf6fbfd8198fecfb5f6204877145` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -260,9 +260,9 @@ markers that split this document, so a page cannot be missing from it.
 
 ## What is built and what is not
 
-Every capability below is implemented and has a control experiment in
-`check.ps1` that proves it can go **red** — a green nobody has seen fail is not
-evidence.
+Every capability below is implemented and has a control experiment in this
+repository's own gate (`x3.yaml`, run by `x3 gate` or by a region verb) that
+proves it can go **red** — a green nobody has seen fail is not evidence.
 
 | Capability | What it catches |
 |---|---|
@@ -302,4 +302,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.277.0 capabilities=24ec30cc5e89aabb1c59d96598a88558c2b727254225c52e18266bdec09ef0a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.278.0 capabilities=8e41d6bd5f1758414d116fe84cea9a0f5dda090feb78d675133f4927daf8bac3 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
