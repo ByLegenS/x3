@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.271.0`**
+**Current version: `v0.272.0`**
 
 | Page | What it covers |
 |---|---|
@@ -40,6 +40,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [A gate baseline](baseline-gate.md) | the run that names only the red born after it, so nobody reaches for a clean tree to tell today's debt from yesterday's |
 | [The sentence that says why a debt is held](baseline-why.md) | the reason written next to a record by hand, carried through a file the engine regenerates, and what becomes of it when the debt is paid |
 | [A baseline belongs to the root it measured](baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
 | [A baseline keyed by identity has no root](baseline-identity.md) | the debt record that carries no path, the narrowed run it lets through, and the judgment that run may not make |
@@ -116,4 +117,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.272.0 capabilities=46500cb8ad080cc4b9df6cfb91418347928fab317327288705dd32ff203740a5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

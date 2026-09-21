@@ -122,12 +122,35 @@ only its own difference.
 
 A record's own value wins; the default never writes over a written field, and a
 field a default supplies counts as **written** — the kind dictionary sees it and
-judges it exactly as if the record had spelled it out. Two reds guard it: a
-`defaults` block that defaults nothing, and a **default every record overrides**
-— a default nobody reads shortens nothing but tells the reader that all records
-carry it, and nobody looks for the truth that split in two. A default the
-records cannot carry is refused where it is spread, and the message says so,
-because its line number belongs to the merged list and not to the file.
+judges it exactly as if the record had spelled it out.
+
+**A default reaches only the kind it is valid for.** `dsnEnv` above is an `sql`
+field, so a `kind: "steps"` record in the same list does not receive it and the
+file still loads. Measured in a production repository (2026-09-21): one `steps`
+guard beside the `sql` ones made the loader refuse the whole file, and **all 28
+live guards stayed down for six days**. A field valid everywhere, such as
+`policy`, still reaches every record; a record that writes the invalid field
+**itself** is still refused by name, because there the field really is invalid:
+
+```
+$ x3 guard -config defaults-kind.yaml       # exec + steps, exec-only default
+x3 guard: 2 guard(s) - 2 pass, 0 warn, 0 block
+$ x3 guard -config defaults-kind-own.yaml   # the steps guard wrote dsnEnv itself
+guard "...": field "dsnEnv" is not valid for kind steps          (exit 2)
+```
+
+Three reds guard the block, each in its own sentence because the three are
+corrected in three different places: a `defaults` block that defaults nothing, a
+**default every record overrides**, and a **default no kind in the file
+accepts** (`no guard is of a kind that accepts dsnEnv`). A default nobody reads
+shortens nothing but tells the reader that all records carry it, and nobody
+looks for the truth that split in two.
+
+A name no kind in the engine knows is *not* narrowed away — it passes through
+and is refused where it stands (`field nosuchfield not found`), because calling
+a typo a kind mismatch would hide the real reason. A default the records cannot
+carry is refused where it is spread, and the message says so, because its line
+number belongs to the merged list and not to the file.
 
 ### `kind: "sql"`
 
@@ -340,4 +363,4 @@ nothing — a run that wraps no command was never in question — so it is refus
 *"live.unwrapped is written but live.command is not"*. That keeps the reason from
 outliving the expectation. A blank reason is refused like a blank `unweighed`.
 
-<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.272.0 capabilities=46500cb8ad080cc4b9df6cfb91418347928fab317327288705dd32ff203740a5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

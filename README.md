@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.271.0`**
+**Current version: `v0.272.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.7 MB | `a0728ea2dd3fe22c49131eb8ca2279d7ebd9b2342605cce76172609e0c3d5464` |
-| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `2323785bc01d8380520841a69d9e75c9dfcccd76726fda775db5fdd1de940cdf` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `84cf5b7ef6cc0c6e0e4e8bd9b099dd22ad7c497081739add15365ab6a76f0bdc` |
+| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `b0cf3f524bd0491e232afc8e37db35fec1e68330c46344ec7a71bf88f6065485` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -178,6 +178,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
+| [A gate baseline](docs/baseline-gate.md) | the run that names only the red born after it, so nobody reaches for a clean tree to tell today's debt from yesterday's |
 | [The sentence that says why a debt is held](docs/baseline-why.md) | the reason written next to a record by hand, carried through a file the engine regenerates, and what becomes of it when the debt is paid |
 | [A baseline belongs to the root it measured](docs/baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
 | [A baseline keyed by identity has no root](docs/baseline-identity.md) | the debt record that carries no path, the narrowed run it lets through, and the judgment that run may not make |
@@ -298,4 +299,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.272.0 capabilities=46500cb8ad080cc4b9df6cfb91418347928fab317327288705dd32ff203740a5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
