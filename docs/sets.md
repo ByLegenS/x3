@@ -233,4 +233,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.273.0 capabilities=a635c171f924344b5f1ed4f6642936fdd96ee6c6e45326f5da82cd46c60ed4a1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.274.0 capabilities=4dae4b91281a799975aea6fa8efeb63a5f41d822b439d2abcba2a001602ca760 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

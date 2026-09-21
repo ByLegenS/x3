@@ -51,4 +51,4 @@ comment line that lands on a different key each run loses nothing and settles
 nowhere, so every run would carry a diff, and the two checks are separate
 questions: one asks whether anything vanished, this one whether it came to rest.
 
-<!-- x3-dist version=v0.273.0 capabilities=a635c171f924344b5f1ed4f6642936fdd96ee6c6e45326f5da82cd46c60ed4a1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.274.0 capabilities=4dae4b91281a799975aea6fa8efeb63a5f41d822b439d2abcba2a001602ca760 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
