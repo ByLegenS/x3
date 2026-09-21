@@ -57,6 +57,30 @@ debt turns every finding red again, or a new baseline is written into the root
 of whatever tree the shell stood in. Both are silent, and a setting that quietly
 changes meaning is worse than a wrong answer, because a wrong answer can be read.
 
+## A configuration that cannot be read says so
+
+The configuration is resolved **before the verb**, and a file that does not
+parse ends the run at once with the parser's own place:
+
+```
+$ x3 store
+x3: x3.yaml cannot be read: yaml: line 7: mapping values are not allowed in this context
+$ echo $?
+2
+```
+
+Exit is `2`, not `1`: nothing was measured. Before this, every reader of a broken
+configuration withdrew in silence — the alias table found no alias, the region
+list found no region — and what was left of the answer was `unknown command:
+store ... (regions here: none is declared)`. Each silence was right on its own;
+together they sent the reader looking for a declaration that was not missing.
+Measured on the pilot: a single plain scalar carrying `: ` produced exactly that
+message, and the real line was printed only by an unrelated command.
+
+A configuration that is **absent** is not an error — commands run in trees that
+declare none. One that exists and cannot be opened is reported, because there
+the file is there and the answer is not.
+
 ## Pilot: a real `x3.yaml`
 
 x3 is piloted inside a real production application. Nothing about that
@@ -97,4 +121,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.283.0 capabilities=5aa4b22a2ef684006ecfe675aeba4575628ec4e1904f5aebab18307bfbf751f2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.284.0 capabilities=270a64bd609390a0454332a05b4de7430f5181b87b0e44911685614fd7470c94 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

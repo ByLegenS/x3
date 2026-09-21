@@ -64,19 +64,46 @@ func Bump(s *Store) int {
 The file is **declared, not discovered**: the engine knows it by the constraint
 it reads, and no project writes a list of fixture paths anywhere. Scope is the
 package, and what may be declared is unrestricted — types, methods, functions,
-variables, constants. The constraint carries that tag **alone**; inside a
-compound constraint (`x3fixture && linux`) the file would join neither build,
-and the run says so with `malformed`.
+variables, constants.
+
+### The tag a fixture may share
+
+The constraint carries that tag alone, or beside others joined by `||`:
+
+```go
+//go:build x3fixture || live
+```
+
+`x3fixture` is never passed to any build, so the product still ignores the file;
+a run carrying `live` sees it. A package whose tagged tests need the same setup
+writes it once instead of twice, and the tagged build compiles against it:
+
+```
+$ go build ./shared            # clean; store_fixture.go is ignored
+$ go vet -tags live ./shared   # clean; the live test calls warmStore
+```
+
+Inside `&&`, or after `!`, the file joins neither build and the run says so with
+`malformed`: the first asks for two tags where one is never given, the second
+asks for the tag's **absence**.
 
 ### What a fixture may not hide
 
-Three findings, each with a measured control arm:
+Four findings, each with a measured control arm:
 
 | Written in a fixture | Code | Why |
 |---|---|---|
 | a declaration no example and no other fixture line names | `dead_fixture` | the file is outside the product build, so neither the compiler nor the dead-code gate can see it die |
+| a declaration a plain `_test.go` still names | `fixture_used_by_a_test` | that file builds without `x3fixture`, so the declaration is not there and the build fails on an undefined name |
 | `func TestBumpCounts(t *testing.T)` | `test_in_a_fixture` | no runner reaches the file, and no count of test files would ever see it |
 | `//x3:case:` | `case_in_a_fixture` | an example belongs on the declaration it proves, and this file is built *for* the examples |
+
+`fixture_used_by_a_test` is the question a migration asks **before** it moves a
+carrier: the engine reads the package's test files the way it reads its
+examples, and names the declaration a test still leans on. A test file that
+demands a tag the fixture carries beside `x3fixture` is not asked — the two are
+in one build. Neither is a method: a method is reached through a selector, and
+the right side of a selector is the one name this reading does not count.
 
 `dead_fixture` does not ask about methods or `init`, for the same reason
 `dead_type` does not: a method is the surface of its type and is needed
@@ -106,7 +133,9 @@ finished while its setup quietly moved house.
 | fixture declares a name nothing reaches | `dead_fixture` on that line; the example still passes |
 | `func TestBumpCounts` in the fixture | `test_in_a_fixture` |
 | `//x3:case:` in the fixture | `case_in_a_fixture` |
-| `//go:build x3fixture && linux` | `malformed` |
+| `//go:build x3fixture && linux`, and `//go:build !x3fixture` | `malformed` |
 | `go build` / `go vet` on the green package | clean; the fixture is in `IgnoredGoFiles` |
+| plain `_test.go` names the helper the fixture declares | `fixture_used_by_a_test`; `go vet` on that package: `undefined: warmStore` |
+| fixture says `x3fixture \|\| live`, a `//go:build live` test names the helper | no finding; `go build` clean, `go vet -tags live` clean |
 
-<!-- x3-dist version=v0.283.0 capabilities=5aa4b22a2ef684006ecfe675aeba4575628ec4e1904f5aebab18307bfbf751f2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.284.0 capabilities=270a64bd609390a0454332a05b4de7430f5181b87b0e44911685614fd7470c94 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
