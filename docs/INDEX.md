@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.282.0`**
+**Current version: `v0.283.0`**
 
 | Page | What it covers |
 |---|---|
@@ -16,6 +16,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [An example on the package itself](case-package.md) | a package whose only work is a registration side effect, the claim its import list makes, and the proposition that dies with a deleted line |
 | [The names an example may reach](case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
 | [The type an example declares](case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
+| [The setup every example in a package shares](case-fixture.md) | a file neither the product nor a test, built only for the examples, and the declarations it may not hide |
 | [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
@@ -122,4 +123,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.282.0 capabilities=3cb7b5bd284297d2343a791635c51d2dd6def1876b0d012cb47af466f0d0b5c5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.283.0 capabilities=5aa4b22a2ef684006ecfe675aeba4575628ec4e1904f5aebab18307bfbf751f2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

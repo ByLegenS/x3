@@ -380,7 +380,7 @@ in: `apps` is a place, `db` is not under it.
 
 A region verb that is not the directory name: a region's name was the last part
 of its directory and nothing else, so a tree
-called `apps/whatsapp` could only ever answer to `x3 whatsapp`. `placement.verbs`
+called `apps/messaging` could only ever answer to `x3 messaging`. `placement.verbs`
 maps a short verb onto a directory, beside the patterns that already declare it:
 
 ```yaml
@@ -400,7 +400,7 @@ x3 narrow -config region-verb.yaml   unknown command: narrow - it is not a
 ```
 
 ⛔ **The verb REPLACES the directory name, it never joins it.** Two names split
-one region in half: one step would declare `wa` and another `whatsapp`, each run
+one region in half: one step would declare `ms` and another `messaging`, each run
 would measure its own half, and the half nobody ran would be green because
 nothing looked at it. The long form says the same thing and lists what does
 exist - `x3 gate -region narrow` answers `no such region: "narrow" (known: nr,
@@ -1285,4 +1285,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.282.0 capabilities=3cb7b5bd284297d2343a791635c51d2dd6def1876b0d012cb47af466f0d0b5c5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.283.0 capabilities=5aa4b22a2ef684006ecfe675aeba4575628ec4e1904f5aebab18307bfbf751f2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

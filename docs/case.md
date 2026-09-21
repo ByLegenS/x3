@@ -164,8 +164,9 @@ fault in it is charged to the example's own line like any other.
 The engine binds one name: **`t`**, the subtest's `*testing.T`. Setup helpers
 take it, so a project's existing ones work unchanged — and because the generated
 test is part of the package's *test* build, helpers declared in `_test.go` files
-are in scope. Setup is test equipment; this is what keeps it out of production
-source.
+are in scope. A setup the whole package shares belongs in neither place: it goes
+in a [fixture](case-fixture.md), a file the product build never reads. Setup is
+test equipment; this is what keeps it out of production source.
 
 A setup that **cannot** run is the dangerous case, not one that breaks. A helper
 that cannot reach its server calls `t.Skip`, the toolchain exits `0`, and a gate
@@ -275,4 +276,4 @@ where it is.
 A package that declares no function at all still makes a claim, and where that
 claim is written is on the next page.
 
-<!-- x3-dist version=v0.282.0 capabilities=3cb7b5bd284297d2343a791635c51d2dd6def1876b0d012cb47af466f0d0b5c5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.283.0 capabilities=5aa4b22a2ef684006ecfe675aeba4575628ec4e1904f5aebab18307bfbf751f2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

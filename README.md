@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.282.0`**
+**Current version: `v0.283.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `62a8ebf9913d3e6069eb6e700fc35508c0103df6b7087a2abc30b9703d1e6c6b` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `6527331d20895b5172a71147a1b4691df3bc4e891484994b140378f8827fb8f4` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `22b5fe040514bec29b1ae942795f784cf947bed6ae30145d2be82fecfc716a4c` |
+| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `7bf0e2ff225e651eccf5ec61822fedc452a91a1027e3113eb0fd1f02f7d31f83` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -154,6 +154,7 @@ markers that split this document, so a page cannot be missing from it.
 | [An example on the package itself](docs/case-package.md) | a package whose only work is a registration side effect, the claim its import list makes, and the proposition that dies with a deleted line |
 | [The names an example may reach](docs/case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
 | [The type an example declares](docs/case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
+| [The setup every example in a package shares](docs/case-fixture.md) | a file neither the product nor a test, built only for the examples, and the declarations it may not hide |
 | [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](docs/case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
@@ -304,4 +305,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.282.0 capabilities=3cb7b5bd284297d2343a791635c51d2dd6def1876b0d012cb47af466f0d0b5c5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.283.0 capabilities=5aa4b22a2ef684006ecfe675aeba4575628ec4e1904f5aebab18307bfbf751f2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
