@@ -40,6 +40,44 @@ that is absolute or climbs out of the tree is refused, and so is a `deferred`
 that names the same file as `file` — one box would be read twice, and the two
 readings could never disagree out loud.
 
+### One list, or one per region
+
+`file` and `deferred` may also be **globs**, and then every file the pattern
+matches is read and the boxes merge into one list:
+
+```yaml
+boxes:
+  file: '**/x3/work/open-work.yaml'
+  deferred: '**/x3/work/deferred-work.yaml'
+  archive: x3/work/archive
+```
+
+```
+x3 boxes: 5 box(es) in **/x3/work/open-work.yaml (3 file(s)) - 5 open, 0 done, 0 silent, 0 moved - 0 block, 0 warn
+```
+
+The component a box belongs to is then read from **where it stands** — a box in
+`apps/beta/x3/work/open-work.yaml` is that application's — and no field says so.
+A field drifts from its file the day somebody moves the box; a place cannot. A
+gate step that reads one component reads one file, so it stops paying for work
+that belongs to everybody else.
+
+Three rules keep the split honest:
+
+- A box is moved **beside itself**: `-defer` writes into the deferred list of
+  the same folder, never into the first one the engine happened to read. The two
+  patterns may differ in their **file name** only — one that differs in a folder
+  above it is refused, because the engine would be guessing which place answers
+  which. A plain path on either side keeps its plain meaning: many lists may
+  defer into one.
+- **An identity is unique across lists, not inside one.** The same id in two
+  files is refused, and the refusal names both: one identity in two lists is two
+  boxes read as one.
+- **The archive is not split.** No run reads it, so splitting it buys nothing and
+  costs the only thing it is for — finding closed work again, in one place.
+
+A plain path stays a plain path, and a project with one list walks no tree.
+
 A run says which modes it read, in the report and in the line it prints:
 
 ```
@@ -89,7 +127,7 @@ measured:
 
 ```
 x3 boxes -close-finished
-x3 boxes -close: a-work-list-whose-modes-can-be-moved-between -> x3/archive/2026-09.jsonl
+x3 boxes -close: a-work-list-whose-modes-can-be-moved-between: docs/OPEN-WORK.yaml -> x3/archive/2026-09.jsonl
 x3 boxes -close: 1 asked - 1 moved to x3/archive/2026-09.jsonl, 0 refused, 0 unknown - 136 box(es) left in docs/OPEN-WORK.yaml
 ```
 
@@ -98,6 +136,7 @@ is read, not whether it is done:
 
 ```
 x3 boxes -defer words-a-comment-may-not-carry-either
+x3 boxes -defer: words-a-comment-may-not-carry-either: docs/OPEN-WORK.yaml -> docs/DEFERRED-WORK.yaml
 x3 boxes -defer: 1 asked - 1 moved to docs/DEFERRED-WORK.yaml, 0 refused, 0 unknown - 133 box(es) left in docs/OPEN-WORK.yaml
 x3 boxes -resume words-a-comment-may-not-carry-either
 x3 boxes -resume: 1 asked - 1 moved to docs/OPEN-WORK.yaml, 0 refused, 0 unknown - 0 box(es) left in docs/DEFERRED-WORK.yaml
@@ -163,7 +202,7 @@ names it by the identity it carries now:
 
 ```
 x3 boxes -defer docs/PLAN.md:67f028ef1d9d
-x3 boxes -defer: 69ac3e18d797 -> later.yaml
+x3 boxes -defer: 69ac3e18d797: work.yaml -> later.yaml
 ```
 
 Asked a second time the migration mints nothing — a minted identity is never
@@ -222,4 +261,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.265.0 capabilities=0c51f4f4ea45367838f06983af74ac3d9b535e2fcd115397145a654ab81b7c04 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.266.0 capabilities=18c70b926630faa8d7d66999a11daa2192e028a7743d6838a08dd46443183b96 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
