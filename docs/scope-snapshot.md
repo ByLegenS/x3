@@ -77,6 +77,85 @@ with git installed prints the same line; a second gate (`x3 docs`) reads the
 same default; and a tree with no record says the sentence above instead of
 passing quietly.
 
+### A path that was here once
+
+A criterion that says *"this file is gone"* can only prove it holds by losing
+once: the path was there, the work removed it, the criterion turned green. Spell
+the path wrong and that day never arrives — `push_tst.go` is met the moment it is
+written and can never fail again. Measured in the pilot: sixteen criteria of this
+class, not one of them guarded.
+
+The question is about the **past**, so it cannot be put to today's tree. It is
+put to the snapshot above — the paths the gate's own cache remembers reading:
+
+| The path | The record | On disk | The verdict |
+|---|---|---|---|
+| `here.txt` | remembers it | still there | **red** — a closed box without proof |
+| `left.txt` | remembers it | gone | **green** — the day the criterion was written for |
+| `lfet.txt` | never saw it | gone | **red** — check the spelling |
+
+```yaml
+boxes:
+  file: work.yaml
+  suspect:
+    gone: true        # put every gone-criterion to the record
+cache:
+  dir: cache          # the record is the gate's own cache
+```
+
+**Two absences, two sentences, and no silent green in either.** A tree that
+declares no cache is told that; a tree whose cache remembers nothing is told to
+run the gate once. Neither passes quietly, because a rule that cannot read the
+record would call every gone-criterion a typo:
+
+```
+x3 boxes: boxes: suspect.gone is written and x3.yaml declares no cache; the
+question "was this path ever here" is answered from what the gate remembered,
+so write cache.dir and run the gate once
+```
+
+**The limit, and which way it errs.** The cache prunes slots that have gone
+stale, so a path last read long ago can be forgotten. A forgotten path moves from
+*gone* to *unknown*, which is more red and never less: the criterion asks to be
+re-read rather than passing on a memory nobody holds.
+
+The control experiment (`gone without git control experiment`) runs five arms on
+one planted tree — the three rows of the table, then the green row and the
+misspelled row again under `env: {PATH: ''}`, reaching the same verdicts with no
+git on the machine.
+
+### An exclusion list x3 reads itself
+
+Some paths a work list names were never measured by anybody: build output, a
+generated file, a whole excluded tree. They are dropped from the question — and
+**counted** as they go, because a criterion eliminated in silence cannot be told
+from one nobody wrote. `summary.untracked` is that count.
+
+Which paths those are is already written in the repository, in `.gitignore`, in
+plain text. The engine reads that file itself: it walks from the root down, reads
+a list in every directory above the path, and lets the last matching line win —
+the deeper list overriding the shallower one, and an excluded directory keeping
+its children excluded even against a later `!`.
+
+| The line | Reads as |
+|---|---|
+| `build/` | a directory, anywhere below this list |
+| `/build` | `build` at this list's own level only |
+| `*.exe` | that suffix at any depth |
+| `a/b.txt` | one path, relative to this list |
+| `!keep.tmp` | taken back out of the exclusion |
+
+**What it does not read, named:** character classes (`[a-z]`) and backslash
+escapes (`\#`, `\!`). An unread line matches nothing, so the path stays in the
+measurement — more red, never less.
+
+The control experiment (`own exclusion control experiment`) puts two closed boxes
+in one tree, one resting on `build/out.bin` and one on `keep.tmp`. With the list
+in the tree only `keep.tmp` is named; under `env: {PATH: ''}` the same two paths
+are classified the same way; and in a tree carrying **no list at all**
+`build/out.bin` is named too — so the difference came from the list and from
+nothing else.
+
 ## One resolver opens the declared cache directory
 
 `cache.dir` may be written as `~/.x3cache/<name>` or `${VAR}/cache`, and
@@ -91,4 +170,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.276.0 capabilities=b5f0a4a130a3904a44ddab3b5648bead1cce4e08a839e806253889f72d5f3786 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.277.0 capabilities=24ec30cc5e89aabb1c59d96598a88558c2b727254225c52e18266bdec09ef0a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

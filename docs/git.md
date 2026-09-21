@@ -64,18 +64,23 @@ correct on their own; together they made a machine with no git impossible to tel
 apart from a repository with no tag. A checker that answers differently when its
 input is missing can be green for the wrong reason.
 
-**The two absences stay two.** A repository with git installed and no tag still
-reads `unreleased`; a directory that is not a working copy is still told it is
-not a working copy. Only the third case — no git at all — collapsed into one
+**The absences stay apart.** A repository with git installed and no tag still
+reads `unreleased`. Only the other case — no git at all — collapsed into one
 sentence, because it is one fact:
 
 | The tree | git installed | git not on `PATH` |
 |---|---|---|
 | tagless working copy | `unreleased` | the sentence above |
-| not a working copy | `... is not a git working tree` | the sentence above |
+
+**The second caller has since left git altogether.** The work-list rule that asks
+whether a path was ever in history no longer runs git at all: it reads the
+engine's own record instead (*A path that was here once*, below), so the tree it
+is pointed at no longer has to be a working copy — and the sentence
+`... is not a git working tree` left the engine with it. What that tree is told
+now is about its own settings: it declares no cache.
 
 The control experiment runs the *same command on the same tree* twice, with
 `env: {PATH: ''}` the only difference — so the answer cannot have come from the
 tree.
 
-<!-- x3-dist version=v0.276.0 capabilities=b5f0a4a130a3904a44ddab3b5648bead1cce4e08a839e806253889f72d5f3786 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.277.0 capabilities=24ec30cc5e89aabb1c59d96598a88558c2b727254225c52e18266bdec09ef0a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
