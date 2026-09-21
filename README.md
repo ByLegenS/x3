@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.264.0`**
+**Current version: `v0.265.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `a839cd96f97f8a8db8ca8cc594a75b0b8ca4ee84a4f13a3965c8a02d22a632ca` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `595a3188db3ef6f0caf64b05391371dd03976a789b4aa39b6dc81824db11274f` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.9 MB | `661e70a55c08d6939af3bb62295434054b918e33e833e496c8eb7add02721b7e` |
+| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `3ec813ff17932466cbe2508d64bdbac45c093acee4310600dc606e12de25601a` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -196,6 +196,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A departure that never happened](docs/boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
 | [Three modes of a work list](docs/modes.md) | open, deferred and archived work, and which of the three a run reads |
 | [A list of documents, carried to the machine](docs/export.md) | the one-shot migration from checkboxes in prose to the machine-written list |
+| [The history a document carries](docs/keep.md) | every box inside the documents written to the archive as it stands, measuring nothing |
 | [Before a name is removed](docs/holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](docs/holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](docs/holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -300,4 +301,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.264.0 capabilities=fbad1393c53533ec0d20ab38c1e5c3353dc6151a81ebb5e333a39ca41a83d77c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.265.0 capabilities=0c51f4f4ea45367838f06983af74ac3d9b535e2fcd115397145a654ab81b7c04 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

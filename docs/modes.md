@@ -194,7 +194,7 @@ remembers is almost never in the title:
 
 ```
 x3 boxes -search "silenced digit"
-rounded-price	2026-09-21T07:35:44Z	archive/2026-09.jsonl
+rounded-price	done	2026-09-21T07:35:44Z	archive/2026-09.jsonl
 	the gate must refuse a price nobody can read
 x3 boxes -search: 1 record(s) match "silenced digit" - 1 record(s) read from 1 part(s) of archive
 ```
@@ -222,4 +222,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.264.0 capabilities=fbad1393c53533ec0d20ab38c1e5c3353dc6151a81ebb5e333a39ca41a83d77c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.265.0 capabilities=0c51f4f4ea45367838f06983af74ac3d9b535e2fcd115397145a654ab81b7c04 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

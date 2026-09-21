@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.264.0`**
+**Current version: `v0.265.0`**
 
 | Page | What it covers |
 |---|---|
@@ -58,6 +58,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A departure that never happened](boxes-gone.md) | the criterion that says a path is gone, asked whether the path was ever there |
 | [Three modes of a work list](modes.md) | open, deferred and archived work, and which of the three a run reads |
 | [A list of documents, carried to the machine](export.md) | the one-shot migration from checkboxes in prose to the machine-written list |
+| [The history a document carries](keep.md) | every box inside the documents written to the archive as it stands, measuring nothing |
 | [Before a name is removed](holds.md) | which criteria hold a name that is about to be deleted, including the selector patterns a search cannot find |
 | [Which hold is really a hold](holds-weight.md) | the place a criterion looks at, weighed against the file being asked, and the record the engine refuses to decide |
 | [A name that lives outside the list](holds-elsewhere.md) | the gate scripts and workflow files a name is called from, declared because no engine can guess them |
@@ -118,4 +119,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.264.0 capabilities=fbad1393c53533ec0d20ab38c1e5c3353dc6151a81ebb5e333a39ca41a83d77c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.265.0 capabilities=0c51f4f4ea45367838f06983af74ac3d9b535e2fcd115397145a654ab81b7c04 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

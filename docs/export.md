@@ -116,4 +116,13 @@ has no place beside an item to keep it. The meaning is unchanged and the run is
 slower, so it is counted and said out loud — otherwise the gate slowing down after
 a migration reads as a regression nobody can explain.
 
-<!-- x3-dist version=v0.264.0 capabilities=fbad1393c53533ec0d20ab38c1e5c3353dc6151a81ebb5e333a39ca41a83d77c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+The written list is read back before it is handed over. The engine's writer
+once produced a list its own loader could not read: a multi-line body sitting
+inside a sequence item was announced as `|4-` and printed two spaces short of
+what it announced, and a 14 256-line export died on load. A worse shape of the
+same defect parsed cleanly and swallowed the body's leading spaces in silence.
+Every list this command writes is therefore dumped, loaded and dumped again, and
+the run refuses to hand over bytes that do not come back as the same list —
+naming the box that diverged, because hunting for it in 1 500 is not a report.
+
+<!-- x3-dist version=v0.265.0 capabilities=0c51f4f4ea45367838f06983af74ac3d9b535e2fcd115397145a654ab81b7c04 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
