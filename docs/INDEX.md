@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.275.0`**
+**Current version: `v0.276.0`**
 
 | Page | What it covers |
 |---|---|
@@ -114,9 +114,10 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [What a change actually reaches](symbols.md) | a table of normalized declaration hashes, stable across gofmt and comment edits, so a cache can be given the proof it is missing |
 | [How the engine reaches git](git.md) | every git call through one package, and one declared sentence when git is not on the machine |
 | [A snapshot the cache keeps](snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
+| [A change read without git](scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.275.0 capabilities=a186d7b62d4c0d1683260322b5bc10fbb601b9da7bb6918567062dbf9145dd7c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.276.0 capabilities=b5f0a4a130a3904a44ddab3b5648bead1cce4e08a839e806253889f72d5f3786 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

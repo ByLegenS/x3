@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.275.0`**
+**Current version: `v0.276.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `f664afc7dd5c86acca83317c13dddf940d2fb713334f8b5ec0c219f3f1fc5dea` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `6a243ce1f74dabff2d34894e527191cf41a1518a909ffc732790346e77b3f5f1` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `f0752ce2226f22337e5eb997fc905d3f57689cf8f931f28e4af99bfc6565dc9c` |
+| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `04a4367d6454183d8d20c2803c5dd5c1b4bf3161717dc411d4ba5dc76d5c6249` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -252,6 +252,7 @@ markers that split this document, so a page cannot be missing from it.
 | [What a change actually reaches](docs/symbols.md) | a table of normalized declaration hashes, stable across gofmt and comment edits, so a cache can be given the proof it is missing |
 | [How the engine reaches git](docs/git.md) | every git call through one package, and one declared sentence when git is not on the machine |
 | [A snapshot the cache keeps](docs/snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
+| [A change read without git](docs/scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
@@ -301,4 +302,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.275.0 capabilities=a186d7b62d4c0d1683260322b5bc10fbb601b9da7bb6918567062dbf9145dd7c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.276.0 capabilities=b5f0a4a130a3904a44ddab3b5648bead1cce4e08a839e806253889f72d5f3786 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

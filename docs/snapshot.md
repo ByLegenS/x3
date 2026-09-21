@@ -56,18 +56,4 @@ One limit, named: a slot holds several states of the same path (see
 the honest answer to "would the gate re-measure this?", not to "was this file
 ever touched?".
 
-## One resolver opens the declared cache directory
-
-`cache.dir` may be written as `~/.x3cache/<name>` or `${VAR}/cache`, and
-exactly one function opens it — `cache.Dir`. Everything that puts a file under
-the declared directory asks that function, including the machine tuning record
-(`gate-tune.yaml`).
-
-This is a rule because it was broken. Measured in the pilot on 2026-09-21: the
-tuning record joined the *raw* string, so a project declaring `~/.x3cache/vt`
-grew a directory literally named `~` at the root of its working tree while the
-main cache sat correctly in the home directory. One declaration, two
-destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
-file browser could see it.
-
-<!-- x3-dist version=v0.275.0 capabilities=a186d7b62d4c0d1683260322b5bc10fbb601b9da7bb6918567062dbf9145dd7c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.276.0 capabilities=b5f0a4a130a3904a44ddab3b5648bead1cce4e08a839e806253889f72d5f3786 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
