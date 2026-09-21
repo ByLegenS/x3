@@ -109,6 +109,61 @@ that did not move stay byte for byte. Measured on this repository: deferring one
 box out of 134 changed 12 lines, all of them that box. A list re-serialized on
 every move would hide a one-box change inside a hundred-line diff.
 
+**An identity is minted, not derived.** A box identity carries no place: no path,
+no colon, no line. The loader refuses one that does, because a derived identity
+turns into a *different* identity the moment its source moves — the document is
+renamed, the heading is corrected — and every record keyed to it (the archive,
+a baseline, someone's note) silently points at nothing. An identity that carries
+a path also invites the reader to derive the box's category from it, and that
+inference starts answering wrongly the day the work moves.
+
+So the engine mints one instead: twelve random hex digits, written into the list
+once and never recomputed. Each mint is checked against the identities already
+recorded, so a collision inside a list is not unlikely but impossible; the width
+only keeps the retry from mattering (unchecked, the birthday chance over 516
+boxes would be 5e-10, and 2e-7 over ten thousand).
+
+```
+x3 boxes -renumber
+```
+
+replaces every placed identity with a minted one and writes the old name beside
+it as `was:`. The mapping is built **once** and every carrier reads it — the open
+list, the deferred list and each archive part — so a box named in two of them
+comes out of the migration with one identity, not two:
+
+```
+x3 boxes -renumber
+69ac3e18d797	docs/PLAN.md:67f028ef1d9d	work.yaml
+7d9b16680352	docs/PLAN.md:d162463f2a72	later.yaml
+x3 boxes -renumber: 2 id(s) minted for 2 old name(s), 0 already minted - 3 file(s) written: work.yaml, later.yaml, archive/2026-09.jsonl
+```
+
+Two names, three files. Nothing is regenerated: only the `id` scalar changes and
+a `was` key is inserted after it, so body, criteria, order and comments stay byte
+for byte, and an archive record keeps every field it was written with.
+
+`was:` is a headstone, and the engine derives nothing from it — not a category,
+not a place, not an order. It exists so that the old name still answers. A move
+asked by the name the box carried before the migration finds it, and the run
+names it by the identity it carries now:
+
+```
+x3 boxes -defer docs/PLAN.md:67f028ef1d9d
+x3 boxes -defer: 69ac3e18d797 -> later.yaml
+```
+
+Asked a second time the migration mints nothing — a minted identity is never
+reminted, so the command is safe to run on a list that is already clean:
+
+```
+x3 boxes -renumber: 0 id(s) minted for 0 old name(s), 2 already minted - 0 file(s) written
+```
+
+A hand-written readable id (`a-package-that-embeds-is-never-remembered`) is a
+perfectly good identity and the loader leaves it alone; what it refuses is a
+*place* standing in for a name.
+
 **Searching the archive.** The archive is written by `-close` and read by nothing else — not by the gate,
 not by a count, not by a baseline. One command reads it back:
 
@@ -117,8 +172,8 @@ x3 boxes -search <pattern>
 ```
 
 The pattern is a regular expression and it is matched against what a person
-would search for: the box's id, its title, its **body**, and the criteria that
-were met when it closed. It is not matched against the raw line — a search for
+would search for: the box's id, the name it **was** known by before a migration,
+its title, its **body**, and the criteria that were met when it closed. It is not matched against the raw line — a search for
 `pattern` would otherwise find every record, because that word is a field name.
 
 The body is the half that makes the archive answerable. A word a person
@@ -154,4 +209,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.262.0 capabilities=a3bffcba54192a1718e3d64d08edf50dc8d1998d223b0a35a41478599ed20fa6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.263.0 capabilities=8d7619d885a6b4bc1ee14d49f384308ca33040428848fe899f93b0dbe3e77186 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
