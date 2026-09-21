@@ -65,4 +65,4 @@ marker, the `docs gate` step's own control experiment (a rule whose counterpart
 directory cannot exist, which must exit `1`) exited `0` instead. The exemption
 had excused the experiment.
 
-<!-- x3-dist version=v0.268.0 capabilities=91519d4ef909d4e6bb54724d33f39fcddbc565ff901710bccade4d429df054b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.269.0 capabilities=e1d7f168c9961472843c7484d60d548c18b8e20ad4ecdb60720f2c6782881b9d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

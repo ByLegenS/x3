@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.268.0`**
+**Current version: `v0.269.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.7 MB | `5eddea28766f1c700facb31d5d218c0680402f7ddc8aae48ac2fc8448585e209` |
-| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `39655634ced4d4f02e3565aab62d34de604323a82ce87e2116b147a3081cf25e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.7 MB | `516af80681acc1afe36238c6032a4d38d71746ae8bf72eb0a205f0a8a7a39541` |
+| `x3-linux-amd64` | linux/amd64 | 20.2 MB | `1c8c29038a1e515bd7fb4e0914b1b480d34f3f812f8b687f4bd1a30bea8b6f16` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -180,6 +180,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
 | [The sentence that says why a debt is held](docs/baseline-why.md) | the reason written next to a record by hand, carried through a file the engine regenerates, and what becomes of it when the debt is paid |
 | [A baseline belongs to the root it measured](docs/baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
+| [A baseline keyed by identity has no root](docs/baseline-identity.md) | the debt record that carries no path, the narrowed run it lets through, and the judgment that run may not make |
 | [A baseline two branches write](docs/baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [One debt, one file, one writer](docs/baseline-segments.md) | the split that gives a region or a rule its own baseline file, and the two axes a part may own |
 | [Changes that must not travel alone](docs/docs.md) | a change under one path that requires a change under another in the same diff |
@@ -297,4 +298,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.268.0 capabilities=91519d4ef909d4e6bb54724d33f39fcddbc565ff901710bccade4d429df054b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.269.0 capabilities=e1d7f168c9961472843c7484d60d548c18b8e20ad4ecdb60720f2c6782881b9d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

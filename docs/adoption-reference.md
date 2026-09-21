@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.268.0`**
+**Current version: `v0.269.0`**
 
 ## the adoption report fields
 
@@ -30,4 +30,4 @@
 | `rules_without_why` | a named rule carries no `why` — no sentence saying what it is for |
 | `mixed_settings_format` | a settings file is still JSON with nothing holding it there |
 
-<!-- x3-dist version=v0.268.0 capabilities=91519d4ef909d4e6bb54724d33f39fcddbc565ff901710bccade4d429df054b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.269.0 capabilities=e1d7f168c9961472843c7484d60d548c18b8e20ad4ecdb60720f2c6782881b9d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

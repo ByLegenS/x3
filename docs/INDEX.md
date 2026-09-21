@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.268.0`**
+**Current version: `v0.269.0`**
 
 | Page | What it covers |
 |---|---|
@@ -42,6 +42,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
 | [The sentence that says why a debt is held](baseline-why.md) | the reason written next to a record by hand, carried through a file the engine regenerates, and what becomes of it when the debt is paid |
 | [A baseline belongs to the root it measured](baseline-root.md) | the coordinate system every recorded path lives in, and the narrower run that reads a mismatch as a debt paid |
+| [A baseline keyed by identity has no root](baseline-identity.md) | the debt record that carries no path, the narrowed run it lets through, and the judgment that run may not make |
 | [A baseline two branches write](baseline-parallel.md) | the split that keeps two regions out of one file, and the derived field a merge quietly gets wrong |
 | [One debt, one file, one writer](baseline-segments.md) | the split that gives a region or a rule its own baseline file, and the two axes a part may own |
 | [Changes that must not travel alone](docs.md) | a change under one path that requires a change under another in the same diff |
@@ -115,4 +116,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.268.0 capabilities=91519d4ef909d4e6bb54724d33f39fcddbc565ff901710bccade4d429df054b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.269.0 capabilities=e1d7f168c9961472843c7484d60d548c18b8e20ad4ecdb60720f2c6782881b9d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
