@@ -143,6 +143,19 @@ Two names, three files. Nothing is regenerated: only the `id` scalar changes and
 a `was` key is inserted after it, so body, criteria, order and comments stay byte
 for byte, and an archive record keeps every field it was written with.
 
+An archive record is **read the way it is parsed**, not matched as text. The
+migration asks the same JSON reader that loads the part where the record's own
+`id` ends, so `{"id":"b-1",…}` and `{"id": "b-1", …}` are one record, and the
+bytes after the identity are carried over untouched. A file with two reading
+paths — a parser in one place, a text match in the other — is a file the engine
+cannot promise to read back: the match breaks on whitespace the parser never
+noticed. What the migration still refuses is a record that does not open with an
+identity at all:
+
+```
+x3 boxes -renumber: archive/2026-09.jsonl:1: the record does not open with its own id; the archive is written by the engine and read back the same way
+```
+
 `was:` is a headstone, and the engine derives nothing from it — not a category,
 not a place, not an order. It exists so that the old name still answers. A move
 asked by the name the box carried before the migration finds it, and the run
@@ -209,4 +222,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.263.0 capabilities=8d7619d885a6b4bc1ee14d49f384308ca33040428848fe899f93b0dbe3e77186 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.264.0 capabilities=fbad1393c53533ec0d20ab38c1e5c3353dc6151a81ebb5e333a39ca41a83d77c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
