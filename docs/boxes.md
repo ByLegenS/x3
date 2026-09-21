@@ -337,6 +337,41 @@ nothing — a rule that catches nothing is good news. It asks the **open** list;
 the deferred list may wait on such an owner and says how
 often ([why](modes.md#three-modes-of-a-work-list)).
 
+### Who the deferred list may not hold
+
+The rule above has a mirror, and a list needs both. `denyBy` stops the **open**
+list waiting on somebody the machine cannot reach. `deferredDenyBy` stops the
+**deferred** list holding work whose owner is right here:
+
+```json
+{ "boxes": { "manual": {
+    "denyBy": ["the person who owns this project"],
+    "deferredDenyBy": ["assistant", "chief"] } } }
+```
+
+A deferred box whose `by` matches one of those names is `box_deferred_owner`, and
+the finding names the box:
+
+```
+BLOCK parked-our-own: box_deferred_owner
+	this deferred box waits on "chief", whose work this list may not hold; ...
+	at: x3/work/deferred-work.yaml
+```
+
+The deferred list is the one no run reads unless it is asked to — which is what
+makes it a hiding place. Measured on a production list under a one-way rule,
+**156 of 177** deferred boxes were the *list-keeper's own work*. Nothing had gone
+wrong; each move was reasonable on its own day. The open count simply shrank, and
+nothing said what had left it.
+
+So this prohibition is asked on **every run, even when the deferred list is not
+measured** — a guard that only wakes on `-deferred` is posted at the door nobody
+uses. Only ownership is read, so the boxes' criteria still run only when asked
+and a list that does not write the rule reads nothing. Writing `deferredDenyBy`
+without a `deferred` list is refused, and `box_deferred_owner` may **never** be
+frozen into a baseline: freezing it would freeze today's hidden work in place,
+which is the thing itself.
+
 
 ### What one run costs
 
@@ -361,4 +396,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.268.0 capabilities=91519d4ef909d4e6bb54724d33f39fcddbc565ff901710bccade4d429df054b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

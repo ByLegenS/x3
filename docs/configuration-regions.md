@@ -59,4 +59,4 @@ the root run wearing another name.
 | the same region with the globals copied instead | `2` — the baseline refuses the second root |
 | a leaf part that names a parent | `2` — settings error |
 
-<!-- x3-dist version=v0.267.0 capabilities=1114abc1f6595537071d55cf169a9d522ae3bc98bff2b28388bfaa9358cc28db template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.268.0 capabilities=91519d4ef909d4e6bb54724d33f39fcddbc565ff901710bccade4d429df054b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
