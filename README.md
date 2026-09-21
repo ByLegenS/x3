@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.281.0`**
+**Current version: `v0.282.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `7ab51d8e3b686708fa9baecc159dfa75cb19825a474ff9dc29c47ebe2d25bd4a` |
-| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `d10e24f7df7da23ae6111a7bec0317705f5be05e4728f742fed54674cb2592f6` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.8 MB | `62a8ebf9913d3e6069eb6e700fc35508c0103df6b7087a2abc30b9703d1e6c6b` |
+| `x3-linux-amd64` | linux/amd64 | 20.3 MB | `6527331d20895b5172a71147a1b4691df3bc4e891484994b140378f8827fb8f4` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -254,6 +254,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A configuration that cannot call git](docs/gate-forbid.md) | the programs no step may invoke, declared by the project, measured in the command position only |
 | [A snapshot the cache keeps](docs/snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
 | [A change read without git](docs/scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
+| [Where a run's wall clock goes](docs/phases.md) | the phase line a gate run can print, the two counts that do not depend on the machine, and the work that is remembered instead of repeated |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
@@ -303,4 +304,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.281.0 capabilities=83a4b9dd63c379aca921acdbe708b32f71583d7a32a1250e0b9bf8b2a3c50a52 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.282.0 capabilities=3cb7b5bd284297d2343a791635c51d2dd6def1876b0d012cb47af466f0d0b5c5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
