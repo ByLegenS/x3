@@ -55,14 +55,16 @@ The marker **names the rule it excuses**: `docs: none (<rule>)` unless the rule
 says otherwise (`exempt`). In `head` scope it lives in the commit body, in
 `working` scope it is passed with `-reason`. **The marker alone is red** —
 `exemption_without_reason` is a separate code from the missing change, because an
-exemption nobody had to justify becomes the only path within a month.
+exemption nobody had to justify becomes the only path within a month. The reason
+is read to the end of **that same line** and no further, so both stderr lines end
+in `followed by a reason ON THE SAME LINE`: the wording that stopped at "followed
+by a reason" cost two turns in a row, each to a reader who wrote it underneath.
 
-The rule's name is in the marker because a commit body answers **one** gate. The
-person writing it saw one rule turn red and wrote a reason for that rule; a
-shared marker takes that one sentence and silences every other rule as well —
-including rules the writer never saw. Measured in this repository: with a shared
-marker, the `docs gate` step's own control experiment (a rule whose counterpart
-directory cannot exist, which must exit `1`) exited `0` instead. The exemption
-had excused the experiment.
+The rule's name is in the marker because a commit body answers **one** gate: the
+writer saw one rule turn red and answered that rule, while a shared marker takes
+that sentence and silences every other rule too, including ones nobody saw.
+Measured here — with a shared marker the `docs gate` step's own control
+experiment, a rule that must exit `1`, exited `0`: the exemption had excused the
+experiment.
 
-<!-- x3-dist version=v0.270.0 capabilities=c1708adb86ecf17a5e707ff7a68a213ebf4cc7289c61332fc28c39cf6b498ee5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

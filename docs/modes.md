@@ -40,6 +40,35 @@ that is absolute or climbs out of the tree is refused, and so is a `deferred`
 that names the same file as `file` — one box would be read twice, and the two
 readings could never disagree out loud.
 
+### What "climbs out of the tree" covers
+
+The refusal is written against **every** way of leaving the tree, not against the
+spelling `../`. Measured on 2026-09-21, the four forms the first version let
+through:
+
+| Written as | Why it slipped | Now |
+|---|---|---|
+| `..` | bare, so it carries no `../` prefix | refused |
+| `a/../..` | cleans down to `..` — same hole, other spelling | refused |
+| `..\yan` | `\` is a separator **only on Windows**, so one settings file climbed on one operating system and named a file on the other | refused on both |
+| `C:/elsewhere`, `c:here` | a drive letter is not "absolute" on Linux, and a drive-relative `c:here` is not absolute on Windows either | refused |
+
+```yaml
+boxes:
+  file: x3/work/open-work.yaml
+  archive: ..            # refused: climbs out of the tree
+```
+
+```
+x3 boxes: x3.yaml: boxes: archive ".." climbs out of the tree; the work of a
+repository is kept by that repository
+```
+
+`.` is **not** a climb and is not refused: it names the tree itself, not
+somewhere outside it. What the rule protects is that a work list belongs to the
+repository carrying it — a path reaching past the root moves that list onto the
+machine, where no other checkout can read it.
+
 ### One list, or one per region
 
 `file` and `deferred` may also be **globs**, and then every file the pattern
@@ -261,4 +290,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.270.0 capabilities=c1708adb86ecf17a5e707ff7a68a213ebf4cc7289c61332fc28c39cf6b498ee5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

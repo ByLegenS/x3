@@ -6,6 +6,7 @@
 
 ```
 x3 do <task> [-config <file>] [-root <dir>] [-with <flags>] [-set <name=value>] [-dry] [-out <file>]
+x3 do -list [-config <file>]
 ```
 
 **Catches:** the other half of the shell scripts. `x3 gate` took the ones that
@@ -80,6 +81,49 @@ warnings that also lived in the project's own status file.
 Two verbs in one step is a settings error, not a convenience: which of them ran
 first cannot be read off the file, and which of them failed cannot be read off
 the report. A step with no verb is worse — it shows up as "ran".
+
+### `-list` — which tasks exist, and which file declares each one
+
+```
+x3 do -list
+```
+
+```
+clean-logs	3	ops/x3/tasks.yaml	local log pruning
+finish	7	ops/x3/tasks.yaml	wrap up: gate, build, restart, verify
+local	19	ops/x3/tasks.yaml	local services: stop, build, start, knock
+build	9	x3/tasks.yaml	a versioned build
+deploy	59	x3/tasks.yaml	deployment to production
+-- 13 task(s) in 2 file(s)
+```
+
+Name, step count, **declaring file**, and the task's own sentence. It runs
+nothing, the same way [`x3 gate -regions`](config.md#x3-gate) prints verbs and runs
+nothing, and for the same reason: a list somebody keeps by hand goes stale the
+day the settings change, and the copy that goes stale is the one teaching every
+new session.
+
+The file column is not decoration. Tasks merge across `include`, so a project
+may declare them in several files, and the merged settings no longer say where
+each one was written. Measured in the pilot on 2026-09-20: thirteen tasks split
+across two files, a reader who opened only one of them declared the other four
+**undefined**, and that wrong claim was copied into three documents and into the
+text every session opened with. Before this flag the only way to see the list was
+to invent a name that does not exist and read the error:
+
+```
+x3 do: no task is called "..."; this configuration carries clean-logs, finish,
+local, install, build, gate, suite, qa-clean, remote, deploy, health, session,
+site-deploy
+```
+
+That line still exists, and it still counts the tasks — a misspelled name cannot
+be corrected without seeing the list. What it cannot say is which file each one
+came from, which is the question that was actually asked.
+
+The trailing count says how many **files** the list came from. More than one is
+worth knowing on its own: it is the shape in which a settings tree hides half of
+itself from a reader who opens the obvious file.
 
 ### `block` — many remote steps, one session
 
@@ -233,4 +277,4 @@ The same three fields are how a deployment gate reads a live number — the hour
 a company takes calls in, the calls running right now — and stops on it, instead
 of holding a copy of those numbers in the settings where they go stale.
 
-<!-- x3-dist version=v0.270.0 capabilities=c1708adb86ecf17a5e707ff7a68a213ebf4cc7289c61332fc28c39cf6b498ee5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

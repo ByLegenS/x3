@@ -56,4 +56,4 @@ root sits under the configuration's anchor therefore reports `0 box` and exits
 on one tree, one configuration: `x3 boxes` blocked with `empty_scope` and exited
 `1`, `x3 boxes <component>` exited `0`.
 
-<!-- x3-dist version=v0.270.0 capabilities=c1708adb86ecf17a5e707ff7a68a213ebf4cc7289c61332fc28c39cf6b498ee5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.271.0 capabilities=62ed1e7a9e7aa8b660d8937e5c9389f613120433669c502dc5c7194535bd7944 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
