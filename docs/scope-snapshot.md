@@ -7,7 +7,7 @@
 Every gate that narrows its work first asks *what changed*. Until now all three
 answers went to git: `head` reads the last commit, `working` reads the dirty
 tree, `auto` picks between them. `-scope snapshot` asks the engine's own record
-instead — the `changed`, `new` and `gone` paths of the snapshot above:
+instead — the `changed`, `new`, `gone` and `moved` paths of the snapshot above:
 
 ```
 x3 scope  -scope snapshot     # the lanes, measured against the last run
@@ -170,4 +170,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.289.0 capabilities=e2b1c902dafbfc124d29f232a1f3e1807c6357f33259deee7c9a3811eaf626d6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.290.0 capabilities=c138e0be580c1e819f85bea5e238767dc4c28c2e8ff5f7660ec20299173f5652 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
