@@ -89,12 +89,13 @@ asks for the tag's **absence**.
 
 ### What a fixture may not hide
 
-Four findings, each with a measured control arm:
+Five findings, each with a measured control arm:
 
 | Written in a fixture | Code | Why |
 |---|---|---|
 | a declaration no example and no other fixture line names | `dead_fixture` | the file is outside the product build, so neither the compiler nor the dead-code gate can see it die |
 | a declaration a plain `_test.go` still names | `fixture_used_by_a_test` | that file builds without `x3fixture`, so the declaration is not there and the build fails on an undefined name |
+| a declaration a tagged `_test.go` names by **declaring it again** | `fixture_redeclared_by_a_test` | that build carries its own copy and leans on nothing; a tag union joining the two would break it on a duplicate |
 | `func TestBumpCounts(t *testing.T)` | `test_in_a_fixture` | no runner reaches the file, and no count of test files would ever see it |
 | `//x3:case:` | `case_in_a_fixture` | an example belongs on the declaration it proves, and this file is built *for* the examples |
 
@@ -104,6 +105,30 @@ examples, and names the declaration a test still leans on. A test file that
 demands a tag the fixture carries beside `x3fixture` is not asked — the two are
 in one build. Neither is a method: a method is reached through a selector, and
 the right side of a selector is the one name this reading does not count.
+
+The reading stops at the package's **own** test files. A file in the external
+test package (`package p_test`) compiles apart from the fixture whatever the
+tags say, so a name it writes is never an undefined name in the fixture's
+build; it is that package's own name, and it is not asked about — in the dead
+reading either, where counting it would keep a dead declaration looking alive.
+Measured on a pilot: six findings on one fixture, every one of them from
+`package p_test` files that carried their own copies, while `go vet` was clean
+under the tags they demanded.
+
+The two answers are separate codes because they ask for opposite moves: a test
+that **leans** on the fixture asks for the tag union, and one that **declares
+the name itself** asks for the copy to go.
+
+```
+$ x3 case ./fixture-outside     # package p_test names warmStore, declares its own
+x3 case: 1 example(s) in 1 package(s) - 1 passed, 1 fixture file(s), 0 finding(s)
+
+$ x3 case ./fixture-redeclares  # //go:build live test file declares its own copy
+store_fixture.go:9: fixture_redeclared_by_a_test
+	fixture declaration warmStore is declared again by store_live_test.go, which
+	builds without "x3fixture" and carries its own copy; that build does not lean
+	on the fixture, and a tag union joining the two would break it on a duplicate
+```
 
 `dead_fixture` does not ask about methods or `init`, for the same reason
 `dead_type` does not: a method is the surface of its type and is needed
@@ -137,5 +162,7 @@ finished while its setup quietly moved house.
 | `go build` / `go vet` on the green package | clean; the fixture is in `IgnoredGoFiles` |
 | plain `_test.go` names the helper the fixture declares | `fixture_used_by_a_test`; `go vet` on that package: `undefined: warmStore` |
 | fixture says `x3fixture \|\| live`, a `//go:build live` test names the helper | no finding; `go build` clean, `go vet -tags live` clean |
+| `package p_test` (external) declares and names the same helper | no finding; that package never sees the fixture |
+| a `//go:build live` test declares its **own** copy of the helper | `fixture_redeclared_by_a_test` |
 
-<!-- x3-dist version=v0.284.0 capabilities=270a64bd609390a0454332a05b4de7430f5181b87b0e44911685614fd7470c94 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.285.0 capabilities=186f01622cb4d059de3186e6042132a7ce7b7c9be1984f89c6d13bc0e348f2f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

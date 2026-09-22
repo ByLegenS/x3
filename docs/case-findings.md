@@ -79,6 +79,29 @@ A panic that survives anyway — a single proposition that dereferences nothing 
 is caught and charged to **that** example as `example_failed`, saying it
 panicked. Its neighbours keep running.
 
+### An example that fails inside its own subtest
+
+A setup may open subtests of its own (`given=(t.Run("inner", …))`), and the run
+writes what they say under **their** name. The finding carries it anyway: the
+output of every subtest below an example belongs to that example, while the
+verdict stays where the runner put it — a passing subtest after a failing one
+must not overwrite the example's answer.
+
+If the subtest falls without a word (`t.FailNow()`, a helper that swallows its
+own output), the finding names it. "The run said nothing" is true and useless;
+measured on a pilot, three control arms of one example all said it, and telling
+them apart took a separate database probe.
+
+```
+$ x3 case ./subtest        # given=(t.Run("inner", func(alt *testing.T) { alt.Errorf("the inner check fell") }))
+echo.go:16 (Echo): example_failed
+	the inner check fell
+
+$ x3 case ./subtest-mute   # given=(t.Run("mute", func(alt *testing.T) { alt.FailNow() }))
+echo.go:16 (Echo): example_failed
+	the subtest "mute" failed inside this example and said nothing there
+```
+
 The first three are answers the toolchain gave; the last four are refusals made
 **before** anything runs.
 
@@ -115,4 +138,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.284.0 capabilities=270a64bd609390a0454332a05b4de7430f5181b87b0e44911685614fd7470c94 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.285.0 capabilities=186f01622cb4d059de3186e6042132a7ce7b7c9be1984f89c6d13bc0e348f2f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
