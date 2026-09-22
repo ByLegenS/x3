@@ -261,7 +261,7 @@ touching a number, while a line the generator leaks has nowhere to hide.
       "sources": ["publish/docs/*.md"],
       "count": { "of": "lines",
         "follows": { "of": "section", "match": "^## {name}$",
-          "until": "^## ", "sources": ["docs/GUIDE.md"] } } } ] } }
+          "until": "^## ", "sources": ["docs/GUIDE.md"], "allowance": 4 } } } ] } }
 ```
 
 | what moved | the reading |
@@ -270,7 +270,21 @@ touching a number, while a line the generator leaks has nowhere to hide.
 | the generator leaked one line | red — `page_outgrew_its_source`, naming the page |
 | the source shrank and the page did not | red; the page runs further past its source |
 | the allowance shrank | recorded by `-update`; a grown one is refused by name |
+| a page the baseline never held, within `allowance` | recorded by the run itself: `RECORDED` |
+| the same new page, above `allowance` | red — a new page above the family's share is a new debt |
 | the page is generated from no region (`exclude`) | measured by its hand-written `max` |
+
+`allowance` is the **family's** share: the lines the same template adds to every
+page it writes. Declare it and a page the baseline has never held is written into
+the baseline **by the measuring run**, with the line `RECORDED <page>: a new page
+within the family's allowance of N`; above that number the page is a new debt and
+the red names both figures. Elsewhere a key the baseline never held is refused,
+and rightly — a new thousand-line file is new debt no run may absolve. A share is
+not: it is the template's known constant, and refusing it made every newly
+documented capability block the release until a hand wrote the number that the
+allowance already knew. What is recorded is the page's **measured** share, never
+the allowance, so an allowance admits a page once and licenses no growth
+afterwards. Without `allowance` the family keeps the stricter reading.
 
 Two measurements. `of: section` reads the region that carries the measured
 file's own name: `{name}` in `match` is filled with the file's name, and the
@@ -284,4 +298,4 @@ written as `count` and not as `cap` — a cap has no memory. A source that canno
 be found counts zero, so the whole page reads as allowance and the run is red:
 a page whose region was deleted is not a page that may stay.
 
-<!-- x3-dist version=v0.288.0 capabilities=b7fca59edbf65759483bfdca34f14aeafbe84562986ae2f4e8a4b427249da8fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.289.0 capabilities=e2b1c902dafbfc124d29f232a1f3e1807c6357f33259deee7c9a3811eaf626d6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -45,4 +45,4 @@ about](syntax-subjects.md#which-files-the-check-is-about). And the tree a glob t
 path too wide, while a comment explaining a rule is not a breach of it: [What a
 check does not read](syntax-scope.md#what-a-syntax-check-does-not-read).
 
-<!-- x3-dist version=v0.288.0 capabilities=b7fca59edbf65759483bfdca34f14aeafbe84562986ae2f4e8a4b427249da8fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.289.0 capabilities=e2b1c902dafbfc124d29f232a1f3e1807c6357f33259deee7c9a3811eaf626d6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

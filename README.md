@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.288.0`**
+**Current version: `v0.289.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 20.9 MB | `770299a3308f1594a3791da8166a3b42e302e2152bc962ae5177ae43d742d295` |
-| `x3-linux-amd64` | linux/amd64 | 20.4 MB | `4e82919c1e8d93e69db6a77da817a924b1f00bd1c6beeb0242b8a155dab6c6f5` |
+| `x3-windows-amd64.exe` | windows/amd64 | 20.9 MB | `d2ce06424b5549ab64503be7998e6356b0dd6dca7c4eace33859060dcadcf1ff` |
+| `x3-linux-amd64` | linux/amd64 | 20.4 MB | `2ba6e890344a1a5e0ffdaefe9fa90bccccea009b64425e16663f249655d9e9cb` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -158,6 +158,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](docs/case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
+| [A run narrowed to one file or one example](docs/case-only.md) | the target that names a file or a line, the block a line belongs to, and the verdict a narrowed run is not allowed to store |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The words a language reserves](docs/lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
@@ -305,4 +306,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.288.0 capabilities=b7fca59edbf65759483bfdca34f14aeafbe84562986ae2f4e8a4b427249da8fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.289.0 capabilities=e2b1c902dafbfc124d29f232a1f3e1807c6357f33259deee7c9a3811eaf626d6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
