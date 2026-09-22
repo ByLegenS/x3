@@ -65,4 +65,4 @@ opened: no step ran, so the trial built nothing to take away. And `"after": []`
 is refused like every emptied declaration — a teardown that runs nothing takes
 nothing away, and it should be deleted rather than left standing as a promise.
 
-<!-- x3-dist version=v0.285.0 capabilities=186f01622cb4d059de3186e6042132a7ce7b7c9be1984f89c6d13bc0e348f2f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.286.0 capabilities=99636eca84d9bd691f9aeace2584836190f9cd88dde014db1ac9207b05ef7db0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

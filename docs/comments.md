@@ -31,6 +31,17 @@ comment lines is not a finding.
                 "docByExtension": { ".go": 20 }, "openers": { ".ts": "//" } } }
 ```
 
+Nothing is skipped for being a demonstration: **fixture files are read** like any
+other source. A file behind a build tag the production build never sets —
+`//go:build x3fixture`, `*_fixture.go` — is still prose somebody has to read, so
+`comments` measures it and the baseline holds its blocks. The baseline keys a block by its **digest, not its path**: a carrier
+renamed into a fixture takes its debt with it instead of starting clean.
+
+```
+x3 comments -config x3.yaml internal/cases/testdata/fixture-green
+x3 comments: 2 file(s) - 6 block(s) - 0 block, 0 warn, 0 exempted
+```
+
 The **opening block** — everything before the first line of code — has its own
 limit, twice the ordinary one by default: it is read once and describes the
 whole file. "The first block" would have been the wrong rule, because the first
@@ -97,4 +108,4 @@ held, and writes an empty baseline, which is a declaration of no debt at all. Th
 diff of the new file is worth reading: whatever the old identity was hiding
 appears in it.
 
-<!-- x3-dist version=v0.285.0 capabilities=186f01622cb4d059de3186e6042132a7ce7b7c9be1984f89c6d13bc0e348f2f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.286.0 capabilities=99636eca84d9bd691f9aeace2584836190f9cd88dde014db1ac9207b05ef7db0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -36,10 +36,29 @@ therefore red — for the narrow ones.
 | a frozen value that is gone | green, counted as **shrunk** |
 | nothing measured at all | **red** — `empty_scope` |
 
-`-update` rewrites the baselines and **refuses to write a set that grew**. That
-refusal is the gate: an update that accepted growth would zero the baseline on
-every run. Shrink is recorded, because punishing somebody for deleting dead code
-teaches people to keep it.
+`-update` decides **per entry, not per baseline**: every entry that moved the
+allowed way is recorded, and every entry that moved the other way is refused by
+its own name and **keeps its frozen number**. That refusal is the gate: an update
+that accepted growth would zero the baseline on every run. Shrink is recorded,
+because punishing somebody for deleting dead code teaches people to keep it, and
+a record nothing measures any more is dropped.
+
+```
+x3 freeze -config x3.yaml -only document-length -update
+REFUSED document-length docs/big.md: the measurement is above the frozen one; a baseline only shrinks
+x3 freeze: 1 baseline(s) - 1 entr(y/ies) recorded, 1 refused
+```
+
+⛔ One entry's debt does not swallow another's repayment. All-or-nothing writing
+left a shrinking file frozen at its **old, higher** number, so that file could
+grow back to the old ceiling with the gate seeing nothing — and a dead record
+whose own red reads *"refresh with `-update`"* could not be cleaned until an
+unrelated growth somewhere else was fixed. Measured 2026-09-22 in a pilot
+repository: 5 shrinks and 3 repaid floors were thrown away together with the 11
+growths that were rightly refused. A key the baseline has never held is refused
+too: a new key is a new debt, not a smaller one. In `seal` mode the same law
+reads as "a file whose sealed content changed is refused by name, while a new
+file is still sealed" — one broken claim does not stop another from being made.
 
 `-update` then **measures again and reports what is left**, so its exit code
 means what a plain run's does. Recording a baseline is not the same as passing:
@@ -221,4 +240,4 @@ limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
 
-<!-- x3-dist version=v0.285.0 capabilities=186f01622cb4d059de3186e6042132a7ce7b7c9be1984f89c6d13bc0e348f2f0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.286.0 capabilities=99636eca84d9bd691f9aeace2584836190f9cd88dde014db1ac9207b05ef7db0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
