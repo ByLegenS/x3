@@ -15,6 +15,34 @@ in 0 package(s) - 0 passed, 0 finding(s)"* and exit `0` over a package that does
 not compile. **A gate does not lean on somebody else's red.** The compiler will
 say it too, and saying it twice is cheaper than a sentence that is not true.
 
+### A test that calls what an example already measures
+
+A run also says, **without turning red**, which test functions call a
+declaration that already carries examples:
+
+```
+NOTE calc_test.go:7 (TestAdd): example_subject_called_by_a_test
+	calls Add, which carries 2 example(s) - calc.go:9
+x3 case: 2 example(s) in 1 package(s) - 2 passed, 1 test(s) call 1 declaration(s) that carry examples, 0 finding(s)
+```
+
+This is a queue, not a fault, and it does **not** say the two measure the same
+claim - that question is not decidable by reading a call. It says where to
+look. Whoever moves a test into an example asks this first, and answers it
+today by reading every `//x3:case:` line above the declaration by hand.
+
+| Counted | Not counted |
+|---|---|
+| a direct call from a `func Test...` body | an indirect one, through a helper the test calls |
+| a tagged test file (`//go:build live`), with the tag named in the line | a benchmark or a fuzz target |
+| an external test package, through the qualified name (`p.Add`) | a name only mentioned: in a comment, or taken as a value |
+| a function a `//x3:case:` is written above | a method, and an example on the package itself |
+| | a call from a fixture file, which is no test |
+
+The notes stand in `notes:` in the report, apart from `findings:`, and
+`Failed()` reads findings only - a note never fails a run. A migration queue
+that failed the gate would be closed by silencing the gate.
+
 ### A run that dies is not a run that skipped
 
 A panic is caught and turned into that example's red — the generated test
@@ -138,4 +166,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.286.0 capabilities=99636eca84d9bd691f9aeace2584836190f9cd88dde014db1ac9207b05ef7db0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.287.0 capabilities=e992ffd2c71e83a7e24a499f6b4bb5f0f502154b47420149f3d251fbcb92ffcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

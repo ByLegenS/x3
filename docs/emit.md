@@ -159,4 +159,4 @@ text for leaks (a local path, a home directory, an address) and, with a second
 file, for language; a `freeze` section holds each published document under its own
 line cap. A page with no cap declared is not a page this repository publishes.
 
-<!-- x3-dist version=v0.286.0 capabilities=99636eca84d9bd691f9aeace2584836190f9cd88dde014db1ac9207b05ef7db0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.287.0 capabilities=e992ffd2c71e83a7e24a499f6b4bb5f0f502154b47420149f3d251fbcb92ffcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

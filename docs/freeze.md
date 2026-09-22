@@ -240,4 +240,48 @@ limit that can be downgraded to a warning is not a limit). **A cap is always
 `block`**, and `-update` cannot reach it — but it must not therefore call the
 run green, so an update reports a violated cap like any other run.
 
-<!-- x3-dist version=v0.286.0 capabilities=99636eca84d9bd691f9aeace2584836190f9cd88dde014db1ac9207b05ef7db0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### A cap that follows what the file is generated from
+
+**What it catches:** a generated page that outgrew its source. A published page
+is written by a run, not by a hand: its length is the length of the source it is
+generated from, plus whatever the template adds. A `max` written by hand measures
+something else — whether a capability was documented — and the source already
+says that. Measured over one night, 2026-09-22: five releases, four of them red
+on a page that had grown by exactly the one line a new capability adds, each
+raised by hand to the number the release printed.
+
+`follows` replaces the ceiling with an **allowance**: the measurement is the
+generated file minus its source, the allowance is frozen, and a frozen number
+only shrinks. The cap then grows with the capability list without anyone
+touching a number, while a line the generator leaks has nowhere to hide.
+
+```json
+{ "freeze": { "baselines": [
+    { "name": "every-page-follows-its-source", "file": "pages.yaml",
+      "sources": ["publish/docs/*.md"],
+      "count": { "of": "lines",
+        "follows": { "of": "section", "match": "^## {name}$",
+          "until": "^## ", "sources": ["docs/GUIDE.md"] } } } ] } }
+```
+
+| what moved | the reading |
+|---|---|
+| the source region grew and the page grew with it | green; the allowance did not move |
+| the generator leaked one line | red — `page_outgrew_its_source`, naming the page |
+| the source shrank and the page did not | red; the page runs further past its source |
+| the allowance shrank | recorded by `-update`; a grown one is refused by name |
+| the page is generated from no region (`exclude`) | measured by its hand-written `max` |
+
+Two measurements. `of: section` reads the region that carries the measured
+file's own name: `{name}` in `match` is filled with the file's name, and the
+region ends where `until` says the next one begins. `of: matches` counts how
+many times `match` is written across the source, which is how a front page or an
+index carrying **one line per capability** is measured — there the source is not
+a region but the number of them. A followed measurement takes no `min`, `max` or
+`below`, because the frozen allowance is the threshold, and it keeps a `file`:
+an allowance measured afresh every run forbids nothing. That is why it is
+written as `count` and not as `cap` — a cap has no memory. A source that cannot
+be found counts zero, so the whole page reads as allowance and the run is red:
+a page whose region was deleted is not a page that may stay.
+
+<!-- x3-dist version=v0.287.0 capabilities=e992ffd2c71e83a7e24a499f6b4bb5f0f502154b47420149f3d251fbcb92ffcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
