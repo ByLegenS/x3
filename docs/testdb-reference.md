@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.287.0`**
+**Current version: `v0.288.0`**
 
 ## testdb settings
 
@@ -12,9 +12,10 @@
 | `driver` | no | defaults to `pgx`; an unregistered name is a configuration error (exit `2`) |
 | `prefix` | no | defaults to `x3test_`, and it is the **authority boundary** — nothing outside it is listed or dropped, so an empty prefix is rejected |
 | `template` | no | `name` + `from`: the setup runs **once** into a template and every database after that is a clone of it. Without it an empty database is created and the setup steps run every time |
+| `template.keep` | no | how many templates of that family may stand; 1 by default, and the current one's slot is always one of them |
 | `dsnEnv` | no | the variable the new DSN is exported as; defaults to `X3_TESTDB_DSN` |
 | `maxAgeMinutes` | no | age past which a leftover is stale; defaults to `120` |
 | `setup` | no | the steps run after creation, **in order**; each one `command`, `args`, `env`, `timeoutMs` (§ [A ready database is more than one command](testdb-setup.md#a-ready-database-is-more-than-one-command)) |
 | `runEnv` | no | the variables the **wrapped command** of `testdb run` is handed, on top of `dsnEnv`; same vocabulary as a step's `env` (§ [The variables the wrapped command is handed](testdb-run-env.md#the-variables-the-wrapped-command-is-handed)) |
 
-<!-- x3-dist version=v0.287.0 capabilities=e992ffd2c71e83a7e24a499f6b4bb5f0f502154b47420149f3d251fbcb92ffcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.288.0 capabilities=b7fca59edbf65759483bfdca34f14aeafbe84562986ae2f4e8a4b427249da8fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

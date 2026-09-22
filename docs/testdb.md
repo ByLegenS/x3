@@ -13,6 +13,7 @@ environment, and drops the database when the command is done.
 x3 testdb create [-config <file>]
 x3 testdb drop   [-config <file>] (-name <database> | -stale)
 x3 testdb list   [-config <file>] [-stale]
+x3 testdb prune  [-config <file>]
 x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
 ```
 
@@ -104,10 +105,66 @@ database after that is `CREATE DATABASE ... TEMPLATE` — a copy, not a migratio
 
 **Freshness is in the name, not in a stamp table.** The template's real name
 carries a digest of the files `from` names (`app_test_template_a1b2c3d4`). A
-changed migration changes the name, so the next run builds a new template and the
-old one ages out. A stamp table would put the question "is this template stale?"
+changed migration changes the name, so the next run builds a new template, and the
+old one is pruned. A stamp table would put the question "is this template stale?"
 *inside* the template — and answering it would mean connecting, while a database
 with an open connection cannot be cloned.
+
+⛔ **The digest covers `from` and nothing else.** It used to cover every file
+under the settings file's directory: measured 2026-09-22, rebuilding one
+unrelated file next to the settings changed the digest, so **every commit** gave
+birth to a template. Nothing dropped the old one, because a template's name
+carries a digest and not a timestamp while the sweep goes by age - so in one
+production application `x3 testdb list` printed **1 database** while the server
+held **222 templates of the same family and 3 569 MB**, none of them connected,
+none of them on any list. Templates are counted, named and pruned on their own
+terms now:
+
+```
+x3 testdb list
+app_tpl_1a589839	template, current
+app_tpl_aef6d399	template, stale
+x3 testdb: 2 template(s), 1 stale
+
+x3 testdb prune
+x3 testdb: pruned template app_tpl_aef6d399
+x3 testdb: 1 template(s) pruned, 1 standing
+```
+
+When the sources have moved and nothing has been built yet, the line names what
+is wanted, so "everything is stale" is not the end of the answer:
+
+```
+x3 testdb list -stale
+app_tpl_1a589839	template, stale
+x3 testdb: no template carries today's digest; the sources want app_tpl_191d2503
+x3 testdb: 1 stale template(s)
+```
+
+`list` counts templates on a **line of their own** - added to the clone count,
+"1 database(s)" would have looked right for that server too - and says which one
+carries today's digest. When none does, it prints the name the sources want,
+because "everything is stale" leaves the reader with a question only a digest
+could answer. `-stale` narrows both the lines and the count.
+
+**`prune` and the `stale` lines share one decision, and `create`, `run` and `fan`
+sweep templates exactly where they sweep clones** - first thing, out loud, and a
+failure there never changes the command's exit code. `keep` (inside `template`,
+default 1) is how many of the family may stand. The current one's slot is
+reserved even before it is built, because the sweep runs *ahead* of the build:
+without the reservation that slot goes to the template the build is about to
+replace, and `keep: 1` leaves two behind (measured as a red arm, 2026-09-22). A
+stale template is never cloned again, so holding one saves no setup - `keep: 2`
+is for the repository that flips a migration back and forth.
+
+⛔ **A template with an open connection is left standing, and named.** No
+`FORCE` here, unlike a clone: the one connection a template can have is the run
+cloning it right now, and a list is a photograph of a moment ago. The server has
+the last word, and a refusal reads better than a cut-off run.
+
+⛔ **The template name must start with `prefix`.** The prefix is this
+package's whole authority - what it may list, and what it may drop. A template
+outside it is swept by nothing, which is where the 222 came from.
 
 ⛔ **`from` is required.** A template with no declared sources cannot be known to
 be fresh: the day a migration changes it would quietly hand out the old schema,
@@ -171,4 +228,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.287.0 capabilities=e992ffd2c71e83a7e24a499f6b4bb5f0f502154b47420149f3d251fbcb92ffcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.288.0 capabilities=b7fca59edbf65759483bfdca34f14aeafbe84562986ae2f4e8a4b427249da8fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
