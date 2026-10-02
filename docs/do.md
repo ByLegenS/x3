@@ -82,6 +82,52 @@ Two verbs in one step is a settings error, not a convenience: which of them ran
 first cannot be read off the file, and which of them failed cannot be read off
 the report. A step with no verb is worse — it shows up as "ran".
 
+### `differs` — wait until an answer changes
+
+A `run` step with `differs:` asks again until its answer is not the value it names (exit code `want`, output not empty). The proof that a host rebooted is not that it answers - a host still shutting down answers too (pilot, 2026-10-01: a 44 ms answer was taken for "back up") - but that the boot identity read before has changed:
+
+```yaml
+- say: this boot
+  on: prod
+  run: cat /proc/sys/kernel/random/boot_id
+  into: boot
+# ... the reboot ...
+- say: a new boot
+  on: prod
+  run: cat /proc/sys/kernel/random/boot_id
+  differs: "{boot}"
+  into: newboot
+  within: 480
+  every: 5000
+```
+
+The old value answering ends red when `within` runs out (`still answered ... (the value read before)`), a host that never answers ends red with its last error, and a `differs` whose value was never read is red at once: an empty value would end the wait on the first answer. Measured by the `reboot wait control experiment` step, with a local command standing in for the host.
+
+### The remote classifier: readings that were writes
+
+A `psql` link reads when every `-c` / `-tAc` / `--command` query (quoted) starts each statement with `SELECT`, `WITH` or `SHOW`, holds no writing keyword (`INSERT`, `UPDATE`, `INTO`, `SET`, `FOR UPDATE`, ...) and no side-effect function (`setval`, `pg_terminate_backend`, advisory locks, ...), no backslash and no `$`, and psql has no `-o`/`-L`/`-f`. Destructive SQL never gets this far: the refuse list is read first. `reboot` no longer matches the file `reboot-required`. A host's `read:` list ADDS to the default list (it used to replace it); a host's `refuse:` list still replaces the default one, so a host can make a reading destructive but not a write. Measured by the `remote classifier control experiment` step: every writing arm stays write or destructive.
+
+**`-tAc` goes through the same check (2026-10-02).** The default read list carried `psql … -tAc 'SELECT…'`, which looked only at the start of the query: `-tAc 'SELECT 1; UPDATE t SET a = 1'`, `setval(...)`, `nextval(...)`, `pg_terminate_backend(...)`, `SELECT … INTO` and `SELECT … FOR UPDATE` all classified as **reads**, and a read asks for no `write: true` - a write to a live database without permission. The pattern is gone; every `psql` query is weighed by the check above. **Adjacent quoted parts are one query:** the shell joins `'SELECT 1'' ; UPDATE t'` into `SELECT 1 ; UPDATE t`, and the engine itself writes an argument holding a single quote as `'a = '"'"'x'"'"''`; the parts are joined and the whole query is weighed, and an unquoted character stuck to the query makes it unreadable, so a write. Belt and braces: when in doubt, a write - it asks; a write taken for a read does not.
+
+| Command | Before | After |
+|---|---|---|
+| `psql -tAc 'SELECT 1; UPDATE t SET a = 1'` | reads | writes |
+| `psql -tAc "select setval('s', 1)"` | reads | writes |
+| `psql -tAc 'SELECT * FROM t FOR UPDATE'` | reads | writes |
+| `psql -tAc 'SELECT 1'' ; UPDATE t SET a = 1'` | reads | writes |
+| `psql -c "SELECT 'x'; UPDATE t SET a = 1"` | writes in v0.291.0, reads in the unreleased `-c` check | writes |
+| `psql -tAc "SELECT count(*) FROM t WHERE a = 'x;y'"` | reads | reads |
+
+**A command run inside a link is a write (2026-10-02).** The read list looks at the start of a link only, so `echo "$(touch /tmp/x)"`, ``echo `touch /tmp/x` ``, `cat <(touch /tmp/x)` and `psql -c "SELECT 1" $(touch /tmp/x)` all classified as **reads** - the shell runs the inner command first, and nothing weighed it. A raw command line given with `-set command=...` is one argument and is passed on as written, so this was reachable from the command line. Now any command substitution, backtick, `${` or process substitution outside single quotes makes the link a write (inside double quotes they still run; inside single quotes they are text). `${NAME}` in a task is filled in by the engine from the local environment before the classifier reads it, so the remote side receives a literal. Measured by the same experiment step (five arms); with the check switched off the four writing arms go red.
+
+| Command | Before | After |
+|---|---|---|
+| `echo "$(touch /tmp/x)"` | reads | writes |
+| ``echo `touch /tmp/x` `` | reads | writes |
+| `cat <(touch /tmp/x)` | reads | writes |
+| `psql -c "SELECT 1" $(touch /tmp/x)` | reads | writes |
+| `grep '$(x)' /etc/hosts` | reads | reads |
+
 ### `-list` — which tasks exist, and which file declares each one
 
 ```
@@ -210,8 +256,8 @@ Remote commands are **classified** before they leave: reads go, writes need
 ```
 
 The engine carries the lists, so a project that declares no `read:`/`refuse:` of
-its own still gets the classification; `read:` and `refuse:` on a host replace
-them. The default for an unknown command is **writes**, never reads — a gate with
+its own still gets the classification; a host's `read:` adds to
+the default list and its `refuse:` replaces it. The default for an unknown command is **writes**, never reads — a gate with
 a hole in it is worse than no gate, because a list that does not name a command
 would otherwise wave every new one through. Each link of a chain is weighed on
 its own, a redirection makes a reading command a writing one, and quotes are not
@@ -277,4 +323,4 @@ The same three fields are how a deployment gate reads a live number — the hour
 a company takes calls in, the calls running right now — and stops on it, instead
 of holding a copy of those numbers in the settings where they go stale.
 
-<!-- x3-dist version=v0.291.0 capabilities=e4c39097aad769d568016225b0858d8cdc333acee1487b74c918a802e832c7ea template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.292.0 capabilities=2cb7196fa240b21e0ae02c9b2e18ef94d45c8fd59bf551ece5e39a04d23186a2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

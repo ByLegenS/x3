@@ -704,6 +704,10 @@ convenience, never a precondition: the opposite would leave a project whose gate
 is red unable to run the gate that shows it. `-tune`, asked for on purpose, does
 report the failure and exits 2.
 
+### A narrowed run does not measure the worker count
+
+With no worker-count record, only an unnarrowed `x3 gate` measures it. A region verb, `-region`, `-only` or a `-band` other than `full` runs its own steps with one worker per processor and says so in one line; `-tune` with any of them is refused (exit 2). Measured by the `tune-region control experiment` step (pilot, 2026-10-02: `x3 defter` had started four runs of the whole band).
+
 ### A step that cannot have changed is not run again
 
 ```
@@ -1285,4 +1289,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.291.0 capabilities=e4c39097aad769d568016225b0858d8cdc333acee1487b74c918a802e832c7ea template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.292.0 capabilities=2cb7196fa240b21e0ae02c9b2e18ef94d45c8fd59bf551ece5e39a04d23186a2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
