@@ -99,4 +99,40 @@ A reasoned skip is written in the commit body; for the run before the commit
 exists, pass the same line with `-reason`. The marker with nothing after it is
 red, on purpose.
 
-<!-- x3-dist version=v0.293.0 capabilities=8711ded7e566686d8c5e74c15d7050d9ec9ec65fa927ca0112b09ccd83b3d4f6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+## `x3 case`, examples that never see the development database
+
+```yaml
+case:
+  database: isolated   # needs a testdb section; leave it out to keep today's run
+```
+
+With `case.database: isolated`, `x3 case` reruns itself inside the `testdb`
+wrapper: a fresh copy is cloned, `testdb.dsnEnv`, every `testdb.runEnv` name and
+the `testdb.adminDsnEnv` name point at the copy, and the copy is dropped after
+the run. A run that is already inside a copy (its `dsnEnv` names a database
+carrying the `testdb.prefix` and a creation stamp, as `x3 testdb run -- x3 case`
+does) is not wrapped twice. If the copy cannot be built no example runs and the
+run is red; nothing is written anywhere. The first stderr line says it:
+
+    x3 case: case.database is "isolated"; the examples run inside a fresh copy, and APP_TEST_DSN, APP_DSN, PG_ADMIN point at it
+
+If the copy cannot be built (here the admin variable is empty) the run stops
+before any example, with exit 2:
+
+    x3 testdb: environment variable PG_ADMIN is empty
+
+Why: a narrow `x3 case -only` run without the wrapper handed the shell's
+development DSN to the examples, and a test helper that fell back to it wrote
+fake rows into the development database. The wrapper existed but had to be
+remembered.
+
+Measured against a real Postgres (gate step `case database isolated control
+experiment`, fixture `internal/cases/testdata/isolated-db`): an example that
+writes one row through the development variable left a development-like
+database at 0 rows with the mode on (it wrote into the `x3test_` copy), at 1 row
+with the mode left out (today's run, unchanged), and at 0 rows when no copy
+could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
+machine without that admin connection it is skipped by name
+(`skipped: needs X3_PG_ADMIN`) and touches no database.
+
+<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

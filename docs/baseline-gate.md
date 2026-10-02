@@ -150,7 +150,8 @@ the change in front of you; freezing it would silence the wrong thing.
 | Flag | What it does |
 |---|---|
 | `-baseline <file>` | read this file instead of the derived one |
-| `-update-baseline` | drop what the run no longer finds; growth is never written |
+| `-update-baseline` | drop what the run no longer finds; growth is never written. A finding whose identity changed in the same file under the same rule and name is `REKEYED` (paired one to one with the dead record, so the debt per file and rule never grows); every other new finding is `GROWTH`, printed by name, and the file is not written for it. A baseline never written and a rule the baseline never named are growth too (until v0.293.0 both were written silently as an "opening balance": `ADOPTED`). Same in `lang`, `arch`, `secrets`, `boxes`, `comments`, `syntax`, `guard`, `placement`, `gate` |
+| `-accept-growth` | with `-update-baseline` only: write the new findings as well, each printed as `ACCEPTED <id> <rule> <path> (<name>)`. Example: `x3 syntax -update-baseline` → `GROWTH c9662d70ec83 forbidden_pattern src/new.txt (no-word-beta)` and `the baseline was NOT written`; adding `-accept-growth` → `ACCEPTED c9662d70ec83 ...` (experiment `baseline refresh only shrinks`). Also measured in a pilot: syntax -update-baseline refused 48 visible findings, each by its own `GROWTH` line, exit 1, the baseline file untouched (`git status` clean) - where v0.293.0 had written them silently |
 
 ### The identity carries no line number
 
@@ -246,4 +247,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.293.0 capabilities=8711ded7e566686d8c5e74c15d7050d9ec9ec65fa927ca0112b09ccd83b3d4f6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

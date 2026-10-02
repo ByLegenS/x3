@@ -77,6 +77,28 @@ with git installed prints the same line; a second gate (`x3 docs`) reads the
 same default; and a tree with no record says the sentence above instead of
 passing quietly.
 
+**Inside the gate, a missing record is not a verdict.** A gate step that runs
+`x3 docs` (snapshot scope) or `x3 boxes` (with `suspect.gone`) reads the gate's
+own record, and that record is written at the *end* of a run. On a cache that
+remembers nothing - a new home directory, or the first run after any release,
+since the record's name carries the version - those steps said the sentence
+above and went red; the record lives inside the cache, outside the step's key,
+so the red was remembered and every later run replayed it. Measured on a pilot
+(2026-10-02): the same tree was green on a shared cache and red with two
+"born" findings on a cold one, with both v0.293.0 and v0.294.0.
+
+The gate now notices a cache that remembers no run, writes its own record once
+the steps are done, and measures the red steps **once more**. Green steps do
+not run again; a red that is real stays red. The run says so:
+
+```
+-- this cache remembered no run, so 2 red step(s) were measured again once the gate had written its own record: open work + generated documents, document follows code
+```
+
+Note that the record is named per version: a step that calls an `x3` of a
+*different* version than the gate reads a different record. Run the gate and
+its steps with the same binary.
+
 ### A path that was here once
 
 A criterion that says *"this file is gone"* can only prove it holds by losing
@@ -170,4 +192,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.293.0 capabilities=8711ded7e566686d8c5e74c15d7050d9ec9ec65fa927ca0112b09ccd83b3d4f6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
