@@ -26,6 +26,7 @@ step names below are the ones the gate prints.
 | `configuration section registry` | a settings section the engine reads and the roster claims `0`; the roster gone stale `1`, naming the section. The green half on this repository's own tree is the `arch gate` step |
 | `expectation scope control experiment` | an expectation naming a fixture tree `0` — the walk enters a skipped directory only because a rule declared it; the same tree with the expectation unnamed `1`, which is the blindness itself; the run started **inside** the named tree `0`; and the directive deleted `1` |
 | `arch control experiment` | a green/red pair for every rule kind and every escape hatch: `absent` present, missing and dead; `skip` off, on and dead; `comments` read, exempt and embedded; `relativeTo` both ways; `minimum` met and short; `exclude` applying, dead and emptying the rule |
+| `agent scope hook control experiment` | one planted repository, eighteen calls: a path inside the scope passes in silence while the same call on `src/` is refused **naming the scope**; the same input on another branch passes; a listed agent is scoped on any branch and an unlisted one is not; an unlisted shell command, an unreadable command line, a broken input and a missing scope file are each refused, never passed |
 | `freeze control experiment` | the surface green, one name added red, and **`-update` on the grown tree red with the file unchanged** |
 | `freeze count control experiment` | held, grown, shrunk and capped trees, each also under `-update`; the capped key stays out of the baseline **and the update itself exits `1`** |
 | `surface control experiment` | six directions on one tree: **no baseline** (red, because growth is green here), recorded, untouched, a changed signature red **and naming its caller**, the same break allowed, a symbol *added* green, and the allow gone dead |
@@ -135,4 +136,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

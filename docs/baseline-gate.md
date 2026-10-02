@@ -75,6 +75,26 @@ $ x3 gate                                   # the unnarrowed run: the same recor
 -- baseline: 1 red step(s) carried, 0 born after it, 1 record(s) no longer red   (exit 1)
 ```
 
+**An exemption with a reason is not a finding.** A tool that honours
+`//x3:allow:<tool>[:<rule>]: <reason>` prints the line it accepted as
+`ALLOW <rule> <file>:<line>: <reason>`. That line carries a file position, but the
+gate never counts it as a finding: inside a held step it is neither carried nor
+born, and the baseline needs no record for it. It does not go quiet either — the
+run counts every such line in one summary line:
+
+```
+$ x3 gate                                   # a held key, and a second key the source allows
+-- baseline: 1 red step(s) carried, 0 born after it, 0 record(s) no longer red
+-- 1 allowed: exemption line(s) with a reason, in 1 step(s); not findings, so no baseline holds or counts them   (exit 0)
+```
+
+What stays red is what the tool itself reports: remove the exemption line and the
+key is born (`BLOCK b.go:4: secret_found`); keep the line after the key is gone and
+it is a dead exemption (`BLOCK b.go:5: dead_exemption`); write the line with no
+reason and it exempts nothing, so the key is born again. All four arms run in this
+engine's own gate (`gate finding baseline control experiment`); the first arm was
+red under v0.294.0 (`1 born after it`, exit 1).
+
 **A red step names the findings its printed lines cut off.** The gate prints the
 last lines of a red trial; a finding printed higher up (an inline example that
 failed, followed by notes and the summary) is named above them:
@@ -150,7 +170,7 @@ the change in front of you; freezing it would silence the wrong thing.
 | Flag | What it does |
 |---|---|
 | `-baseline <file>` | read this file instead of the derived one |
-| `-update-baseline` | drop what the run no longer finds; growth is never written. A finding whose identity changed in the same file under the same rule and name is `REKEYED` (paired one to one with the dead record, so the debt per file and rule never grows); every other new finding is `GROWTH`, printed by name, and the file is not written for it. A baseline never written and a rule the baseline never named are growth too (until v0.293.0 both were written silently as an "opening balance": `ADOPTED`). Same in `lang`, `arch`, `secrets`, `boxes`, `comments`, `syntax`, `guard`, `placement`, `gate` |
+| `-update-baseline` | drop what the run no longer finds; growth is never written. A finding whose identity changed in the same file under the same rule and name is `REKEYED` (paired one to one with the dead record, so the debt per file and rule never grows). A gate red step is never rekeyed: its rule, path and name are all the step's name and its content is already free of numbers, so a new content is a new finding - a held step whose record died and whose run printed a new red gives `GROWTH b215986b7b4b red-step a held step`, the dead record `DROPPED`, no `REKEYED` (through v0.294.0 that dead record handed its identity to any new finding of the step; experiment `baseline refresh only shrinks`, tree `held-rekey`); every other new finding is `GROWTH`, printed by name, and the file is not written for it. A baseline never written and a rule the baseline never named are growth too (until v0.293.0 both were written silently as an "opening balance": `ADOPTED`). Same in `lang`, `arch`, `secrets`, `boxes`, `comments`, `syntax`, `guard`, `placement`, `gate` |
 | `-accept-growth` | with `-update-baseline` only: write the new findings as well, each printed as `ACCEPTED <id> <rule> <path> (<name>)`. Example: `x3 syntax -update-baseline` → `GROWTH c9662d70ec83 forbidden_pattern src/new.txt (no-word-beta)` and `the baseline was NOT written`; adding `-accept-growth` → `ACCEPTED c9662d70ec83 ...` (experiment `baseline refresh only shrinks`). Also measured in a pilot: syntax -update-baseline refused 48 visible findings, each by its own `GROWTH` line, exit 1, the baseline file untouched (`git status` clean) - where v0.293.0 had written them silently |
 
 ### The identity carries no line number
@@ -247,4 +267,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

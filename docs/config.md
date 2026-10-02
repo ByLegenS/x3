@@ -706,7 +706,7 @@ report the failure and exits 2.
 
 ### A narrowed run does not measure the worker count
 
-With no worker-count record, only an unnarrowed `x3 gate` measures it. A region verb, `-region`, `-only` or a `-band` other than `full` runs its own steps with one worker per processor and says so in one line; `-tune` with any of them is refused (exit 2). Measured by the `tune-region control experiment` step (pilot, 2026-10-02: `x3 defter` had started four runs of the whole band).
+With no worker-count record, only an unnarrowed `x3 gate` measures it. A region verb, `-region`, `-only` or a `-band` other than `full` runs its own steps with one worker per processor and says so in one line; `-tune` with any of them is refused (exit 2). Measured by the `tune-region control experiment` step (pilot, 2026-10-02: a three-step region verb had started four runs of the whole band).
 
 ### A step that cannot have changed is not run again
 
@@ -1289,4 +1289,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -9,7 +9,7 @@ a gate that runs *no step at all* can still be slow — in which case the total 
 measuring everything except the work.
 
 ```
-x3 gate -region defter -phases
+x3 gate -region docs -phases
 ```
 
 prints one line beside the summary, on stderr:
@@ -65,4 +65,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

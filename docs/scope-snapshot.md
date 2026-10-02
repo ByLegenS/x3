@@ -186,10 +186,10 @@ the declared directory asks that function, including the machine tuning record
 (`gate-tune.yaml`).
 
 This is a rule because it was broken. Measured in the pilot on 2026-09-21: the
-tuning record joined the *raw* string, so a project declaring `~/.x3cache/vt`
+tuning record joined the *raw* string, so a project declaring `~/.x3cache/app`
 grew a directory literally named `~` at the root of its working tree while the
 main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.294.0 capabilities=affc4c9a2eb1151547e914edb82b1e5e7d315965d2e2d926776f601e33543b43 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
