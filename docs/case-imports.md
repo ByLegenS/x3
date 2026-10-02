@@ -45,10 +45,14 @@ So a declaration may carry the name, exactly as Go's own import syntax does:
 
 The name is taken at its word — the engine writes the import into the generated
 test **with that alias**, so the binding holds whatever the package calls
-itself. A name that is not a plain identifier, or is `_` or `.` (neither
-produces a qualifier an example could write), is a configuration error, not a
+itself. A name that is not a plain identifier, or is `.` (it
+produces no qualifier an example could write), is a configuration error, not a
 finding. One name may not be declared twice: an example's qualifier has to say
-which path it went to.
+which path it went to. A blank name (`_`) is accepted only as a file directive,
+`//x3:import: _ example.com/driver`: it names nothing, so it is written into
+the generated test whenever that file's examples run, for its side effect (a
+driver registering itself, an `init`). In the shared pool it is a configuration
+error, because a pool entry is written only where an example names it.
 
 ### Where a declaration may be written
 
@@ -117,4 +121,4 @@ package. The engine records which example asked for each import, so the finding
 lands on that one and says why — `"net/http/httptest" imported and not used; the
 import was written because this example names it` — and the neighbours still run.
 
-<!-- x3-dist version=v0.292.0 capabilities=2cb7196fa240b21e0ae02c9b2e18ef94d45c8fd59bf551ece5e39a04d23186a2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.293.0 capabilities=8711ded7e566686d8c5e74c15d7050d9ec9ec65fa927ca0112b09ccd83b3d4f6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
