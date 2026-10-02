@@ -29,4 +29,4 @@ place added later silently free. **It reads names, not types**: the type in
 and if it is not the rule is `empty_scope` — a renamed field must not leave a
 green rule behind.
 
-<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.296.0 capabilities=9df363e2d29d8f8fd6f35424e5d530f5801b7449b9f5f807e7391fd193bde621 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

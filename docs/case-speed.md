@@ -77,6 +77,24 @@ The report names what it skipped in `cached`, and the summary line says
 `N package(s) unchanged since the last run`. Findings and counts are identical
 either way — the cache changes what a run **pays**, never what it **says**.
 
+A cache file is always written so it reads back: multi-line text (an indented
+finding, a tool's output) is stored as one quoted line, the file is decoded
+before it replaces the old one, and a writer that finds the file held open by a
+reader retries instead of losing its slot. A file that cannot be read is an
+empty cache — the run is cold, never red — and a reader of the record says
+`<file> cannot be read ..., so it remembers nothing` instead of a decoder error.
+
+A gate trial that could not run at all (its tool cannot be started: exit
+`-1`), or whose output carries the engine's own `this run cannot measure`, is
+red for this run only: the line says `environment error, not cached` and the
+next run measures the step again. A red the trial itself decided stays cached.
+
+```yaml
+trials:
+  - run: [some-tool-this-machine-lacks]
+    want: 0     # red now: "environment error, not cached"; measured again next run
+```
+
 ### What each example costs
 
 The report carries the ten slowest examples it measured:
@@ -135,4 +153,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.295.0 capabilities=84ff292206cc313338dc9e485b28d297be4e6745e8256bfe4076bebfe1d41a0f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.296.0 capabilities=9df363e2d29d8f8fd6f35424e5d530f5801b7449b9f5f807e7391fd193bde621 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
