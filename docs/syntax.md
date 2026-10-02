@@ -24,10 +24,45 @@ each check is exactly one of four kinds:
       "reason": "a backslash escape inside an attribute is not valid here" } ] } }
 ```
 
-`as` names a parser the engine carries — `yaml`, `json` and `toml`. The first is
-what the engine's own settings are written in; the other two are there because a
-project it checks may hold them. The list stays this short because a
-format half-understood is worse than one not understood at all.
+`as` names a parser the engine carries — `yaml`, `json`, `toml`, `css` and `esm`.
+The first is what the engine's own settings are written in; the others are there
+because a project it checks may hold them. The list stays this short because a
+format half-understood is worse than one not understood at all. A finding names
+the file, the line and — where the parser knows it — the column, with the
+parser's own sentence:
+
+```
+BLOCK ui/style.css:2:27 (browser-styles): does_not_parse
+	the "{" opened at 2:27 is never closed
+BLOCK ui/list.js:4:55 (browser-modules): does_not_parse
+	Expected ")" but found ";"
+BLOCK ui/i18n/en.json:3:3 (dictionaries): does_not_parse
+	invalid character '"' after object key:value pair
+```
+
+**`esm` reads a file the way a browser reads a module** — strict, with `import`
+and `export`, top-level `await` allowed. A module that does not parse does not
+load, nor does any module that imports it; the server still answers 200 and the
+screen opens empty. The parser is built into the engine and starts no process,
+so the check measures the same thing on a machine with no JavaScript runtime
+installed — a `run: [node, --check]` check measures nothing where `node` is
+missing. Warnings are not findings: they judge style, and a module that only
+draws a warning still loads.
+
+**`css` measures balance, not the whole language.** Every bracket closes the one
+it opened, every comment and every string ends. CSS's own rule is to repair, not
+reject: one dropped closing brace silently pulls every rule after it inside a
+media query, and the page renders unstyled without a single error. A full CSS
+parser was weighed and left out on purpose — it warns on the hacks old browsers
+relied on (`*zoom: 1`), and counting those red would blame a stylesheet that
+works. The opener left open is named by its own line and column, not by the end
+of the file where the parser ran out.
+
+Measured on a production repository's browser files (266 stylesheets, modules
+and dictionaries, copied out of it): all parse, in **240 ms** for the whole run;
+three copies side by side (798 files) take **418 ms**. Under the gate the step is
+remembered by the content of every file it read, so an unchanged tree does not
+parse anything again.
 
 **`json` is read strictly.** A key written twice in the same object is a finding,
 not a shrug. The parsers do not agree on what such a file means — most keep the
@@ -73,4 +108,4 @@ A denied word is often legitimate somewhere else in the same tree — another
 language's own keyword or type. Those lines are excluded rather than denied:
 [The word another language owns](syntax-ignore.md#the-word-another-language-owns).
 
-<!-- x3-dist version=v0.290.0 capabilities=c138e0be580c1e819f85bea5e238767dc4c28c2e8ff5f7660ec20299173f5652 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.291.0 capabilities=e4c39097aad769d568016225b0858d8cdc333acee1487b74c918a802e832c7ea template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

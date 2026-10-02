@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.290.0`**
+**Current version: `v0.291.0`**
 
 ## boxes criteria fields
 
@@ -16,4 +16,4 @@
 | `command` | `command`, `args`, `output`, `timeoutMs` | it exits `0` **and** its output meets `output` |
 | `manual` | `by`, `seen`, `signed` | `signed` is written |
 
-<!-- x3-dist version=v0.290.0 capabilities=c138e0be580c1e819f85bea5e238767dc4c28c2e8ff5f7660ec20299173f5652 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.291.0 capabilities=e4c39097aad769d568016225b0858d8cdc333acee1487b74c918a802e832c7ea template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -23,10 +23,72 @@ gate, and every red is red. Adopt one with `x3 gate -update-baseline`, which
 writes the red steps standing in the tree right now and never writes growth
 afterwards.
 
-A record is keyed by the step's **name**, not by its output. A step's output
-carries times, paths and counts, so it differs on every run; a baseline tied to
-it would die on the first one. Rename a step and the record dies with it, which
-is correct — a step under a new name is not the step whose debt was taken over.
+A record holds one **finding** of a red step, not the step. A baseline that holds
+the whole step cannot see a new red born inside it — measured in a production
+repository (2026-10-01): the inline-example step was carried red, four new
+examples went red inside it, and the region run said `0 born`; the syntax step,
+carried with 104 findings, swallowed two new rule violations the same way. Twice
+someone read `0 born` as green.
+
+A finding is a line of the red trial's output that opens with a verdict word
+(`BLOCK`, `FAIL`, `ERROR`, `panic:`, `--- FAIL`) or carries a file position
+(`path.ext:line`), together with the indented lines under it — the rule's reason,
+the text it found. `WARN`, `NOTE`, `HELD` and `SELECTED` lines are not findings:
+a warning born is not a red. The record is keyed by the step's name, the trial
+and that text with **every run of digits folded**, so line numbers, times, counts
+and temporary directory names do not move it; two findings that fold to the same
+text are told apart by how many times it occurs, so a third one is still born. A
+step whose tool prints its findings another way names them itself:
+
+```json
+{ "name": "lint", "findings": "^\\s+\\d+:\\d+\\s+error", "trials": [ ... ] }
+```
+
+```
+$ x3 gate                                   # the held step, with one new finding inside
+== the inline examples RED (412 ms)
+  1 finding(s) born after the baseline, inside a step it holds:
+      BLOCK b.txt:1 (no-shouting): forbidden_pattern
+-- baseline: 0 red step(s) carried, 1 born after it (1 of them a held step with a new finding inside), 0 record(s) no longer red   (exit 1)
+```
+
+**A baseline written before findings were counted still reads.** Its record holds
+the whole step, as it always did, and the run says so instead of keeping quiet:
+`-- baseline: N carried step(s) are held whole ...; a finding born inside them
+stays unseen until -update-baseline counts them`. The next `-update-baseline`
+refines each such record into the findings it was holding (`REFINED`) — the debt
+does not grow, it becomes countable. A region verb can do it
+(`x3 <region> -update-baseline`): a narrow refresh judges only the steps it
+ran and writes every other record back untouched, so one region never empties
+another's debt.
+
+**A finding gone from a held step says the baseline can shrink.** A region verb
+or `-only` cannot declare a record dead (it did not run every step), but it knows
+the steps it measured. A record of one of those steps that this run no longer
+finds is named, and the run stays green:
+
+```
+$ x3 gate -only "a held step"               # the baseline holds 3 findings, the run finds 2
+-- baseline: 1 red step(s) carried, 0 born after it, 0 record(s) no longer red
+-- baseline: 1 record(s) are no longer red in step(s) this run measured (a held step); the baseline can shrink: -update-baseline writes it smaller   (exit 0)
+$ x3 gate                                   # the unnarrowed run: the same record is dead, red until swept
+-- baseline: 1 red step(s) carried, 0 born after it, 1 record(s) no longer red   (exit 1)
+```
+
+**A red step names the findings its printed lines cut off.** The gate prints the
+last lines of a red trial; a finding printed higher up (an inline example that
+failed, followed by notes and the summary) is named above them:
+
+```
+== a held step RED (18 ms)
+  the denied word stands in the tree     exit=1 (want 0)
+      3 finding(s) above the last lines:
+        BLOCK a.txt:1 (no-shouting): forbidden_pattern
+        ...
+```
+
+Rename a step and its records die with it, which is correct — a step under a new
+name is not the step whose debt was taken over.
 
 ```
 $ x3 gate                                   # the frozen red, and one born after it
@@ -184,4 +246,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.290.0 capabilities=c138e0be580c1e819f85bea5e238767dc4c28c2e8ff5f7660ec20299173f5652 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.291.0 capabilities=e4c39097aad769d568016225b0858d8cdc333acee1487b74c918a802e832c7ea template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

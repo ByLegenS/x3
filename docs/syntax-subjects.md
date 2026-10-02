@@ -26,6 +26,23 @@ The second one is how a gate marker inside the file takes it out of scope: the
 screens that are allowed to show a cost are the ones that check for the right
 to see it, and they say so in their own code.
 
+**`skipFixtures: true`** reads an `x3 case` fixture file as the test side: a Go
+file whose `//go:build` line is `x3fixture`, alone or beside other tags joined by
+`||`. It never enters the production build, so a check that asks for "a file
+outside a test" has no business with it. The constraint decides, not the name; a
+mixed constraint (`x3fixture && linux`, `!x3fixture`) is no fixture and is read.
+`go-monorepo@3` carries it on `no-file-outside-a-test-imports-the-testing-package`
+(`@2` is unchanged — a pinned set does not change under its project).
+
+```yaml
+- name: no-file-outside-a-test-imports-the-testing-package
+  sources: ['**/*.go']
+  exclude: ['**/*_test.go']
+  deny: '(?m)^\s*(?:[A-Za-z_][A-Za-z0-9_]*\s+)?"testing"\s*$'
+  reason: the test flags would ship in the binary
+  skipFixtures: true      # setup_fixture.go (//go:build x3fixture) -> not read, counted as eliminated
+```
+
 **Not an exemption, and not an exclusion either**, exactly as
 [`subjects`](arch-pairing-subjects.md#pairing--which-files-is-the-rule-about) in an `arch` rule.
 An exemption overrides a measurement, so it needs a reason; `exclude` names a
@@ -39,4 +56,4 @@ red, with the condition written into the message. A condition nobody can see
 work is the quietest way to turn a gate off. The file is read once: the same
 bytes the condition read are the ones the check reads.
 
-<!-- x3-dist version=v0.290.0 capabilities=c138e0be580c1e819f85bea5e238767dc4c28c2e8ff5f7660ec20299173f5652 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.291.0 capabilities=e4c39097aad769d568016225b0858d8cdc333acee1487b74c918a802e832c7ea template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
