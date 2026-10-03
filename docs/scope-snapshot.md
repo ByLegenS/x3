@@ -178,6 +178,99 @@ are classified the same way; and in a tree carrying **no list at all**
 `build/out.bin` is named too — so the difference came from the list and from
 nothing else.
 
+## A step remembers the configuration sections it consulted
+
+When a gate step calls an engine command, that command reports which
+**sections** of the configuration it consulted, each with a digest of the
+section's meaning (comments and layout stripped). The gate stores those
+digests with the step and answers from the cache while every one of them
+still holds. A comment dropped into `gate:` therefore re-runs nothing, an
+`arch:` rule that changes re-runs only the steps that consulted `arch`, and a
+change with a meaning in `gate:` **outside the step list** (`slow`, `env`,
+trees, regions) still moves the gate salt and re-runs every step. The step
+list itself is not in the salt: each step carries its own definition in its
+key, so editing or adding one step re-runs only that step. A rule that reads the configuration as data (`from: x3`) consults only
+the sections its selection reads (`gate:runs` reads `gate`).
+
+A trial's or step's `env` carries the same `{bin}` / `{tmp}` placeholders as
+its run line; `{bin}` becomes the absolute path of the binary under test, so a
+tree built by an experiment can call the engine it measures:
+
+```yaml
+- name: config section memory control experiment
+  env:
+    X3_UNDER_TEST: '{bin}'
+  trials:
+    - run: '{bin} gate -config {tree}/x3.yaml -root {tree} -cache {tmp}/memory/sections.yaml -workers 1'
+      tree: config-sections:commented
+      says: 0 ran, 2 skipped
+      want: 0
+```
+
+Measured on the same tree (two steps calling `arch` and `lang`): base twice
+gives `2 ran` then `0 ran`; a comment in `gate:` gives `0 ran, 2 skipped`
+(the engine before this change: `2 ran, 0 skipped`); an `arch` rule change
+gives `1 ran, 1 skipped` (before: `2 ran`); changing one step's own
+definition gives `1 ran, 1 skipped` (before: `2 ran`); a meaningful `gate:`
+key outside the steps (`slow: 2999`) gives `2 ran` on both.
+
+**An overlay run is held by its section too.** A command run with
+`-with <file>[:<name>]` records the consulted section together with the
+overlay, and the gate re-resolves the section under the same overlay to weigh
+it; the overlay file itself stays an input by its bytes. Before, an overlay run
+bound the step to the bytes of every configuration file — measured on a pilot,
+one comment in its gate settings re-ran 22 overlay trials.
+`config overlay memory control experiment` (one step running
+`arch -with overlay.yaml`): base `1 ran`; a comment in `gate:` gives
+`0 ran, 1 skipped` (the engine before this change: `1 ran, 0 skipped`); the
+overlay moving gives `1 ran`; the rule under the overlay moving gives `1 ran`.
+
+**Which file a key lives in is held by meaning too.** A command that asks in
+which settings file a rule is written (`placement`, `adoption`) records the
+layout of the configuration — each file's name and the meaning of its keys —
+and not the bytes of every file. A comment in a settings part re-runs neither;
+a section moved to another file does. `x3 fmt` still reads the bytes, because
+there the bytes are the answer. `config layout memory control experiment`
+(a placement step over a split configuration): base `1 ran`, again `0 ran`; a
+comment in the gate part `0 ran, 1 skipped` (the engine before this change:
+`1 ran`); the placement section moved into its own file `1 ran`.
+
+**An inherited scope does not count the configuration as a source.** A step
+that declares no `touches` inherits the gate's `reads`, and that list usually
+names the settings directory. The gate's own settings files (the root and every
+part) are dropped from such a step's inputs: their meaning already sits in the
+step's key and in the sections the step consulted. A step that really reads a
+settings file as a source says so — by its observation when it calls the
+engine, or by writing its own `touches`, which this filter never touches.
+Measured on a pilot: 76 of 97 steps inherited the scope, and one comment in the
+gate settings re-ran every step that calls an outside tool.
+`config inherited scope control experiment` (one step running `go version`,
+scope inherited): base `1 ran`, again `0 ran`; a comment in `gate:`
+`0 ran, 1 skipped` (before: `1 ran`); a source under the scope moving `1 ran`.
+
+**A walked directory's name list leaves out what nobody measures.** The list a
+step is held by drops every entry the repository's ignore list names (read by
+the engine itself, see *An exclusion list x3 reads itself*) and the run's own
+cache directories. Measured on a pilot: the first run in a fresh working copy
+opened `ops/_tmp/` itself, and the next run re-ran with `dir ops changed`.
+`walked directory listing control experiment`: base `1 ran`; an ignored
+`ops/_tmp/` appearing `0 ran, 1 skipped` (before: `1 ran`); an ignored
+`ops/tool.exe` `0 ran, 1 skipped`; a file nobody ignores `1 ran`.
+
+The cache must not sit in a directory above the tree: the
+cache's own directory is excluded from what a step is said to read.
+
+A configuration file that does not exist is consulted too, and its answer is
+one answer whatever path named it: `x3 case -config t/none.yaml` records the
+absent file, and the gate later weighs it under the root's absolute path
+without re-running the step. `x3 snapshot` (and the `x3 docs` / `x3 scope`
+runs that read it) holds a consulted section by its answer, the way the gate
+does: a file that was absent when consulted and is still absent has not
+changed, and a file counts as gone only when its answer moved and it is no
+longer on disk. Measured on this repository: before, `x3 docs` reported
+`internal/move/testdata/dry/x3.yaml` and `internal/cases/testdata/none.yaml`
+as changed code (neither file ever existed) and the docs step was red.
+
 ## One resolver opens the declared cache directory
 
 `cache.dir` may be written as `~/.x3cache/<name>` or `${VAR}/cache`, and
@@ -192,4 +285,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

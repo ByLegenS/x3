@@ -113,6 +113,18 @@ count. Without the trail the rule would send its reader looking for an import
 that is not in their file. Today's embeddings belong in the baseline; what the
 rule then catches is the **next** one.
 
+The finding is **shown** at the file and line that make the first import of the
+trail (`cmd/worker/main.go:3`); other files of the package importing the same
+step are listed as `also imported at file:line`. Its **identity** is the
+package, not the file: a file that sorts before the importer joining the package
+moves neither the place nor the baseline record. A package finding with no line
+(a missing `mustImport`) is shown at the package directory.
+
+```
+BLOCK cmd/server/main.go:3 (entry-embeds-no-app): forbidden_dependency
+	component "entry" must not import component "plugins/mail", through cmd/server -> plugins/mail
+```
+
 #### What every binary **must** embed
 
 `mustImport` is the opposite question: every package of the `from` component
@@ -480,4 +492,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

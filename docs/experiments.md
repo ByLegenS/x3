@@ -45,6 +45,88 @@ nothing and exits 1. A written file is gofmt'ed. `-dry` prints every
 Control experiment: `rename control experiment` in `x3.yaml` - counts, the string
 and shadow arms, three refusals and a written tree.
 
+## `x3 move`
+
+`x3 rename`'s counterpart for a **path**. A directory renamed by hand leaves its old
+path in configuration, documentation, import paths and package qualifiers, and a
+text replacer does not know where a path ends: replacing `cmd/apidoc` also rewrites
+`cmd/apidocs` and `services/cmd/apidoc`. `x3 move` moves one directory or file and
+updates every reference to it in the same step:
+
+```text
+x3 move [-root <dir>] [-config <file>] [-dry] <old> <new>
+
+$ x3 move -dry core/checkrun core/checkup
+x3 move: core/checkrun -> core/checkup (git ls-files; the move is a git mv)
+  apps/x/main.go: 1 path(s), 4 qualifier(s)
+  core/checkrun/run.go: package clause
+  x3/gate.yaml: 2 path(s)
+x3 move: package checkrun -> checkup: 1 package clause(s), 4 qualifier(s)
+x3 move: move.keep leaves alone: db/migrations/**, x3/work/archive/**
+  kept: x3/work/archive/2026-09.jsonl: 3 mention(s) of core/checkrun, not rewritten
+x3 move: 3 file(s) of 412 read change: 3 path mention(s), 4 qualifier(s), 1 package clause(s)
+x3 move: dry run, nothing written
+```
+
+Both paths are written from the root (`-root`, default `.`). In a git work tree the
+files read are the ones git tracks and the move is a `git mv`; outside one, every
+file under the root is read and the move is a plain rename - the first line says
+which. Binary files are never read.
+
+**A path changes only on a path boundary.** Before the mention there must be no path
+character (`./` is allowed); after it, a `/`, the end, or a character that cannot
+continue a name (a full stop ending a sentence counts; `.md` does not). A
+single-element path (`docs`) changes only where it is written as a path - followed by
+`/` or preceded by `./` - so the same word in prose stays. The Windows spelling with
+`\` is changed with the same boundary.
+
+**A Go package moves with its name.** When the moved directory sits inside a Go
+module under the root, its import path (and every import path below it) changes
+like any other mention. When its last element is the package's name and the new last
+element is a Go identifier, the package clause changes too (`p` and `p_test`), and
+so does the qualifier in every file that imports the package without a name - in the
+code and in the `//x3:case` lines, read with `x3 rename`'s own example reader, so a
+local of the example or a word inside a string stays. A `main` package, a package not
+named after its directory, or a new element that is not an identifier
+(`live-probe`) keeps its name, and the run says why.
+
+**What it does not touch is declared, and said.** `move.keep` lists globs a move
+never rewrites - a published migration, an archive, a history ledger: there the old
+path is that day's truth.
+
+```yaml
+move:
+  keep:
+    - db/migrations/**
+    - x3/work/archive/**
+```
+
+With no `move.keep` the run says so on every run: every text file is rewritten, a
+migration and a ledger included.
+
+**It proves itself from disk** (exit 1, `RED`): after writing, the files are listed
+and read again, and a file outside `move.keep` that still names the old path is
+named; the kept files that still name it are counted as declared. Every package
+directory a Go file changed in is then loaded and type-checked the way the example
+runner builds it; a red check names the errors. The move is already written by
+then - undo it with git.
+
+**Nothing is written** (exit 2, `REFUSED`) when the new path already exists (no
+merge), the new path is inside the old one, the old one does not exist or git
+tracks nothing under it, the new path leaves the Go module the old import path
+belongs to, or the new package name would be captured in an importing file - a local
+of that name, another import under that name, or a package-level declaration of
+that name in the importing package; a predeclared name is refused too. `-dry` prints
+every file with its counts and writes nothing.
+
+Control experiment: `move control experiment` in `x3.yaml` - a dry run on a
+git-tracked fixture run twice (the first must not have written), the boundary arm
+(`cmd/apidocs` beside `cmd/apidoc`), counts, the proof from disk, the kept file read
+back unchanged, a configuration without `move.keep`, a Go package moved with its
+clause and its qualifiers in code and example then type-checked, and two refusals:
+a clash and a capture. Breaking the boundary, the keep list or the qualifier rewrite
+turns its arms red - the last one through the type check.
+
 ## Control experiments
 
 **No gate here is trusted because it is green.** Every capability has a pair in
@@ -179,4 +261,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -186,10 +186,36 @@ call that run identical. The import list — aliases included — is weighed wit
 them. Control: adding `_ "embed"` to a file and touching nothing else moves
 exactly one entry, `<package>.imports`.
 
+⛔ **An embedded file is an input.** A `//go:embed` directive keeps its text when
+the page it embeds changes, and the binary serves a different page. The hash of
+the declaration carrying the directive therefore weighs the **content** of every
+file its patterns match (a directory pattern counts dot and underscore files
+too, and a pattern that matches nothing is weighed by its name). Measured in a
+real production repository: a page embedded by the server a `go run` step drives
+gained an element 3 200 px wide, and the step came back **green from the cache**;
+an unrelated comment in the gate configuration made it run, and the same page was
+**red**. Control experiment `cache inner run and embedded file control
+experiment`: the embedded page moves and no declaration does — the old engine
+answers `0 ran, 1 skipped`, this one runs the step and catches the wide page;
+going back to the first page is still a hit.
+
+⛔ **An inner run's observation is not the whole step.** When a trial's own
+command is not `x3` (`go run ./cmd/<tool>`, a shell tool) but an `x3` runs inside
+it, that inner run reports what **it** read — its configuration — and nothing the
+outer command opened. Such a step's record is the **union**: the observation,
+plus the derived scope when there is one, plus the `touches` the step writes
+itself (and the inherited scope when nothing can be derived). With neither, the
+step is not remembered and runs every time — a slow gate is visible, a blind one
+is not. Same control experiment: a wrapper reads the page it declares in
+`touches` while its inner run reports only `x3.yaml`; the old engine answers
+`0 ran, 1 skipped` on the wide page, this one runs it and is red.
+
 **What it does not do.** It does not narrow non-Go steps, steps whose trials are
-not all `go` commands, or steps that already observe what they read — those are
-cheap and honest already. It does not follow a call graph inside a dependency: if
+not all `go` commands, or steps whose trials are all `x3` itself (those observe
+what they read and are cheap and honest already). A file a command opens because
+an **argument** names it (`-page <file>`) is not derived; declare it in
+`touches`. It does not follow a call graph inside a dependency: if
 an application reaches one function of a package, every symbol that package uses
 is in scope. That is the next granularity, not this one.
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

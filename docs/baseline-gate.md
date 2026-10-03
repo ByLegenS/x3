@@ -86,6 +86,36 @@ $ x3 gate -update-baseline                  # that record takes today's measure,
 	MEASURED c373a14b1217 red-step a measured step (a measured step): measure 1000
 ```
 
+**A held finding can say who it is.** Findings that fold to the same text in one
+file (three long comment blocks in `a.go`) used to be told apart by their order;
+shortening the first under its limit handed its record to the second, and the
+second was born as growth — measured in a production repository (2026-10-03):
+55 blocks shortened, 31 findings born. A rule that knows its finding's identity
+prints it on its own indented line, and the gate keys the finding on it, read as
+written:
+
+```
+BLOCK a.go:24: block_too_long
+	a comment block runs 15 lines, the limit is 10; what needs this many lines belongs in a document
+	identity: 3f0c2a91b7de
+	measure: 15
+```
+
+`comments` prints the identity of the declaration a long block stands on (the
+next code line), so a shortened block keeps its record and shrinks, and its own
+baseline keys the block the same way, with its line count as the measure. A
+record keyed on the old order is taken over once, by the first record in order
+whose measure still holds the finding; a finding no such record holds is born:
+
+```
+$ x3 gate -only "a held comment step"                      # the middle block shortened under the limit
+-- baseline: 1 red step(s) carried, 0 born after it, 0 record(s) no longer red
+-- baseline: 1 record(s) are no longer red in step(s) this run measured (a held comment step); the baseline can shrink
+$ x3 gate -only "a held comment step" -update-baseline     # an order-keyed baseline moves to the new keys
+	REKEYED 7a6eb196ed38 -> d313419f7506 red-step a held comment step (a held comment step)
+	DROPPED afb32cec8f17 red-step a held comment step
+```
+
 A refresh never writes growth: the record keeps its old measure and the line says
 so (`GROWTH <id> ...: measure 1000 -> 1010; the record keeps 1000`) until
 `-accept-growth`. All seven arms run in this engine's own gate (`gate finding
@@ -383,4 +413,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

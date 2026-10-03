@@ -60,20 +60,45 @@ is read to the end of **that same line** and no further, so both stderr lines en
 in `followed by a reason ON THE SAME LINE`: the wording that stopped at "followed
 by a reason" cost two turns in a row, each to a reader who wrote it underneath.
 
-**In `snapshot` scope** (the default, and what a gate step runs) there is no
-`-reason`, so the marker is also read from **the commits that touched each
-changed file**, in `merge-base(main, HEAD)..HEAD` — or `HEAD^1..HEAD` when HEAD
-sits on `main` (a `--no-ff` merge brings its branch with it). Every such commit
-must carry the marker with a reason: a marker on a later comment fix does not
-excuse the earlier commit that changed behaviour. The newest commit that touched
-a `then` path is the boundary — it and everything older already got their
-answer. A file with uncommitted edits is never excused by a commit, and without
-git or a range the run behaves as before. The report's `commits` field and a
-stderr line name the range read.
+**In `snapshot` scope** (the default, and what a gate step runs) **the branch is
+judged whole**: the unit is what gets merged, not each commit. Every file the
+commits of `merge-base(main, HEAD)..HEAD` touched — or `HEAD^1..HEAD` when HEAD
+sits on `main` (a `--no-ff` merge brings its branch with it) — joins the
+uncommitted files and the snapshot in **one** change. Code in it is answered by
+a `then` change anywhere in it, or by the marker with a reason in the body of
+**any** commit of the range (or in `-reason`). A marker with no reason is red
+only when no other body carries a reason. Without git or a range the snapshot
+alone is judged, as before. The report's `commits` field and a stderr line name
+the range read, and each finding names it:
 
 ```
-x3 docs: exemption markers also read from the bodies of the commits in 7e12ae6f7e..HEAD that touched each file
+BLOCK doc-follows-code: missing_counterpart_change
+	branch 5d0e2b1..HEAD: 1 file(s) matched "inside/**" and nothing matched "papers/**"; write the counterpart change, or ...
+	changed: inside/a.txt
+x3 docs: branch 5d0e2b1..HEAD judged whole - its commits, uncommitted files and snapshot are one change; any page or any commit's exemption marker in it answers
 ```
+
+Why the range and not the snapshot (W429, measured in the pilot): the snapshot
+says *since the last run*. Code and its API page sat in one commit; the page had
+been written before an intermediate gate run and the code fixed after it, so the
+snapshot held the code alone and the step stayed red (from the cache, too) while
+`-scope head` found nothing. The range is read from git, so the page is in it.
+
+Why the branch and not each commit (W434, measured in this repository): judging
+each commit on its own left a branch red for good. A worker whose budget runs
+out commits its tree as a WIP commit and the page follows in the next commit;
+the exemption lives in a commit body, and a written commit cannot be answered
+without rewriting history. Two such commits kept the release branch of this
+engine red while their pages sat a few commits later in the same range — and a
+`--no-ff` merge would have carried the same red onto `main`. Every git answer
+the judgment reads is recorded as the step's input, so a new commit runs the
+step again and an intermediate run does not.
+
+The gate plants these cases as real repositories: a tree may carry
+`history: {<limb>: [{message, files}]}`, the base is committed to `main`, each
+seed becomes one commit on `work`, and the limb's own files are written last,
+uncommitted. A gate step cannot call git (`forbid`) and a fixture tree cannot
+hold a `.git` — the engine plants the history itself, through its one git door.
 
 In the same scope the files the rules' `when` and `then` patterns reach are
 recorded as the step's **inputs**. Measured in the pilot: the snapshot weighs
@@ -89,4 +114,4 @@ Measured here — with a shared marker the `docs gate` step's own control
 experiment, a rule that must exit `1`, exited `0`: the exemption had excused the
 experiment.
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

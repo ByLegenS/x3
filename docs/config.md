@@ -1101,6 +1101,36 @@ after, and `{tree}` is where it stands.
 A limb nobody declared, and a `null` over a file the base never laid, are both
 settings errors — a limb quietly running on an empty directory measures nothing.
 
+**Every spelling of null removes the file:** `null`, `~` and an empty value
+(`data.yaml:` with nothing after it). Until 2026-10-03 none of them did: the
+YAML decoder skips a type's own decoder on a null node, so the file stayed as the
+base laid it and a "removal" limb measured the base — green, and blind. A limb
+now reads its files from the raw node and treats null as its own case. The
+engine's own trial measures it with a limb that removes a broken file, beside
+one that keeps it:
+
+```yaml
+trees:
+  withered:
+    base:
+      data.yaml: "ok: [tru"
+      other.yaml: "ok: true"
+      x3.yaml: …                          # one syntax check over both files
+    limbs:
+      kept: {}                            # the broken file stays: red
+      pruned:
+        data.yaml:                        # empty value is null: removed, green
+```
+
+```
+  a broken base file the limb keeps is red exit=1 (want 1)
+  the same broken file removed by a null limb is green exit=0 (want 0)
+```
+
+Under an engine that does not remove, the second line reads `exit=1 (want 0)`.
+A path written twice in one limb is a settings error: which of the two changes
+the file would be a guess.
+
 ### A limb can graft the base instead of rewriting it
 
 Limbs are mostly one line apart. Measured in a production repository
@@ -1289,4 +1319,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
