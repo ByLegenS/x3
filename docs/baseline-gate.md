@@ -218,7 +218,7 @@ identified by **what it is, where it is, and what it says**:
 | `comments` | the rule and the file |
 | `secrets` | the rule, the file, the pattern and the **masked** sample |
 | `arch` | the code, the file, and the rule, subject and object; a **package-level** finding (`transitive`, `mustImport`) is keyed on the package directory instead of a file |
-| `lang` | the code, the file, and the token with the place it sits in |
+| `lang` | the code, the file, and the token with the place it sits in; the **package name** is keyed on the package directory instead of a file |
 | `syntax` | the code, the file and the name of the check |
 | `guard` | the guard's name, the kind of red, and the **expectation** |
 
@@ -245,6 +245,34 @@ $ x3 arch -update-baseline
 ```
 
 Experiment `deps must import control experiment` (arms `held` and `legacy`).
+
+`lang` reads the package name the same way: the name belongs to the package,
+not to the file that repeats it. Until v0.303.0 it was one finding per file, so
+a package whose name is not in the dictionary could not take a new file - a
+fixture carved out of a test file, say - without the baseline growing by the
+very debt it already held. It is now **one** finding per package directory, the
+external test package (`<name>_test`) included, shown as `cart:0:0`:
+
+```text
+$ x3 lang .
+cart:0:0: not_in_dictionary: shopcart (package)
+x3 lang: 2 file(s) - 1 finding(s) - dictionary "en"
+```
+
+Every old file-bound record of that name is held by the one package record
+(none is left to die), and the next `-update-baseline` joins them by name, one
+`REKEYED` line each:
+
+```text
+$ x3 lang -update-baseline .
+	REKEYED bc0c1ae698e2 -> 8ad07914b49a not_in_dictionary cart (shopcart)
+	REKEYED 51d74aaf1496 -> 8ad07914b49a not_in_dictionary cart (shopcart)
+x3 lang: the baseline base/lang.yaml now holds 1 finding(s)
+```
+
+The same name in another directory is another package and another finding.
+Identifiers, strings, field names and file names keep their file-bound
+identity. Experiment `lang package name control experiment`.
 
 `guard` has no file to key on, and what it observed is the one thing that cannot
 be part of the identity: a row count, a status code, a version string - it moves
@@ -315,4 +343,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.303.0 capabilities=f7c5b3fea2a80557ad47fd998a79016647418cebd777880e32420dd49149472c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.304.0 capabilities=87bbb154d947a1e3765d06dda776c73c339b85c66625b3cf2393ebf3ab19477b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

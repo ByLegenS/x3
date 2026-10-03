@@ -121,4 +121,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.303.0 capabilities=f7c5b3fea2a80557ad47fd998a79016647418cebd777880e32420dd49149472c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.304.0 capabilities=87bbb154d947a1e3765d06dda776c73c339b85c66625b3cf2393ebf3ab19477b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
