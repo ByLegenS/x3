@@ -62,4 +62,4 @@ a report file is then blind **exactly when there is something to read**, which
 is the one moment it exists for. The same trap was met once inside `outbound`,
 where a mode word sits before the flags; this is that answer applied everywhere.
 
-<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

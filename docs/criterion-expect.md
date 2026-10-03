@@ -38,4 +38,4 @@ one expectation point at one object and keep sharing one call.
 line that names nothing, and `expect` is what a line may reach for instead. With
 neither, the command carries no weight and does not run.
 
-<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

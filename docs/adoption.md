@@ -40,6 +40,31 @@ The spelling this project calls the engine by is declared too, and the line
 between a real call and a sentence about one is drawn where the match begins —
 [How the engine is called](adoption-invoke.md#how-the-engine-is-called).
 
+**A step a region declares in its own file is a use.** The gate merges the
+`gate` section of every settings part, so a step written in `<region>/x3.yaml`
+runs exactly like one in the root gate file — and the placement rule *sends* a
+step that speaks for one region there. Adoption reads the same parts through the
+same reader, from the step structure, not the text: the region's `run:` lines
+count, a command named only in a `say:` does not. Without this the two rules
+contradicted each other on one step — red as `command_unused` in the region
+file, red as `declared_away_from_its_region` at the root.
+
+```yaml
+# x3.yaml
+include: [x3/gate.yaml, docs/x3.yaml]
+adoption:
+  runners: [x3/gate.yaml]
+# docs/x3.yaml - a region's own step
+gate:
+  steps:
+    - name: docs hook
+      trials:
+        - run: x3 hook scope -file docs/scope.yaml -input docs/in.json
+          say: prose that reads x3 release runs nothing
+```
+
+`hook` is used, by `docs/x3.yaml`; `release` stays unused.
+
 ### Green
 
 ```
@@ -146,4 +171,4 @@ policy it wants, and the debt comes down as reasons are actually written.
 
 | `dead_policy` | `policy` excepts a code this run does not produce — always a block |
 
-<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

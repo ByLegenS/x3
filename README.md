@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.297.0`**
+**Current version: `v0.298.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 25.1 MB | `fb87d2990631238eece781ec93f0576258bf6c318c52cfbd645f4f2b89994dcf` |
-| `x3-linux-amd64` | linux/amd64 | 24.5 MB | `204fa82260d28d64b42506aabf7c1fc4b4b7674da821bea2dcf8b9a592b14d98` |
+| `x3-windows-amd64.exe` | windows/amd64 | 25.4 MB | `da7764d1d85fbdb16edfb467717f934344731d3b5e1e0c4afce462b36bbe135f` |
+| `x3-linux-amd64` | linux/amd64 | 24.8 MB | `58f760bbc93de0da1fd3fea8c6d1238bd60acfd0231e79c298f57048faef7de3` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -260,6 +260,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
+| [Full-length screenshots](docs/shot.md) | every page at every width and theme, captured to its own length by a headless browser that starts and ends with the run |
 | [One processor budget per machine](docs/machine-budget.md) | every x3 running at once shares one budget, held as slots that die with the process that held them |
 | [A scope an agent cannot leave](docs/hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](docs/experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
@@ -296,6 +297,7 @@ proves it can go **red** — a green nobody has seen fail is not evidence.
 | **Examples measured once** (`internal/cases`) | packages run beside each other, and a package nothing it reaches has changed is not run at all |
 | **Settings placement** (`internal/placement`) | a rule whose paths all fall in one region, declared anywhere but that region's own settings file |
 | **Adoption** (`internal/adoption`) | how much of this engine the project actually runs, measured against the engine's own command table |
+| **Full-length screenshots** (`internal/shot`) | every page at every width and theme, to its own length, from a headless browser on a throwaway profile |
 
 What `x3 scan` itself implements is a **language check**, not a behavior check.
 It answers three questions about every `//x3:` line: is the type known, is the
@@ -308,4 +310,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

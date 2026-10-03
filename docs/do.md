@@ -323,4 +323,28 @@ The same three fields are how a deployment gate reads a live number — the hour
 a company takes calls in, the calls running right now — and stops on it, instead
 of holding a copy of those numbers in the settings where they go stale.
 
-<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### The report carries no secret
+
+A value whose name matches `dsn`, `pass`, `secret`, `token` or `key` (any case)
+is used for real inside the run — `{VT_DB_DSN}` reaches the command whole — but
+**nothing that leaves the run carries it**: the report's `values:` says `(set)`
+or `(empty)`, and the value is darkened to `(set)` wherever it shows up in a
+step's answer (`said`), a `-dry` note, an error note or a screen line. A
+credential in an address is darkened even under a harmless name: a `mirror`
+holding a connection string keeps it, with the password between the `:` and
+the `@` replaced by `***`. Values shorter than four characters are hidden
+in `values:` by name but not searched for in free text, where they would match
+every line.
+
+```
+$ x3 do leak -config internal/task/testdata/secret/x3.yaml -dry
+== a command whose answer repeats the secret    (0 ms) - dry: go version (set)
+```
+
+Measured on a pilot (2026-10-03): the step note already wrote `(set)`, while the
+report printed the connection string with its password under `values:` — into
+the `-out` file and from there into a log. Experiment `task report secret
+control experiment` weighs the screen, the `-dry` note and the written report;
+the binary before the change printed the fake value in all three.
+
+<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
