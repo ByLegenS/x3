@@ -33,6 +33,18 @@ cannot be pasted into silence — `//x3:case: in=() out=_` compares nothing and
 is not an example, and a directive floating in a comment binds to no
 declaration.
 
+The other place `x3 case` runs an example is **above the package clause**: a
+package example (`given=(...) then=(...)`) measures what loading the package
+leaves behind, and it is how a file whose only callable starts a process —
+`main`, `run` — carries its test. It counts on the same terms: the directive
+must be one `x3 case` accepts and runs. A package directive that names nothing
+beyond its own setup is refused there, never runs, and rescues nothing here.
+
+```go
+//x3:case: given=(n := len(name)) then=(n == 6)
+package daemon
+```
+
 **Where the line is.** This asks the same question of both forms and no more:
 `requires: "exists"` accepts an empty `foo_test.go` without asking whether it
 passes, and this accepts a well-formed example without running it. Whether the
@@ -52,4 +64,4 @@ or an unknown name is exit `2`.
 Each rescue is counted: `rules[].satisfied` in the report, and a line of its
 own on stderr. A rescue nobody can see is a hole nobody can find.
 
-<!-- x3-dist version=v0.304.0 capabilities=87bbb154d947a1e3765d06dda776c73c339b85c66625b3cf2393ebf3ab19477b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.305.0 capabilities=e0549d5f495b3df2127d0702e58425e92c85742a8682bbc893447902d44f4ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
