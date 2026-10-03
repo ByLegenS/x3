@@ -39,4 +39,4 @@ back through a single run: line, and nobody would see it arrive
 down* — a shell it starts, a script it hands over to — is outside this
 reading, and the rule says so rather than pretending otherwise.
 
-<!-- x3-dist version=v0.305.0 capabilities=e0549d5f495b3df2127d0702e58425e92c85742a8682bbc893447902d44f4ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

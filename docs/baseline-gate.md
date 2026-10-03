@@ -32,7 +32,9 @@ someone read `0 born` as green.
 
 A finding is a line of the red trial's output that opens with a verdict word
 (`BLOCK`, `FAIL`, `ERROR`, `panic:`, `--- FAIL`) or carries a file position
-(`path.ext:line`), together with the indented lines under it — the rule's reason,
+(`path.ext:line`), or opens with the position of a path that has no extension
+(`cmd/tool:0:0: `, a finding keyed on a directory, such as a package name),
+together with the indented lines under it — the rule's reason,
 the text it found. `WARN`, `NOTE`, `HELD` and `SELECTED` lines are not findings:
 a warning born is not a red. The record is keyed by the step's name, the trial
 and that text with **every run of digits folded**, so line numbers, times, counts
@@ -51,6 +53,44 @@ $ x3 gate                                   # the held step, with one new findin
       BLOCK b.txt:1 (no-shouting): forbidden_pattern
 -- baseline: 0 red step(s) carried, 1 born after it (1 of them a held step with a new finding inside), 0 record(s) no longer red   (exit 1)
 ```
+
+**A held finding keeps its measure.** Folding digits keeps an identity still when a
+line moves, and folds away the size of the debt with it — measured in a production
+repository (2026-10-03): a frozen file grew from 1389 to 1707 lines, its finding
+kept the same identity, and the run said `0 born`. A rule that measures something
+prints the measure on its own indented line under the finding, and the gate reads
+it apart from the identity:
+
+```
+BLOCK letter-count: baseline_grew
+	"a.txt" counts 1010 and is not in the baseline; above 0 nothing new is allowed
+	measure: 1010
+```
+
+`freeze` prints the measured count of a grown count (or the gap of a count that
+must only rise), `comments` the line count of a long block. The baseline record
+keeps the measure (`measure: 1000`); old identities are unchanged, so no record
+moves. A larger measure is **born**, named as growth; a smaller one is carried and
+said; a record written before measures were kept still holds, and says it is
+blind until a refresh measures it:
+
+```
+$ x3 gate                                   # the record keeps 1000, the tree counts 1010
+  1 finding(s) born after the baseline, inside a step it holds:
+      grew 1000 -> 1010: BLOCK letter-count: baseline_grew - "a.txt" counts 1010 ...   (exit 1)
+$ x3 gate                                   # the tree counts 990
+-- baseline: 1 held finding(s) measure smaller than their record; -update-baseline writes the smaller measure, or the debt grows back to the old one unseen   (exit 0)
+$ x3 gate                                   # a record with no measure, the tree counts 1010
+-- baseline: 1 held finding(s) say a measure their record does not keep, so their growth stays unseen; -update-baseline writes today's measure once (MEASURED)   (exit 0)
+$ x3 gate -update-baseline                  # that record takes today's measure, once
+	MEASURED c373a14b1217 red-step a measured step (a measured step): measure 1000
+```
+
+A refresh never writes growth: the record keeps its old measure and the line says
+so (`GROWTH <id> ...: measure 1000 -> 1010; the record keeps 1000`) until
+`-accept-growth`. All seven arms run in this engine's own gate (`gate finding
+measure control experiment`, with directory findings in the last two); under
+v0.305.0 six of them are red — growth and the new directory finding were `0 born`.
 
 **A baseline written before findings were counted still reads.** Its record holds
 the whole step, as it always did, and the run says so instead of keeping quiet:
@@ -343,4 +383,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.305.0 capabilities=e0549d5f495b3df2127d0702e58425e92c85742a8682bbc893447902d44f4ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.306.0 capabilities=5f4f428d3a197a997091a684e0ac34b6e2b59a69aeaee5a01f7314300c8f2e66 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
