@@ -23,6 +23,14 @@ written from the measured root or as the bare file name, whichever tells the
 files apart; a name matching two files is an error rather than a silent choice
 of the first.
 
+A path may also be written **the way the shell sees it** when the root is a
+directory elsewhere: `x3 case -config <tree>/x3.yaml -only <tree>/a.go <tree>`
+reads `<tree>/a.go` as the root's `a.go`. Only a target that stands on disk and
+falls inside the root is rewritten; one outside it stays as written and is the
+same unknown-target error as before (exit `2`, `no file the run reads is named`).
+Until 2026-10-03 every such target was unknown, so a gate trial on a planted
+tree (`{tree}`, outside the repository) could not narrow.
+
 ```
 $ x3 case -only calc.go:13 ./only          # a line of prose inside Sub's block
 SELECTED calc.go:14 (Sub)
@@ -119,4 +127,4 @@ of which runs a Go toolchain of its own — in **7.1 s**. The floor is the
 package's own build; what a target buys back is the time of the examples it left
 out.
 
-<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

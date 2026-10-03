@@ -77,6 +77,48 @@ document has moved somewhere nobody reads again.
 Missing keys are an **error**, not an empty string: a template that silently
 writes `<no value>` says nothing on the day the report renames a field.
 
+### A page per item, and a part two templates share
+
+A list whose every item deserves its own page is one document with `each`: the
+dotted path of a list in the report (`.` is the report itself), and an `out`
+whose **file name** carries the field that names the page. The template sees
+the item as `.Item` and its own path as `.Out`. `parts` are template files read
+into **every** template of the section, so a block written once with `define`
+is called from two templates with `template` — and changes in both on the same
+run.
+
+```yaml
+emit:
+  parts:
+    - docs/templates/fields.tmpl        # {{define "fields"}}...{{end}}
+  documents:
+    - name: index
+      out: docs/items/INDEX.md
+      template: docs/templates/index.md.tmpl
+      from: docs/data/items.yaml
+    - name: items
+      each: items                       # report key holding the list
+      out: docs/items/{id}.md           # one page per item, named by its id
+      template: docs/templates/item.md.tmpl
+      from: docs/data/items.yaml
+```
+
+`-check` measures **every page on its own**, by name: a page that differs is
+`stale_document`, a page the list produces and the disk lacks is
+`stale_document` marked `ABSENT`, and a file in the set's directory that matches
+the pattern but no item produces any more is `orphan_document` — the page of an
+item that left the list is still read as current until somebody deletes it. A
+writing run deletes it (`PRUNED`); another document's declared `out` in the
+same directory (the index above) is never an orphan.
+
+Refused before anything is compared, exit 2: two items naming one page, a name
+that is not a file name (a separator, `..`, a character a file system refuses),
+`each` without a placeholder or a placeholder without `each`, a placeholder in
+a directory, two page sets in one directory, two parts defining one name, and a
+template defining a name a part already defines — `text/template` would keep
+whichever was read last, and "the part changes in both templates" would quietly
+stop being true for one of them.
+
 ## `x3 release`
 
 ```
@@ -159,4 +201,4 @@ text for leaks (a local path, a home directory, an address) and, with a second
 file, for language; a `freeze` section holds each published document under its own
 line cap. A page with no cap declared is not a page this repository publishes.
 
-<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

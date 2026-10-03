@@ -187,7 +187,13 @@ tree's fingerprint cannot vouch for it.
 
 A shared helper the opt-in file needs sits in a fixture whose constraint names
 both, `//go:build x3fixture || live`; under `-tags live` it is compiled once,
-not twice. A file hidden behind `//go:build live` **alone**, with no
+not twice. The opt-in file may name that helper in its **code** as well as in
+its examples, and either keeps the declaration alive: a file that carries
+`//x3:tags:` builds under the same tag the fixture does, so its code counts
+toward `dead_fixture` the way an example or a test file does. Untagged code does
+not count — it cannot see a fixture, and a name it shares would only be its own.
+Until 2026-10-03 only examples, fixture lines and test files counted, so a helper
+called from the opt-in file's code was reported dead. A file hidden behind `//go:build live` **alone**, with no
 `//x3:tags:`, never reaches the compiler in a default run, and the run says so
 with the remedy instead of a bare `undefined:`:
 
@@ -196,4 +202,4 @@ quote.go:14 (Quote): does_not_build
 	undefined: Quote; the file builds only under //go:build live, which this run does not carry - write //x3:tags: live above the package clause, and the run defers its examples or runs them with -tags live
 ```
 
-<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

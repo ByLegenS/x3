@@ -1122,6 +1122,27 @@ trees:
         data.yaml:                        # empty value is null: removed, green
 ```
 
+**A trial may run inside its tree.** `dir:` opens `{tree}` and `{tmp}` the way
+`run` does, so a command that reads its settings from the working directory
+(`x3 case` reads `x3.yaml` there) runs on the planted tree's own settings. The
+tree is planted **outside** the repository root; `{bin}` is made absolute for
+such a trial, since a relative binary path would be read from the tree. Until
+2026-10-03 `dir: '{tree}'` stayed literal (`chdir {tree}: cannot find`), so an
+experiment on a tree-only setting (`case.optin`, say) could not be written.
+
+```yaml
+- dir: '{tree}'
+  run: '{bin} case'
+  tree: case-on-tree:plain       # its own x3.yaml and go.mod
+  says: 1 example(s) in 1 package(s) - 1 passed, 0 finding(s)
+  want: 0
+- dir: '{tree}'
+  run: '{bin} case'
+  tree: case-on-tree:broken      # the example asks for a wrong answer
+  says: out[0] = 2, want 3
+  want: 1
+```
+
 ```
   a broken base file the limb keeps is red exit=1 (want 1)
   the same broken file removed by a null limb is green exit=0 (want 0)
@@ -1319,4 +1340,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

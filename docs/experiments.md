@@ -7,11 +7,12 @@
 A Go name lives in two places: the code, and the `//x3:case` lines that call it.
 `gofmt -r` and `gopls rename` reach only the first - an example is a comment - so a
 package whose tests became examples keeps the old name in hundreds of example
-lines after the code is renamed. `x3 rename` renames one **package-level** name in
+lines after the code is renamed. `x3 rename` renames one **package-level** name - or a
+field or method of a package-level type (below) - in
 both, in one step:
 
 ```text
-x3 rename [-dir <package>] [-dry] <old> <new>
+x3 rename [-dir <package>] [-dry] <old>|<Type>.<old> <new>
 
 $ x3 rename -dir internal/orders -dry newRunner newOrderRunner
   handler.go:42:17 example
@@ -37,13 +38,45 @@ the type check of this one package only.
 already declared in the package; a local named `<new>` would capture a renamed use,
 in the code or inside an example; the new name is one the example runner binds
 itself (`t`, `out0`..., `x3...`) or a predeclared name; the old name is exported
-(other packages may name it) or not package-level; a file outside this build names
+(other packages may name it) or not package-level (a member is written `<Type>.<old>`); a file outside this build names
 it. The renamed package is then **type-checked in memory**; a red check writes
 nothing and exits 1. A written file is gofmt'ed. `-dry` prints every
 `file:line:col` and whether it is `code` or `example`.
 
 Control experiment: `rename control experiment` in `x3.yaml` - counts, the string
 and shadow arms, three refusals and a written tree.
+
+### A field or a method: `<Type>.<old> <new>`
+
+```text
+$ x3 rename -dir internal/rename/testdata/member -dry counter.hits visits
+x3 rename: counter.hits -> visits in memberfix: 13 site(s) in 1 file(s) - 6 in code, 3 in examples, 4 in comments
+```
+
+A member of a package-level type is renamed in the code (every identifier go/types
+binds to that field or method: declarations, selectors, composite-literal keys,
+uses promoted through an embedding type), in the example lines, and in the
+comments that name it **qualified**: `counter.hits`, `(*counter).bump`,
+`[counter.hits]`, and the first word of the member's own doc comment. The same
+word in plain prose (`w.hits`, *"hits"*) is not renamed - it may be the member
+or an ordinary word, and only the qualified form says which.
+
+An example line has no types, so a member is found there by **position**: the
+right side of a selector, or a key of a literal typed `counter{...}` (a literal
+of another type is left alone). A selector is refused when another type of the
+package declares a member of the same name - `c.total` cannot be told from
+`o.total` without types. Further refusals (exit 2, nothing written): the new
+name is already a field or method of the type; the member is exported, embedded,
+promoted from elsewhere, or belongs to an interface (its implementations would
+have to follow); and **capture** - a type embedding `counter` that declares its
+own `count` would take `w.hits` once it reads `w.count`. That rename type-checks,
+so after the in-memory check the uses bound to the renamed member are counted
+against the code sites rewritten; a shortfall refuses.
+
+Control experiment: `rename member control experiment` in `x3.yaml` on
+`internal/rename/testdata/member` - a field and a method renamed with counts, and
+five refusals. Breaking the capture count or the rival-selector refusal turns two
+trials red.
 
 ## `x3 move`
 
@@ -295,4 +328,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

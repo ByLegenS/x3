@@ -122,6 +122,31 @@ A `gone` path carrying `*`, `?` or `[` is refused before the run (exit `2`):
 a pattern matching nothing is green for the wrong reason. The question with a
 pattern in it is `absent`, and it names the files it read.
 
+**An absent criterion whose sources match no file stays `unmeasured`** — decided
+and armed (step *absent over an empty source*). "Nothing is left to carry the
+text" and "the criterion never looked anywhere" are the same silence: a
+misspelled glob, a moved directory and a deleted one all read zero files, and an
+`absent` that turned green on zero would close a box on a typo and stay green
+forever. Every kind answers alike: `pattern` over no file is unmeasured, `gone`
+refuses a wildcard. The same criterion **holds** as soon as it reads one file
+that does not carry the text.
+
+*No file of a kind is left* (no `*_test.go`, no `*.sql`) is therefore not an
+`absent`. When the paths are known, write one `gone` each. When they are not,
+ask a listing and weigh it both ways: `must` names a neighbour that proves the
+listing looked at the right place, `mustNot` names the kind.
+
+```yaml
+- when: command
+  command: go
+  args: [list, -f, '{{.GoFiles}} {{.TestGoFiles}}', .]
+  output:
+    must: [a.go]          # the listing saw the package
+    mustNot: [_test.go]   # and no test file in it
+```
+
+A wrong directory fails `must`, so the typo stays red instead of turning green.
+
 **A criterion opens what it names.** The walk skips `vendor`, `testdata`,
 `node_modules` and every directory whose name starts with `.` or `_`, so a
 criterion written against `.claude/settings.json` used to read no byte and then
@@ -396,4 +421,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
