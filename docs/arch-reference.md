@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.302.0`**
+**Current version: `v0.303.0`**
 
 ## component path patterns
 
@@ -23,6 +23,7 @@
 | `unknownOwner` | literal | `report` (default) or `ignore` a captured owner no instance carries |
 | `ownerCase` | literal | `lower` or `upper`: the spelling the captured owner is folded to before it is matched against instance names |
 | `transitive` | `deps:import` | follow the import of the import: what this component **embeds**, not only what it names |
+| `mustImport` | `deps:import` | with `from` alone: import paths every package of the component must carry, itself or transitively |
 | `marker` | required | the mark every file in `sources` must carry |
 | `counterpart`+`requires` | pairing | the file that must name this one |
 | `satisfiedBy` | pairing | what else counts as a counterpart |
@@ -48,6 +49,7 @@
 | Code | Raised by | Meaning |
 |---|---|---|
 | `forbidden_dependency` | `deps` | a forbidden import edge, or a name a component may not spell or use |
+| `missing_import` | `deps:import` | a package of the component does not carry a `mustImport` path, itself or transitively |
 | `foreign_resource` | `deps:literal` | a component spelled a name another owns |
 | `escaped_value` | `flow` | the value appeared where it may not |
 | `exposed_field` | `exposure` | a hidden name reached the surface |
@@ -73,4 +75,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.302.0 capabilities=82b22e0a751ffd1e5b989613998071e9f8c32e2ee5c2b89a57c20e64e3eb56b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.303.0 capabilities=f7c5b3fea2a80557ad47fd998a79016647418cebd777880e32420dd49149472c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

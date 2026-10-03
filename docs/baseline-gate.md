@@ -189,6 +189,23 @@ the change in front of you; freezing it would silence the wrong thing.
 | `-update-baseline` | drop what the run no longer finds; growth is never written. A finding whose identity changed in the same file under the same rule and name is `REKEYED` (paired one to one with the dead record, so the debt per file and rule never grows). A gate red step is never rekeyed: its rule, path and name are all the step's name and its content is already free of numbers, so a new content is a new finding - a held step whose record died and whose run printed a new red gives `GROWTH b215986b7b4b red-step a held step`, the dead record `DROPPED`, no `REKEYED` (through v0.294.0 that dead record handed its identity to any new finding of the step; experiment `baseline refresh only shrinks`, tree `held-rekey`); every other new finding is `GROWTH`, printed by name, and the file is not written for it. A baseline never written and a rule the baseline never named are growth too (until v0.293.0 both were written silently as an "opening balance": `ADOPTED`). Same in `lang`, `arch`, `secrets`, `boxes`, `comments`, `syntax`, `guard`, `placement`, `gate` |
 | `-accept-growth` | with `-update-baseline` only: write the new findings as well, each printed as `ACCEPTED <id> <rule> <path> (<name>)`. Example: `x3 syntax -update-baseline` → `GROWTH c9662d70ec83 forbidden_pattern src/new.txt (no-word-beta)` and `the baseline was NOT written`; adding `-accept-growth` → `ACCEPTED c9662d70ec83 ...` (experiment `baseline refresh only shrinks`). Also measured in a pilot: syntax -update-baseline refused 48 visible findings, each by its own `GROWTH` line, exit 1, the baseline file untouched (`git status` clean) - where v0.293.0 had written them silently |
 
+A refresh **does not touch a file whose bytes it would write unchanged**. With
+segments a refresh owns several files, and most of them do not move on a given
+day; rewriting them anyway turns every refresh into a diff nobody made. Each
+untouched file is named, and every written file ends in a single newline:
+
+```text
+$ x3 secrets -update-baseline
+	UNCHANGED base/secrets.yaml; its bytes are what this run would write, so it was not rewritten
+x3 secrets: the baseline base/secrets.yaml now holds 1 finding(s)
+```
+
+A file holding the same records but ending in an extra blank line is rewritten
+once to the single line end (through v0.302.0 every refresh appended that blank
+line, so an unchanged file came back one line longer; experiment `baseline
+refresh leaves an unchanged file untouched`). `x3 freeze` writes its files with
+the same single line end.
+
 ### The identity carries no line number
 
 A baseline keyed by line number moves the day somebody adds an import: the same
@@ -200,7 +217,7 @@ identified by **what it is, where it is, and what it says**:
 |---|---|
 | `comments` | the rule and the file |
 | `secrets` | the rule, the file, the pattern and the **masked** sample |
-| `arch` | the code, the file, and the rule, subject and object |
+| `arch` | the code, the file, and the rule, subject and object; a **package-level** finding (`transitive`, `mustImport`) is keyed on the package directory instead of a file |
 | `lang` | the code, the file, and the token with the place it sits in |
 | `syntax` | the code, the file and the name of the check |
 | `guard` | the guard's name, the kind of red, and the **expectation** |
@@ -213,6 +230,21 @@ identified by **what it is, where it is, and what it says**:
 The **digest**, not the text, is what the run compares — a baseline storing the
 matched text would put the very value `secrets` masks into a file the repository
 keeps.
+
+A package-level finding has no file of its own: a reach or a missing import
+belongs to the package. Until v0.302.0 it was keyed on the package's
+alphabetically first file, so adding a file that sorts before the others killed
+the record and gave birth to the same debt under a new identity. It is now keyed
+on the package directory. A record written under the old, file-bound identity is
+still held (any file of the package is tried as the old key), and the next
+`-update-baseline` moves it by name - no red in between, no growth:
+
+```text
+$ x3 arch -update-baseline
+	REKEYED 1bc60ba7ba16 -> f0a1c5a88e50 missing_import cmd/bare (entry-embeds-zone-data)
+```
+
+Experiment `deps must import control experiment` (arms `held` and `legacy`).
 
 `guard` has no file to key on, and what it observed is the one thing that cannot
 be part of the identity: a row count, a status code, a version string - it moves
@@ -283,4 +315,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.302.0 capabilities=82b22e0a751ffd1e5b989613998071e9f8c32e2ee5c2b89a57c20e64e3eb56b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.303.0 capabilities=f7c5b3fea2a80557ad47fd998a79016647418cebd777880e32420dd49149472c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

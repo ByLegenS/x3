@@ -113,6 +113,34 @@ count. Without the trail the rule would send its reader looking for an import
 that is not in their file. Today's embeddings belong in the baseline; what the
 rule then catches is the **next** one.
 
+#### What every binary **must** embed
+
+`mustImport` is the opposite question: every package of the `from` component
+must carry these import paths, in itself or in any package it imports from the
+module, transitively. Paths outside the module count too - the usual one is
+`time/tzdata`, which a binary must embed when the machine it runs on may have no
+zone database. Test files do not count: they never reach the binary.
+
+```json
+{ "kind": "deps", "match": "import", "name": "entry-embeds-zone-data",
+  "from": "entry", "mustImport": ["time/tzdata"] }
+```
+
+With `"entry": ["cmd/*/**"]`, an entry importing `time/tzdata` itself and one
+importing it through `boot` are both green; an entry importing neither is red,
+named by its instance:
+
+```text
+BLOCK cmd/bare/main.go (entry-embeds-zone-data): missing_import
+	entry/bare does not import time/tzdata, neither itself nor through any package it imports
+	cmd/bare -> time/tzdata
+```
+
+A component that matches no package is `empty_scope`: a rule with nothing to
+ask cannot have run. `mustImport` stands with `from` alone; `deny`, `to`,
+`allowFrom` and `except` next to it are refused (experiment `deps must import
+control experiment`).
+
 ### The `literal` matcher — names the compiler never sees
 
 **Catches:** a table, queue or bucket name spelled by a component that does not
@@ -452,4 +480,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.302.0 capabilities=82b22e0a751ffd1e5b989613998071e9f8c32e2ee5c2b89a57c20e64e3eb56b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.303.0 capabilities=f7c5b3fea2a80557ad47fd998a79016647418cebd777880e32420dd49149472c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
