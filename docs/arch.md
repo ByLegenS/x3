@@ -116,20 +116,40 @@ rule then catches is the **next** one.
 The finding's **headline** is the package's first file read by the rule, with a
 line only when that file makes the first import of the trail itself; the
 **place** — every file and line of the package that makes that import — is on
-the finding's `at:` line. The place stays outside the identity: a gate keys a
-red step's records on the headline, so a headline that followed the import
-would make the same finding "born" each time the importing file changed, and
-would not hold records written before the place was printed. An inline
-`//x3:allow:arch:` at the import line still covers the finding. The arch baseline's own
-identity is the package, not the file. A package finding with no import site (a
-missing `mustImport`) is headed by the package's first file and has no `at:`.
+the finding's `at:` line. The place stays outside the identity: a headline that
+followed the import would make the same finding "born" each time the importing
+file changed. An inline `//x3:allow:arch:` at the import line still covers the
+finding. A package finding with no import site (a missing `mustImport`) is
+headed by the package's first file and has no `at:`.
+
+**The identity is the package, not the headline's file** — in the arch baseline
+and in a gate step that holds the finding. The finding prints its package on a
+`package:` line, and the gate keys the record on the headline with that file
+(and its line) folded to the package; renaming the package's first file, or a
+file sorting before it, keeps the record. Measured in a production repository
+(2026-10-03, v0.307.1): renaming the first file of an entry package made one held
+embedding "born" and its record had to be put back by hand. A record written by
+v0.307.1 or earlier (keyed on the headline file) still holds the finding while
+that file keeps its name, and `-update-baseline` moves it to the package key
+once, the count unchanged — refresh **before** renaming the file:
 
 ```
 BLOCK cmd/server/flags.go (entry-embeds-no-app): forbidden_dependency
 	component "entry" must not import component "plugins/mail", through cmd/server -> plugins/mail
 	cmd/server -> plugins/mail
 	at: cmd/server/main.go:3
+	package: cmd/server
+
+$ x3 gate -update-baseline                  # a v0.307.1 record, the file not yet renamed
+	REKEYED a65350949529 -> 861a742be3ba red-step the architecture step (the architecture step)
+$ git mv cmd/server/flags.go cmd/server/options.go && x3 gate
+-- baseline: 1 red step(s) carried, 0 born after it, 0 record(s) no longer red
 ```
+
+The same breach in another package is a new finding and is born. Experiment
+`package finding record follows the package` runs the four arms (tree
+`package-record`); with the package key switched off the renamed arm says
+`1 born after it`.
 
 #### What every binary **must** embed
 
@@ -498,4 +518,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.307.1 capabilities=20b43cd076b3e704c822ed1b79e36f3ade15067920d6b09715d8484f928f131b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.308.0 capabilities=d9ead61b32cddcae98257d4b26c483e8feb59656d2260b7012cf645012ac9232 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

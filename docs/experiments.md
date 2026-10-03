@@ -127,6 +127,40 @@ clause and its qualifiers in code and example then type-checked, and two refusal
 a clash and a capture. Breaking the boundary, the keep list or the qualifier rewrite
 turns its arms red - the last one through the type check.
 
+**The baseline moves with the path.** A baseline record's identity is a digest of
+its rule, its path and its content, so a moved file's held debt would be born on the
+new path (and a gate record, which carries the file inside its content, with it).
+After the residue check `x3 move` writes the move into every baseline file under
+`baseline.dir` that holds a record, and names each:
+
+```
+  base/arch.yaml: move recorded over 1 record(s), 1 of them on the moved path
+  base/gate.yaml: move recorded over 2 record(s), 0 of them on the moved path
+x3 move: 2 baseline file(s) carry the move; the next run holds the moved debt under its old record and -update-baseline writes it REKEYED
+```
+
+```yaml
+moved:
+  - from: cmd/panel
+    to: cmd/console
+```
+
+The next run rebuilds an unheld finding on the old path (the path itself and every
+boundary mention in its content, also in the digit-free form a position-proof
+content uses) and takes over the record it finds; nothing is born and no record is
+dead. `-update-baseline` writes it `REKEYED <old> -> <new>`, the count unchanged, and
+drops `moved:` (a narrowed refresh keeps it). A frozen count keyed by the path follows
+the key the move rewrote. A carried record with nothing on the new path to match
+dies by name: `... x3 move carried it from cmd/panel to cmd/console and nothing there
+matches it`. A plain `git mv` is the bound: the engine never sees that move and the
+debt is born on the new path - move with `x3 move`.
+
+Control experiment: `move carries baseline records` in `x3.yaml` - a driver gate
+moves a package, measures arch, gate and freeze, refreshes and measures again (0
+born, two `REKEYED`, no growth); the same move without the engine is `dead_baseline`;
+the unmatched record is named. With the recording turned off the first arm is red
+(the moved package's finding is born).
+
 ## Control experiments
 
 **No gate here is trusted because it is green.** Every capability has a pair in
@@ -261,4 +295,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.307.1 capabilities=20b43cd076b3e704c822ed1b79e36f3ade15067920d6b09715d8484f928f131b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.308.0 capabilities=d9ead61b32cddcae98257d4b26c483e8feb59656d2260b7012cf645012ac9232 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
