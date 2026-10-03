@@ -16,8 +16,9 @@ get written.
 x3 case -only <target>[,<target>...] [dir]
 ```
 
-A **target** is either a file, which selects every example that file carries, or
-a `file:line`, which selects the **block** standing on that line. The path may be
+A **target** is a file, which selects every example that file carries, a
+`file:line`, which selects the **block** standing on that line, or a directory,
+which selects its package (below). The path may be
 written from the measured root or as the bare file name, whichever tells the
 files apart; a name matching two files is an error rather than a silent choice
 of the first.
@@ -60,6 +61,33 @@ $ x3 case -only calc.go:999 ./only
 x3 case: -only calc.go:999: calc.go carries 2 example(s) and none of them stands on line 999; the blocks are at 5-9, 11-15
 ```
 
+**A directory selects a package.** Every example-carrying file of that one
+directory is chosen — a migration round no longer has to count a package's files
+by hand. Subdirectories are **not** included: in Go a package is one directory,
+and a target that took everything below it would run packages nobody named.
+
+```
+$ x3 case -only left ./only-dirs             # left/deep is another package
+SELECTED left/left.go:7 (Twice)
+x3 case: 1 of 3 example(s) selected - 1 passed, 0 finding(s)
+```
+
+**A file the run reads but which carries no example** — a fixture, a test file —
+is skipped with a `NOTE`, not an error: it is compiled with its package anyway,
+and an author listing a package's files should not have to weed it out. This
+hides no wrong selection, because three things still hold: the skipped file is
+named; a target that names no file the run reads is still exit `2`; and a
+narrowing whose every target was skipped measures nothing, which is still exit `2`.
+
+```
+$ x3 case -only calc_fixture.go,mul.go ./only
+NOTE calc_fixture.go:0 (calc_fixture.go): only_target_carries_no_example
+x3 case: 2 of 4 example(s) selected - 2 passed, 1 fixture file(s), 0 finding(s)
+
+$ x3 case -only calc_fixture.go ./only
+x3 case: -only calc_fixture.go: no target selects an example; a narrowed run that measures nothing is not a green one
+```
+
 ⛔ **A narrowed run neither reads nor writes the cache.** Reading it would let a
 stored verdict answer for an example the author asked to measure; writing it
 would let the next full run count 980 never-measured examples as passed. The
@@ -91,4 +119,4 @@ of which runs a Go toolchain of its own — in **7.1 s**. The floor is the
 package's own build; what a target buys back is the time of the examples it left
 out.
 
-<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.299.0 capabilities=17f3b80bd2749e826740d8d5966d3ebf204b1bf0081d2f97f25f77059da0a873 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

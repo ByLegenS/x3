@@ -234,6 +234,20 @@ x3 boxes -defer docs/PLAN.md:67f028ef1d9d
 x3 boxes -defer: 69ac3e18d797: work.yaml -> later.yaml
 ```
 
+The report carries it too. Every measured box in `x3 boxes -out` writes its
+`was` beside its `id`, so a document generated from the report (`x3 emit`) can
+still bind a mapping written by the old name — `filterLike "was" $name $boxes`
+finds the box whose headstone carries it. Without it, every mapping written
+before the identities were minted reads as dead the day they are: measured on
+the pilot, 51 of 83 dead mappings in one generated document were only this.
+
+```
+$ x3 boxes -out r.yaml
+  - id: 69ac3e18d797
+    ...
+    was: docs/PLAN.md:67f028ef1d9d
+```
+
 Asked a second time the migration mints nothing — a minted identity is never
 reminted, so the command is safe to run on a list that is already clean:
 
@@ -290,4 +304,4 @@ of the archive can go back into a list with what proved it:
  "done":[{"when":"pattern","match":"no git, no silence","sources":["x3.yaml"]}]}
 ```
 
-<!-- x3-dist version=v0.298.0 capabilities=c575a4afe3dfd41635edac9c0371620327751cfce9909cad33d40bcbf126e8ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.299.0 capabilities=17f3b80bd2749e826740d8d5966d3ebf204b1bf0081d2f97f25f77059da0a873 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
