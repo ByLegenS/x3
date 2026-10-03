@@ -135,9 +135,9 @@ x3 do -list
 ```
 
 ```
-clean-logs	3	ops/x3/tasks.yaml	local log pruning
-finish	7	ops/x3/tasks.yaml	wrap up: gate, build, restart, verify
-local	19	ops/x3/tasks.yaml	local services: stop, build, start, knock
+clean-logs	3	tools/tasks.yaml	local log pruning
+finish	7	tools/tasks.yaml	wrap up: gate, build, restart, verify
+local	19	tools/tasks.yaml	local services: stop, build, start, knock
 build	9	x3/tasks.yaml	a versioned build
 deploy	59	x3/tasks.yaml	deployment to production
 -- 13 task(s) in 2 file(s)
@@ -326,7 +326,7 @@ of holding a copy of those numbers in the settings where they go stale.
 ### The report carries no secret
 
 A value whose name matches `dsn`, `pass`, `secret`, `token` or `key` (any case)
-is used for real inside the run — `{VT_DB_DSN}` reaches the command whole — but
+is used for real inside the run — `{DB_DSN}` reaches the command whole — but
 **nothing that leaves the run carries it**: the report's `values:` says `(set)`
 or `(empty)`, and the value is darkened to `(set)` wherever it shows up in a
 step's answer (`said`), a `-dry` note, an error note or a screen line. A
@@ -347,4 +347,4 @@ the `-out` file and from there into a log. Experiment `task report secret
 control experiment` weighs the screen, the `-dry` note and the written report;
 the binary before the change printed the fake value in all three.
 
-<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

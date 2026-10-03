@@ -96,4 +96,4 @@ created and left behind outlives the run that left it. What that preparer sets
 up is the `testdb` section's business, and a run layer that knew about databases
 would be dead weight in every project that has none.
 
-<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

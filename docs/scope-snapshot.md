@@ -252,10 +252,10 @@ scope inherited): base `1 ran`, again `0 ran`; a comment in `gate:`
 step is held by drops every entry the repository's ignore list names (read by
 the engine itself, see *An exclusion list x3 reads itself*) and the run's own
 cache directories. Measured on a pilot: the first run in a fresh working copy
-opened `ops/_tmp/` itself, and the next run re-ran with `dir ops changed`.
-`walked directory listing control experiment`: base `1 ran`; an ignored
-`ops/_tmp/` appearing `0 ran, 1 skipped` (before: `1 ran`); an ignored
-`ops/tool.exe` `0 ran, 1 skipped`; a file nobody ignores `1 ran`.
+opened its own scratch directory, and the next run re-ran because its parent
+changed. `walked directory listing control experiment`: base `1 ran`; an ignored
+scratch directory appearing `0 ran, 1 skipped` (before: `1 ran`); an ignored
+build output `0 ran, 1 skipped`; a file nobody ignores `1 ran`.
 
 The cache must not sit in a directory above the tree: the
 cache's own directory is excluded from what a step is said to read.
@@ -285,4 +285,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.310.0 capabilities=1e1579581871eb95a122e25fb97777f1809a9764bfa340e4e79221e47f3e5927 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
