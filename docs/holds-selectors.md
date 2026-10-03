@@ -73,4 +73,4 @@ dropped from a running step, and a declaration whose marked lines name nothing
 narrower stops the run instead of answering every question alike. With the steps
 that do name a package: **213 free → 187**.
 
-<!-- x3-dist version=v0.300.0 capabilities=61c9e55bba9763917b851c1ca514c99794d90965e2e37df6fb1c6b3421965bff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.301.0 capabilities=8d96a8b1d628c5aef4eb4447e0d50f6f220971743a7c2a73f1b358669afdcea7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -60,6 +60,28 @@ is read to the end of **that same line** and no further, so both stderr lines en
 in `followed by a reason ON THE SAME LINE`: the wording that stopped at "followed
 by a reason" cost two turns in a row, each to a reader who wrote it underneath.
 
+**In `snapshot` scope** (the default, and what a gate step runs) there is no
+`-reason`, so the marker is also read from **the commits that touched each
+changed file**, in `merge-base(main, HEAD)..HEAD` — or `HEAD^1..HEAD` when HEAD
+sits on `main` (a `--no-ff` merge brings its branch with it). Every such commit
+must carry the marker with a reason: a marker on a later comment fix does not
+excuse the earlier commit that changed behaviour. The newest commit that touched
+a `then` path is the boundary — it and everything older already got their
+answer. A file with uncommitted edits is never excused by a commit, and without
+git or a range the run behaves as before. The report's `commits` field and a
+stderr line name the range read.
+
+```
+x3 docs: exemption markers also read from the bodies of the commits in 7e12ae6f7e..HEAD that touched each file
+```
+
+In the same scope the files the rules' `when` and `then` patterns reach are
+recorded as the step's **inputs**. Measured in the pilot: the snapshot weighs
+the tree through the cache's own reading, which observation never sees, so the
+step remembered only its settings — a red taken while the code had changed and
+the page had not came back from the cache after the page was written (cached
+exit 1, `-no-cache` exit 0). Now a change under either side runs the step again.
+
 The rule's name is in the marker because a commit body answers **one** gate: the
 writer saw one rule turn red and answered that rule, while a shared marker takes
 that sentence and silences every other rule too, including ones nobody saw.
@@ -67,4 +89,4 @@ Measured here — with a shared marker the `docs gate` step's own control
 experiment, a rule that must exit `1`, exited `0`: the exemption had excused the
 experiment.
 
-<!-- x3-dist version=v0.300.0 capabilities=61c9e55bba9763917b851c1ca514c99794d90965e2e37df6fb1c6b3421965bff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.301.0 capabilities=8d96a8b1d628c5aef4eb4447e0d50f6f220971743a7c2a73f1b358669afdcea7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
