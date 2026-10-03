@@ -132,4 +132,68 @@ configuration file lies inside the tree being run** — the same rule that gover
 single directory would call a correct declaration dead. A tag typed on the
 command line is not held back that way; both doors are asked of it here.
 
-<!-- x3-dist version=v0.308.0 capabilities=d9ead61b32cddcae98257d4b26c483e8feb59656d2260b7012cf645012ac9232 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### An example only a person asks for
+
+Some measurements must not run on every gate: they call a paid service, a real
+provider, or something that takes minutes. Moving them out of the package costs
+what an example is for — they need the package's own unexported setup. They stay
+where they are, behind a tag the configuration names **opt-in**:
+
+```yaml
+case:
+  optin: [live]
+```
+
+```go
+//x3:tags: live
+//x3:env: PROVIDER_ENDPOINT
+
+package quote
+```
+
+A default run does not run them, and does not call them deferred either. A
+deferral is a hole in the tree — a tag dropped from the settings — and
+`deferred.policy: block` turns it red; an opt-in example not running is the
+run's own decision, so it is counted apart and the gate stays green:
+
+```
+OPT-IN probe.go:13 (Quote): runs only when asked for, with -tags live
+x3 case: 2 example(s) in 1 package(s) - 1 passed, 1 opt-in not asked for, 0 finding(s)
+```
+
+A person asks for them by name, narrowed if they like:
+
+```
+x3 case -tags live -only internal/quote
+```
+
+| What happens | What the run says | Exit |
+|---|---|---|
+| asked for, its environment set, the answer right | `OBSERVED probe.go:13 (Quote): reached api.example` | 0 |
+| asked for, a variable `//x3:env:` names is empty | `UNMEASURED probe.go:13 (Quote): asked for, but the environment does not carry PROVIDER_ENDPOINT` | 2 |
+| asked for, the answer wrong | `example_failed` with the comparator's own sentence: `out[0] = "quoted by api.broken", want "quoted by api.example"` | 1 |
+| the configuration's `case.tags` carries an opt-in tag | refused at load: every gate would run what only a person may ask for | 2 |
+
+`//x3:env:` names the variables the file's examples need before they start —
+names, never values, because a value written in the tree is a value in the
+repository. An empty variable counts as unset. An example that cannot be
+measured is **neither green nor red**: exit 2 is the same contract as a run that
+measured nothing. What an asked-for example logs with `t.Log` is printed as
+`OBSERVED` and carried in the report under `observed[]`, apart from the verdict;
+when such an example fails, the finding is still the comparator's sentence, not
+the line a helper logged before it. A package whose opt-in examples run is never read
+from or written to the cache: their answer comes from outside the tree, and the
+tree's fingerprint cannot vouch for it.
+
+A shared helper the opt-in file needs sits in a fixture whose constraint names
+both, `//go:build x3fixture || live`; under `-tags live` it is compiled once,
+not twice. A file hidden behind `//go:build live` **alone**, with no
+`//x3:tags:`, never reaches the compiler in a default run, and the run says so
+with the remedy instead of a bare `undefined:`:
+
+```
+quote.go:14 (Quote): does_not_build
+	undefined: Quote; the file builds only under //go:build live, which this run does not carry - write //x3:tags: live above the package clause, and the run defers its examples or runs them with -tags live
+```
+
+<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

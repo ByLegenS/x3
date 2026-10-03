@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.308.0`**
+**Current version: `v0.309.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 25.7 MB | `238fe46df70c767b77a7fafb1cdfff71ddd9f7471d9548aca262df729930b7cc` |
-| `x3-linux-amd64` | linux/amd64 | 25.1 MB | `4fb25d2425977ae8163d921831c4e223b643849e1b1a6c106c1cb2ba586c132e` |
+| `x3-windows-amd64.exe` | windows/amd64 | 25.7 MB | `204d07b30a3152de94037bed8b72a00ddac58d3cd521d64211d91a710a07b79c` |
+| `x3-linux-amd64` | linux/amd64 | 25.1 MB | `d74cd7e7b8cdf6233216ffd5cff969e458c706358ce262d4a5f9abdb23e2ceeb` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -155,7 +155,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The names an example may reach](docs/case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
 | [The type an example declares](docs/case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [The setup every example in a package shares](docs/case-fixture.md) | a file neither the product nor a test, built only for the examples, and the declarations it may not hide |
-| [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
+| [Examples behind a build tag](docs/case-tags.md) | the tag a package must be built with, the run that carries it, the examples a run refuses to pass over in silence, and the ones only a person asks for |
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](docs/case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [A run narrowed to one file or one example](docs/case-only.md) | the target that names a file or a line, the block a line belongs to, and the verdict a narrowed run is not allowed to store |
@@ -310,4 +310,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.308.0 capabilities=d9ead61b32cddcae98257d4b26c483e8feb59656d2260b7012cf645012ac9232 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

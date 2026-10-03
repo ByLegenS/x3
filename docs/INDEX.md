@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.308.0`**
+**Current version: `v0.309.0`**
 
 | Page | What it covers |
 |---|---|
@@ -17,7 +17,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The names an example may reach](case-imports.md) | a package no source file can import, a package its path cannot spell, and the two places a declaration may be written |
 | [The type an example declares](case-types.md) | a fake with methods, written in a comment and alive only inside the generated test, next to the declaration that serves nothing |
 | [The setup every example in a package shares](case-fixture.md) | a file neither the product nor a test, built only for the examples, and the declarations it may not hide |
-| [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, and the examples a run refuses to pass over in silence |
+| [Examples behind a build tag](case-tags.md) | the tag a package must be built with, the run that carries it, the examples a run refuses to pass over in silence, and the ones only a person asks for |
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [A run narrowed to one file or one example](case-only.md) | the target that names a file or a line, the block a line belongs to, and the verdict a narrowed run is not allowed to store |
@@ -127,4 +127,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.308.0 capabilities=d9ead61b32cddcae98257d4b26c483e8feb59656d2260b7012cf645012ac9232 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.309.0 capabilities=6ada13beb523cd63f46d264cccf79977eeeb45fff40dab797da9bec22f56079c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
