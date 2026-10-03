@@ -276,4 +276,4 @@ where it is.
 A package that declares no function at all still makes a claim, and where that
 claim is written is on the next page.
 
-<!-- x3-dist version=v0.299.0 capabilities=17f3b80bd2749e826740d8d5966d3ebf204b1bf0081d2f97f25f77059da0a873 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.300.0 capabilities=61c9e55bba9763917b851c1ca514c99794d90965e2e37df6fb1c6b3421965bff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

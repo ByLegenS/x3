@@ -39,14 +39,38 @@ then on any branch. Otherwise the hook says nothing and the call goes on.
 | a shell command not starting with a `commands:` prefix | **refused**: what it reads cannot be told | passes |
 | a listed command with a path argument outside `allow` | **refused** | passes |
 | a command line with `$`, a backtick, `( ) { }`, a here-document | **refused**: only the running shell knows what it names | passes |
+| `git commit -m "$(cat <<'EOF'` … `EOF` `)"` - one `cat` of a **quoted** here-document inside double quotes, nothing else | passes: the message is plain text | passes |
+| the same with an unquoted `<<EOF`, a `$(` inside the body, a second command, or outside double quotes | **refused** | passes |
+| `git -C <dir> <subcommand>` | read as `cd <dir> && git <subcommand>` for that one command: the directory must be allowed and the subcommand listed | passes |
+| a path naming `~`, `$HOME`, `${X}`, `$env:X` or `%X%` | judged **both as written and opened**; refused if either reading leaves the scope | passes |
+| a variable that is not set, or another user's home (`~name`) | **refused**: the hook cannot tell where it points | passes |
 | an input that is not JSON | **refused** | passes |
-| no scope file, or one that cannot be decoded (an unknown field is an error) | **every call refused**, saying why | passes |
+| no scope file, or one that cannot be decoded (an unknown field is an error), on a scoped branch | **every call refused**, saying why | passes |
+| the same for a call that carries an `agent_type` | passes, with a **visible warning** naming the file it looked for: the `agents:` list is inside that file, so who is scoped cannot be told | passes |
 
 File paths are read from the input's field **names**, not the tool's name: any
 field whose name contains `path`, or ends in `file`, `dir`, `directory`, `folder`,
 `cwd`, `root`, `source` or `destination`. A relative path is read from the call's
-`cwd`; a path outside the working tree is matched in its absolute, forward-slash
-form, so the scope can still allow one by writing it that way.
+`cwd`. Every path is first made absolute (`~`, `/c/...` and backslashes all land on
+the same path), then each pattern speaks its own form: an **absolute** pattern
+(`/x/**`, `C:/x/**`) is matched against the absolute, forward-slash path - inside
+the working tree or out - and a **relative** pattern against the path from the
+repository root, never reaching outside it. When the `cwd` is not a repository the
+`cwd` itself is the root.
+
+**Why two readings of a variable.** A tool may open `$HOME/a.md` or read it as
+written; the hook cannot tell which. Judged only as written, `$HOME/a.md` asked from
+inside `docs/` looks like `docs/$HOME/a.md` and passes while the tool reads the
+home directory; judged only opened, a tool that does not open it reads a file next
+to the one allowed. So both must be inside.
+
+**An unreadable scope file is never silent.** On a branch the scope holds, every
+call is refused. For a call that carries an `agent_type`, refusing is not narrow:
+the hook is registered for every session, and a relative `-file` cannot be found
+from a directory that is not the repository - every subagent of every session would
+stop. Such a call passes, and the hook prints Claude Code's `systemMessage` (and the
+same sentence on stderr) with the path it looked for. An absolute `-file` is read
+from every directory.
 
 **The shell is denied by default.** A command line is split at `;`, `&&`, `||`,
 `|`, `&` and newlines, and every simple command in it must be one of three things:
@@ -77,9 +101,12 @@ line each - the way to see which fields a live session really sends.
 **What it does not do.** A listed command is trusted with what it names: listing
 `git show` lets the session read any revision, and listing `git switch` lets it
 leave the branch, and the scope with it. Symbolic links are not resolved. A
-backslash outside quotes is kept as written, not read as a shell escape. Whether
+backslash outside quotes is kept as written, not read as a shell escape. A `Glob`
+or `Grep` in the **parent** of allowed directories is refused, not narrowed: it
+would list the names (`Glob`) or print the lines (`Grep`) of the files beside them
+that the scope does not allow - search each allowed directory instead. Whether
 Claude Code sends `agent_type` for a subagent's call is not measured here; the
-branch is the scope that holds without it. Eighteen arms run in this engine's
+branch is the scope that holds without it. Twenty-six arms run in this engine's
 own gate (`agent scope hook control experiment`).
 
-<!-- x3-dist version=v0.299.0 capabilities=17f3b80bd2749e826740d8d5966d3ebf204b1bf0081d2f97f25f77059da0a873 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.300.0 capabilities=61c9e55bba9763917b851c1ca514c99794d90965e2e37df6fb1c6b3421965bff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
