@@ -71,6 +71,39 @@ too: base36 accepts letters, so a hand-written `apptest_backup_v2` would read as
 born in 1970 and look infinitely stale. A stamp outside **2025-01-01 … now +
 24 h** is not a stamp, and the name is not ours.
 
+**Concurrent runs share one template safely.** The template lock is a Postgres
+advisory lock held on one session (`*sql.Conn`), never on the pool. A run that
+clones holds it *shared* until its clone exists; a run that builds holds it
+*exclusive*; the sweep that every setup command runs first asks for it with
+`pg_try_advisory_lock` and leaves a held template — or a held `<name>_building`
+— standing ("is in use, left standing"). Measured: a setup step that runs
+`x3 testdb prune` while its own template is being built made the builder fail
+with `database "x3race_tpl_…_building" does not exist`; with the lock consulted
+both runs are green (fixture `internal/testdb/testdata/race/`, `build.yaml` +
+`sweep.yaml`).
+
+**A red born of the environment says so.** When the admin DSN variable is empty,
+the server cannot be reached (the admin connection is pinged when it opens), or
+the template under construction was removed by another run, the error starts
+with `this run cannot measure:` — the engine's own marker — so the gate counts
+the red as the machine's and does not cache it:
+
+```text
+x3 testdb: this run cannot measure: the database server behind X3_PG_ADMIN cannot be reached: … connection refused
+```
+
+A clone the server refuses because another session is connected to the template
+(SQLSTATE `55006`, "being accessed by other users") says the same: that is the
+machine's state at that moment, not the project's setup. Any driver that reports
+its error code through `SQLState()` is recognised.
+
+Both are measured in this engine's own gate. `testdb template build race control
+experiment` (needs `X3_PG_ADMIN`) forces the race above and is red without the
+lock. `testdb unavailable control experiment` points two steps at a server that
+refuses: sound settings are re-measured on the next run, broken settings
+(`prefix: x3 refused`) are answered from the cache, and the password in the DSN
+never appears in the output.
+
 ### `testdb` in `x3.yaml`
 
 ```json
@@ -228,4 +261,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.296.0 capabilities=9df363e2d29d8f8fd6f35424e5d530f5801b7449b9f5f807e7391fd193bde621 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

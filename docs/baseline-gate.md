@@ -107,6 +107,22 @@ failed, followed by notes and the summary) is named above them:
         ...
 ```
 
+**A named finding carries its first indented line.** A finding line often names
+only *where* (`engines/engines.go:8: example_failed`); *what* failed is the line
+under it (`then[0] ok does not hold`). Wherever the gate names a finding in one
+line — above the last lines, or born inside a held step — that line is appended,
+shortened to 120 characters:
+
+```
+  1 finding(s) born after the baseline, inside a step it holds:
+      engines/engines.go:8: example_failed - then[0] ok does not hold
+```
+
+This is display only: the finding's identity and the baseline record are still
+taken from its whole text, so no record moves. Measured in this engine's own gate
+(`gate finding headline control experiment`); with only the first line shown the
+arm is red.
+
 Rename a step and its records die with it, which is correct — a step under a new
 name is not the step whose debt was taken over.
 
@@ -267,4 +283,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.296.0 capabilities=9df363e2d29d8f8fd6f35424e5d530f5801b7449b9f5f807e7391fd193bde621 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.297.0 capabilities=174dc2826ddfad097e10461ebf1f541d704ea9eb239935820385e5e3adc092ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
