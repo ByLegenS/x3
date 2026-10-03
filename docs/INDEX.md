@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.301.0`**
+**Current version: `v0.302.0`**
 
 | Page | What it covers |
 |---|---|
@@ -122,9 +122,9 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
-| [Full-length screenshots](shot.md) | every page at every width and theme, captured to its own length by a headless browser that starts and ends with the run |
+| [Full-length screenshots](shot.md) | every page at every width and theme, captured to its own length by a headless browser that starts and ends with the run, and a layout audit on the same browser |
 | [One processor budget per machine](machine-budget.md) | every x3 running at once shares one budget, held as slots that die with the process that held them |
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.301.0 capabilities=8d96a8b1d628c5aef4eb4447e0d50f6f220971743a7c2a73f1b358669afdcea7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.302.0 capabilities=82b22e0a751ffd1e5b989613998071e9f8c32e2ee5c2b89a57c20e64e3eb56b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

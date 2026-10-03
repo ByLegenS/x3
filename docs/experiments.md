@@ -2,6 +2,49 @@
 
 [The pages](INDEX.md) - [what x3 is](../README.md)
 
+## `x3 rename`
+
+A Go name lives in two places: the code, and the `//x3:case` lines that call it.
+`gofmt -r` and `gopls rename` reach only the first - an example is a comment - so a
+package whose tests became examples keeps the old name in hundreds of example
+lines after the code is renamed. `x3 rename` renames one **package-level** name in
+both, in one step:
+
+```text
+x3 rename [-dir <package>] [-dry] <old> <new>
+
+$ x3 rename -dir internal/orders -dry newRunner newOrderRunner
+  handler.go:42:17 example
+  ...
+x3 rename: newRunner -> newOrderRunner in .../orders: 37 site(s) in 6 file(s) - 1 in code, 36 in examples
+x3 rename: the renamed package type-checks; dry run, nothing written
+```
+
+**The object changes, not the word.** In the code, go/types names every use of
+the same object; a local that shadows the name is a different object and stays.
+An example line is parsed as Go (the setup as statements, every argument,
+expectation and proposition as an expression) and only a name the example does
+**not** resolve itself - the package's name - changes. The same word inside a
+string, a field after a dot and a composite-literal key are left alone. Prose in
+doc comments is not renamed, as with gopls.
+
+**The package is loaded the way the example runner builds it:** its tests and its
+own `x3fixture` files. The fixture tag is never given to the load - it would
+spread to every dependency and close an import cycle; the fixtures are added to
+the type check of this one package only.
+
+**Nothing is written unless all of it holds** (exit 2, `REFUSED`): the new name is
+already declared in the package; a local named `<new>` would capture a renamed use,
+in the code or inside an example; the new name is one the example runner binds
+itself (`t`, `out0`..., `x3...`) or a predeclared name; the old name is exported
+(other packages may name it) or not package-level; a file outside this build names
+it. The renamed package is then **type-checked in memory**; a red check writes
+nothing and exits 1. A written file is gofmt'ed. `-dry` prints every
+`file:line:col` and whether it is `code` or `example`.
+
+Control experiment: `rename control experiment` in `x3.yaml` - counts, the string
+and shadow arms, three refusals and a written tree.
+
 ## Control experiments
 
 **No gate here is trusted because it is green.** Every capability has a pair in
@@ -136,4 +179,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.301.0 capabilities=8d96a8b1d628c5aef4eb4447e0d50f6f220971743a7c2a73f1b358669afdcea7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.302.0 capabilities=82b22e0a751ffd1e5b989613998071e9f8c32e2ee5c2b89a57c20e64e3eb56b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

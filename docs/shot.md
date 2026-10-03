@@ -61,7 +61,7 @@ the browser is closed — politely first, killed if it does not go.
 | Exit | Meaning |
 |---|---|
 | 0 | every image written |
-| 1 | at least one page did not load, answered 400 or more, or did not settle |
+| 1 | at least one page did not load, answered 400 or more, did not settle, or had more findings than a `-measure` ceiling allows |
 | 2 | nothing was taken: no page, a size that cannot be read, or no browser |
 
 | Arm | Measured |
@@ -74,9 +74,60 @@ the browser is closed — politely first, killed if it does not go.
 | a page that is not there | exit 1, `the page did not load: net::ERR_FILE_NOT_FOUND` |
 | a browser that is not there | exit 2, `no browser at ...`, nothing written |
 | 28 pages × {1440, 390, 1440 dark}, 4 tabs | 84 images in 41 s; no browser process left behind |
+| `-measure` each of `scrollbar`, `truncation`, `label`, `touch` at 390 on a page carrying one defect of each kind | exit 1, one line each, naming `div#strip`, `p#clip`, `button#save`, `a#close` |
+| `-measure overflow` on the 2000-pixel-wide block at 390 | exit 1, the culprit `div` named |
+| `-measure touch` on the same page at 1440 | exit 0, silent: not measured above 860 |
+| `-measure scrollbar:1` on the same page | exit 0, the strip still named, `within the ceiling of 1` |
+| `-measure all` at 390 and 1440 on the same elements done right, with a link in running text, a labelled checkbox, a wrapping sentence in a chip, a hidden button and a visually hidden skip link | exit 0, no finding |
+| the same page before the visually-hidden rule | red: `a.sr-only` named as cut-off text and as a tap target |
+| a docs site, 7 pages × {1440, 860, 390}, `-measure all` | 21 images; 10 red, all `touch`: two code-language tabs and a breadcrumb link under 44 at 860 and 390; nothing at 1440 |
+| the inline-link exemption and the short-label limit removed (a planted mutation) | red: the good page names `main > p > a` (touch) and `main > p > span` (label) |
 
-**What it does not do yet.** It takes pictures; it does not judge them. A layout
-audit on the same browser — sideways overflow, an element with its own scrollbar,
-a label broken onto two lines, clipped text — is the next capability, not this one.
+### The layout audit: `-measure`
 
-<!-- x3-dist version=v0.301.0 capabilities=8d96a8b1d628c5aef4eb4447e0d50f6f220971743a7c2a73f1b358669afdcea7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+A picture hides the defects a reviewer most often misses: a strip that grew its own
+scrollbar looks tidy, text cut off with `…` looks designed, and a 20-pixel button
+looks fine at a glance. `-measure` asks the page itself, on the same browser, at the
+same width, right after the length is taken — no second load, no script file: the
+measure is one `Runtime.evaluate` over the debugging protocol, like the settle step.
+
+```text
+x3 shot -sizes 1440,860,390 -measure all guide/faq.html
+x3 shot -sizes 390 -measure scrollbar:2,touch,label guide/faq.html   # two scrollers pass, the rest none
+```
+
+```text
+x3 shot: guide-faq-390.png 390x1567
+x3 shot: guide-faq-390.png scrollbar: 1 element(s) with their own sideways scrollbar, over the ceiling of 0 - div.table-wrap
+x3 shot: guide-faq-390.png touch: 4 tap target(s) smaller than 44x44, over the ceiling of 0 - nav > a.icon, button#menu, input#q, and 1 more
+x3 shot: 3 image(s) in shots, 0 failed, 0 answered a status -accept does not name, 1 over a -measure ceiling
+```
+
+| Measure | A finding is | Why this definition |
+|---|---|---|
+| `overflow` | an element whose right edge passes the width while its parent's does not, outside any clipping or scrolling ancestor — counted only when the page itself scrolls sideways | names the culprit, not every descendant it drags along; a page that overflows but whose culprit cannot be found still says `content N wide, no single element found` |
+| `scrollbar` | an element with `overflow-x: auto` or `scroll` whose content is wider than its box (`scrollWidth > clientWidth`) | horizontal only: a sideways strip inside a page is what a phone user does not discover; a vertical scroller is often a deliberate panel |
+| `truncation` | an element carrying its own text, clipped by `text-overflow: ellipsis` or `overflow-x: hidden`/`clip`, whose content is wider than its box | the text node must be the element's own child, so a clipping container around images or other boxes is not text being cut |
+| `label` | a control (`button`, `summary`, `[role=button]`, a link that is not inline, any `inline-block`/`inline-flex`/`inline-grid` box such as a badge or chip) whose text is at most three words and 40 characters, on one logical line, rendered on more than one line | a short label is read as one unit; a sentence that wraps, a link wrapping inside running text, or text with a line break of its own is normal flow. Lines are counted from the text's own boxes, so an icon beside the text is not a second line |
+| `touch` | at widths up to **860**: a visible `a[href]`, `button`, `input`, `select`, `textarea`, `summary` or `[role=button]` smaller than **44×44** | 44 is WCAG 2.5.5 and Apple's minimum. 860, not the phone threshold 768, because a tablet held upright (768–834) is used with a finger. Exempt: a link inline in running text (WCAG's own exception), a checkbox or radio whose label enlarges the target |
+
+A hidden element is never a finding: no box, `visibility: hidden`, or the
+visually-hidden pattern a screen reader reads (a box of one pixel or less, or
+`clip: rect(0 0 0 0)`) — its text is clipped on purpose and it is no target on
+screen. Measured: before this rule, every docs page of the pilot reported its skip
+link and its icon-only tab labels as cut-off text and tiny tap targets. Each finding
+names its element by a short selector: the nearest `#id`, otherwise up to three
+`tag.class` steps. A line names the first three and counts the rest.
+
+**The ceiling.** A measure written alone (`touch`) allows no finding: these are
+defects, and one is enough to look at. `name:N` lets N findings pass — a project that
+has decided its code blocks scroll writes `scrollbar:3` and names the decision where
+it writes the flag. A finding within its ceiling is still printed (`within the
+ceiling of 3`), so an allowance never turns into blindness. `all` turns on all five
+with no allowance. Without `-measure` nothing is measured and nothing changes: the
+sideways-overflow line is still printed, and still informs without turning red.
+
+**What it does not measure.** Text clipped vertically (`line-clamp`, a fixed height),
+two elements overlapping, colour contrast, and anything inside an `iframe`.
+
+<!-- x3-dist version=v0.302.0 capabilities=82b22e0a751ffd1e5b989613998071e9f8c32e2ee5c2b89a57c20e64e3eb56b8 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
