@@ -132,4 +132,4 @@ configuration file lies inside the tree being run** — the same rule that gover
 single directory would call a correct declaration dead. A tag typed on the
 command line is not held back that way; both doors are asked of it here.
 
-<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.1 capabilities=20b43cd076b3e704c822ed1b79e36f3ade15067920d6b09715d8484f928f131b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

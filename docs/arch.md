@@ -113,16 +113,22 @@ count. Without the trail the rule would send its reader looking for an import
 that is not in their file. Today's embeddings belong in the baseline; what the
 rule then catches is the **next** one.
 
-The finding is **shown** at the file and line that make the first import of the
-trail (`cmd/worker/main.go:3`); other files of the package importing the same
-step are listed as `also imported at file:line`. Its **identity** is the
-package, not the file: a file that sorts before the importer joining the package
-moves neither the place nor the baseline record. A package finding with no line
-(a missing `mustImport`) is shown at the package directory.
+The finding's **headline** is the package's first file read by the rule, with a
+line only when that file makes the first import of the trail itself; the
+**place** — every file and line of the package that makes that import — is on
+the finding's `at:` line. The place stays outside the identity: a gate keys a
+red step's records on the headline, so a headline that followed the import
+would make the same finding "born" each time the importing file changed, and
+would not hold records written before the place was printed. An inline
+`//x3:allow:arch:` at the import line still covers the finding. The arch baseline's own
+identity is the package, not the file. A package finding with no import site (a
+missing `mustImport`) is headed by the package's first file and has no `at:`.
 
 ```
-BLOCK cmd/server/main.go:3 (entry-embeds-no-app): forbidden_dependency
+BLOCK cmd/server/flags.go (entry-embeds-no-app): forbidden_dependency
 	component "entry" must not import component "plugins/mail", through cmd/server -> plugins/mail
+	cmd/server -> plugins/mail
+	at: cmd/server/main.go:3
 ```
 
 #### What every binary **must** embed
@@ -492,4 +498,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.1 capabilities=20b43cd076b3e704c822ed1b79e36f3ade15067920d6b09715d8484f928f131b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.307.0`**
+**Current version: `v0.307.1`**
 
 ## component path patterns
 
@@ -56,7 +56,7 @@
 | `duplicate_body` | `duplication` | the same body in two instances |
 | `foreign_term` | `vocabulary` | a layer let through a word it must not know |
 | `part_outside_its_root` | `containment` | a part sits outside its component's root |
-| `set_mismatch` | `consistency` | the two sets drifted; each difference is named with where its value comes from - `"a.lost" is on the left and not on the right (at screens/a.html:2)`, the first three sources then `and N more`; a source the extractor reads by key or path (json, tree, the engine's list) shows its file without a line. The place is in the message only: a value moving to another line keeps its baseline record |
+| `set_mismatch` | `consistency` | the two sets drifted; each difference is named with where its value comes from on its own `at:` line - `at: screens/a.html:2`, the first three sources then `and N more`; a source the extractor reads by key or path (json, tree, the engine's list) shows its file without a line. The place is outside the message and the identity: a value moving to another line keeps its baseline record |
 | `missing_target` | `consistency` | a value read as a path leads nowhere |
 | `missing_marker` | `required` | a file of the class does not carry the mark |
 | `missing_counterpart` | `pairing` | no counterpart, or it names nothing from the subject |
@@ -75,4 +75,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.1 capabilities=20b43cd076b3e704c822ed1b79e36f3ade15067920d6b09715d8484f928f131b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

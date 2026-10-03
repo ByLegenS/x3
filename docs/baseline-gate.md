@@ -122,6 +122,25 @@ so (`GROWTH <id> ...: measure 1000 -> 1010; the record keeps 1000`) until
 measure control experiment`, with directory findings in the last two); under
 v0.305.0 six of them are red — growth and the new directory finding were `0 born`.
 
+**A finding's place is its own line, outside its identity.** A rule that points its
+reader at the lines behind a finding prints them on an indented `at:` line. The gate
+keeps that line inside the finding — the `file:line` on it opens no new finding — and
+leaves it out of the identity, so a value moving to another line, or a record written
+before the place was printed, still holds:
+
+```
+BLOCK rule screens-match-routes: set_mismatch
+	"a.lost" is on the left and not on the right
+	at: screens/a.html:2
+```
+
+Measured in a production repository (2026-10-03): v0.307.0 wrote the place into the
+message (`... (at screens/a.html:2)`); the gate read that line as the head of a new
+finding, one step went from 46 findings to 74, and 48 were born against a baseline
+that held the old 45. The arms are inline examples of the gate's finding reader:
+a v0.306.0 record and a v0.307.1 finding with its `at:` line share one identity; the
+v0.307.0 spelling splits in two and does not.
+
 **A baseline written before findings were counted still reads.** Its record holds
 the whole step, as it always did, and the run says so instead of keeping quiet:
 `-- baseline: N carried step(s) are held whole ...; a finding born inside them
@@ -413,4 +432,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.307.0 capabilities=4ff6a0e26dbbf08f632120594f3e849df0b8aec26a596a3ba596febbbc94f7d4 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.307.1 capabilities=20b43cd076b3e704c822ed1b79e36f3ade15067920d6b09715d8484f928f131b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
