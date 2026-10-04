@@ -39,9 +39,28 @@ wait forever behind small ones.
 for the Go toolchain, and `X3_CPU_HELD=<n>`. **A variable the project declares
 is never overwritten**, and an inherited `GOFLAGS` that already carries `-p`
 keeps it. `{cores}` is cut from the budget, not from the processor count.
-**An x3 started inside a step takes no slot:** `X3_CPU_HELD` tells it that its
-parent holds the share, and it divides that share. If it asked for a slot, a
-budget of one would make it wait for its own parent forever.
+**An x3 started inside a step does not wait for its parent:** `X3_CPU_HELD`
+tells it that its parent holds the share, and that share is its **floor, not its
+ceiling**. Its units run on the held share first; a unit beyond it borrows a
+**free** slot of the machine budget, and if none is free it waits holding
+nothing, so the held share always moves one unit forward and nothing deadlocks.
+A borrowed slot is held for one unit only, so a step waiting in the gate waits at
+most one unit. Before this, a gate of twelve workers on a budget of twelve gave
+every step one core, and `x3 case` inside a step compiled its packages one after
+another while the other steps had long finished and their slots stood empty:
+
+```yaml
+# x3/gate.yaml (no workers line: one core per step)
+- name: inline examples
+  run: x3 case -config x3.yaml
+```
+
+```text
+# the same function-body change, measured on the same tree
+x3 case                    18.2 s   (8 packages side by side)
+X3_CPU_HELD=1 x3 case      39.5 s   (before: the 8 packages in a row)
+X3_CPU_HELD=1 x3 case      21.2 s   (after: units borrow the idle slots)
+```
 
 **What a run says.** A run that took slots ends with one line on stderr:
 
@@ -78,4 +97,4 @@ measurement) take no slot. They are capped by `GOMAXPROCS`, which is set to the
 budget, and they are short. Slots are not taken in turn: a unit that is ready
 when a slot frees takes it, whichever unit has waited longest.
 
-<!-- x3-dist version=v0.327.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.328.0 capabilities=4d8da7a45f9e0cf6dfe7e7ef7762df2f4a8674e6d593606ccc22dcc4eea37c22 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -68,4 +68,4 @@ that did not hold, so it is `empty_scope` and red — a misspelled pattern would
 otherwise be the quietest way to switch a scope off. A list written as `[]` is
 refused with exit `2`: an empty scope is not a narrow scope, it is no scope.
 
-<!-- x3-dist version=v0.327.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.328.0 capabilities=4d8da7a45f9e0cf6dfe7e7ef7762df2f4a8674e6d593606ccc22dcc4eea37c22 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
