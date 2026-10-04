@@ -42,6 +42,27 @@ the project can write out.
   "args": ["-c", "exec go run ./cmd/app -migrate"] } } }
 ```
 
+⭐ **One name is never looked up: `x3` itself.** A bare `x3` in a gate trial,
+a step's `state:` command, a `do` task or a wrapped `testdb` command runs **the
+binary that is running now** (`os.Executable`), not the first `x3` on `PATH`. A
+path written out (`./x3`, `{bin}`) is the writer's choice and stays as written.
+
+Why: a step's memory is keyed by the gate binary's sum and salted by its
+version, but the observation inside it was written by whatever `x3` `PATH`
+found. Measured (W420, one settings comment on the pilot): an rc gate over an
+older installed `x3` re-ran **48** steps where the same rc with its own
+directory first in `PATH` re-ran **10** - the older engine bound every settings
+file by its bytes, so the newer gate kept memories it could not hold.
+
+```
+PATH=<a directory with no x3> x3 gate -config nested.yaml   # step: run: x3 version
+before: exit=-1 (want 0) - environment error      after: exit=0 (want 0)
+```
+
+Experiment: `nested x3 is the gate own engine control experiment` - with
+`PATH` holding no `x3`, the nested `x3 version` is green; the control arm, any
+other bare name (`x3x`), is still looked up on `PATH` and fails.
+
 ### Where a flag may stand on x3's own command line
 
 Every command that takes a directory takes it **last**, and a flag written after
@@ -62,4 +83,4 @@ a report file is then blind **exactly when there is something to read**, which
 is the one moment it exists for. The same trap was met once inside `outbound`,
 where a mode word sits before the flags; this is that answer applied everywhere.
 
-<!-- x3-dist version=v0.319.0 capabilities=7df8b4480e2230195d1a555149d3179ae4ba2c0c1d1f95ed0bc2d876c388958c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.320.0 capabilities=d346b94c89797f7f9e9c70886853f0e004328b8e27cf7bc5e0860b053868ce8b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -47,7 +47,7 @@ is used only when **everything the package's answer depends on** is unchanged:
 | What the key carries | Why it is in there |
 |---|---|
 | every source file of the package | the obvious half |
-| every source file of every package it reaches, transitively, inside the module | an example calls a declaration, and that declaration calls others; a key that stopped at the package would show an old green after the code under it moved |
+| of every package it imports, transitively, inside the module: **the declarations it can reach**, plus every file's package clause and imports | an example calls a declaration, and that declaration calls others; a key that stopped at the package would show an old green after the code under it moved |
 | the build tags the run carries | the same tree answers differently under `-tags` |
 | the ceiling, the report version, the Go toolchain version | each of them can change the answer without changing a source file |
 | `go.mod` and `go.sum` | a dependency moving is a change nothing in the tree records |
@@ -86,6 +86,36 @@ is weighed by its name). Experiment `case embedded package memory control
 experiment`: nothing changed → `3 package(s) unchanged` (the old engine: `1`); a
 file joins the embedded directory → the embedding package and its importer run
 again; the page changes → both run and their examples catch it.
+
+⛔ **An imported package is weighed by what the importer can reach, not by its
+whole text.** Measured on a pilot (v0.319.0): `return x` → `return (x)` in one
+core function re-ran every importer, the core region 189 s with case 185 s,
+though most of them never reached that function. The key now reads each imported
+package as declarations. The seeds are every `q.Name` the importing package
+writes — in its code, its tests and its example lines. A reached declaration
+reaches the names it uses, and a reached **type** reaches **every method** it has.
+That is why an interface call needs no implementor search: a value's dynamic type
+is born in code that names it, so whatever calls its method — an interface,
+reflection, `fmt` asking for `String` — calls a method already in the key. Every
+package-level `var` and every `init` runs at start-up and is always reached. A
+package is weighed whole wherever reach cannot be read: `//go:linkname`, `import
+"C"`, a function without a body, a dot import, a file that does not scan. A blank
+or dot import now joins the importer's key too (before, `import _ "m/x"` left x
+out of it).
+
+```text
+lib.Unused changes      → use and idle recalled
+lib.Double changes      → use runs (it calls Double), idle recalled
+square.Area changes     → use runs (it calls it through lib.Shape), idle recalled
+var Base = 10 → 11      → use and idle run (a package initialiser runs in both)
+```
+
+Experiment `case symbol-level reach control experiment`: the five trees under
+`internal/cases/testdata/reach` differ only in `lib/lib.go`; the stamp and
+cache-backed `Check` arms beside `stamp` and `Check` assert each row, and with
+the narrowing switched off the four "recalled" arms turn red. A compile error in a
+declaration nobody reaches leaves the importer recalled; the red comes from the
+package itself (its own examples, or the build step).
 
 That list is the honest part. A cache is only worth having while the things it
 cannot see are named out loud; `-no-cache` measures everything again and
@@ -199,4 +229,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.319.0 capabilities=7df8b4480e2230195d1a555149d3179ae4ba2c0c1d1f95ed0bc2d876c388958c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.320.0 capabilities=d346b94c89797f7f9e9c70886853f0e004328b8e27cf7bc5e0860b053868ce8b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
