@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.326.0`**
+**Current version: `v0.327.0`**
 
 ## language settings
 
@@ -16,4 +16,4 @@
 | `allow` | project terms no dictionary has. One ASCII word, three letters or more — an entry that could never match is rejected rather than ignored |
 | `keywords` | a language's reserved words, per extension. Written, the list **replaces** the embedded one for that extension; written empty, that language has no reserved words |
 
-<!-- x3-dist version=v0.326.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.327.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

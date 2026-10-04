@@ -432,4 +432,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.326.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.327.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
