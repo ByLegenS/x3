@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.310.1`**
+**Current version: `v0.311.0`**
 
 ## component path patterns
 
@@ -36,9 +36,10 @@
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
 | `per` | consistency | compare each instance of a component with **itself** |
 | `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
-| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-exists-on-disk` |
+| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-quoted-in-right`, `left-exists-on-disk` |
 | `when` | no | the set and the size that turn this rule on; until then it waits |
 | `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
+| `quote` | `left-quoted-in-right` | `ellipsis` marks (default `…`) and a `placeholder` pattern; both are gaps |
 | `except` | no | `self` only, next to `from` + `deny` |
 | `minimum` | no | the fewest subjects the rule must see |
 | `policy` | no | `warn` or `block`; **defaults to `block`** |
@@ -75,4 +76,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

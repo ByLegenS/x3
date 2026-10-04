@@ -97,7 +97,10 @@ step again and an intermediate run does not.
 The gate plants these cases as real repositories: a tree may carry
 `history: {<limb>: [{message, files}]}`, the base is committed to `main`, each
 seed becomes one commit on `work`, and the limb's own files are written last,
-uncommitted. A gate step cannot call git (`forbid`) and a fixture tree cannot
+uncommitted. A seed may name its `branch:` (for example `work/pages-x`); the
+commit lands there, and a rule that reads the branch NAME can be planted on two
+names with the same content. A planted tree lives until its step ends, so two
+working copies of one step stand side by side, as real ones do. A gate step cannot call git (`forbid`) and a fixture tree cannot
 hold a `.git` — the engine plants the history itself, through its one git door.
 
 In the same scope the files the rules' `when` and `then` patterns reach are
@@ -114,4 +117,4 @@ Measured here — with a shared marker the `docs gate` step's own control
 experiment, a rule that must exit `1`, exited `0`: the exemption had excused the
 experiment.
 
-<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

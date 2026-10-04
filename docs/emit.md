@@ -111,6 +111,22 @@ item that left the list is still read as current until somebody deletes it. A
 writing run deletes it (`PRUNED`); another document's declared `out` in the
 same directory (the index above) is never an orphan.
 
+Hand-written pages may share the set's directory when the set names them:
+
+```yaml
+    - name: items
+      each: items
+      out: docs/items/{id}.md
+      keep: [guide-*.md, about.md]      # file-name patterns in docs/items/
+```
+
+A file matching `keep` is neither `orphan_document` under `-check` nor pruned by
+a writing run. A `keep` pattern that matches no file the list does not produce
+is `dead_keep` — **always a block**, not open to `policy`: a keep with nothing
+left to keep would shelter the next real orphan without a word. `keep` without
+`each` is refused (only a page set prunes), and so is a pattern holding a `/`.
+Control experiment: `emit keep control experiment` in `x3.yaml`.
+
 Refused before anything is compared, exit 2: two items naming one page, a name
 that is not a file name (a separator, `..`, a character a file system refuses),
 `each` without a placeholder or a placeholder without `each`, a placeholder in
@@ -207,4 +223,4 @@ repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

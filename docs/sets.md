@@ -170,6 +170,42 @@ list anything in particular, so the rule holds while both sets grow. "The core
 dictionary contains exactly these keys" dies at the next honest addition; this
 one speaks only when the line itself is crossed.
 
+### `left-quoted-in-right` — a guide that quotes the screen, shortened
+
+**Catches:** a guide page that quotes a message the screen no longer shows. A
+guide rarely quotes in full: it cuts the tail with `…`, or puts `…` where the
+message carries a placeholder such as `{name}`. `left-subset-of-right` calls
+every shortened quote red, so the rule is never written — and when the message
+text changes, the old quote stays in the guide unnoticed.
+
+```yaml
+- name: every-quoted-message-is-on-the-screen
+  kind: consistency
+  compare: left-quoted-in-right
+  quote:
+    ellipsis: ["…", "..."]          # default: …
+    placeholder: '\{[^{}]+\}'       # default: none
+  sources: [guide/*.md]
+  left:  { from: regex, select: '“([^”]+)”' }
+  right: { from: regex, file: messages.json, select: '"[a-z.]+": "([^"]*)"' }
+```
+
+Each left value must be a shortened quote of **one** right value:
+
+| Rule | Example (right: `Welcome {name}, your account is ready.`) |
+|---|---|
+| ellipsis marks and placeholders are **gaps**; the left is cut at them and each piece trimmed | `Welcome …, your account is ready.` — green |
+| the pieces appear in the right **in order**, and a piece never crosses a placeholder | `Welcome Ali, your account…` — red (the quote fills the placeholder in) |
+| no mark at the start: the first piece sits at the **start**; no mark at the end: the last piece sits at the **end** (a leading or trailing placeholder counts as already skipped) | `Welcome` — red (a prefix without a mark) |
+
+An unmatched left value is `set_mismatch` and names the right value with the
+**longest common prefix** — the message a stale quote most likely came from:
+`"This user name is already…" quotes no value on the right; the nearest is "This
+user name belongs to someone else."`. A blank mark, or a placeholder matching the empty
+text, is refused: either would let every quote through. `quote` written under
+any other `compare` is refused. Control experiment: `shortened quote control
+experiment` in `x3.yaml` (three green arms, three red).
+
 ### `left-exists-on-disk` — does the path still point at something?
 
 **Catches:** a gate carrying a path constant that keeps working after the path
@@ -233,4 +269,4 @@ it still cannot rot in silence — a pattern that sifts nothing is `dead_filter`
 One pattern may cover a whole family, which is what a project that keeps its
 control-experiment fixtures inside its gate scripts needs.
 
-<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

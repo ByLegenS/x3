@@ -1045,6 +1045,21 @@ file digest reads the disk while a question starts a process.
 file and the check runs what it finds in it; a name carrying a path separator is
 neither recorded nor run.
 
+⛔ **A question is asked again where the run stands, not where it was first
+asked.** The directory a question was asked in is recorded relative to the root,
+like every file path; a directory outside the root stays as written. Measured in
+a production repository: two working copies shared one `cache.dir`, and the
+memory of the lane step (`scope.lanes`, `branch:`) re-asked *"which branch am I
+on, what did the branch touch?"* in the working copy that **wrote** it. The
+answer matched, so a writer branch's red came back on another branch, where a
+forced run was green; the other direction lets a branch that crosses its lane
+pass on a green written elsewhere. The control experiment
+`lane decision follows the working copy` plants the same tree on two branch
+names in two directories over one cache and runs each after the other's record
+exists, in both orders. With the directory written absolute, the second and
+fourth arms say `0 ran, 1 skipped` and the step is red. Every measurement that
+reads git asks through the same door, so all of them follow the working copy.
+
 ⛔ **The file set is hashed once**, not per step, and only the files some step
 declares. Measured in a production repository: 1 142 source files, 19.9 MB, hashed
 in full in **206 ms** — which is also the whole of what a timestamp check could
@@ -1340,4 +1355,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

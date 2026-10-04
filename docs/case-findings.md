@@ -82,6 +82,25 @@ one example is still `crashed`, naming it. The ceiling itself is
 `{ "case": { "timeout": "90s" } }`, and it is read the same way whether it is
 reached or not.
 
+**One run, another ceiling.** On a shared machine a heavy package can reach the
+ceiling only because something else holds the processors. `-timeout` moves the
+ceiling for that run alone, without touching the settings file; a value that is
+not positive is refused before anything runs:
+
+```
+$ x3 case -timeout 1s ./nap        # nap.go sleeps two seconds
+nap.go:7 (Nap): over_ceiling
+	the package reached the 1s ceiling before this example was measured; not one example finished before the ceiling, so none can be named slow - raise case.timeout (or -timeout for one run) or make the package faster
+x3 case: 1 example(s) in 1 package(s) - 0 passed, 1 finding(s)
+exit 1
+$ x3 case -timeout 1m ./nap
+x3 case: 1 example(s) in 1 package(s) - 1 passed, 0 finding(s)
+exit 0
+$ x3 case -timeout 0s ./nap
+x3 case: -timeout 0s is not a positive duration
+exit 2
+```
+
 **Known boundary:** the clock covers compiling as well as running, so a ceiling
 set below a package's compile time reports `over_ceiling` for work that never
 got to run. The error is on the side of accusing nobody, which is the side this
@@ -166,4 +185,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.310.1 capabilities=49af73dbb834e77406a186d98fa34d1a30b88604b8b95fbcaa57771feea19466 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
