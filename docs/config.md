@@ -929,6 +929,17 @@ experiments: `box state control experiment` (the same verdict recalls, a changed
 verdict runs again; the engine before this flag never recalls) and `testdb state
 query control experiment` (needs `X3_PG_ADMIN`).
 
+⛔ **A question whose answer the commit fixes is not recorded.** A git answer a
+step gets is a recorded question, asked again whenever its record is checked.
+The version stamp's `{kloc}` reads the whole history (`git log --numstat`) and
+was recorded too: measured on a pilot, checking the record of the one step that
+runs `x3 do build -dry` took **9.4 s** of a 9.5 s region where no step ran. That
+answer is fixed by the commit HEAD names, which the stamp already asks
+(`rev-parse --short HEAD`, `rev-list --count HEAD`), so it is no longer recorded
+(`changed.GitHistory`); a new commit still moves the record through those
+questions. Same region after: **1.9 s**. Control: the engine before this keeps
+six questions in that record, numstat among them; after, five.
+
 ⛔ **A run that wrote no new result leaves the cache file alone.** Measured on a
 production pilot: the gate cache had grown to 74 MB, and reading it back, merging,
 writing and re-reading it cost **8 s** of every run, including runs where every
@@ -1400,4 +1411,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.318.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.319.0 capabilities=7df8b4480e2230195d1a555149d3179ae4ba2c0c1d1f95ed0bc2d876c388958c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

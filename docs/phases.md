@@ -127,6 +127,20 @@ What it does not do: a trial that writes into the repository any other way
 (a tool that rewrites a file it was only told to read) is not seen; give such
 trials a shared `{tmp}` path or split them into their own step.
 
+**A path a `steps` guard writes is held machine-wide while the guard runs.**
+The gate cannot see inside `x3 guard`: a trial that runs it names no `-o`, yet
+the guard's own steps build `go build -o out/x.exe` and read it back with
+`go version -m`. Two such runs at once (two gate steps, or overlay trials of
+one step side by side) read each other's half-written binary — measured on a
+pilot: of thirteen concurrent runs of the clean guard, two said *"unrecognized
+file format"*. Now every `-o`/`-out`/`-output` path of the guard's `steps` and
+`after` that lies outside its `workspace` is locked (`~/.x3cache/claims`, one
+lock per path, taken in order, dropped by the system when the process dies)
+from the first step to the end of the teardown; a second run waits. Control:
+the same four-overlay burst eight times over, 0 of 8 red. The examples on
+`claims` (`internal/live/steps.go`) and `Outputs` (`internal/probe`) measure
+which paths are locked; a workspace keeps relative paths private and locks none.
+
 ### Work a run remembers instead of repeating
 
 Two memos are opened explicitly, by the command, and closed when it ends.
@@ -158,4 +172,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.318.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.319.0 capabilities=7df8b4480e2230195d1a555149d3179ae4ba2c0c1d1f95ed0bc2d876c388958c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

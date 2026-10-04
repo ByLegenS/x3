@@ -127,4 +127,27 @@ of which runs a Go toolchain of its own — in **7.1 s**. The floor is the
 package's own build; what a target buys back is the time of the examples it left
 out.
 
-<!-- x3-dist version=v0.318.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+**What a changed file sends back to the run.** A package is stored against its
+own files and every package it reaches through the module, and the two are
+weighed with different eyes. Its **own** files enter as tokens with their line
+numbers, comments included — an example lives in a comment, a finding names a
+line. A package it **imports** enters only as what the importer's build sees:
+code tokens with their lines and the compiler's own directives (`//go:`,
+`//line`, `//export`); its prose, its `//x3:case` lines and its `_test.go` files
+(and what only those import) do not enter. A blank line at the end of a file,
+trailing spaces or a reworded comment therefore re-run nothing below it; a line
+inserted in the middle shifts every later line and still re-runs everything
+that reaches it, because a panic trace or `runtime.Caller` would see the shift.
+A file that imports `"C"`, or that does not scan, is weighed byte for byte.
+Measured on this engine's own tree (38 packages, one file every importer reaches):
+
+```
+$ echo >> internal/source/code.go     # a blank line at the end
+x3 case: cache 38 hit(s), 0 miss(es)  # v0.318.0: 15 hit(s), 23 miss(es)
+$ (one comment word changed)
+x3 case: cache 37 hit(s), 1 miss(es)  # only the package that holds the comment
+$ (ToLower -> ToUpper in one call)
+x3 case: cache 15 hit(s), 23 miss(es) # every importer again: 5 finding(s)
+```
+
+<!-- x3-dist version=v0.319.0 capabilities=7df8b4480e2230195d1a555149d3179ae4ba2c0c1d1f95ed0bc2d876c388958c template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
