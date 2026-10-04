@@ -93,10 +93,15 @@ core function re-ran every importer, the core region 189 s with case 185 s,
 though most of them never reached that function. The key now reads each imported
 package as declarations. The seeds are every `q.Name` the importing package
 writes — in its code, its tests and its example lines. A reached declaration
-reaches the names it uses, and a reached **type** reaches **every method** it has.
-That is why an interface call needs no implementor search: a value's dynamic type
-is born in code that names it, so whatever calls its method — an interface,
-reflection, `fmt` asking for `String` — calls a method already in the key. Every
+reaches the names it uses, and a reached **type** reaches **every exported method**
+it has. That is why an interface call needs no implementor search: a value's
+dynamic type is born in code that names it, so whatever calls its exported method —
+an interface, reflection, `fmt` asking for `String`, `encoding/json` asking for
+`MarshalJSON` — calls a method already in the key. An **unexported** method is
+reached only when reached code of its own package writes `.name` (a selector, a
+method value, a call through a package-local interface, a call promoted through an
+embedded field): no other package's interface can name it and reflection does not
+see it. Every
 package-level `var` and every `init` runs at start-up and is always reached. A
 package is weighed whole wherever reach cannot be read: `//go:linkname`, `import
 "C"`, a function without a body, a dot import, a file that does not scan. A blank
@@ -123,8 +128,25 @@ outside the package (as above), its own text and its file's `//x3:` lines, the
 package's test, fixture and embedded files whole, every file's package clause and
 imports, and only the declarations **this example reaches** - the names it
 writes, followed through the package; every `var`, `init` and `TestMain` is
-always reached, a reached type takes every method. An example whose key matches
-its last green is recalled; the report lists it under `recalled`.
+always reached, a reached type takes its exported methods and the unexported ones
+reached code names. What lies outside is weighed **per example** too: the base is
+every imported package's `var` and `init` closure, and on top of it only what this
+example's reached declarations (test and fixture files included) and its own
+`q.Name` pairs reach. An example whose key matches its last green is recalled; the
+report lists it under `recalled`.
+
+```
+p.hidden() changes, nobody writes .hidden   -> one example runs as a witness, four recalled
+p.local() changes, called via a local iface -> Local runs and its red is seen
+p.promo() changes, called as Outer{}.promo() -> Promo runs and its red is seen
+T.String / T.MarshalJSON changes            -> every example building T runs (fmt, json)
+lib.A changes, only UA calls it             -> UA runs, UB recalled
+```
+
+Experiment `case reached type takes only named methods control experiment`: the
+`case-method` tree, one limb per row; the previous engine says `5 of 5` and `2 of
+2` on the two narrowing rows and turns them red, the four safety rows are red on
+the change under both.
 
 ```
 p.double changes        -> Twice runs (it calls double), Next/Scaled/Same recalled
@@ -290,4 +312,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.322.0 capabilities=5db2a1d21099dbaeb144dc1fc7e191496f0cc6161a3b825ecbd87a7d13c9a11d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.323.0 capabilities=4f7f593e890f7bb467085b183a055543b563d7f26d07c83644165ad95d13ad53 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

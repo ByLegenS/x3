@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.322.0`**
+**Current version: `v0.323.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.0 MB | `f0030ab70bbcdf67ca39c836099f0ff17b4e4b81273ab9fc24c29e8e2d4e9b6f` |
-| `x3-linux-amd64` | linux/amd64 | 25.4 MB | `3042cce47974bff4b0f7813d62e2464b8cc43fbeeb0792d2d58e50873b65cfac` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.0 MB | `26c62b5f976137452e3834a64c9934e351768eadd890ba0e73aeceb6df5119ee` |
+| `x3-linux-amd64` | linux/amd64 | 25.4 MB | `74ce1ee1624d66c3cd9eb6aa0be5ee474c175e3e881433ef0458e5dad1211cb5` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -310,4 +310,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.322.0 capabilities=5db2a1d21099dbaeb144dc1fc7e191496f0cc6161a3b825ecbd87a7d13c9a11d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.323.0 capabilities=4f7f593e890f7bb467085b183a055543b563d7f26d07c83644165ad95d13ad53 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
