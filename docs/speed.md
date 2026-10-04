@@ -58,7 +58,7 @@ uncached one.
 
 ### Each engine version keeps its own results
 
-Result files carry the engine version in their name (`gate@<engine version>.yaml`), so two versions run one after the other on one project no longer empty each other's cache. The first run of a new version takes the tree's witness (which path, which digest) from the newest sibling file; readers of the tree (`snapshot`, `boxes suspect.gone`) fall back to that sibling until the version has written. A sibling not written for 30 days is deleted. The worker-count record (`gate-tune.yaml`) stays unversioned: it is the machine's. Measured by the `Open` / `newest` / `sweep` examples in internal/cache/cache.go.
+Result files carry the engine version in their name (`gate@<engine version>.yaml`), so two versions run one after the other on one project no longer empty each other's cache. The first run of a new version takes the tree's witness (which path, which digest) from the newest sibling file; readers of the tree (`snapshot`, `boxes suspect.gone`) fall back to that sibling until the version has written. The siblings are ordered by modification time first and only the newest readable one is decoded (pilot: twenty 40-74 MB siblings were all decoded and a new version's first read of the tree took 25 s; `x3 boxes` with `suspect.gone` went from 43 s to 20 s). Whole-file readers (`snapshot`, `boxes suspect.gone`) take each record's body as a parsed tree and do not write it back to bytes first. A sibling not written for 30 days is deleted. The worker-count record (`gate-tune.yaml`) stays unversioned: it is the machine's. Measured by the `Open` / `newest` / `sweep` examples in internal/cache/cache.go.
 
 ## Files the engine reads back
 
@@ -70,4 +70,4 @@ calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.315.0 capabilities=8be0b8659b457bde304c60a4314857b93655a319461760dfcd9e7e01dcc7e225 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.316.0 capabilities=ed4bcc6b18e25558748234bc30603c1f915b91c963d6134e207011cb96104247 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

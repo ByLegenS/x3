@@ -107,4 +107,4 @@ at all, and a run where **nothing** named one is red (`nothing_measured`): a
 gate that saw no subject can never go red, and the count is the only thing that
 says so.
 
-<!-- x3-dist version=v0.315.0 capabilities=8be0b8659b457bde304c60a4314857b93655a319461760dfcd9e7e01dcc7e225 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.316.0 capabilities=ed4bcc6b18e25558748234bc30603c1f915b91c963d6134e207011cb96104247 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
