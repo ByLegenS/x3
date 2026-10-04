@@ -101,6 +101,19 @@ run. A change to a file a package reaches still runs that package (and every
 package importing it); a change to the `case` section itself still runs them all
 (experiment `case package memory settings section control experiment`).
 
+The per-file caches follow the same rule: `comments`, `secrets`, `lang`
+(`language`), `scan` (`expect`, `scan`) and `test` (`test`, `testdb`) are salted
+by the sections they read, so editing another section keeps every file's record:
+
+```text
+x3 comments: cache 2 hit(s), 0 miss(es)
+```
+
+Before this a change anywhere in the configuration measured every file again
+(pilot: 24-27 s for one step). Experiment `per-file salt control experiment`:
+a cold run misses both files, a change in `secrets` hits both, and the control
+arm (a change in the `comments` section) misses both again.
+
 A cache file is always written so it reads back: multi-line text (an indented
 finding, a tool's output) is stored as one quoted line, the file is decoded
 before it replaces the old one, and a writer that finds the file held open by a
@@ -177,4 +190,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.312.0 capabilities=c0a17db8d5756261384dddd105d5972f329fa24724bc0b9c12f8570ba0f604a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.313.0 capabilities=17d7c952c83d131183aa1ec638aa096e3ac52de533b3d0cea3c70480d6a35004 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

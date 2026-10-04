@@ -77,6 +77,41 @@ and the undeclared-region check see exactly what they would have seen had the
 trial run. `X3_CACHE_WHY=1` names the trial that ran again and the file that
 moved it (`"<step> · <trial>" ran again: file x3/arch.yaml changed`).
 
+### Trials that run side by side
+
+A step's trials used to run one after another, so a step of fourteen
+independent `go run ./cmd/<tool> -page <file>` trials took fourteen times one
+trial. Now a trial that cannot read what another trial of its step leaves
+behind runs on an idle gate worker when one is free (and a machine slot with
+it, never waited for); otherwise it runs in order on the step's own worker.
+The line says so:
+
+```text
+== trials that leave nothing for one another    (85 ms)
+  one                                    exit=0 (want 0) - alongside
+  two                                    exit=0 (want 0)
+  three                                  exit=0 (want 0) - alongside
+```
+
+That is the engine's own `trials side by side control experiment`
+(`internal/gate/testdata/side-by-side.yaml`). Controls: three trials sharing
+their working directory `{tmp}` never say `alongside`, and with `-workers 1`
+no trial does.
+
+A trial keeps its order (it waits for the trials before it, and the trials
+after it wait for it) when:
+
+- it names a `{tmp}` path another trial names, or the step's `env` names `{tmp}`;
+- it plants the same tree as another trial (`tree: t:a` twice: the tree is
+  removed and planted again in the same place);
+- it writes a repository path with `-o`, `-out` or `-output` that another
+  trial names;
+- it runs on the real tree with `-w`, `-fix` or `-write`.
+
+What it does not do: a trial that writes into the repository any other way
+(a tool that rewrites a file it was only told to read) is not seen; give such
+trials a shared `{tmp}` path or split them into their own step.
+
 ### Work a run remembers instead of repeating
 
 Two memos are opened explicitly, by the command, and closed when it ends.
@@ -108,4 +143,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.312.0 capabilities=c0a17db8d5756261384dddd105d5972f329fa24724bc0b9c12f8570ba0f604a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.313.0 capabilities=17d7c952c83d131183aa1ec638aa096e3ac52de533b3d0cea3c70480d6a35004 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
