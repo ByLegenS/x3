@@ -78,4 +78,4 @@ measurement) take no slot. They are capped by `GOMAXPROCS`, which is set to the
 budget, and they are short. Slots are not taken in turn: a unit that is ready
 when a slot frees takes it, whichever unit has waited longest.
 
-<!-- x3-dist version=v0.321.0 capabilities=53091be6e092636d76445fb8f3796a936d76d8c5d4f37f7633869b61972c255d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.322.0 capabilities=5db2a1d21099dbaeb144dc1fc7e191496f0cc6161a3b825ecbd87a7d13c9a11d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

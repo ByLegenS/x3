@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.321.0`**
+**Current version: `v0.322.0`**
 
 ## guard exit codes
 
@@ -78,4 +78,4 @@
 | `summary.baselined` | how many reds the baseline held; they are neither passes nor blocks |
 | `startedAt` | present **only** with `-stamp` |
 
-<!-- x3-dist version=v0.321.0 capabilities=53091be6e092636d76445fb8f3796a936d76d8c5d4f37f7633869b61972c255d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.322.0 capabilities=5db2a1d21099dbaeb144dc1fc7e191496f0cc6161a3b825ecbd87a7d13c9a11d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

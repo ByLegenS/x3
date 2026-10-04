@@ -144,6 +144,40 @@ Experiment `case example-level reach control experiment`: the six trees under
 beside `Check` assert each row, and with the witness switched off the type-error
 arm turns red.
 
+**An opt-in file nobody asked for does not keep its package out of the cache.**
+Its examples are counted under `optin` and are not this run's question, so the
+package's green is stored for the rest (before, such a package ran on every
+unchanged run). When the run carries the opt-in tag (`-tags live`) the package
+key is not asked: the opt-in examples run every time they are asked for and are
+never recalled, while their siblings go through the per-example memory. The
+run's tags join every key, so the first asked run after unasked ones measures
+the siblings again; the next asked run recalls them.
+
+```
+opt-in file, nothing changed      -> cached: "cache 1 hit(s), 0 miss(es)"
+double changes, live not asked    -> Twice runs and its red is seen, Next recalled
+live asked, second run            -> Probe runs, Twice and Next recalled
+live asked, Probe changes         -> Probe runs and its red is seen, siblings recalled
+```
+
+**Why did a package run? `X3_CACHE_WHY=1`** prints one stderr line per package
+the run measured, and it reaches a gate step through the environment:
+
+```
+x3 case: why lib: whole because a.go uses cgo
+x3 case: why app/core: 1775 of 1775 example(s) run: 1775 reach a changed declaration
+x3 case: why p: 2 of 3 example(s) run: 1 reach a changed declaration; 1 are opt-in and asked for
+x3 case: why q: 4 of 4 example(s) run: 4 cannot be narrowed (it reaches Build, whose body may start a subprocess)
+```
+
+The other counts are `have no record` (first run, or the record was written
+under other tags) and `1 runs as the witness that the package still builds`.
+Experiment `case second unchanged run misses nothing`: the same tree under
+`internal/cases/testdata/inner/optbase` twice on one cache; with the old store
+rule (any missing tag refuses) the second run says `1 hit(s), 1 miss(es)`. The
+four `opt*` arms beside `Check` assert the rows above; with the old rule the
+unchanged arm and both asked arms turn red.
+
 That list is the honest part. A cache is only worth having while the things it
 cannot see are named out loud; `-no-cache` measures everything again and
 `-cache <file>` points one run at another box.
@@ -256,4 +290,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.321.0 capabilities=53091be6e092636d76445fb8f3796a936d76d8c5d4f37f7633869b61972c255d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.322.0 capabilities=5db2a1d21099dbaeb144dc1fc7e191496f0cc6161a3b825ecbd87a7d13c9a11d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
