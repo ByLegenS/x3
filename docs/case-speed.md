@@ -58,16 +58,25 @@ sentence that run never measured — and the work it names is already being fixe
 so measuring it again costs nothing anyone minds. A package with a **deferred**
 example is not stored either: nothing measured it.
 
-Three kinds of package are measured on **every** run, and the run says which and
+Two kinds of package are measured on **every** run, and the run says which and
 why the first time it meets one:
 
 - a package with a `testdata` directory beside it — the walk never enters it, so
   a fixture changing there changes no digest the key can see;
-- a package whose sources declare `//go:embed` — what is embedded is not a Go
-  source the walk reads;
 - a tree with no readable `go.mod` at its root — without a module path an import
   path cannot be turned into a directory, and a key that cannot follow an import
   is a key that will eventually be wrong.
+
+⛔ **An embedded file is part of the package.** A package whose sources declare
+`//go:embed` used to be measured on every run, and so was every package importing
+it — measured on a pilot, the record held 30 of 119 packages and `x3 case` took
+306 s. The key now weighs the **content** of every file the patterns match, read
+the way the symbol table reads them (a directory pattern counts dot and underscore
+files too, an indented directive inside `var (` counts, a pattern matching nothing
+is weighed by its name). Experiment `case embedded package memory control
+experiment`: nothing changed → `3 package(s) unchanged` (the old engine: `1`); a
+file joins the embedded directory → the embedding package and its importer run
+again; the page changes → both run and their examples catch it.
 
 That list is the honest part. A cache is only worth having while the things it
 cannot see are named out loud; `-no-cache` measures everything again and
@@ -76,6 +85,21 @@ cannot see are named out loud; `-no-cache` measures everything again and
 The report names what it skipped in `cached`, and the summary line says
 `N package(s) unchanged since the last run`. Findings and counts are identical
 either way — the cache changes what a run **pays**, never what it **says**.
+
+The record of `x3 case` is bound to the `case` and `testdb` sections of the
+settings only, not to the whole configuration. A rule's text in another section,
+or another working copy of the same repository sharing the cache directory with
+a different gate, no longer throws every package away:
+
+```text
+x3 case: 3 example(s) in 3 package(s) - 3 passed, 3 package(s) unchanged since the last run, 0 finding(s)
+```
+
+Measured on a pilot before this: the record held 30 of 119 packages, because
+each run under a different whole-configuration salt kept only what it had just
+run. A change to a file a package reaches still runs that package (and every
+package importing it); a change to the `case` section itself still runs them all
+(experiment `case package memory settings section control experiment`).
 
 A cache file is always written so it reads back: multi-line text (an indented
 finding, a tool's output) is stored as one quoted line, the file is decoded
@@ -153,4 +177,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.312.0 capabilities=c0a17db8d5756261384dddd105d5972f329fa24724bc0b9c12f8570ba0f604a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

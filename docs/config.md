@@ -917,6 +917,19 @@ a reader could not tell which one the engine believed. So is declaring both
 Prefer `state` wherever the input can be printed — `volatile` is for what cannot,
 such as a step that builds the database it measures.
 
+⛔ **Every record is checked before any step runs, in parallel, and each
+question is asked once.** A step's record is valid while the files, directories,
+settings sections and `git` answers it rests on are unchanged; the gate used to
+check the records one step after another, hashing the same files again for every
+step, merging the same section again and starting the same `git` and `state`
+commands again. Measured on a pilot: 95 steps, none of them run, and the step
+phase still took 23 s. Now the records are checked first, concurrently, against
+the tree as it stood when the run began; within that check one file is hashed
+once, one section merged once, one question and one `state` command asked once
+(the `-phases` line names the check `recall`). Then the steps that missed start.
+The ledger lives only for that check: a record a step writes after it ran, and the
+trial memory inside a running step, weigh the files as they are then.
+
 ⛔ **The cache says why it missed.** `X3_CACHE_WHY=1` makes a step that ran
 again name the input that moved: `"architecture" ran again: dir build/tmp/log
 changed`. Without it, finding out why a step re-ran on a tree nobody touched
@@ -1355,4 +1368,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.312.0 capabilities=c0a17db8d5756261384dddd105d5972f329fa24724bc0b9c12f8570ba0f604a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

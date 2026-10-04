@@ -34,6 +34,49 @@ from scratch, and how many times the tree was walked, are properties of the
 *mechanism*: a second full read inside one run means a path that does not
 remember its answer, and that is the same defect on every machine.
 
+### A trial the step does not run again
+
+A step is one thing in the report, but its trials are remembered one by one.
+When a step runs again because something it reads changed, every trial that
+runs `x3` (and so reports what it read) is first looked up in the cache: if
+nothing *that trial* read has changed, its exit code and output come back from
+the record and the trial is not run. The line says so:
+
+```text
+== the two modules    (1573 ms)
+  the a module judges the examples it holds exit=0 (want 0) - recalled
+  the b module judges the examples it holds exit=0 (want 0)
+```
+
+That is the engine's own `trial memory control experiment`: one step, two
+trials, each running `x3 case` on its own module. `b` changes, the step runs
+again, and only `b` is measured; when `b` then breaks, `b` runs and the step is
+red while `a` still answers from its record. Control: with recall switched off
+the second arm is red (`a` never says `recalled`), and with recall that ignores
+what a trial read the third arm is green when it must be red.
+
+Most trials of a real gate are experiment arms on a fake tree; their inputs are
+the tree (part of the cache salt) and the overlay files they name, not the
+source file that changed. Measured on a pilot: 212 of 275 trials ran on a fake
+tree, and a one-file change in the core re-ran all sixteen trials of one step
+(77 s) while only two of them looked at the real tree.
+
+What is never recalled:
+
+- a trial whose command is not `x3` (`go run`, `go vet`): it leaves no
+  observation, so the step's own scope stands for it and it runs whenever the
+  step runs;
+- every trial of a step where two trials name the same `{tmp}` path (one writes
+  a report with `-out {tmp}/r.yaml`, another reads it with `-from x={tmp}/r.yaml`),
+  or where the step's own `env` names `{tmp}`;
+- a trial that failed for an environment reason, and every trial of a cold run
+  (the gate re-measures red steps once after writing its own record).
+
+A recalled trial's observation is added to the step's, so the step's record
+and the undeclared-region check see exactly what they would have seen had the
+trial run. `X3_CACHE_WHY=1` names the trial that ran again and the file that
+moved it (`"<step> · <trial>" ran again: file x3/arch.yaml changed`).
+
 ### Work a run remembers instead of repeating
 
 Two memos are opened explicitly, by the command, and closed when it ends.
@@ -65,4 +108,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.311.0 capabilities=f78154bbee065e6965565472d835bb54b1e426dfbddbaf80774fab6d9cd67105 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.312.0 capabilities=c0a17db8d5756261384dddd105d5972f329fa24724bc0b9c12f8570ba0f604a0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
