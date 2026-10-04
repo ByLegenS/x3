@@ -228,6 +228,18 @@ x3 case: why q: 4 of 4 example(s) run: 4 cannot be narrowed (it reaches Build, w
 
 The other counts are `have no record` (first run, or the record was written
 under other tags) and `1 runs as the witness that the package still builds`.
+Each package that ran also says where its seconds went, so a slow change is
+read without a profiler:
+
+```
+x3 case: why apps/core: prepared 0.3 s, took 6.4 s: toolchain 6.1 s, binary 0.4 s, 3 example(s), 639 marked file(s)
+```
+
+`prepared` is marking and staging, `toolchain` is compile, link and vet, and
+`binary` is the test binary's own run as `go test -json` reports it. Planning
+walks each example's reach into the packages it imports once per distinct
+seed set (VT pilot, one body edit in a shared package: planning 17.8 -> 9.3 s,
+the whole direct run 32.2 -> 16.6 s, the same 20 packages and examples run).
 Experiment `case second unchanged run misses nothing`: the same tree under
 `internal/cases/testdata/inner/optbase` twice on one cache; with the old store
 rule (any missing tag refuses) the second run says `1 hit(s), 1 miss(es)`. The
@@ -346,4 +358,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.325.0 capabilities=9aa4a90e77a4a82f01d4c8e337f62c31f8714fe52c0494a8f76ad46fda98e069 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.326.0 capabilities=670633e0f379004ab4fec67e1c4d9694ec074772a08ccbe03e0d5e7be318aa8f template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
