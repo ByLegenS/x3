@@ -37,4 +37,4 @@ It reaches further than it looks. `x3 testdb run -- x3 case ./internal/...`
 gives the example runner, which has no environment seam of its own, the same
 fresh database — the variables are inherited by every process under the wrapper.
 
-<!-- x3-dist version=v0.323.0 capabilities=4f7f593e890f7bb467085b183a055543b563d7f26d07c83644165ad95d13ad53 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.324.0 capabilities=6e5a7b45d5dd56fa6209232ecd695fc70d6ac5d91025840cf216d9adda009950 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

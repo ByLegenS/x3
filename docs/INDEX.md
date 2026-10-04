@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.323.0`**
+**Current version: `v0.324.0`**
 
 | Page | What it covers |
 |---|---|
@@ -52,6 +52,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The settings, written one way](fmt.md) | the configuration and its parts rewritten with comments and key order kept |
 | [Credentials in the source](secrets.md) | credential formats in any text file, masked in the report that names them |
 | [The comment diet](comments.md) | comment blocks over a limit, with the ratio to code kept as a warning |
+| [Who uses this file](uses.md) | every file against the mentions the rest of the tree makes of it, and the files nobody names |
 | [Open work, measured](boxes.md) | every box against the criteria that would prove it done, in both directions |
 | [The directory a command criterion runs in](boxes-workdir.md) | the working directory a run measures its commands in, declared by the project and stamped in every report |
 | [A criterion that brings its own expectation](criterion-expect.md) | one kind is one runner, and the line names which of that runner's expectations weighs it |
@@ -127,4 +128,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.323.0 capabilities=4f7f593e890f7bb467085b183a055543b563d7f26d07c83644165ad95d13ad53 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.324.0 capabilities=6e5a7b45d5dd56fa6209232ecd695fc70d6ac5d91025840cf216d9adda009950 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
