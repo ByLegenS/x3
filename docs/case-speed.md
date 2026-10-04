@@ -117,6 +117,33 @@ the narrowing switched off the four "recalled" arms turn red. A compile error in
 declaration nobody reaches leaves the importer recalled; the red comes from the
 package itself (its own examples, or the build step).
 
+**Inside the changed package, each example is remembered on its own.** When a
+package's key misses, every example is asked again by its own key: what lies
+outside the package (as above), its own text and its file's `//x3:` lines, the
+package's test, fixture and embedded files whole, every file's package clause and
+imports, and only the declarations **this example reaches** - the names it
+writes, followed through the package; every `var`, `init` and `TestMain` is
+always reached, a reached type takes every method. An example whose key matches
+its last green is recalled; the report lists it under `recalled`.
+
+```
+p.double changes        -> Twice runs (it calls double), Next/Scaled/Same recalled
+var factor = 1 -> 2     -> all four run (a package initialiser)
+the fixture changes     -> all four run (fixture files are weighed whole)
+a type error in idle()  -> one example still runs, and the build red is seen
+a comment changes       -> one example runs as a witness, three recalled
+```
+
+A package that cannot be narrowed (cgo, linkname, assembly, dot import, a file
+that does not scan) or an example that reaches a body naming `"go"` or
+`.Executable` (it may run the package outside its test binary) runs whole. When
+the project declares a test database template, its name - the digest of the
+migrations - joins every key: a schema change runs every package again.
+Experiment `case example-level reach control experiment`: the six trees under
+`internal/cases/testdata/inner` differ in one line each; the cache-backed arms
+beside `Check` assert each row, and with the witness switched off the type-error
+arm turns red.
+
 That list is the honest part. A cache is only worth having while the things it
 cannot see are named out loud; `-no-cache` measures everything again and
 `-cache <file>` points one run at another box.
@@ -229,4 +256,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.320.0 capabilities=d346b94c89797f7f9e9c70886853f0e004328b8e27cf7bc5e0860b053868ce8b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.321.0 capabilities=53091be6e092636d76445fb8f3796a936d76d8c5d4f37f7633869b61972c255d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
