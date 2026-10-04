@@ -186,19 +186,55 @@ cold() changes, Over executes it, Big only reaches it -> Over runs and is red, B
 square.area changes, called through an interface       -> Area runs and is red
 inc changes, called inside a goroutine                 -> Async runs and is red
 cold(n) -> cold(m) (a signature)                       -> static rule: Big and Over run
-an example leaves a goroutine running                  -> it keeps no record, static rule
+an example leaves a goroutine running                  -> its record = its marks + every later mark (tail)
+Kick wakes the goroutine Spawn left, late() changes    -> Kick runs (its record names late) and the crash is red
 start() changes, run while the package loads           -> every example runs
 an example with no record                              -> static rule
 ```
 
+The record is added to static reach, never instead of it: an example whose key
+is unchanged still runs when a body it executed changed (a goroutine another
+example left can run code during it). An example that leaves a goroutine
+running keeps its own marks plus every mark seen after it, written by a
+generated `TestMain` at the end of the binary (only when the package declares
+none): it over-counts, never under-counts.
+
 No record is kept (the example falls back to the static rule) when an example
-leaves a goroutine running, executes a body that may start a subprocess, a marked
+leaves a goroutine running and the package has its own `TestMain`, executes a body that may start a subprocess, a marked
 directory's bits never reach the test, a file cannot be marked, or the run
 carries tags. A cgo file's or a `//go:nosplit` body counts as executed by every
 example. Experiment `run-time coverage control experiment green`: the trees under
 `internal/cases/testdata/ran` differ in one line each; the cache-backed arms beside
 `Check` assert each row, and with the marks switched off the `Over`/`Big` rows
 turn red (`len(out0.Recalled) == 5 does not hold`).
+
+**A change outside a body runs only the examples it can reach.** Only a package
+variable whose initializer may run code while the binary loads (a call or
+conversion, an index, a type assertion, a func literal, a channel receive, a
+division or shift, a pointer dereference, `==`/`!=`, `any`/`interface`, a selector
+on anything but an import name) counts as reached by every example. A variable
+with no initializer, or one built only from literals, composite literals and
+import-qualified names, is reached by name like any other declaration. A constant
+named only inside the package's own function bodies keeps just its name in the
+bodyless key; its value joins the run-time digest of every body that names it.
+A constant named in a signature, a type, a variable, another constant, a test or
+fixture file, or the example's own text is weighed whole, as before.
+
+```
+func spare() / var unset int / var label = []string{"a"} added -> all recalled (one witness)
+var _ = reset() added, reset() writes factor                -> every example runs, Scaled red
+func (b box) String() added (box now a fmt.Stringer)        -> Show runs and is red
+const step 1 -> 2, Next executes it, Low only reaches it    -> Next runs and is red, Low recalled
+var factor 1 -> 2 (no loading initializer)                  -> Scaled runs and is red, siblings recalled
+```
+
+Control arms: the trees under
+`internal/cases/testdata/decl` differ from `base` in one place each and the arms
+beside `Check` assert each row; with every variable treated as non-loading the
+`loaded` row turns red (`len(out0.Recalled) == 0 does not hold`), and so do the
+loading-variable rows of `testdata/ran/boot` and `testdata/reach/var`. Pilot
+(one 1 775-example package, W581): a new `var x int` ran 1 775 of 1 775 examples
+before; measured numbers are in the box `case-runtime-coverage-selection`.
 
 **An opt-in file nobody asked for does not keep its package out of the cache.**
 Its examples are counted under `optin` and are not this run's question, so the
@@ -358,4 +394,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.328.0 capabilities=4d8da7a45f9e0cf6dfe7e7ef7762df2f4a8674e6d593606ccc22dcc4eea37c22 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.329.0 capabilities=ddd397f73e95d73df9375896c5faf5e2695af824c87b0800b22ff5994a4410ff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
