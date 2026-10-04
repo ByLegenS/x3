@@ -55,6 +55,14 @@ red while `a` still answers from its record. Control: with recall switched off
 the second arm is red (`a` never says `recalled`), and with recall that ignores
 what a trial read the third arm is green when it must be red.
 
+A trial that does not run `x3` (it reports nothing) is remembered alone only
+when its step declares its own `touches` and the trial writes nothing into the
+repository: its record is the step's derived scope, the declared `touches`, and
+every repository file its arguments name. A step that inherits the gate's scope
+keeps such a trial running every time: a tool can open files by default flag
+values no argument names, and only the declaration says so. A file a non-x3
+trial names in an argument is also part of the step's own record.
+
 Most trials of a real gate are experiment arms on a fake tree; their inputs are
 the tree (part of the cache salt) and the overlay files they name, not the
 source file that changed. Measured on a pilot: 212 of 275 trials ran on a fake
@@ -150,4 +158,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.316.0 capabilities=ed4bcc6b18e25558748234bc30603c1f915b91c963d6134e207011cb96104247 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.317.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

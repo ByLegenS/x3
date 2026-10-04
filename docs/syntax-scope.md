@@ -25,6 +25,20 @@ remembered (it may read other files, so its verdict is not a function of these
 bytes), and a run the parser did not answer (unreadable file, time ceiling) is
 not stored. A remembered file still passes through the shared reader, so the
 gate observes the same reads. `-no-cache` measures everything again.
+
+`x3 arch` remembers the same way, one file at a time: a consistency rule's side
+(`left`, `right`, `when.set`) reads each of its files into a set of values, and
+that contribution is keyed by the side's whole spelling, the file's path and its
+bytes. The comparison itself (difference, dead filters, on-disk lookups) is made
+again on every run, so knowledge across files never comes from an old tree: when
+only the right-hand file changes, the left-hand files answer from the record and
+the missing value is still caught. The salt is the engine version alone, so an
+overlay (`-with`) or another rule's edit does not drop the record. Measured on
+the pilot: `x3 arch .` 5.9 s cold, 2.2 s with nothing changed. The engine's own
+`arch per-rule cache control experiment` proves it: a changed key file is read
+again and caught; a changed label file alone is read again and the comparison
+is red; a changed pattern reads that side's files again while the other side
+is recalled. `-cache <file>` and `-no-cache` work as in `syntax`.
 The measuring commands (`syntax`, `arch`, `lang`, `comments`, `secrets`, `scan`,
 `case`) also keep one configuration reading for the whole command; on the pilot
 re-reading it per question was 4.2 s of a 5.4 s `x3 syntax`.
@@ -93,4 +107,4 @@ A denied pattern with one legitimate use is excused **on the line itself**: a `/
 
 Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
 
-<!-- x3-dist version=v0.316.0 capabilities=ed4bcc6b18e25558748234bc30603c1f915b91c963d6134e207011cb96104247 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.317.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
