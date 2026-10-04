@@ -166,6 +166,40 @@ Experiment `case example-level reach control experiment`: the six trees under
 beside `Check` assert each row, and with the witness switched off the type-error
 arm turns red.
 
+**A body-only change runs only the examples that executed that body.** Static
+reach stops at the constructor: an example that builds an `App` reaches every
+handler it registers. So every untagged run also records, per example, the
+declarations it actually **executed** (`<package>#ran` in the case cache), and a
+later run recalls an example whose key moved when the key's bodyless form
+(signatures, directives, types, constants, variables, `init`) is unchanged and
+none of the declarations it executed changed. The record comes from x3's own
+marks, not `-cover`: each reached source goes into the overlay with
+`x3hit(<n>);` right after every function body's `{` on the same line (lines and
+compiler messages keep their numbers), plus one generated file per directory that
+leaves its bits on `flag.CommandLine`; the generated test resets them before each
+example and reads them after its cleanup. What runs before the first example
+(package variables, `init`) counts for every example. Marked files are stored by
+content, so the build cache compiles each one once.
+
+```
+cold() changes, Over executes it, Big only reaches it -> Over runs and is red, Big recalled
+square.area changes, called through an interface       -> Area runs and is red
+inc changes, called inside a goroutine                 -> Async runs and is red
+cold(n) -> cold(m) (a signature)                       -> static rule: Big and Over run
+an example leaves a goroutine running                  -> it keeps no record, static rule
+start() changes, run while the package loads           -> every example runs
+an example with no record                              -> static rule
+```
+
+No record is kept (the example falls back to the static rule) when an example
+leaves a goroutine running, executes a body that may start a subprocess, a marked
+directory's bits never reach the test, a file cannot be marked, or the run
+carries tags. A cgo file's or a `//go:nosplit` body counts as executed by every
+example. Experiment `run-time coverage control experiment green`: the trees under
+`internal/cases/testdata/ran` differ in one line each; the cache-backed arms beside
+`Check` assert each row, and with the marks switched off the `Over`/`Big` rows
+turn red (`len(out0.Recalled) == 5 does not hold`).
+
 **An opt-in file nobody asked for does not keep its package out of the cache.**
 Its examples are counted under `optin` and are not this run's question, so the
 package's green is stored for the rest (before, such a package ran on every
@@ -312,4 +346,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.324.0 capabilities=6e5a7b45d5dd56fa6209232ecd695fc70d6ac5d91025840cf216d9adda009950 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.325.0 capabilities=9aa4a90e77a4a82f01d4c8e337f62c31f8714fe52c0494a8f76ad46fda98e069 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
