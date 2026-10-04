@@ -39,6 +39,8 @@ wait forever behind small ones.
 for the Go toolchain, and `X3_CPU_HELD=<n>`. **A variable the project declares
 is never overwritten**, and an inherited `GOFLAGS` that already carries `-p`
 keeps it. `{cores}` is cut from the budget, not from the processor count.
+`X3_CPU_GOFLAGS` carries `GOFLAGS` as it was before x3 added its own `-p`, so a
+nested x3 replaces only that `-p` and a project's own `-p` still stands.
 **An x3 started inside a step does not wait for its parent:** `X3_CPU_HELD`
 tells it that its parent holds the share, and that share is its **floor, not its
 ceiling**. Its units run on the held share first; a unit beyond it borrows a
@@ -60,6 +62,30 @@ another while the other steps had long finished and their slots stood empty:
 x3 case                    18.2 s   (8 packages side by side)
 X3_CPU_HELD=1 x3 case      39.5 s   (before: the 8 packages in a row)
 X3_CPU_HELD=1 x3 case      21.2 s   (after: units borrow the idle slots)
+```
+
+**A borrowing unit asks for the share a direct run would get, and the run's
+own threads borrow too.** The cores per unit are cut from the machine budget,
+not from the held floor, and a unit gets the slots it finds free (at least the
+floor). While `x3 case` weighs its packages, `machine.Grow` starts on the held
+floor and adds one thread for every machine slot that frees up, without holding
+anything while it waits, and gives the slots back when the weighing ends. The
+package run first runs the package with the widest reach alone on the whole
+share, so the importers of a changed body are compiled once into Go's cache
+instead of once per package started side by side. Before this, the same change
+ran its packages at `-p=1` and weighed them on one thread inside the gate, at
+`-p=2` and on twelve threads outside it. `X3_CACHE_WHY=1` shows both phases:
+
+```text
+x3 case: why .: weighed 119 package(s) in 3.8 s on 12 thread(s), ran 20 in 13.9 s
+```
+
+```text
+# one function-body change in a core package, a new form each run, same tree
+                                  before   after
+x3 case (direct, under testdb)    20.3 s   19.6 s   (toolchain sum 55.5 -> 36.2 s)
+gate -only "inline examples"      34.0 s   22.2 s
+gate -region <core>               37.8 s   31.0 s
 ```
 
 **What a run says.** A run that took slots ends with one line on stderr:
@@ -97,4 +123,4 @@ measurement) take no slot. They are capped by `GOMAXPROCS`, which is set to the
 budget, and they are short. Slots are not taken in turn: a unit that is ready
 when a slot frees takes it, whichever unit has waited longest.
 
-<!-- x3-dist version=v0.329.0 capabilities=ddd397f73e95d73df9375896c5faf5e2695af824c87b0800b22ff5994a4410ff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.330.0 capabilities=1ffcad563f49c26e73e2ecdb1078177f98904aa4ba8ccfc30dfb85bf5cc6a8d0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
