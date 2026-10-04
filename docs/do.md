@@ -347,4 +347,4 @@ the `-out` file and from there into a log. Experiment `task report secret
 control experiment` weighs the screen, the `-dry` note and the written report;
 the binary before the change printed the fake value in all three.
 
-<!-- x3-dist version=v0.317.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.318.0 capabilities=83b92978867000ac9f741932789d0a8f13f256868e22e73c78c8317cc81ee384 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
