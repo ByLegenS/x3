@@ -905,6 +905,38 @@ measured at **1.4 s** against a remote server, in place of steps that cost 76 an
 ⛔ **A state command that fails leaves the step unremembered.** A gate that cannot
 read the state must not assume the state did not move.
 
+⛔ **Ask only the data the step reads.** The default summary sums every write
+counter of the database, so any service that writes moves it. Measured on a
+production pilot: a step reading only the company records ran every time (9 s)
+although no record changed, and a work-list step ran every time (30 s) although no
+answer changed. Two narrower states ship:
+
+```yaml
+- name: no registered company on a page
+  state: x3 testdb state -env APP_DSN -query "select md5(string_agg(code || name, ',' order by id)) from companies"
+- name: open work list
+  state: x3 boxes -state
+```
+
+`-query` replaces the project's `testdb.state` for this one step; the key is the
+**answer**, so the same answer recalls the step whatever else was written.
+`x3 boxes -state` prints one line summing the **verdict** of every `sql` criterion
+(held or not, and why not) — the only input of a box run that is not a file;
+`pattern`, `absent` and `command` criteria read files and the step's own record
+already holds those. A criterion that could not ask (no connection) enters the sum
+with its reason, so a blind run is never recalled as a measured one. Control
+experiments: `box state control experiment` (the same verdict recalls, a changed
+verdict runs again; the engine before this flag never recalls) and `testdb state
+query control experiment` (needs `X3_PG_ADMIN`).
+
+⛔ **A run that wrote no new result leaves the cache file alone.** Measured on a
+production pilot: the gate cache had grown to 74 MB, and reading it back, merging,
+writing and re-reading it cost **8 s** of every run, including runs where every
+step was recalled. When no step wrote a result and the file has not changed since
+the run opened it, nothing is written; the only cost is that recalled records do
+not have their age refreshed on that run. Examples on `idle` in
+`internal/cache/cache.go`.
+
 ⛔ **`volatile: true` says the step's input is not a file**: database rows, the
 network, the clock. Such a step inherits no scope, is never remembered, and runs
 every time. It is a separate word on purpose. A reconciliation step in a production
@@ -1368,4 +1400,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.314.0 capabilities=1c21e88fcfde1832d213cf3074b766b39c21bae5f65b0b347144a3347a72d1fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.315.0 capabilities=8be0b8659b457bde304c60a4314857b93655a319461760dfcd9e7e01dcc7e225 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

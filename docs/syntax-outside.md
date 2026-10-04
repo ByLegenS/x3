@@ -67,4 +67,4 @@ and `$` mean *line* end to a reading that splits lines and *text* end to one tha
 does not; running the pattern in both modes would silently change what its own
 anchors say. The one that gets widened is the one that went narrow in silence.
 
-<!-- x3-dist version=v0.314.0 capabilities=1c21e88fcfde1832d213cf3074b766b39c21bae5f65b0b347144a3347a72d1fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.315.0 capabilities=8be0b8659b457bde304c60a4314857b93655a319461760dfcd9e7e01dcc7e225 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

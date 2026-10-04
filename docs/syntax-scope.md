@@ -2,6 +2,33 @@
 
 [The pages](INDEX.md) - [what x3 is](../README.md)
 
+## A syntax check remembers each file
+
+`x3 syntax` stores each check's verdict on each file under the file's content
+digest, in the declared cache directory (`syntax.yaml`), salted by the `syntax`
+section alone. One page changing re-measures that page only; editing a check
+re-measures every file. What a check reads that the section does not spell is in
+the key too: the values a `denyFrom` query returned this run, and for a parser
+fed on stdin the parser binary itself (path, size, time).
+
+```yaml
+cache:
+  dir: ~/.x3cache/myproject
+```
+
+```text
+x3 syntax: cache 1 hit(s), 1 miss(es)
+```
+
+What it does not do: a parser that opens the file **by path** is never
+remembered (it may read other files, so its verdict is not a function of these
+bytes), and a run the parser did not answer (unreadable file, time ceiling) is
+not stored. A remembered file still passes through the shared reader, so the
+gate observes the same reads. `-no-cache` measures everything again.
+The measuring commands (`syntax`, `arch`, `lang`, `comments`, `secrets`, `scan`,
+`case`) also keep one configuration reading for the whole command; on the pilot
+re-reading it per question was 4.2 s of a 5.4 s `x3 syntax`.
+
 ## What a `syntax` check does not read
 
 A source glob describes a **tree**, and a check's real subject is often a tree
@@ -66,4 +93,4 @@ A denied pattern with one legitimate use is excused **on the line itself**: a `/
 
 Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
 
-<!-- x3-dist version=v0.314.0 capabilities=1c21e88fcfde1832d213cf3074b766b39c21bae5f65b0b347144a3347a72d1fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.315.0 capabilities=8be0b8659b457bde304c60a4314857b93655a319461760dfcd9e7e01dcc7e225 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
