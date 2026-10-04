@@ -98,6 +98,13 @@ That is the engine's own `trials side by side control experiment`
 their working directory `{tmp}` never say `alongside`, and with `-workers 1`
 no trial does.
 
+A path after `-o`/`-out`/`-output` counts as written, so a trial naming it waits
+for the writer — **unless the command carries a bare `-check`**: then the path is
+the file it compares against, not one it writes (`api-doc -check -out
+report.json`; measured on a pilot, eight such trials ran one after another).
+`-check name` (a value, as in `x3 syntax -check rule`) is not that flag. The
+examples on `writes` and `together` in `internal/gate/trial.go` measure both.
+
 A trial keeps its order (it waits for the trials before it, and the trials
 after it wait for it) when:
 
@@ -143,4 +150,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.313.0 capabilities=17d7c952c83d131183aa1ec638aa096e3ac52de533b3d0cea3c70480d6a35004 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.314.0 capabilities=1c21e88fcfde1832d213cf3074b766b39c21bae5f65b0b347144a3347a72d1fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

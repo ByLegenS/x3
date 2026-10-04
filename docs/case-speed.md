@@ -61,11 +61,20 @@ example is not stored either: nothing measured it.
 Two kinds of package are measured on **every** run, and the run says which and
 why the first time it meets one:
 
-- a package with a `testdata` directory beside it — the walk never enters it, so
-  a fixture changing there changes no digest the key can see;
+- a package whose `testdata` directory cannot be read — the key cannot weigh a
+  fixture it cannot open;
 - a tree with no readable `go.mod` at its root — without a module path an import
   path cannot be turned into a directory, and a key that cannot follow an import
   is a key that will eventually be wrong.
+
+⛔ **A fixture is part of the package.** The source walk never enters `testdata`,
+so the key weighs that tree on its own: every file by content, every directory
+by name. A package carrying `testdata` used to be measured on every run, and so
+was every package importing it — measured on a pilot, one `testdata` kept 25
+packages running with nothing changed (48 s). Experiment `case testdata package
+memory control experiment`: the second cold-to-warm arm is red on v0.313.0; a
+file joining the fixture tree, and a fixture changing, run the package and its
+importer again.
 
 ⛔ **An embedded file is part of the package.** A package whose sources declare
 `//go:embed` used to be measured on every run, and so was every package importing
@@ -190,4 +199,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.313.0 capabilities=17d7c952c83d131183aa1ec638aa096e3ac52de533b3d0cea3c70480d6a35004 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.314.0 capabilities=1c21e88fcfde1832d213cf3074b766b39c21bae5f65b0b347144a3347a72d1fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

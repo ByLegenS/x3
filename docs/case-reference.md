@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.313.0`**
+**Current version: `v0.314.0`**
 
 ## case finding codes
 
@@ -21,4 +21,4 @@
 | `dead_import` | a declared import that no example names — from `case.imports`, asked only of a run whose tree contains the configuration; or from a `//x3:import:` line, asked of the file that carries it |
 | `does_not_parse` | a source file the gate could not read at all — the parser stopped, so nothing in that package was measured |
 
-<!-- x3-dist version=v0.313.0 capabilities=17d7c952c83d131183aa1ec638aa096e3ac52de533b3d0cea3c70480d6a35004 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.314.0 capabilities=1c21e88fcfde1832d213cf3074b766b39c21bae5f65b0b347144a3347a72d1fb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
