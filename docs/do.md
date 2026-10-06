@@ -234,7 +234,8 @@ when a step is skipped.
 
 `-set name=value` hands the task a value it reads as `{name}`, so a task can take
 the command or the target it acts on without a flag name being invented for each
-one. A step that writes the same name overrides it.
+one. A step that writes the same name overrides it. Like a flag, a value the task
+takes is **declared**, under `takes:` — see the next section.
 
 A condition is a flag name, a flag name behind `!`, or a comparison — `{waiting}
 > 0`, `{env} == production`. Both sides are numbers when both parse as numbers,
@@ -299,6 +300,92 @@ Four of the rules above are not design, they are repairs:
   paths went stale after a move, the scan skipped them silently, and the check
   said "passed" while checking nothing — the exact thing it existed to prevent.
 
+### A name nobody assigned is never a value
+
+`{name}` used to stay **as written** when nothing had assigned it, and the
+literal text then behaved like a value. Measured twice in a production
+repository:
+
+1. A step that reads a number was skipped, its `into:` never ran, and
+   `when: '{window} > 0'` compared the text `{window}` with `0` — `{` sorts after
+   `0`, so the condition held and a normal deployment ran the recovery branch.
+   The project patched it with an extra flag in the condition.
+2. A guard `unless: '{company} && {code} && ...'` was meant to stop a deleting
+   task run with no values. Nothing was given, the literal text counted as
+   "given", the guard did not fire, and the next step ran
+   `admin ... -company {company}` **on the production host** — the remote binary
+   refused the flag value; nothing read or wrote. The same week an `into:`
+   target was renamed to a typo and the task still ran.
+
+Three rules close it, each a separate line of defence:
+
+| | Rule | When |
+|---|---|---|
+| **a** | A condition atom that reads an unassigned name **does not hold** — a bare `{x}`, and a comparison too (`{w} < 5` on an empty text would still say yes). `!{x}` holds: "was it not given" is how an optional value is asked about. The run does **not** stop here; `&&` and `||` still short-circuit, so `restore && {company}` never reads `{company}` unless `restore` is up. | while running |
+| **b** | A step whose command, file, path, value or environment still carries an unassigned `{name}` **does not run**. It is red, the run stops (`keep` cannot override it: the step did not run), and the note names the variable: `not run: {company} was never given or assigned, and the step would have run with the literal text`. `run` (local or `on:`), `send`/`to`, `start`, `block`, `set`, `prune`, `wait`, `scan`, `show` — all of them. Messages (`fail`, `done`) and conditions are not commands and are left to rule **a**. | before each step |
+| **c** | Every `{name}` the task reads must have a **source**: a `set:` key, an `into:` or `code:` of one of its steps, or a `takes:` entry. A name with none is named, for **every** task at once, when the configuration loads — before the first step of anything, and by `x3 do -list` too. `-set` of a name the task does not declare is refused the same way an undeclared flag is. | when loading |
+
+```yaml
+- name: purge
+  flags:
+    - name: execute
+      say: delete for real
+  takes:
+    - name: company
+      say: the company to act on
+    - name: fp
+      say: the fingerprint of the dry run
+  steps:
+    - say: values given?
+      unless: '{company}'          # rule a: unassigned -> does not hold -> the guard fires
+      fail: 'missing: -set company=<id>'
+    - say: fingerprint given?
+      when: execute
+      unless: '{fp}'
+      fail: 'missing: -set fp=<print>'
+    - say: delete
+      when: execute
+      on: production
+      write: true
+      run: admin purge -company {company} -execute {fp}   # rule b: never with the literal text
+```
+
+A rule-**c** refusal reads:
+
+```
+x3 do: x3.yaml: "do" section: task "window" reads {opens}; task "wipe" reads {company},
+which no step assigns (set, into, code) and no "takes" declares; a name with no
+source can only run with its literal text
+```
+
+**Why "unassigned = does not hold" and not "stop the run".** Option two stops at
+the first condition that reads an unassigned name. In the first incident that
+turns a normal deployment into a red one at the recovery step, after the work was
+done; the project's own patch (an extra flag in the condition) is exactly rule
+**a**: the branch does not run. And an optional `-set` can only be asked about as
+`unless: '{x}'` — stopping there would make every optional value mandatory.
+Stopping is rule **b**'s job, at the command, where the literal text would do harm.
+
+**`-dry`.** A dry run executes nothing, so a step's `into:`/`code:` is never
+written. Rule **b** does not count a name that a step **already passed in this
+dry run** would have written — the note keeps `{commit}` and the run goes on;
+a build's `-dry` would otherwise end red at the first step that reads its own
+stamp. A condition on such a value does not hold in a dry run (rule **a**): the
+dry run says the step was skipped, and why.
+
+**What it does not do.** A safety gate written as a condition (`when:
+'{active} > 0'` then `fail:`) passes when its producer never ran, instead of
+holding by accident as it did before. Give the producer and the gate the same
+condition, so they run together.
+
+Measured by inline examples on `holds`, `Run`, `unassigned`, `Load`, `Accept`
+and `missing` in `internal/task` (the two incidents in small form, a remote, a
+send, a block and a local command that must not run, a typo'd `into:`, an
+undeclared `-set`). Control arms: each of the four rules switched off once turns
+its examples red (rule a: 6, rule b: 4, rule c: 1, `-set` declaration: 2, the
+dry-run exception: 2), then
+green again with the rule back.
+
 ### Reading a value out of a machine, and deciding on it
 
 `into:` puts a step's output into a name, `code:` puts its exit code there, and
@@ -347,4 +434,4 @@ the `-out` file and from there into a log. Experiment `task report secret
 control experiment` weighs the screen, the `-dry` note and the written report;
 the binary before the change printed the fake value in all three.
 
-<!-- x3-dist version=v0.332.0 capabilities=acab9267b660ce2bb879a50621abb53e34cfe764125b0b99a100a70c0f62bdbb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.333.0 capabilities=d6c756d29ee3d8839fdcc8fb973674293686363123cb8f52768790488c399d88 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

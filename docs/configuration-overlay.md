@@ -85,4 +85,4 @@ An exemption that **names** the rule it covers is still judged when that rule
 ran: the measurement is complete for it, and an experiment that plants a dead
 exemption needs to see it go red.
 
-<!-- x3-dist version=v0.332.0 capabilities=acab9267b660ce2bb879a50621abb53e34cfe764125b0b99a100a70c0f62bdbb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.333.0 capabilities=d6c756d29ee3d8839fdcc8fb973674293686363123cb8f52768790488c399d88 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
