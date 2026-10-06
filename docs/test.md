@@ -83,6 +83,17 @@ the one failure this whole command could cause.
 reaching no unit: …` — otherwise someone edits a file, sees no test run, and has
 no way to ask whether that was right.
 
+⛔ **A red is not narrowed away.** The narrowing assumes the base was green. A
+unit that ran and was not green — red, or unnamed in a red single call — is
+cached as *not green* for its inputs, and the next run takes it again even when
+the change does not reach it: `x3 test: 2 unit(s) the change does not reach were
+not green at the last run, so they ran: internal/affected internal/cases`.
+Measured: a cold gate measured `unit tests` red, wrote its own record and measured
+the step once more; the change since that record was empty, no unit ran, and the
+step came back green — and was remembered green, hiding three failing tests for
+two days. With the not-green record the second measurement ran the red units and
+stayed red. A unit that never ran still trusts the change.
+
 ### Which unit a file belongs to
 
 | The file | Its unit |
@@ -187,4 +198,4 @@ to do, and that walk grows with the repository. For a runner **without** a cache
 of its own — most of them — the first three rows would look very different. The
 engine does not assume either case; it measures.
 
-<!-- x3-dist version=v0.330.0 capabilities=1ffcad563f49c26e73e2ecdb1078177f98904aa4ba8ccfc30dfb85bf5cc6a8d0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.331.0 capabilities=4dd95ef758f7d81516514d63de82e8b4bd7d4d60b318b986c8348e71d92492c2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

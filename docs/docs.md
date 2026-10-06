@@ -32,6 +32,17 @@ The default is not a convenience: checking the last commit while the tree is
 dirty would count documentation that has not been written yet. **A directory
 that is not a repository is red**, not green.
 
+**The repository is the directory, never the environment.** Every git call x3
+makes drops git's repository-local variables (`git rev-parse --local-env-vars`:
+`GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`, `GIT_CONFIG_COUNT` with its
+`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` pairs, and the rest) before it starts.
+`git bisect run`, `git rebase -x` and git hooks export them; inherited, they point
+a question about one tree at another repository. Measured: a test that builds a
+fixture repository, run with `GIT_DIR` exported to an unrelated repository, wrote
+its `user.email` into that repository's config and left two commits there; with
+the variables dropped the unrelated repository did not change. User-level
+settings (`GIT_CONFIG_GLOBAL`, `GIT_AUTHOR_*`) are kept.
+
 `-changed a.go,b.sql` says the list outright and **git is not asked at all**;
 the report's scope reads `given`, so nobody mistakes it for a diff. What this
 check measures is what a change must bring with it — where the list of changed
@@ -117,4 +128,4 @@ Measured here — with a shared marker the `docs gate` step's own control
 experiment, a rule that must exit `1`, exited `0`: the exemption had excused the
 experiment.
 
-<!-- x3-dist version=v0.330.0 capabilities=1ffcad563f49c26e73e2ecdb1078177f98904aa4ba8ccfc30dfb85bf5cc6a8d0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.331.0 capabilities=4dd95ef758f7d81516514d63de82e8b4bd7d4d60b318b986c8348e71d92492c2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

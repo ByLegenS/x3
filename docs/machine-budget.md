@@ -74,7 +74,11 @@ package run first runs the package with the widest reach alone on the whole
 share, so the importers of a changed body are compiled once into Go's cache
 instead of once per package started side by side. Before this, the same change
 ran its packages at `-p=1` and weighed them on one thread inside the gate, at
-`-p=2` and on twelve threads outside it. `X3_CACHE_WHY=1` shows both phases:
+`-p=2` and on twelve threads outside it. The example keys of every changed
+package go into ONE queue across packages, so a package with 1 775 examples is no
+longer the single long path of the weighing (W585, VT gate, body edit in a core
+package: weighing 6.3 -> 2.9 s on 4 threads, case step 24.0 -> 21.6 s; only the
+schedule changed, keys are the same function of the same inputs). `X3_CACHE_WHY=1` shows both phases:
 
 ```text
 x3 case: why .: weighed 119 package(s) in 3.8 s on 12 thread(s), ran 20 in 13.9 s
@@ -123,4 +127,4 @@ measurement) take no slot. They are capped by `GOMAXPROCS`, which is set to the
 budget, and they are short. Slots are not taken in turn: a unit that is ready
 when a slot frees takes it, whichever unit has waited longest.
 
-<!-- x3-dist version=v0.330.0 capabilities=1ffcad563f49c26e73e2ecdb1078177f98904aa4ba8ccfc30dfb85bf5cc6a8d0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.331.0 capabilities=4dd95ef758f7d81516514d63de82e8b4bd7d4d60b318b986c8348e71d92492c2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -78,6 +78,156 @@ Control experiment: `rename member control experiment` in `x3.yaml` on
 five refusals. Breaking the capture count or the rival-selector refusal turns two
 trials red.
 
+### Any object, examples included: `-at` and `-all`
+
+```text
+x3 rename [-dir <package>[/...]] [-dry] -at <file>:<line> <old> <new>
+x3 rename [-dir <package>[/...]] [-dry] -all <old>=<new> [<old>=<new> ...]
+x3 rename [-dir <package>[/...]] [-dry] -map <file>      # "<old> <new>" lines; implies -all
+
+$ x3 rename -dir internal/queue -dry -at queue.go:217 started ran
+x3 rename: started -> ran (example local at queue.go:217): 3 site(s) - 0 in code, 3 in examples
+  queue.go:217:19 example
+  ...
+x3 rename: example/internal/queue and 107 of its 107 example(s) type-check after the rename (0 did not compile before it)
+```
+
+`-at` renames the **one object** named `<old>` on that line - a local, a
+parameter, a name an example declares in its `given=`, a field, a method, a
+function, a type, a constant, a label. `-all` renames **every object of the
+package spelled `<old>`**, each one checked on its own: a refused object is
+listed with its reason and the others go ahead. `/...` measures every package under
+the directory (in parallel, four at a time); nothing is written unless every
+package is clean.
+
+**The examples are type-checked, not parsed.** Each file's `//x3:case` lines are
+turned into Go the way the example runner writes them - the setup, the receiver,
+the call, every expectation and proposition, the file's imports, its
+`//x3:import:` lines and the `case.imports` pool of `x3.yaml` - and checked
+**together with the package**. Every identifier inside an example is then bound by
+go/types, and each one is mapped back to its byte in the comment. So a name an
+example declares and uses in a closure, a selector, a literal key, an outer name
+of the same spelling, a string: each is told apart by the object it binds to,
+never by its text. One example is one `//x3:case` line; a name declared in one
+line is not seen by the next.
+
+**Proof before writing** (exit 1, nothing written): the renamed package is
+type-checked again in memory, and so is **every example that compiled before** -
+an example that compiled and no longer does is red. Then every renamed identifier
+must still bind to the declaration it bound to, and no other identifier may bind
+to it. An example that did not compile before the rename is counted and listed
+(`not proven, did not compile before`), not blamed on the rename.
+
+**Refused** (the object is listed with `REFUSED`; with `-at`, or when nothing is
+left to rename, exit 2): `<new>` is already declared in the same scope, in the
+same example, or as an import of the package; a use would be **captured** by a
+`<new>` declared closer to it; renamed, the object would **hide** an outer `<new>`
+used after it - an import, a type, a package-level name (an object's scope starts
+after its declaration, so `q, queueSetup := queueSetup(t)` is not hiding); `<new>`
+is predeclared, a keyword, `_`, or a name the example runner binds (`t`,
+`out0`...); the object is exported (or an exported field of a local struct), an
+embedded field, an import name, `init` or `main`; with `-at`, a method that shares
+its name with another method or interface method of the package; a name `-all`
+lists as both old and new (a chain or a swap is two runs).
+
+**What it does not see**, and what it does instead:
+
+| Read at run time | Behaviour |
+|---|---|
+| a string spelling the name (`reflect` `FieldByName("hits")`, a template) | for a member or a package-level name: `WARNING ... a string literal spells hits at file:line` - the string is not changed |
+| an exported name read by an encoder or a template | not reachable: exported names are refused |
+| a method a type assertion expects at run time | renaming one of two same-named methods is refused under `-at`; `-all` renames both |
+| a name in prose comments, `//go:linkname`, a build-tagged file of another platform | not renamed; a file outside the build that names a member or package-level name refuses |
+
+Control experiment: the object arms of `rename control experiment` in `x3.yaml` on
+`internal/rename/testdata/local` - an example local in a closure, a code local
+beside a constant and a field of the same spelling, `-all` over the three, the
+warning for a `reflect` lookup, five refusals (hiding an import, a name the
+example already declares, hiding a type, a package-level name, an import name),
+a conversion that only the type check of the renamed package catches (exit 1)
+and a written tree. Each refusal was switched off once in the source: its arm
+turned red (the hide and same-scope arms then exit 1 on the type check, the
+import arm is refused as a capture, the exported arm renames, the conversion
+arm passes with the type check off).
+
+**One load for `<root>/...`.** Every package under the root is read by a single
+`go list` (tests, fixtures, `//x3:import` and `case.imports` packages included) and
+type-checked from that one graph. Measured on a real production Go application's
+core module (97 packages, `-dry -all`, same output line for line): 53 s and 45 s
+loading each package on its own, 3 s and 2 s with the one load.
+
+### Exported names across the workspace: `-wide`
+
+```text
+x3 rename -dir <package> [-dry] [-config <file>] -wide [-force-runtime] -at <file>:<line> <old> <new>
+x3 rename -dir <package> [-dry] [-config <file>] -wide [-force-runtime] -all <old>=<new> ...
+
+$ x3 rename -dir internal/rename/testdata/wide/lib -dry -wide -at lib.go:7 Amount Cents
+  lib/lib.go:7:2 code
+  app/app.go:25:36 example
+  deep/deep.go:14:39 code
+  ...
+x3 rename: widefix/lib: 1 object(s) renamed, 0 refused; 8 site(s) in 3 file(s) - 6 in code, 2 in examples
+x3 rename: 2 importing package(s) of the workspace and 1 of their 1 example(s) type-check after the rename (0 did not compile before it)
+```
+
+Without `-wide` an exported name is refused. With it, the `go.work` workspace (or
+the module) is loaded once; every package that imports the target, directly or
+through another package, is **type-checked from source** in dependency order, so a
+package that never imports the target but selects its field through another
+package's value (`app.Default.Amount`) is found too. Packages that take the target
+only in their tests, fixtures, `//x3:import` lines or the `case.imports` pool are
+checked with their examples as well. A use is tied to the declaration by its
+position (file and byte), so a generic instantiation counts as its origin.
+**Proof before writing** is the one of `-at`/`-all`, over every one of those
+packages and examples: nothing is written unless all of them type-check and every
+renamed use binds to the renamed declaration. One package per run: `-wide` with
+`<root>/...` is refused.
+
+**Refused** - names read at run time, which no type check sees:
+
+| What | Behaviour |
+|---|---|
+| an exported field with no struct tag | refused: encoders write and read it under its Go name; a tagged field is renamed with a warning (gob reads the Go name whatever the tag) |
+| a member a template (`{{ .Title }}` in a Go string or a non-Go file of the package directory) or a string equal to it (reflect) reads | refused; `-force-runtime` renames it and lists the strings that do not follow |
+| an exported method another package's interface declares (`String`, `Close` ...) | refused: a type assertion may ask for it at run time |
+| a name `//go:linkname` reaches anywhere in the workspace | refused |
+| a name an external test package (`package x_test`) names | refused: that package is not type-checked here |
+| an importer that does not type-check from source before the rename | the whole run is refused |
+
+Packages outside the workspace cannot be seen; a module others import from outside
+is not a candidate for `-wide`.
+
+Control experiment: the `-wide` arms of `rename control experiment` on
+`internal/rename/testdata/wide` (a target, an importer with an example and a
+template, a package that selects the field without importing it, a linkname, an
+external test): two renames with counts, six refusals, `-force-runtime`, a
+conversion only the importer's type check catches (exit 1), and `/...` refused.
+Each refusal and the importer check were switched off once in the source: the
+arm turned red.
+
+**The pool and a name the package declares.** The `case.imports` pool comes from
+`x3.yaml` of the working directory, or from `-config <file>` (a file that cannot be
+read is an error, exit 2, not an empty pool). The runner imports a pool package only
+when an example names it, so a package that declares the pool package's name at
+package scope (`type action int` beside a pool entry `.../action`) compiles and
+runs its examples. The mirror leaves such a pool entry out the same way: Go forbids
+one name in both the file and the package block, and writing the import anyway
+refused a building importer with `action already declared through import of
+package action`.
+
+```
+$ x3 rename -config internal/rename/testdata/widepool.yaml \
+    -dir internal/rename/testdata/widepool/lib -dry -wide -at lib.go:6 Half Halve
+x3 rename: 1 importing package(s) of the workspace and 1 of their 1 example(s) type-check after the rename (0 did not compile before it)
+```
+
+Control experiment: the `widepool` arms of `rename control experiment` - the
+importer's example green under the same pool, the rename above green with `not:
+already declared through import`, an unreadable `-config` exit 2. With the scope
+filter removed from the mirror the rename arm is refused (exit 2) with `sort already
+declared through import of package sort`; the binary before the fix gives the same.
+
 ## `x3 move`
 
 `x3 rename`'s counterpart for a **path**. A directory renamed by hand leaves its old
@@ -328,4 +478,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.330.0 capabilities=1ffcad563f49c26e73e2ecdb1078177f98904aa4ba8ccfc30dfb85bf5cc6a8d0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.331.0 capabilities=4dd95ef758f7d81516514d63de82e8b4bd7d4d60b318b986c8348e71d92492c2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
