@@ -286,6 +286,47 @@ x3 gate: step "one step per directory · each/store" names region "each/store";
 exit 2
 ```
 
+### A multiplied step opens only where a file is
+
+`each.dirs` matches directories, and a directory can exist before the thing a
+step measures does: a module opened for its documents before its code. A step
+that runs `go vet ./{each}/...` then meets a directory with no package in it,
+and go answers "matched no packages" with exit 1 — a red for a directory that
+holds nothing the step measures. Taking the directory out of the pattern by hand
+means remembering to put it back the day its code is written.
+
+`each.has` is a glob, read **under each matched directory**; a directory with
+no file matching it opens no copy of the step:
+
+```yaml
+gate:
+  steps:
+    - name: 'vet · {each}'
+      each:
+        dirs: mods/*
+        has: '**/*.go'
+      trials:
+        - run: [go, vet, './{each}/...']
+          want: 0
+```
+
+```
+mods/a/a.go  mods/b/docs/NOTES.md       x3 gate   1 ran, 0 skipped, 0 red   (no copy for mods/b)
+same tree, has removed                   x3 gate   RED: vet · mods/b
+mods/b/b.go planted                      x3 gate   2 ran, 0 skipped, 0 red
+```
+
+⛔ **Declared, never assumed.** A step without `has` opens in every matched
+directory exactly as before; the filter changes only the steps that write it.
+
+⛔ **A filter nothing passes is still an error.** The law of `each.dirs` holds
+through it: a step that opens nowhere measures nothing, so the load stops —
+`each.dirs "mods/*" matches 2 directories and none holds a file matching
+each.has "**/*.rs"`, exit 2.
+
+Directories the scan skips by itself (a leading `.` or `_`, vendored trees) are
+not looked into: a file there is not in the tree the step measures.
+
 ### A capability nobody runs
 
 The gate refuses a step whose command the engine does not have. The other
@@ -375,6 +416,61 @@ and the checks inside it stop being measured.
 directory under it, and most carry no step at all; sweeping those in would make
 the run refuse a region nobody measures. And a kind-axis region is never swept
 in: `apps` is a place, `db` is not under it.
+
+### A step that declares every leaf of a group
+
+A step that reads every application has to declare every application's region,
+or R5 turns it red. Written by hand, the list lives in the settings file: a new
+directory joins the group, and each such step stays red until someone edits its
+line — measured in one repository, 38 lines per new directory.
+
+`{leaves|<stem>}` in a `region:` list opens, at load, to every leaf the stem's
+`placement.regions` pattern names (a mapped verb where one is written, the same
+name `{each|verb}` gives):
+
+```yaml
+placement:
+  regions: [apps/*]
+gate:
+  steps:
+    - name: a step that reads every application
+      region: [docs, '{leaves|apps}']
+      trials: [...]
+```
+
+The opening happens before R3, R5 and the verb count, so every later question
+sees a plain list. The proof that it is the same list a hand would write is the
+listing itself:
+
+```
+apps/a apps/b, region: '{leaves|apps}'      x3 gate -regions   a 1 · apps 1 · b 1
+apps/a apps/b, region: [a, b]                x3 gate -regions   a 1 · apps 1 · b 1
+apps/c planted, no line edited (token)       x3 gate -regions   a 1 · apps 1 · b 1 · c 1
+apps/c planted, region: [a, b]               x3 gate            reads 1 region(s) it does not declare: c
+```
+
+⛔ **Why not "the stem means its leaves".** `region: [apps]` is already a valid
+declaration and means "only `x3 apps` picks this step". Widening that meaning
+would move existing steps into other runs silently; a token of its own moves
+nobody.
+
+⛔ **Every leaf that holds a file, not only the leaves that carry a step.** The
+stem's own verb sweeps in only leaves with steps (see *A region that contains
+regions*); this token is a declaration, and a leaf with nothing but documents in
+it is still a place the step reads.
+
+Refused at load, exit 2:
+
+```
+step "s": region "{leaves|app}": no placement pattern has stem "app" (known: apps)
+step "s": region "{leaves|mods}" opens to no leaf: no directory the "mods" pattern names holds a file, and an empty opening declares nothing
+step "s": {leaves|<stem>} is a region-list token and opens only inside region:, not in "- ./{leaves|apps}"
+step "s": region "{leaves|apps" is not a leaves token; write {leaves|<stem>}
+```
+
+An empty opening is refused for the same reason an `each.dirs` that matches
+nothing is: a declaration that names nothing is a silent hole. Like
+`each.dirs`, the token opens against the tree the settings file sits in.
 
 ### A region's verb can be shorter than its directory
 
@@ -1411,4 +1507,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.335.0 capabilities=c778ee94f2b3df2685567fbe3a3542be2fff4e5bb81b35549b90a7e9902ba396 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.336.0 capabilities=be0756eddadd25b3951abeddb2758e07ae4bd27695dc71d37d8de27cc41aa122 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
