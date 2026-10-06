@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.336.0`**
+**Current version: `v0.337.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.4 MB | `18f21b5702f9d8072bda31db047fbd74384d9b950dc67eb0065a02eed90caf26` |
-| `x3-linux-amd64` | linux/amd64 | 25.8 MB | `ed0344f0f3ab682a93e0f5429a14b58543e4c1b283d48f447644bf337714a15c` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.5 MB | `efc087949cfdaff128a7f2cfc9cebd8c1ff5460e67d3d19276d2b757df14668f` |
+| `x3-linux-amd64` | linux/amd64 | 25.9 MB | `7f6576a2ea3862615fe0422c9970f319a128c2086ea557e880e8d3fdda338794` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -159,6 +159,7 @@ markers that split this document, so a page cannot be missing from it.
 | [What a run says](docs/case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](docs/case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [A run narrowed to one file or one example](docs/case-only.md) | the target that names a file or a line, the block a line belongs to, and the verdict a narrowed run is not allowed to store |
+| [JavaScript examples](docs/case-js.md) | the same example line above an exported function of an ES module, run by node in one process, cached by every file the module imports, and red when the module needs a browser |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The words a language reserves](docs/lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
@@ -178,6 +179,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Is this call inside that condition](docs/sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
 | [Where the container ends](docs/sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
 | [The names a template calls](docs/sets-template.md) | the root names a markup expression reads, the names the script beside it offers, and the mixin chain that is followed rather than listed |
+| [A list that names two names them all](docs/sets-complete.md) | the comparison that reads every line, block or region as its own list, so that a list naming some members of a set and not the rest is red by the members it leaves out |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](docs/baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -312,4 +314,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.336.0 capabilities=be0756eddadd25b3951abeddb2758e07ae4bd27695dc71d37d8de27cc41aa122 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

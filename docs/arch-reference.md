@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.336.0`**
+**Current version: `v0.337.0`**
 
 ## component path patterns
 
@@ -36,7 +36,9 @@
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
 | `per` | consistency | compare each instance of a component with **itself** |
 | `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
-| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-quoted-in-right`, `left-exists-on-disk` |
+| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-quoted-in-right`, `left-exists-on-disk`, `left-complete-in-each-group` |
+| `quorum`, `only` | `left-complete-in-each-group` | the fewest members a group names to count as a list (default 2); the marker pattern, names then reason |
+| `group`+`forms` | right side of `left-complete-in-each-group` | `line`, `block` or `region`; how a member is spelled, `{m}`/`{M}` |
 | `when` | no | the set and the size that turn this rule on; until then it waits |
 | `absent`, `relativeTo` | `left-exists-on-disk` | paths meant to be missing; `repo` (default) or `source` |
 | `quote` | `left-quoted-in-right` | `ellipsis` marks (default `…`) and a `placeholder` pattern; both are gaps |
@@ -65,6 +67,9 @@
 | `scope_below_minimum` | every rule | fewer subjects than `minimum` |
 | `dead_exemption` / `dead_exclusion` / `dead_filter` | escape hatches | an exemption, exclusion or filter that took nothing out |
 | `dead_satisfier` | `pairing` | `satisfiedBy` rescued no subject |
+| `incomplete_list` | `left-complete-in-each-group` | a group names `quorum` or more members of the set and not all of them; the missing ones are named |
+| `dead_marker` | `left-complete-in-each-group` | an `only` marker names other members than its list does, stands beside no list, or gives no reason |
+| `vacuous_list` | `left-complete-in-each-group` | the set is no larger than `quorum`, so no list can be short yet (warning) |
 | `unjudged_exemption` | any | an exemption names a rule this configuration does not load (warning) |
 
 ## how a rule reads a file
@@ -76,4 +81,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.336.0 capabilities=be0756eddadd25b3951abeddb2758e07ae4bd27695dc71d37d8de27cc41aa122 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

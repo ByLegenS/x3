@@ -5,7 +5,7 @@
 ## `x3 symbols`
 
 ```
-x3 symbols [-out <file>] [dir]
+x3 symbols [-doc] [-out <file>] [dir]
 ```
 
 Every cache answers one question: *did my inputs change?* What separates a cheap
@@ -218,4 +218,89 @@ an **argument** names it (`-page <file>`) is not derived; declare it in
 an application reaches one function of a package, every symbol that package uses
 is in scope. That is the next granularity, not this one.
 
-<!-- x3-dist version=v0.336.0 capabilities=be0756eddadd25b3951abeddb2758e07ae4bd27695dc71d37d8de27cc41aa122 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### What each symbol is for — `x3 symbols -doc`
+
+A capability catalogue written by hand goes stale the week it is written.
+Measured in a production repository: its hand catalogue said one interface had
+40 methods, the code had 36, and it named a command directory that no longer
+existed. The only part of a catalogue a person has to write is the sentence that
+says what a thing is for — and that sentence already sits in the code, above the
+declaration, where it changes in the same commit as the code.
+
+`x3 symbols -doc` adds that sentence to the table. Every **exported** symbol
+gets an `about` block, every package its doc paragraph:
+
+```yaml
+symbols:
+  - symbol: example.com/shop.Cart.Add
+    kind: method
+    file: shop.go
+    hash: 3f0c...
+    exported: true
+    about:
+      doc: Add puts one line in the cart and says how many there are.
+      receiver: Cart
+      result: int
+      methods: []
+packages:
+  - path: example.com/shop
+    doc: Package shop sells things. It keeps no stock of its own.
+    file: shop.go
+```
+
+| Field | What it holds |
+|---|---|
+| `about.doc` | the **first sentence** of the doc comment (cut at the first period followed by a space; a single capital before it is an initial, not an end). Directive lines (`//go:`, `//x3:case:`) are not prose and are dropped. An undocumented symbol has `doc: ""` |
+| `about.receiver` | a method's receiver type, without `*` or type parameters |
+| `about.result` | a function's result types, names dropped: `int`, `(int64, error)`; empty when it returns nothing |
+| `about.methods` | an exported interface's exported methods, each with `name`, `doc`, `result`, in written order. An embedded interface is **not** expanded |
+| `packages[].doc` | the first paragraph of the package doc comment; the file with the smallest path wins when several carry one |
+
+**Every key is written on every exported symbol, empty or not.** A template treats
+a missing key as an error; an undocumented symbol or a function with no result is
+information, not a fault, and must not need a guard in every template.
+
+**Exported means visible to an importer.** A name in a `_test.go` file, an
+unexported name, and a method of an unexported type carry no `about` block.
+
+**Without `-doc` the table is byte-identical to what it was.** Measured on this
+engine's tree with the engine before and after the flag existed: same 766 178
+bytes. `-doc` together with `-graph`, `-uses` or `-scope` is refused (exit 2) —
+it adds to the table, and those modes do not print the table.
+
+**A catalogue is an `emit` document whose source is the table.** `source:
+symbols` runs the documented table on the emit root; `source: symbols <dir>`
+runs it on a subdirectory with its own `go.mod` (a directory outside the root is
+refused). The engine brings the measurement, the project brings the shape:
+
+```yaml
+emit:
+  documents:
+    - name: catalog
+      out: CATALOG.md
+      template: catalog.tmpl
+      source: symbols
+```
+
+```
+{{range .Report.packages}}## {{.path}}: {{.doc}}
+{{end}}{{range filter "exported" "true" .Report.symbols}}- {{.symbol}} ({{.kind}}{{with .about.receiver}}, on {{.}}{{end}}{{with .about.result}}, gives {{.}}{{end}}): {{or .about.doc "UNDOCUMENTED"}}
+{{range .about.methods}}  - {{.name}}{{with .result}} gives {{.}}{{end}}: {{or .doc "UNDOCUMENTED"}}
+{{end}}{{end -}}
+```
+
+`x3 emit -check` then keeps the catalogue honest: edit one doc sentence in the
+code and the catalogue is `stale_document`; regenerate it and it is green.
+Control experiment: `symbols doc catalogue control experiment` in `x3.yaml` —
+the fresh arm weighs every line of the catalogue (first sentence, receiver,
+result, interface method, undocumented symbol, absent test and unexported names),
+the edited arm is red, the regenerated arm green. Breaking the sentence cut in the
+engine turns the fresh arm red.
+
+**No per-file cache, on purpose.** Measured on this engine's 260 files: the
+documented table takes 0.21 s; a per-file cache of the parse result, read back
+warm, took 0.38 s — decoding the stored result costs more than Go's parser.
+A catalogue that has not changed is not rebuilt anyway: the gate's step cache
+skips the `emit -check` step when its declared tree did not move.
+
+<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

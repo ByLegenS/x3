@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.336.0`**
+**Current version: `v0.337.0`**
 
 | Page | What it covers |
 |---|---|
@@ -21,6 +21,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [What a run says](case-findings.md) | the finding codes, propositions that stop at the first failure, the settings and the report |
 | [What a run costs, and what it does not pay twice](case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [A run narrowed to one file or one example](case-only.md) | the target that names a file or a line, the block a line belongs to, and the verdict a narrowed run is not allowed to store |
+| [JavaScript examples](case-js.md) | the same example line above an exported function of an ES module, run by node in one process, cached by every file the module imports, and red when the module needs a browser |
 | [One language outside comments](lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The words a language reserves](lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
@@ -40,6 +41,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Is this call inside that condition](sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
 | [Where the container ends](sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
 | [The names a template calls](sets-template.md) | the root names a markup expression reads, the names the script beside it offers, and the mixin chain that is followed rather than listed |
+| [A list that names two names them all](sets-complete.md) | the comparison that reads every line, block or region as its own list, so that a list naming some members of a set and not the rest is red by the members it leaves out |
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
 | [Today's findings, frozen](baseline.md) | adopting a gate on a tree that is not clean yet, without a thousand reds |
@@ -129,4 +131,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.336.0 capabilities=be0756eddadd25b3951abeddb2758e07ae4bd27695dc71d37d8de27cc41aa122 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

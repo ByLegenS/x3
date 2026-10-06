@@ -434,4 +434,98 @@ the `-out` file and from there into a log. Experiment `task report secret
 control experiment` weighs the screen, the `-dry` note and the written report;
 the binary before the change printed the fake value in all three.
 
-<!-- x3-dist version=v0.336.0 capabilities=be0756eddadd25b3951abeddb2758e07ae4bd27695dc71d37d8de27cc41aa122 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### A task list that lives on disk
+
+**What it catches:** a new directory that the build, send, unit and health
+steps skip in silence, because the list of directories was typed into the task
+file. Measured in one production repository (2026-10-07): 56 task lines and 4
+profile lines were written once per application, and nothing turned red when a
+third application appeared.
+
+Two writings, both opened when the settings are loaded, before anything runs:
+
+**`each: {dirs: <glob>, has: <glob>}` on a step** writes the step once per
+matching directory — the same field, the same `has` filter and the same law as
+on a gate step (see *Each*). `{each}` opens to the directory, `{each|base}` to
+its last part. `{each|verb}` is refused here: a region verb belongs to the
+gate's region map, which a task does not read, and quietly falling back to the
+directory name would give the wrong name in a project that maps verbs.
+
+**`{list:<glob>|<form>[|<separator>]}` inside a step** opens one item per
+matching directory; in the form, `{*}` is what the glob's one star caught. As a
+whole list item, every directory is an item of its own; inside a string, the
+items are joined by the separator, a space when none is written.
+
+```yaml
+do:
+  tasks:
+    - name: ship
+      steps:
+        - say: build {each|base}
+          each: {dirs: apps/*, has: 'worker/*.go'}
+          run: [go, build, -o, 'dist/app-{each|base}', './{each}/worker']
+        - say: vet
+          run: [go, vet, '{list:apps/*/worker|./apps/{*}/worker}']
+        - say: send app-{each|base}
+          each: {dirs: apps/*, has: 'worker/*.go'}
+          on: prod
+          send: dist/app-{each|base}
+          to: /opt/bin/app-{each|base}.new
+        - say: health
+          on: prod
+          run: 'systemctl is-active web {list:apps/*/worker|vt-app-{*}}'
+        - say: swap
+          on: prod
+          write: true
+          run: 'cd /opt/bin && {list:apps/*/worker|mv -f app-{*}.new app-{*}|; }'
+```
+
+With `apps/alpha` and `apps/beta` holding a worker, `x3 do ship -dry` prints
+two builds and `is-active web vt-app-alpha vt-app-beta`; plant `apps/gamma`
+and, with no line edited, every step names it:
+
+```
+== build gamma    (0 ms) - dry: go build -o dist/app-gamma ./apps/gamma/worker
+== vet    (0 ms) - dry: go vet ./apps/alpha/worker ./apps/beta/worker ./apps/gamma/worker
+== send app-gamma    (0 ms) - dry: scp -o BatchMode=yes dist/app-gamma deploy@192.0.2.1:/opt/bin/app-gamma.new
+== health    (0 ms) - dry: ssh ... systemctl is-active web vt-app-alpha vt-app-beta vt-app-gamma
+```
+
+The same token fills a **profile `with` list** from the tree, so a rule built
+once per item gains an item when a directory appears:
+
+```yaml
+profile:
+  with:
+    migrations: ['{list:apps/*/core/migrations|apps/{*}/core/migrations}']
+```
+
+Refused at load, exit 2 — an empty opening is a silent hole, never an empty list:
+
+```
+{list:services/*|vt-{*}}: "services/*" matches no directory; a list opened from nothing is a silent empty list
+step "build": each.dirs "services/*" matches no directory
+"{list:apps/*/worker|vt-app}": the form "vt-app" does not say {*}; every directory would write the same item
+"{list:apps/*/*|{*}}": the glob "apps/*/*" must carry one star; {*} names what that one star caught
+"{list:apps/*|a-{*}|, }" is a whole list item, where every directory is an item of its own; a separator joins only inside a string
+step "build": {each|verb} names a region verb, which only gate steps know; write {each|base} or {each}
+```
+
+⛔ **Opened once, at load.** The merged settings are remembered for the run, and
+a glob read twice in one section is matched once. A section without the token
+or an `each` keeps its bytes. The read record keeps the opened section's
+digest, so a planted directory changes it and a remembered result that read the
+section falls. Measured on a three-directory task, 30 runs each: 47-51 ms with
+the tokens, 45 ms written by hand; the two `-out` reports are identical apart
+from the timings. The glob is read against the directory the root settings
+file sits in, as `each.dirs` is.
+
+⛔ **Directories only.** Like `each.dirs`, the glob names directories; a file
+beside them (`apps/README.md`) is not an application. Experiment `list on disk
+control experiment` plants the trees: two directories (a third without a worker
+stays out), a planted third in build, send, unit, health and the whole-item
+list, an empty list, an empty `each`, a broken token, and a region verb. With
+the opening capped at two directories the five planted-third arms go red; with
+the empty-match refusal removed the empty-list arm exits 0 and goes red.
+
+<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
