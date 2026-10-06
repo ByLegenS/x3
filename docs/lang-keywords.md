@@ -24,8 +24,8 @@ The list is narrow on purpose, in three directions:
   Without that cut the list would be an escape hatch: a forbidden word could be
   hidden by declaring it a keyword and writing it in prose.
 - **Only the "not in the dictionary" question.** A non-ASCII letter outside a
-  comment stays red whatever any list says. That law has no exemptions, and a
-  keyword list is not one.
+  comment stays red whatever the keyword list says; only an `allow` entry
+  naming its whole word lifts it.
 - **Replaces, never merges.** A project's `keywords` for an extension stands in
   for the embedded block rather than adding to it — inheriting half a language
   would make it unreadable which half is in force. Each entry is one ASCII word;
@@ -44,4 +44,4 @@ leaves **7**; a keyword in a comment or a string stays red in both; a project
 list replaces the embedded one, so its own word goes quiet and the built-in ones
 come back red.
 
-<!-- x3-dist version=v0.334.0 capabilities=05d32e130d9cedb16eec9c10f66b50c62f766394fce85acb384d8848e14d5f6d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.335.0 capabilities=c778ee94f2b3df2685567fbe3a3542be2fff4e5bb81b35549b90a7e9902ba396 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

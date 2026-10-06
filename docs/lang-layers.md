@@ -53,6 +53,32 @@ leave letter runs that look like words. Every reader skips it.
 `literal` reads only the files a project points it at; a value the project
 keeps on purpose goes to `allow` with its reason, or to the baseline.
 
+**A word can be a contract in one layer only.** A public URL anchor in markup,
+a tenant's template variable in a placeholder, a data word used as a settings
+key: written into the project's `allow`, the same word would pass as a Go
+identifier everywhere. Each reader takes its own `allow` (same entries, same
+matching, applied to that reader's findings alone) and its own `exclude` (the
+paths it drops from its `sources`, same pattern language):
+
+```yaml
+language:
+  layers:
+    markup:
+      sources: ['ui/**/*.html']
+      exclude: ['ui/vendor/**']
+      allow: [rechnung]       # a public anchor; still red as a Go name
+    yaml:
+      sources: ['x3/*.yaml']
+      values: [name]
+      allow: [é]              # a rulebook section code inside step names
+```
+
+`!` in front of a pattern is not negation in this glob; the error names the
+reader's `exclude` to write it under. An `exclude` pattern that drops none of
+the reader's paths is `empty_scope`, and so is a `sources` pattern whose every
+path is excluded - a reader narrowed to nothing reads nothing, silently
+otherwise. Written but empty, either list stops the run.
+
 Each reader is a separate claim. A finding says which reader saw it (`where`
 is the reader's name, `tag` for struct tags), so its baseline identity never
 collides with a Go finding and the identities of existing findings do not
@@ -79,4 +105,17 @@ the planted arm red. Measured on a production tree (1,691 files, every reader
 declared): cold 640 ms, warm 545 ms against 318 ms for the Go reading alone;
 the default run's report is byte-for-byte the one before readers existed.
 
-<!-- x3-dist version=v0.334.0 capabilities=05d32e130d9cedb16eec9c10f66b50c62f766394fce85acb384d8848e14d5f6d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+Control experiment for a reader's own `allow` and `exclude`, on a second
+planted tree (one Go file, two markup pages): the markup reader allows a word
+and a non-ASCII word and excludes one page → two findings, both the Go
+identifiers carrying those same words; neither written → the markup reader
+adds three; the same words in the project's `allow` → the Go names pass too;
+an `exclude` matching none of the reader's paths, and a `sources` pattern whose
+only path is excluded → `empty_scope` each. With the reader's `allow` and
+`exclude` cut out of the engine on purpose, three arms turn red. Measured on a
+production tree: the default run is byte-identical and as fast (warm ~300 ms
+before and after); with every reader on, a markup `exclude` dropped 93 files
+and 340 findings, and a `yaml` reader `allow` of two non-ASCII letters cleared the
+four step-name findings while one of them stayed red in the script layer.
+
+<!-- x3-dist version=v0.335.0 capabilities=c778ee94f2b3df2685567fbe3a3542be2fff4e5bb81b35549b90a7e9902ba396 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
