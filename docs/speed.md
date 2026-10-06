@@ -70,4 +70,4 @@ calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.331.0 capabilities=4dd95ef758f7d81516514d63de82e8b4bd7d4d60b318b986c8348e71d92492c2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.332.0 capabilities=acab9267b660ce2bb879a50621abb53e34cfe764125b0b99a100a70c0f62bdbb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
