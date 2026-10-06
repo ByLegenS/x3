@@ -55,8 +55,11 @@ A seventh field, `fields`, says which strings are field names and therefore
 identifiers; it has its own page — [The field name written inside a
 string](lang-fields.md#the-field-name-written-inside-a-string).
 
+`layers` and `tags` have their own page — [Names in every
+layer](lang-layers.md#names-in-every-layer).
+
 No `language` section is not an error; the default is `en` / `any` / `en` / the
-Go tree / no names / no field names. A section that *is* written and is wrong
+Go tree / no names / no field names / no layer. A section that *is* written and is wrong
 stops the run — fail-closed.
 
 ### What a run looks like
@@ -93,4 +96,4 @@ words. Its licence requires the notice to travel with any copy:
 Do not edit the file by hand. A word that belongs to your project belongs in
 `language.allow`.
 
-<!-- x3-dist version=v0.333.0 capabilities=d6c756d29ee3d8839fdcc8fb973674293686363123cb8f52768790488c399d88 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.334.0 capabilities=05d32e130d9cedb16eec9c10f66b50c62f766394fce85acb384d8848e14d5f6d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

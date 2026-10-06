@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.333.0`**
+**Current version: `v0.334.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.3 MB | `01982e5dc1e580074ab09c422f888cd4333cdfef65b382cc057a9db2c6b72afb` |
-| `x3-linux-amd64` | linux/amd64 | 25.7 MB | `6799e949e51faf1ef9f514b15e1c61d637f686126464207a838a2b1ae2b305f0` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.4 MB | `7851c908e3e887ea256243ceaaa7ca7ae5bf6335210a0296ddb2114f9f7a26b9` |
+| `x3-linux-amd64` | linux/amd64 | 25.8 MB | `0891206f63314c08ebc69b0f4cd43eba9c633d317495798fb7332a832c19d06d` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -163,6 +163,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The words a language reserves](docs/lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
 | [The field name written inside a string](docs/lang-fields.md) | the keys of a structured log line, read as identifiers even where a project has declared its strings free |
+| [Names in every layer](docs/lang-layers.md) | the names a project declares outside Go - script, style, markup, settings, translations, schema, fixtures - each read where it is declared, never where it is used |
 | [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
 | [Does anybody touch this file](docs/arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
 | [Which files the rule is about](docs/arch-pairing-subjects.md) | the property that says what a pairing rule measures, why it is neither an exemption nor an exclusion, and the elimination that is counted |
@@ -311,4 +312,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.333.0 capabilities=d6c756d29ee3d8839fdcc8fb973674293686363123cb8f52768790488c399d88 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.334.0 capabilities=05d32e130d9cedb16eec9c10f66b50c62f766394fce85acb384d8848e14d5f6d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
