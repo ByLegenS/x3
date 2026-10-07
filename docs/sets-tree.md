@@ -37,6 +37,38 @@ red as everywhere else. A pattern that matches nothing leaves the side empty,
 and an empty side is `empty_scope`, not a tree full of debts: a mistyped pattern
 must not be able to write its own mistake onto the code.
 
+### Only the instances that declare it
+
+`contains` asks a `files:` member's **text**: the file enters the set only when
+a line matches the pattern (`^` and `$` read a line), and what enters is still
+what the stars caught. So "every declared instance carries a worker" becomes
+"every instance whose manifest **promises** a worker carries one", and an
+instance with no background work by design is no longer red — nor is the check
+switched off for everybody to spare it:
+
+```yaml
+    - compare: left-subset-of-right
+      kind: consistency
+      name: a-declared-instance-carries-its-worker
+      left:
+        from: tree
+        select: files:apps/*/manifest.go
+        contains: 'Worker = true'
+      right:
+        from: tree
+        select: dirs:apps/*/worker
+```
+
+The file read is an input of the run like any source, so a manifest that starts
+promising a worker reopens a cached step. A directory has no text: `contains`
+with `dirs:` (or outside `from: tree`) is refused before anything is read
+(exit 2). A pattern that keeps no file leaves the side empty, which is
+`empty_scope`, as above. Control experiment: `arch tree contains control
+experiment` in `x3.yaml` — the instance that promises nothing is green, one that
+promises a worker and lacks the directory is red, the same rule without
+`contains` is red on the instance that promised nothing (the only form before),
+and `contains` on a directory selector exits 2.
+
 ### Directories a walk steps over
 
 **What it catches:** the clutter a gate cannot see. A source walk deliberately
@@ -80,4 +112,4 @@ question without the declaration* stays green beside it.
 component, a path under a skipped directory belongs to none, and the rule would
 open nothing while claiming to.
 
-<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

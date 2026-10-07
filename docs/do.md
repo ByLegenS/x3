@@ -140,6 +140,14 @@ A `psql` link reads when every `-c` / `-tAc` / `--command` query (quoted) starts
 | `journalctl -u web 2>&1 \| tee /tmp/x` | writes | writes |
 | `systemctl -q restart web` · `systemctl --now enable web` | writes | writes |
 
+**A link that does nothing reads (2026-10-07).** `systemctl is-active` exits 3 on a dead unit, so a reading is written `… || true`; `true` was not a reading, and the chain asked for `write: true`. A link that is exactly `true` or `:` now reads. Measured by the examples above `Classify` (`internal/task/classify.go`); with the pattern removed the two reading examples go red.
+
+| Command | Before | After |
+|---|---|---|
+| `systemctl is-active web \|\| true` · `… \|\| :` | writes | reads |
+| `systemctl restart web \|\| true` · `… \|\| systemctl restart web` | writes | writes |
+| `… \|\| : > /tmp/x` · `… \|\| true2` | writes | writes |
+
 ### `-list` — which tasks exist, and which file declares each one
 
 ```
@@ -540,4 +548,4 @@ list, an empty list, an empty `each`, a broken token, and a region verb. With
 the opening capped at two directories the five planted-third arms go red; with
 the empty-match refusal removed the empty-list arm exits 0 and goes red.
 
-<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

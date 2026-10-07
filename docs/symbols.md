@@ -242,6 +242,7 @@ symbols:
       receiver: Cart
       result: int
       methods: []
+      fields: []
 packages:
   - path: example.com/shop
     doc: Package shop sells things. It keeps no stock of its own.
@@ -254,6 +255,7 @@ packages:
 | `about.receiver` | a method's receiver type, without `*` or type parameters |
 | `about.result` | a function's result types, names dropped: `int`, `(int64, error)`; empty when it returns nothing |
 | `about.methods` | an exported interface's exported methods, each with `name`, `doc`, `result`, in written order. An embedded interface is **not** expanded |
+| `about.fields` | an exported struct's exported fields, each with `name`, `type` (as written: `[]string`, `*Note`), `tag` (unquoted: `yaml:"id"`, empty when none) and `doc` (the field's doc comment, or its trailing line comment), in written order. An embedded field is named by its type (`*Note` → `Note`) and is **not** expanded; an unexported field is not written. Every other kind has `fields: []` |
 | `packages[].doc` | the first paragraph of the package doc comment; the file with the smallest path wins when several carry one |
 
 **Every key is written on every exported symbol, empty or not.** A template treats
@@ -286,16 +288,61 @@ emit:
 {{range .Report.packages}}## {{.path}}: {{.doc}}
 {{end}}{{range filter "exported" "true" .Report.symbols}}- {{.symbol}} ({{.kind}}{{with .about.receiver}}, on {{.}}{{end}}{{with .about.result}}, gives {{.}}{{end}}): {{or .about.doc "UNDOCUMENTED"}}
 {{range .about.methods}}  - {{.name}}{{with .result}} gives {{.}}{{end}}: {{or .doc "UNDOCUMENTED"}}
+{{end}}{{range .about.fields}}  - field {{.name}} {{.type}}{{with .tag}} `{{.}}`{{end}}: {{or .doc "UNDOCUMENTED"}}
 {{end}}{{end -}}
 ```
+
+A manifest struct is catalogued from its own declaration: the fixture's `Order`
+lists `ID` with its type, its tag and its doc sentence, a trailing line comment is
+the doc of its field, and the embedded `Cart` and `*Note` are named by their types. Measured against the engine before: the same `x3 symbols
+-doc` printed `methods: []` and nothing under it — a struct's fields could not
+reach a document.
 
 `x3 emit -check` then keeps the catalogue honest: edit one doc sentence in the
 code and the catalogue is `stale_document`; regenerate it and it is green.
 Control experiment: `symbols doc catalogue control experiment` in `x3.yaml` —
 the fresh arm weighs every line of the catalogue (first sentence, receiver,
-result, interface method, undocumented symbol, absent test and unexported names),
+result, interface method, struct field with tag, trailing comment and embedded
+type, undocumented symbol, absent test and unexported names),
 the edited arm is red, the regenerated arm green. Breaking the sentence cut in the
 engine turns the fresh arm red.
+
+**One document, several sources.** `sources:` names more than one report for one
+template: each entry is `name: command` in the same vocabulary as `source:`
+(`boxes`, `retire`, `adoption`, `symbols [dir]`, `graph [dir]`), and the template
+sees it as `.Sources.<name>`. `source:` and `.Report` stay exactly as they were.
+A command two entries (or two documents) name runs once per emit run. `graph
+[dir]` is the published report of `x3 symbols -graph`; its edge ids are the
+table's ids, so a page that joins doc comments with use counts needs no second
+document:
+
+```yaml
+emit:
+  documents:
+    - name: uses
+      out: USES.md
+      template: uses.tmpl
+      sources:
+        doc: symbols
+        use: graph
+```
+
+```
+{{range sortByCount "files" .Sources.use.edges}}{{$e := .}}{{range filter "symbol" .symbol $.Sources.doc.symbols}}- {{$e.symbol}} is used in {{count $e.files}} file(s): {{.about.doc}}
+{{end}}{{end -}}
+```
+
+The graph is loaded through `go/packages`, which the engine's read observation
+never saw: a gate step that runs `emit -check` on a `graph` document recorded no
+Go file, and a using file that changed came back **green from the cache**. The
+graph now reports every Go file of every module package (excluded ones too — a
+removed build tag brings them in) and the module file as read. A `sources`
+entry with an empty name or command is refused (exit 2). Control experiment:
+`emit sources control experiment` in `x3.yaml` — fresh green, a using file moved
+to the other symbol stale, regenerated green, empty entry refused, and a one-step
+gate on the graph page: cold run, unchanged run `skipped: cached`, the moved file
+measured again and red. With the read report removed from the graph the last arm
+is `exit=0 (want 1)` — the step answered from its record.
 
 **No per-file cache, on purpose.** Measured on this engine's 260 files: the
 documented table takes 0.21 s; a per-file cache of the parse result, read back
@@ -303,4 +350,4 @@ warm, took 0.38 s — decoding the stored result costs more than Go's parser.
 A catalogue that has not changed is not rebuilt anyway: the gate's step cache
 skips the `emit -check` step when its declared tree did not move.
 
-<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

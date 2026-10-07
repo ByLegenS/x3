@@ -59,6 +59,19 @@ job: a component is a fact about one tree, and the library would be guessing.
 | `a-declared-{family}-instance-carries-{legs}` | `arch.rules` | an instance whose manifest calls it complete, missing one of the directories that completeness promised | `family`, `manifest`, `legs` (**list**) |
 | `a-declared-{family}-instance-carries-its-{entry}` | `arch.rules` | the same manifest, missing the entry script that would let anything run the instance | `family`, `manifest`, `entry` |
 
+One leg can be asked only from the instances that declare it: override the
+single check the `each` grew, keeping the library's right side, with a left side
+that reads the manifest's text (`contains`, under *The tree itself is a set*):
+
+```yaml
+override:
+  a-declared-apps-instance-carries-worker:
+    left:
+      from: tree
+      select: files:apps/*/app/core/manifest.go
+      contains: '<the line a manifest writes when the instance has a worker>'
+```
+
 #### Two versions of one job
 
 `go-parts@1` is not retired: a project that calls it keeps those five checks
@@ -158,4 +171,4 @@ A secrets pattern has the same shape: an exemption that excuses nothing is
 reported dead, so the ranges a real repository excuses cannot travel with the
 pattern — the carried password pattern ships with **no** exemptions.
 
-<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

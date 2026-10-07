@@ -41,6 +41,31 @@ command here — the template sees the report's **YAML keys**, which are already
 published surface, not the engine's Go field names. `from:` in the settings is
 the same thing for a fixed path, and the flag overrides it.
 
+**A data entry may be a pattern.** Definitions spread over many files — one view
+per migration — are read into one document without a hand-kept copy of them:
+
+```yaml
+      data:
+        views: db/migrations/*.sql   # every match, in path order
+        note: docs/data/note.txt     # a plain path is one file, as before
+```
+
+`.Data.views.Text` and `.Data.views.Lines` are every matched file one after the
+other; `.Data.views.Files` lists them apart, each with `.Path` (root-relative),
+`.Text` and `.Lines`, so a template can say which file a line came from. A plain
+path reads exactly as it did (its `Files` holds that one file). The wildcard sits
+in the **file name** only: `db/*/views.sql` is refused when the settings are read
+(exit 2), because a new file under a wildcard directory would not reopen a cached
+step. A pattern that matches no file is refused too — an empty set reads like a
+source with nothing to say. The pattern's directory is an input of the run: a
+migration added later reopens a cached `emit -check` step and turns it red.
+Control experiment: `emit data pattern control experiment` in `x3.yaml` (fresh
+green, a migration added red, regenerated green, empty set and wildcard directory
+refused). Measured against the engine before: the same entry exits 2 with
+`cannot read data "views": open db\migrations\*.sql`. Cache arm, one-step gate on
+a copy: second run `cache 1 hit`; a migration added → miss, `stale_document`;
+`x3 emit` → miss, green; next run a hit.
+
 ### The three things a hand-written generator is missing
 
 **It cannot go stale.** `-check` writes nothing and asks whether the file on
@@ -80,6 +105,7 @@ document has moved somewhere nobody reads again.
 | `filterContains` `rejectContains` | by a field containing a fragment — which folder a path sits under is not an equality question |
 | `filterLike` | same, with markdown emphasis stripped from both sides: an entry that ties a list to a heading must not die because somebody bolded a word |
 | `groupBy` `sortBy` `pluck` `count` `get` | grouping is **sorted by key**, order inside a group is the report's; an order that shifts between runs would answer "is it stale" wrong every time |
+| `sortByCount <list-field> <list>` | records by the **length** of a list field, most first, equal ones in the report's order — `sortBy` compares strings and puts `10` before `9` |
 | `before` `after` `lastBefore` `lastAfter` `split` `join` `replace` `trimPrefix` `trimSuffix` `trimSpace` `contains` `hasPrefix` `hasSuffix` `lower` `upper` `plain` `text` | text |
 | `list` `append` `has` `add` `sub` `seq` | small helpers, for the counts and the sets a two-way check needs |
 | `finding` | raises one, and renders nothing |
@@ -189,6 +215,17 @@ version string, which is the point of `stamp`.
 **only** for a clean tagged tree: a build from `v1.2.3-2-gabc123` is a test build,
 and a pointer naming a version nobody can check out is worse than no pointer.
 
+A release run **by a binary that sits in its own release tree** is refused before
+anything is built: a running binary cannot be overwritten, and learning that at
+write time leaves half a tree. The file is compared by identity, not by spelling:
+
+```
+x3 release: this release runs from out\tool.exe, a file it would write; a running binary cannot be overwritten, so nothing is built or written - run a copy of it from outside out and release again
+```
+
+Measured: v0.338.0 was run from its own output path; the Linux binary was written,
+the Windows one could not be, and `SHA256SUMS.txt` never was.
+
 ### The pages, generated from one source
 
 One document carries the whole text; markers split it. Each marker is an HTML
@@ -262,4 +299,4 @@ repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -83,4 +83,21 @@ a report file is then blind **exactly when there is something to read**, which
 is the one moment it exists for. The same trap was met once inside `outbound`,
 where a mode word sits before the flags; this is that answer applied everywhere.
 
-<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+A command reads **one** directory; a list goes to its flag as one value, comma
+separated. A second directory, or a second value written after a list flag, is
+refused with that line written out - the list flag is found by its own help
+text, so a new command gets the same answer:
+
+```
+x3 case internal/release internal/task
+x3 case: 1 argument(s) written after the directory are read by nothing: internal/task
+        one run reads one tree; name several directories in -only: x3 case -only internal/release,internal/task .
+x3 boxes -close 000000000000 111111111111
+x3 boxes: 111111111111 is not a directory, and -close was given one value
+        a list is ONE value of its flag, comma separated: x3 boxes -close 000000000000,111111111111
+```
+
+Measured (2026-10-07): the second id after `-close` was silently read as the
+directory.
+
+<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
