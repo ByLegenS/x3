@@ -164,6 +164,20 @@ echo.go:16 (Echo): example_failed
 	the subtest "mute" failed inside this example and said nothing there
 ```
 
+A finding longer than 300 bytes is cut, and the cut always ends on a **whole
+letter**: a byte limit is a letter boundary only in ASCII (`é` is two bytes, `—`
+three), and a cut through the middle of one leaves a byte no terminal can print.
+The cut steps back to where that letter starts, so the line may come out a byte
+or two short but never broken. Every place the engine shortens a text by bytes —
+this finding, a `x3 mutate` survivor line, an observed `x3 live` body, a body
+name in `x3 arch` — goes through the same helper:
+
+```
+$ x3 case ./long           # a finding of 299 × "a" followed by "é"
+echo.go:16 (Echo): example_failed
+	aaaa…aaaa                  # 299 bytes, valid UTF-8; a byte cut gave 300 and a broken "é"
+```
+
 The first three are answers the toolchain gave; the last four are refusals made
 **before** anything runs.
 
@@ -200,4 +214,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.340.0 capabilities=7f596239b33d07b08fcfa0550f33f7a3d4eadd50b8ad99f6fce73dc731635008 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

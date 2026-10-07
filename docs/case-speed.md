@@ -187,6 +187,66 @@ Experiment `case example-level reach control experiment`: the six trees under
 beside `Check` assert each row, and with the witness switched off the type-error
 arm turns red.
 
+**The witness is never spared.** When every example of a package is recalled,
+one still runs as the witness that the package builds, with vet, whatever
+changed. W809 skipped it when the package's own lines and its importer's-eye
+view of every dependency were unchanged; two independent reviews found false
+greens in that skip (W810 four, W815 one more: with `GOFLAGS=-vet=all`, a
+dependency's `func Die() { panic("x") }` becoming `{}` breaks the importer's
+lostcancel vet and the spared witness never saw it). W816 removed the skip: a
+few seconds per edit do not pay for a new class of false green each review.
+
+What else the build reads is weighed in every key (W811, W816; each was a false
+green measured by an independent review, W810 / W815):
+
+- **Files Go builds that are not Go** (`.s .S .c .h .cc .cpp .m .f .syso`
+  ...) are lines of their directory, seen by the package and by its importers.
+- **The toolchain the run uses:** every field of `go env -json`, asked once per
+  environment with **the environment the child `go test` gets** (the machine
+  share's `X3_CPU_GOFLAGS`, not x3's own `GOFLAGS`), outside any module, so
+  `go env -w` counts. No allow list: a variable Go adds (`GOFIPS140` was
+  missing from the old list) is weighed by itself. Only what was measured to
+  move between runs is dropped: `-p=N` in `GOFLAGS` (parallelism) and the
+  temporary `-ffile-prefix-map=<go-build dir>=/tmp/go-build` in `GOGCCFLAGS`
+  (new on every call). `GOCACHE GOMODCACHE GOTMPDIR GOENV` did not move and
+  stay: changing one drops the cache once.
+- **Module sources outside go.mod's text:** a `replace` to a local path, the
+  `use` and `replace` dirs of the effective go.work (with go.work and
+  go.work.sum), and `vendor/`. Each one's go.mod/go.sum counts; its files count
+  too unless the walk already reads it (a dir inside the measured tree whose
+  module path is `<module>/<dir>`).
+- **An interface method with `...`** makes its package seen whole by importers
+  in the package digest (since Go 1.26 vet's printf calls the method a wrapper
+  when ANY body of the package assigns a wrapper type to the interface).
+- **A package whose own plan is whole** (`//go:linkname`, a bodyless function,
+  `import "C"`, a dot import) weighs every package it imports with all their
+  lines: what it reaches cannot be read from Go names. `//go:linkname hidden
+  m/lib.hidden` names nothing in lib, and a change of lib.hidden's body kept
+  the package key.
+
+```
+lib.Double body changes (lib runs its example)        -> use's witness runs, green
+lib.Note(format, args ...any) starts fmt.Sprintf      -> use's witness runs, vet red is seen
+lib.Name() string becomes int                         -> use's witness runs, build red is seen
+type error in plain (no examples)                     -> use's witness runs, build red is seen
+plain/nop.s breaks (+ lib.Name body, or alone)        -> use's witness runs, asm red is seen
+GOFLAGS=-tags=foo opens a broken plain/tag.go         -> every example runs again, red is seen
+X3_CPU_GOFLAGS=-tags=foo alone opens lib/foo.go       -> every example runs again, red is seen
+GOFIPS140=v1.0.0 opens a broken //go:build fips140v1.0 -> every example runs again, red is seen
+-vet=all, lib.Die stops panicking                     -> use's witness runs, lostcancel red is seen
+lib.hidden body changes, use pulls it by linkname     -> use runs, its example is red
+replace e => ./ext, ext.E changes its result          -> use's witness runs, build red is seen
+plain/note.txt (embedded) removed / alias target      -> use's witness runs, red is seen
+```
+
+Arms: `internal/cases/testdata/spare` (bases `base`, `vetbase`, `lnbase`,
+`envtag` and their variants), the cache-backed examples beside `Check`, and the
+`toolchain`/`settled`/`builds`/`localTargets` examples in
+internal/cases/toolchain.go. Control: the W816 arms `vet`, `envtag` (GOFIPS140,
+X3_CPU_GOFLAGS) and `linkname` were run against the engine before W816 and each
+was false green (0 findings); the W811 arms (asm, asmonly, tags, iface,
+ifaceonly, replace) were false green before W811.
+
 **A body-only change runs only the examples that executed that body.** Static
 reach stops at the constructor: an example that builds an `App` reaches every
 handler it registers. So every untagged run also records, per example, the
@@ -415,4 +475,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.340.0 capabilities=7f596239b33d07b08fcfa0550f33f7a3d4eadd50b8ad99f6fce73dc731635008 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

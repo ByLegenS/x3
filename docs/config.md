@@ -1507,4 +1507,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.339.0 capabilities=32778afbc9ceb1303caf168038bbe0c583c52168a2b336603fedb7c70c33d49b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.340.0 capabilities=7f596239b33d07b08fcfa0550f33f7a3d4eadd50b8ad99f6fce73dc731635008 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
