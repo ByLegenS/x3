@@ -48,6 +48,16 @@ disk is what the template produces today; a difference is `stale_document`, and
 it is a `block` by default. A generated document nobody regenerates is worse
 than a missing one: it is read as current.
 
+The compared copy is an input of the run like the template and the sources: a
+gate step that runs `emit -check` is opened again when somebody edits the
+generated file by hand, without `-force`, and a page that does not exist yet
+ties the step to its directory. Before this the step was keyed on the template
+and the sources only, and a hand-broken page came back green from the cache
+(`cache 1 hit, 0 red`). Control experiment, run on a copy of
+`internal/emit/testdata/pages` with a one-step gate: edit `out/INDEX.md` → the
+step is red (`stale_document`); `x3 emit` → the next run is a cache hit, green;
+the engine before the change → the edited page is a cache hit, green.
+
 **The template can raise a finding.** A document generator is usually a gate as
 well — "this box has no place in the order" is a question only the side that
 builds the shape can ask. `{{finding "..."}}` writes it in the engine's finding
@@ -217,10 +227,39 @@ text for leaks (a local path, a home directory, an address) and, with a second
 file, for language; a `freeze` section holds each published document under its own
 line cap. A page with no cap declared is not a page this repository publishes.
 
+A release writes nothing behind its own tag. A new page within its family's
+allowance is green either way; a run that publishes a release version **holds**
+it — measured, named, not written — and a test build (`-allow-dirty`) records it:
+
+```
+HELD page-follows-its-source publish/docs/fresh.md: a new page within the family's allowance of 5; it counts 5 and from here it only shrinks; not written - this run publishes a release, and a record written now lands behind its tag (a test build, -allow-dirty, writes it)
+```
+
+Measured on this repository: three releases that each added a page wrote the
+tracked line-cap baseline after the tag, and the commit that carried it left the
+tag behind its tree until the next release.
+
+### The release tree is tagged where it lives
+
+When the release tree is a repository named under `published` with its remote,
+a release run commits what it wrote, tags that commit with the version, pushes
+the branch and the tag, and then measures the tag with the very questions
+`x3 published` asks — its own sentence is not the proof:
+
+```
+x3 release: ../publication carries v1.2.0 at the release commit 4fcde71c1a2b (committed) and origin has it
+```
+
+A tag that already names another commit is not moved, a push that cannot reach
+its remote is red, and a tree not named under `published` is written and left
+untagged, with a sentence that says so. A test build (`-allow-dirty`) tags
+nothing. Measured: the v0.337.0 chain pushed the public repository without its
+tag, and `published` read `tag_never_created` until a hand made it.
+
 The `secrets` section names the pages by a pattern (`docs/*.md`), not one by
 one: a page written later is read the day it is born. Measured on this
 repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

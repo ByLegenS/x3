@@ -128,6 +128,18 @@ A `psql` link reads when every `-c` / `-tAc` / `--command` query (quoted) starts
 | `psql -c "SELECT 1" $(touch /tmp/x)` | reads | writes |
 | `grep '$(x)' /etc/hosts` | reads | reads |
 
+**Service readings with options and joined streams read (2026-10-07).** The `systemctl` pattern wanted the verb right after the command name, so an option in front of it (`-q`, `--quiet`, `--no-pager`, `--user`) turned a reading into a write, and `is-failed`, `is-system-running` and `get-default` were not listed. Joining one stream to another (`2>&1`, `>&2`, `2>&-`) wrote nothing, yet any `>` made the link a write - so the usual `journalctl … 2>&1 | tail` asked for `write: true`. Options in front of the verb are now allowed (dashed words only; an option whose value is a separate word, `-p Id show`, stays a write), the verb list stays closed, and a stream joined to a stream is ignored the way `/dev/null` already was. `>&file`, `2>&1>file`, `>`, `>>` and `tee` still write. Measured by the `remote classifier control experiment` step: one reading arm (five readings) and eight writing arms; with the engine from before this change the reading arm goes red.
+
+| Command | Before | After |
+|---|---|---|
+| `systemctl -q is-active web` | writes | reads |
+| `systemctl --no-pager status web` | writes | reads |
+| `systemctl is-failed web` | writes | reads |
+| `journalctl -u web -n 50 2>&1 \| tail -5` | writes | reads |
+| `systemctl is-active web 2>&1 > /tmp/x` | writes | writes |
+| `journalctl -u web 2>&1 \| tee /tmp/x` | writes | writes |
+| `systemctl -q restart web` · `systemctl --now enable web` | writes | writes |
+
 ### `-list` — which tasks exist, and which file declares each one
 
 ```
@@ -528,4 +540,4 @@ list, an empty list, an empty `each`, a broken token, and a region verb. With
 the opening capped at two directories the five planted-third arms go red; with
 the empty-match refusal removed the empty-list arm exits 0 and goes red.
 
-<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

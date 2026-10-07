@@ -87,6 +87,27 @@ experiment`: nothing changed → `3 package(s) unchanged` (the old engine: `1`);
 file joins the embedded directory → the embedding package and its importer run
 again; the page changes → both run and their examples catch it.
 
+⛔ **A file an example opens at run time is part of the package.** A test binary
+writes every path it opens or stats to Go's own test log (`-test.testlogfile`,
+the log Go's test cache checks with); `x3 case` passes that flag and reads the
+log after the run. The paths inside the measured tree are kept with their
+content (a directory by its names, a missing path as absent) **in the package
+record and in the example record**, and the next run checks them before it
+trusts either: one moved file runs the package again, every example of it,
+since the log belongs to the process and cannot tell which example opened what.
+The same paths reach the gate's observation of the step (a file by its whole
+bytes, a directory and a missing path by name), so a gate step running `x3 case`
+measures again when such a file changes. Measured on a pilot: an approved
+manifest an example read with `os.ReadFile` changed, the `case` step returned
+its old red as `cached: nothing this step reads has changed`, and only `-force`
+showed the green. Limits: a path outside the measured tree is not weighed; a
+path the run itself wrote (changed after the run began) is output, not input;
+a file a child process opens is not in the log. Experiment `case run-time read
+control experiment`: the example reads `rate.txt` beside it; the changed limb
+moves only that file and the package runs again and is red (the old engine:
+`cache 1 hit(s)`, green), the file back is one hit again, and the gate step on
+the changed limb runs and is red (the old engine: `0 ran, 1 skipped`).
+
 ⛔ **An imported package is weighed by what the importer can reach, not by its
 whole text.** Measured on a pilot (v0.319.0): `return x` → `return (x)` in one
 core function re-ran every importer, the core region 189 s with case 185 s,
@@ -394,4 +415,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

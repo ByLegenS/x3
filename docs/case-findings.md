@@ -124,7 +124,22 @@ about what. Short-circuiting is the same thing Go's own `&&` does.
 
 A panic that survives anyway — a single proposition that dereferences nothing —
 is caught and charged to **that** example as `example_failed`, saying it
-panicked. Its neighbours keep running.
+panicked. Its neighbours keep running. The finding names the step that was
+running: `then[1] out0.Inner.Qty == 2 panicked: runtime error: invalid memory
+address or nil pointer dereference`, or the example's own id when the call
+itself panicked. Until 2026-10-07 the catch ran in the runtime's panic frame,
+the sentence was charged to `panic.go` instead of the generated file, and the
+finding showed the measured code's first log line instead.
+
+A JavaScript example says the same: `then[2] out0 === 75 does not hold`, in
+order, stopping at the first one — it used to evaluate every proposition and
+say `<text> is false` with no position.
+
+Control experiment, on a scratch module with two examples: `then=(out0.Inner
+== nil, out0.Inner.Qty == 2)` on a nil `Inner` → `then[1] out0.Inner.Qty == 2
+panicked: ...` (the engine before: the measured code's `log.Printf` line);
+`then=(out0.Qty == 3, out0.UnitMicros > 0, out0.UnitMicros == 75_000_000)` →
+`then[2] out0.UnitMicros == 75_000_000 does not hold` on both engines.
 
 ### An example that fails inside its own subtest
 
@@ -185,4 +200,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

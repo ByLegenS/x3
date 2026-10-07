@@ -305,6 +305,23 @@ move:
 With no `move.keep` the run says so on every run: every text file is rewritten, a
 migration and a ledger included.
 
+**A kept baseline file is not written either (2026-10-07).** After the move, `x3 move`
+records it (`moved:`) in each baseline file whose records it reaches, so the next run
+holds the moved debt. That writer did not ask `move.keep`: a gate baseline listed
+there got a 14-line `moved:` record and had to be put back by hand. Now a baseline
+file under `move.keep` is left byte for byte and named:
+
+```text
+  base/gate.yaml: listed under move.keep - not written; the move is not recorded over its 2 record(s), 0 of them on the moved path (take it out of move.keep to carry them)
+  base/arch.yaml: move recorded over 1 record(s), 1 of them on the moved path
+```
+
+Its records are not carried; a record the move reaches may be born on the new path.
+A project that wants the move carried there takes the file out of `move.keep`.
+Measured by the `kept` arm of `move carries baseline records`: the kept file is
+compared with a byte copy, the unkept one must differ; red on the engine before this
+change.
+
 **It proves itself from disk** (exit 1, `RED`): after writing, the files are listed
 and read again, and a file outside `move.keep` that still names the old path is
 named; the kept files that still name it are counted as declared. Every package
@@ -543,4 +560,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.337.0 capabilities=3860e842c699cce7f98e5bd335013a1d4b84da590e84edf414492455d8caaf11 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.338.0 capabilities=c97edf7bc2c7b7f3fae74ed6188fa7c41a96a3068da351af671960e287d7e0ed template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
