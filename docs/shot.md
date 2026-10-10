@@ -58,6 +58,43 @@ elsewhere). It never runs with your profile and never attaches to a browser you
 have open: its profile is a temporary directory, removed when the run ends, and
 the browser is closed — politely first, killed if it does not go.
 
+**Signed-in pages: `-cookies`.** A throwaway profile has no session, so a page behind
+a sign-in is captured as the sign-in screen. `-cookies` gives the run one, without
+touching anyone's browser: the cookies are written into the throwaway profile before
+the first page and go away with it.
+
+```text
+x3 shot -base http://127.0.0.1:8080/ -cookies ~/.session/app.txt account/index.html
+SESSION='sid=…' x3 shot -base http://127.0.0.1:8080/ -cookies env:SESSION account/index.html
+```
+
+```text
+x3 shot: session cookie(s) sid set for 127.0.0.1:8080, values not shown
+x3 shot: account-index-1440.png 1440x2000
+```
+
+The **value never sits on the command line**, where the process list and a log would
+show it: `-cookies` names a file (one `name=value` per line, `#` for a comment) or
+`env:NAME`, a variable holding `name=value; name2=value2`. Only the names are printed;
+an error names the entry's number and the cookie's name, never its value; the index
+page never sees it. The cookies are set for `-base`'s host only — a run without an
+`http(s)` base stops with exit 2, so a session never goes to a host nobody named — and
+they are `httpOnly`, so the page's own script cannot read them onto the screen. An
+empty file or variable stops the run too: it would capture the sign-in screen and call
+it the page. Headers (`Authorization: Bearer …`) are not offered: the debugging
+protocol's extra headers go with every request a page makes, to every host it loads
+from, and limiting them to one host needs request interception.
+
+| Arm (`signed-in screenshot control experiment`) | Measured |
+|---|---|
+| a page that answers 401 and a 1500-pixel sign-in screen without `sid`, 200 and 2000 pixels with it; the session from a file, `-index` on | exit 0, `private-1440.png 1440x2000`; the value in neither stdout, stderr nor any written file (the test server scans all three) |
+| the same page without `-cookies` | exit 1, `1440x1500 - the page answered 401` |
+| the session from `env:NAME` | exit 0, `session cookie(s) sid set for 127.0.0.1:…`, value nowhere |
+| `-cookies` without `-base` · an empty variable | exit 2 before the browser starts |
+| the cookies never set (a planted mutation) | red: both signed-in arms capture the 401 screen |
+| the value printed on the cookie line (a planted mutation) | red: stderr carries it and the server's scan names the command's output |
+| the value written to a file in the output directory (a planted mutation) | red: the server's scan names that file |
+
 | Exit | Meaning |
 |---|---|
 | 0 | every image written |
@@ -130,4 +167,4 @@ sideways-overflow line is still printed, and still informs without turning red.
 **What it does not measure.** Text clipped vertically (`line-clamp`, a fixed height),
 two elements overlapping, colour contrast, and anything inside an `iframe`.
 
-<!-- x3-dist version=v0.340.0 capabilities=7f596239b33d07b08fcfa0550f33f7a3d4eadd50b8ad99f6fce73dc731635008 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

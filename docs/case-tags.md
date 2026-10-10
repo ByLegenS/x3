@@ -202,4 +202,4 @@ quote.go:14 (Quote): does_not_build
 	undefined: Quote; the file builds only under //go:build live, which this run does not carry - write //x3:tags: live above the package clause, and the run defers its examples or runs them with -tags live
 ```
 
-<!-- x3-dist version=v0.340.0 capabilities=7f596239b33d07b08fcfa0550f33f7a3d4eadd50b8ad99f6fce73dc731635008 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
