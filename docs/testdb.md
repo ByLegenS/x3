@@ -10,16 +10,29 @@ database by **cloning a prepared template**, hands the command a DSN through the
 environment, and drops the database when the command is done.
 
 ```
-x3 testdb create [-config <file>]
+x3 testdb create [-config <file>] [-show-dsn]
 x3 testdb drop   [-config <file>] (-name <database> | -stale)
 x3 testdb list   [-config <file>] [-stale]
 x3 testdb prune  [-config <file>]
 x3 testdb run    [-config <file>] [-keep] -- <command> [args...]
 ```
 
-`create` prints its **DSN on stdout**, one line and nothing else, so a shell can
-capture it. `run` is the shape most projects want: one process, a fresh
-database, automatic cleanup; `-keep` leaves it behind, for the sweep to collect.
+`create` prints the **name** of the copy on stdout, one line and nothing else,
+and on stderr the variable a run would fill - never the connection string. That
+string carries the admin password, and a command run by an agent lands in the
+agent's transcript word for word. `-show-dsn` prints it in place of the name,
+for the one who asks by name:
+
+```
+$ x3 testdb create
+apptest_tmpsxi_539fcd30
+x3 testdb: created apptest_tmpsxi_539fcd30 in 243ms; its connection string is not shown - `x3 testdb run -- <command>` starts a program with it in X3_TESTDB_DSN, -show-dsn prints it
+```
+
+`run` is the shape most projects want - and the way to start a server against a
+copy: one process, a fresh database, the DSN handed over in the environment and
+printed nowhere, automatic cleanup; `-keep` leaves it behind, for the sweep to
+collect.
 
 `run` returns the command's own exit code, with one exception: a runner that
 announces it found nothing to run does not make a green. The sentences and the
@@ -261,4 +274,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.342.0 capabilities=5da92501c0522b7dd930197f3dbaf5aacfa8cc55706c450814a9df2a48292932 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

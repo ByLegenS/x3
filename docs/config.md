@@ -214,9 +214,8 @@ x3 store          -config region-band.yaml   commit band - 2 step(s): 1 ran, 1 s
 x3 store --full   -config region-band.yaml   full band   - 2 step(s): 2 ran, 0 skipped
 ```
 
-**`--force` is an axis of its own** — the long name of `-no-cache`, and it
-combines with everything. Without it a run answers from the cache whatever
-nothing has changed for:
+**`--force` is an axis of its own**, and it combines with everything. Without
+it a run answers from the cache whatever nothing has changed for:
 
 ```
 x3 store --full            cold    2 ran, 0 skipped - 44 ms
@@ -224,6 +223,36 @@ x3 store --full            warm    0 ran, 2 skipped -  0 ms   (cached: nothing t
 x3 store --full --force    forced  2 ran, 0 skipped - 45 ms
 x3 store --full            warm    0 ran, 2 skipped -  0 ms   (the forced run did not poison the cache)
 ```
+
+⛔ **A forced run records what it found, in place of the old record.** It reads
+nothing from the cache, and every fresh verdict replaces the records of the
+same step with the same key (definition, binary, `state` answer); a step that
+ran but left no basis for a record drops the old one. `-no-cache` stays the run
+that neither reads nor writes. Measured on a production pilot: a step reading a
+development database was red, the database was fixed, `--force` showed 0 red —
+and the next plain run replayed the first red as *cached*, because `--force`
+was the long name of `-no-cache` and never opened the cache. The old record is
+dropped, not only moved behind: a red run that stopped early read fewer files,
+so it would stay valid after the fresh record went stale and tell the same lie
+again. The price is one extra run for the same key on another tree. A verdict
+born of the environment (`code -1`, or a line saying *this run cannot measure*)
+is never written, forced or not.
+
+```
+x3 gate -only "undeclared input"            input red     1 ran, 2 skipped, 1 red
+x3 gate -only "undeclared input"            input fixed   0 ran, 3 skipped, 1 red   (cached - the input is not a file)
+x3 gate -only "undeclared input" -force     input fixed   1 ran, 2 skipped, 0 red
+x3 gate -only "undeclared input"            input fixed   0 ran, 3 skipped, 0 red   (v0.341.0: 1 red, exit 1)
+```
+
+The second line is the reason `state` and `volatile` exist (see *volatile*
+below): a step whose input is not a file must say so, or the gate cannot see the
+input move — a stale red one way, a stale green the other. Experiments `forced
+run cache control experiment` and `non-file input control experiment` (fixture
+`internal/gate/testdata/drift.yaml`: the "database" is the tree a variable names,
+which the gate cannot see) — with `state` the fixed input runs again, the same
+input recalls, and the input drifting back with no file moved is red again; a
+`volatile` step runs every time.
 
 ⛔ **A command name wins over a region name, and the engine says so.** A
 settings file cannot take over `x3 release`; if it declares a region by that
@@ -1507,4 +1536,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.342.0 capabilities=5da92501c0522b7dd930197f3dbaf5aacfa8cc55706c450814a9df2a48292932 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

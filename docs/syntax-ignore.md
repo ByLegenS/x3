@@ -34,4 +34,4 @@ stale exclusion is how a gate goes blind without saying so. On an `as` or `run`
 check it is a configuration error, because a parser answers for the whole file
 and there is no line to exclude.
 
-<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.342.0 capabilities=5da92501c0522b7dd930197f3dbaf5aacfa8cc55706c450814a9df2a48292932 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

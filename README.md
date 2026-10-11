@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.341.0`**
+**Current version: `v0.342.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.6 MB | `a752bb14c9d43802ad1221b76c62f4ddb8f13eb0f5334c1edd4e6d1c8781d6c3` |
-| `x3-linux-amd64` | linux/amd64 | 26.0 MB | `eab07cfaf6d160a6ffe82a5065aac510ca73279d3e211ca5b5534d27574db534` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.7 MB | `61b2fac1f36380348c364cea22eaab780b66a7d5d6d4ccd59989cc8928a3ec1e` |
+| `x3-linux-amd64` | linux/amd64 | 26.1 MB | `befd9a54372f4b45405f30544149daee5e6285fb70f03eb24be4230c2eee03b3` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -264,7 +264,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
 | [Gaps in what a run reaches](docs/gaps-outside.md) | the bounds that begin where the source tree ends: the release it pulls, the toolchain it mutates through, the traffic it records, the live world it asks, and the database it borrows |
-| [Full-length screenshots](docs/shot.md) | every page at every width and theme, captured to its own length by a headless browser that starts and ends with the run, signed in when a session is given, and a layout audit on the same browser |
+| [Full-length screenshots](docs/shot.md) | every page at every width and theme, captured to its own length by a headless browser that starts and ends with the run, signed in when a session is given, driven by a step list in one tab, with a network record and a layout audit on the same browser |
 | [One processor budget per machine](docs/machine-budget.md) | every x3 running at once shares one budget, held as slots that die with the process that held them |
 | [A scope an agent cannot leave](docs/hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](docs/experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
@@ -314,4 +314,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.342.0 capabilities=5da92501c0522b7dd930197f3dbaf5aacfa8cc55706c450814a9df2a48292932 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

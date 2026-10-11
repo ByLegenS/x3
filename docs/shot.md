@@ -85,6 +85,11 @@ it the page. Headers (`Authorization: Bearer …`) are not offered: the debuggin
 protocol's extra headers go with every request a page makes, to every host it loads
 from, and limiting them to one host needs request interception.
 
+A cookie named `__Host-…` or `__Secure-…` is written with `Secure`, which the browser
+demands for those prefixes; on plain `http` it still reaches `localhost` and
+`127.0.0.1`, which the browser counts as a secure origin. Measured: before, the same
+file stopped the run with `Invalid cookie fields`.
+
 | Arm (`signed-in screenshot control experiment`) | Measured |
 |---|---|
 | a page that answers 401 and a 1500-pixel sign-in screen without `sid`, 200 and 2000 pixels with it; the session from a file, `-index` on | exit 0, `private-1440.png 1440x2000`; the value in neither stdout, stderr nor any written file (the test server scans all three) |
@@ -98,7 +103,7 @@ from, and limiting them to one host needs request interception.
 | Exit | Meaning |
 |---|---|
 | 0 | every image written |
-| 1 | at least one page did not load, answered 400 or more, did not settle, or had more findings than a `-measure` ceiling allows |
+| 1 | at least one page did not load, answered 400 or more, did not settle, had more findings than a `-measure` ceiling allows, failed a step, or showed other text than an `expect` line wants |
 | 2 | nothing was taken: no page, a size that cannot be read, or no browser |
 
 | Arm | Measured |
@@ -167,4 +172,114 @@ sideways-overflow line is still printed, and still informs without turning red.
 **What it does not measure.** Text clipped vertically (`line-clamp`, a fixed height),
 two elements overlapping, colour contrast, and anything inside an `iframe`.
 
-<!-- x3-dist version=v0.341.0 capabilities=2e16a5e95727bc34dda4dca85e90e2fb41cfffbb092986072fb66627bbf54074 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### Steps in one tab: `-steps`
+
+Some states have no address: a dialog that opens on a click, a card that appears
+after a choice, and the defect that lives only in in-page navigation — open record
+A, then B, then A again without a reload, and B's form still shows A's values. One
+picture per address cannot show any of them. `-steps <file>` runs a list on every
+page **in one tab, in order**, and takes images only where it says `shot`:
+
+```text
+# in-page navigation A -> B -> A
+click #rec-a
+wait #form
+expect #name = Alpha
+shot a
+click #rec-b
+expect #name = Beta
+shot b
+click #rec-a
+read #name
+```
+
+```text
+x3 shot -sizes 1440 -steps records.steps -base http://127.0.0.1:8080/ records.html
+x3 shot: records-1440 expect #name = "Alpha": "Alpha"
+x3 shot: records-a-1440.png 1440x1253
+x3 shot: records-1440 expect #name = "Beta": it shows "Alpha"
+x3 shot: records-b-1440.png 1440x1253
+x3 shot: records-1440 read #name: "Alpha"
+x3 shot: 2 image(s) in shots, 0 failed, 0 answered a status -accept does not name, 1 expect line(s) not met
+```
+
+| Step | Does |
+|---|---|
+| `click <selector>` | scrolls the element to the middle and clicks it with the mouse, as a person would — an element under an overlay gets no click |
+| `wait <selector>` | until the element exists and is shown, or `-timeout` |
+| `fill <selector> = <text>` | sets an input, textarea or select and fires `input` and `change` |
+| `read <selector>` | prints the element's text (an input's value), whitespace collapsed |
+| `expect <selector> = <text>` | the same, and the run is red when the text is another |
+| `shot <name>` | an image named `<page>-<name>-<width>.png`, at full length |
+| `reload` | loads the page again in the same tab, and waits for it to settle |
+
+After every click, fill and reload the run waits for two animation frames and for
+the network to be quiet, so a read sees what the click fetched. The selector may hold
+spaces; `fill` and `expect` split selector from text at ` = `. A list without a
+`shot` line stops the run (exit 2): nothing would be captured. A failing step stops
+that page's list — the next steps would run on a page nobody knows — and is red.
+
+**No secret in a step.** `fill` and `read` refuse a `type=password` field: the value
+would be in the step file, and a read would print it. A filled value is never
+printed either — the line names the selector only.
+
+| Arm (`screenshot steps control experiment`) | Measured |
+|---|---|
+| a page whose second record keeps the first record's value, A → B → A | exit 1, `expect #name = "Beta": it shows "Alpha"` |
+| the same page fixed | exit 0, `expect #name = "Beta": "Beta"` |
+| a dialog opened by `showModal()` on a click | exit 0, `read dialog[open] h2: "Edit name"`; the image shows it open |
+| `fill` on a password field | exit 1, `#pw is a password field`; the value in no output |
+| a file that is not a step list | exit 2, the line named, before the browser starts |
+
+### Inner scrolling: `-inner-scroll`
+
+Many applications keep the document one window tall and scroll inside a panel. The
+layout size is then the window's, and the image stops at 900 pixels with the lower
+cards cut. With `-inner-scroll`, the largest element that scrolls vertically (at
+least half the window wide and tall) is followed: the window grows by its hidden
+length until nothing is hidden, the image is taken, and the window goes back. A
+fixed-height box that does not grow with the window is left as it is — growing the
+window for it would only add empty space under every `100vh` block. It is off by
+default: a page without it costs nothing more.
+
+| Arm | Measured |
+|---|---|
+| a 60-pixel header over a panel of `calc(100vh - 60px)` holding 3000 pixels | `1440x3060` with the flag, `1440x900` without |
+| the 2345-pixel page and the `100vh` page with the flag | unchanged: `2345`, `2160` |
+
+### The network record: `-network` and `-self-signed`
+
+`-network` writes, next to each image, `<image>.network.txt`: one tab-separated line
+per request the page made since the previous image — start and end in milliseconds,
+bytes on the wire, status, cache state (`network`, `304`, `memory`, `disk`,
+`worker`), protocol, depth, type, address, and initiator — and one summary line:
+
+```text
+x3 shot -sizes 1440 -network -steps reload.steps -base http://127.0.0.1:8080/ chain.html
+x3 shot: chain-first-1440.png network: 5 request(s), 1.1 KB, chain depth 3, last finished at 62 ms; cache: network 5; protocol: http/1.1 5
+x3 shot: chain-second-1440.png network: 5 request(s), 0.7 KB, chain depth 3, last finished at 17 ms; cache: network 2, 304 3; protocol: http/1.1 5
+```
+
+**The chain depth is counted by initiator, not by time.** The document is 0, what it
+asks for is 1, what that asks for is 2. Two requests one after the other may not
+have waited for each other; a module imported by a module has to. The depth is the
+longest such chain — the number of round trips nothing can overlap. With `-steps`,
+a `reload` between two `shot` lines splits the record, so the second image carries
+the second load alone and its times start at its own first request.
+
+`-self-signed` accepts a self-signed certificate, so a local `https` server — the only
+way a browser speaks h2 — can be measured. Every page must be on this machine
+(`127.0.0.1`, `localhost`, `::1`); any other host stops the run before the browser
+starts, because switching certificate checks off for a remote host opens the
+measurement to whoever sits in between.
+
+| Arm (`screenshot network record control experiment`) | Measured |
+|---|---|
+| a document asking for module 1, which imports 2, which imports 3 | `chain depth 3` |
+| the same page loaded again (`reload`), every module with an `ETag` and `no-cache` | `304 3` |
+| a local h2 server with a self-signed certificate, `-self-signed` | exit 0, `protocol: h2` |
+| the same server without it | exit 1, `ERR_CERT_AUTHORITY_INVALID` |
+| `-self-signed` with a page on another host | exit 2 before the browser starts |
+| a `__Host-sid` session on a plain-http `127.0.0.1` page | exit 0, the signed-in page, its value in no output and no file |
+
+<!-- x3-dist version=v0.342.0 capabilities=5da92501c0522b7dd930197f3dbaf5aacfa8cc55706c450814a9df2a48292932 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
