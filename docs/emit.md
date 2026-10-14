@@ -263,6 +263,9 @@ Each gate file brings its own sections: a `secrets` section measures the generat
 text for leaks (a local path, a home directory, an address) and, with a second
 file, for language; a `freeze` section holds each published document under its own
 line cap. A page with no cap declared is not a page this repository publishes.
+A gate file whose section does not load (an unknown field, a broken pattern)
+stops the release with exit 2 and nothing written: a gate that cannot be read has
+not passed. Measured: such a file was skipped and a leaking page went out green.
 
 A release writes nothing behind its own tag. A new page within its family's
 allowance is green either way; a run that publishes a release version **holds**
@@ -293,10 +296,18 @@ untagged, with a sentence that says so. A test build (`-allow-dirty`) tags
 nothing. Measured: the v0.337.0 chain pushed the public repository without its
 tag, and `published` read `tag_never_created` until a hand made it.
 
+Only what this run wrote is committed: a change in the release tree it did not
+write - a file left by hand or by an earlier run - stops the landing, named,
+before any commit, because no gate has read it:
+
+```
+x3 release: the release tree ../publication holds 1 change(s) this run did not write and no gate read: notes.md; nothing is committed, tagged or pushed
+```
+
 The `secrets` section names the pages by a pattern (`docs/*.md`), not one by
 one: a page written later is read the day it is born. Measured on this
 repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.343.0 capabilities=d473db22ea1a3d70361b9b2adfda054a4466f8146e0121bb76264523677c8026 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.344.0 capabilities=465184b0e68fce06a60abb90288c9450b1bb876b5ecc488b57e48782d0f3558d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

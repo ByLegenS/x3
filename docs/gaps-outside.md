@@ -67,4 +67,4 @@ session a severed child is given can be broken by a grandchild that opens one of
 its own, and a container with a hole in it would report an empty one. On those
 machines the run says nothing rather than print an unmeasured green.
 
-<!-- x3-dist version=v0.343.0 capabilities=d473db22ea1a3d70361b9b2adfda054a4466f8146e0121bb76264523677c8026 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.344.0 capabilities=465184b0e68fce06a60abb90288c9450b1bb876b5ecc488b57e48782d0f3558d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
