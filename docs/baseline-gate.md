@@ -122,6 +122,33 @@ so (`GROWTH <id> ...: measure 1000 -> 1010; the record keeps 1000`) until
 measure control experiment`, with directory findings in the last two); under
 v0.305.0 six of them are red — growth and the new directory finding were `0 born`.
 
+**A red trial is keyed on how it fell.** Every red trial is itself a finding,
+`the trial is red: <say>`, so a trial that turns red with no finding line is still
+born. That finding carries the trial's **exit code** on its identity line, read as
+written: a held trial that changes how it fails is a born red. Measured in a
+production repository: a held trial exited 1 (it measured; its findings were in the
+baseline), then started exiting 2 (it refused its own input and measured nothing);
+the trial's record held the new failure as the old one, and the region run stayed
+green for four days.
+
+```
+$ x3 gate -only held                        # the held trial now exits 2
+== the held step RED (15 ms)
+  the engine judges the architecture     exit=2 (want 0)
+      x3 arch: open absent.yaml: The system cannot find the file specified.
+```
+
+A record written before the code was kept does not know which code wrote it. It
+holds only a trial that measured: exit 1 (it measured and found) or the code the
+trial declares (it ran as declared and only its words did not hold). A refresh
+rekeys it (`REKEYED b3e844cf8fdc -> 6d6892157161`); no baseline is edited by hand.
+Any other code (2: could not measure; none: could not run) is born once against
+such a record: at worst one false red, never a failure that measured nothing
+carried silently. A finding line's record keeps its identity. Five arms run
+in this engine's own gate (`a red trial that changes its exit code is born`); under
+the engine before it, the old record held the exit 2 trial: `== the held step held`,
+exit 0.
+
 **A finding's place is its own line, outside its identity.** A rule that points its
 reader at the lines behind a finding prints them on an indented `at:` line. The gate
 keeps that line inside the finding — the `file:line` on it opens no new finding — and
@@ -275,7 +302,7 @@ the change in front of you; freezing it would silence the wrong thing.
 | Flag | What it does |
 |---|---|
 | `-baseline <file>` | read this file instead of the derived one |
-| `-update-baseline` | drop what the run no longer finds; growth is never written. A finding whose identity changed in the same file under the same rule and name is `REKEYED` (paired one to one with the dead record, so the debt per file and rule never grows). A gate red step is never rekeyed: its rule, path and name are all the step's name and its content is already free of numbers, so a new content is a new finding - a held step whose record died and whose run printed a new red gives `GROWTH b215986b7b4b red-step a held step`, the dead record `DROPPED`, no `REKEYED` (through v0.294.0 that dead record handed its identity to any new finding of the step; experiment `baseline refresh only shrinks`, tree `held-rekey`); every other new finding is `GROWTH`, printed by name, and the file is not written for it. A baseline never written and a rule the baseline never named are growth too (until v0.293.0 both were written silently as an "opening balance": `ADOPTED`). Same in `lang`, `arch`, `secrets`, `boxes`, `comments`, `syntax`, `guard`, `placement`, `gate` |
+| `-update-baseline` | drop what the run no longer finds; growth is never written. A finding whose identity changed in the same file under the same rule and name is `REKEYED` (paired one to one with the dead record, so the debt per file and rule never grows). A gate red step is never rekeyed: its rule, path and name are all the step's name and its content is already free of numbers, so a new content is a new finding - a held step whose record died and whose run printed a new red gives `GROWTH b31990988663 red-step a held step`, the dead record `DROPPED`, no `REKEYED` (through v0.294.0 that dead record handed its identity to any new finding of the step; experiment `baseline refresh only shrinks`, tree `held-rekey`); every other new finding is `GROWTH`, printed by name, and the file is not written for it. A baseline never written and a rule the baseline never named are growth too (until v0.293.0 both were written silently as an "opening balance": `ADOPTED`). Same in `lang`, `arch`, `secrets`, `boxes`, `comments`, `syntax`, `guard`, `placement`, `gate` |
 | `-accept-growth` | with `-update-baseline` only: write the new findings as well, each printed as `ACCEPTED <id> <rule> <path> (<name>)`. Example: `x3 syntax -update-baseline` → `GROWTH c9662d70ec83 forbidden_pattern src/new.txt (no-word-beta)` and `the baseline was NOT written`; adding `-accept-growth` → `ACCEPTED c9662d70ec83 ...` (experiment `baseline refresh only shrinks`). Also measured in a pilot: syntax -update-baseline refused 48 visible findings, each by its own `GROWTH` line, exit 1, the baseline file untouched (`git status` clean) - where v0.293.0 had written them silently |
 
 A refresh **does not touch a file whose bytes it would write unchanged**. With
@@ -432,4 +459,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.342.0 capabilities=5da92501c0522b7dd930197f3dbaf5aacfa8cc55706c450814a9df2a48292932 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.343.0 capabilities=d473db22ea1a3d70361b9b2adfda054a4466f8146e0121bb76264523677c8026 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
