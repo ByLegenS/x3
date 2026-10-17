@@ -19,7 +19,10 @@ stops working, and the cause is visible nowhere. No compiler reads both files.
 
 `calls` reads a markup file: the root identifiers of every directive value and
 every `{{ }}` expression. What the **template itself** declares is dropped —
-loop locals, arrow-function parameters — because they come from the template and
+loop locals, arrow-function parameters, and the scope a slot hands over
+(`#row="row"`, `v-slot:row="{ line: l }"`, `v-slot="{ line = null }"` — a plain name, a
+destructured name, an alias, a default; the key of an alias and the text of a
+default are read as written) — because they come from the template and
 not from the component, and looking for them in the script is a false red. So
 are string literals (the key inside `t('asst.title')` is no identifier), field
 names after a dot, and object keys. A commented-out call is not a call, and the
@@ -45,4 +48,4 @@ and the script feeding it become two instances that never meet. The stem groups
 them — `parts/chip.html` and `parts/chip.js` are one instance — and each side
 reads only the files of its own kind out of the scope they share.
 
-<!-- x3-dist version=v0.344.0 capabilities=465184b0e68fce06a60abb90288c9450b1bb876b5ecc488b57e48782d0f3558d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.345.0 capabilities=bbd90901c9cfad0ef599d2254d398b3ee7ee70c9e84d21e4ee26f9d7b0f94131 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
