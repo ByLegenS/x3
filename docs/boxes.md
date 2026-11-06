@@ -186,9 +186,15 @@ across 1385 criteria, blanking every comment dropped **78** of them; keeping the
 directive lines dropped **8**, and all eight were prose, three of them sentences
 saying the named thing does *not* exist.
 
-`absent` does not take this reading and cannot write the field. It asks for a
-name to be **gone**, and a name still written in a comment is a name the tree
-still carries; reading less could only make it greener.
+`absent` reads the same code, and takes the same field. It used to read comments
+too, on the reasoning that a name in a comment is a name the tree still carries.
+Measured on a pilot, that made the two criteria disagree about one name: `pattern`
+said it was not there, `absent` said it was, and a box waited on a sentence in a
+comment. The step's record already weighed only the code, so a comment edit did
+not measure the box again either. The price is the direction: where a comment is
+the only trace, `absent` is now green. Asking about the prose is one word,
+`reading: text`; it holds the box open while any file still says the name.
+Experiment `absent over an empty source`, limbs `comment-only` and `comment-text`.
 
 `equals` is required on `sql`, because a query that only has to *run* is answered
 by an empty table; the DSN is read from the environment by name and never written
@@ -421,4 +427,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.345.0 capabilities=bbd90901c9cfad0ef599d2254d398b3ee7ee70c9e84d21e4ee26f9d7b0f94131 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.346.0 capabilities=ebff88b993f54d41ae92403bdf8a7a221356a8922c267d463ff950ebc20db649 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -46,6 +46,12 @@ and a file nobody tracks is as visible as one everybody does. That is also why
 `new` works: a directory is remembered by the digest of its *name list*, so a
 file no step will ever open still shows up the moment it lands.
 
+`x3 scope` narrows that one answer before it weighs a lane: a path git ignores
+cannot enter a commit, so it cannot cross a lane. The record is not tied to a
+repository, and in a second working copy sharing the cache a `.env` read in the
+first one reads as `gone`. A tree that is no repository keeps the list as it is,
+and the snapshot itself still asks nothing. Example on `changed.WithoutIgnored`.
+
 **`new` means "the listing moved", not "nobody read it".** The digest is
 *asked*, and a directory whose name list still matches the record has had
 nothing arrive in it — so a file no rule will ever open, sitting there since
@@ -109,4 +115,4 @@ counterpart rule (`inside/**` needs `papers/**`) over seven planted records:
 | a moved `.git/HEAD` and a new `.git/objects/ab/cdef` | `0 file(s) changed` |
 | **red:** the same two paths under a plain `git/` directory | `2 file(s) changed` |
 
-<!-- x3-dist version=v0.345.0 capabilities=bbd90901c9cfad0ef599d2254d398b3ee7ee70c9e84d21e4ee26f9d7b0f94131 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.346.0 capabilities=ebff88b993f54d41ae92403bdf8a7a221356a8922c267d463ff950ebc20db649 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -858,6 +858,13 @@ own tool from the repository (`gate.build`) would otherwise remember a step acro
 an edit to that tool: the version stamp is a git tag and does not move when a
 source file does.
 
+⛔ **A declared `touches` is kept beside the observation.** An observation replaces
+the scope a step *inherits*, never the one it wrote. A step running an x3 command
+used to drop its own `touches` in silence: a pilot declared a directory on such a
+step, a file in it changed, and the step came back green from the record. A file
+the engine cannot see the step read is exactly what the declaration is for.
+Experiment `case embedded file control experiment`, limb `noted`.
+
 ⛔ **Red is stored too, and comes back red.** An earlier version kept only green,
 reasoning that a stored red repeats a sentence this run never measured. The same
 is true of green — so that rule was defending the *key*, not the colour. Once the
@@ -1536,4 +1543,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.345.0 capabilities=bbd90901c9cfad0ef599d2254d398b3ee7ee70c9e84d21e4ee26f9d7b0f94131 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.346.0 capabilities=ebff88b993f54d41ae92403bdf8a7a221356a8922c267d463ff950ebc20db649 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

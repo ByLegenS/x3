@@ -108,6 +108,24 @@ moves only that file and the package runs again and is red (the old engine:
 `cache 1 hit(s)`, green), the file back is one hit again, and the gate step on
 the changed limb runs and is red (the old engine: `0 ran, 1 skipped`).
 
+⛔ **A file a package embeds is told to the gate too.** The case record has always
+weighed `//go:embed` files, for the embedding package and for everything importing
+it; the gate's record of the step had not heard of them, because no read of the
+run names them. Measured on a pilot where a design arrives as a declaration file
+in an embedded directory: one line removed from it, and `x3 case` behind a gate
+step said `cached: nothing this step reads has changed`, exit 0, while `--force`
+was red. The step now holds every embedded file by its whole bytes; the case
+record still decides which examples run, so a template edit re-runs the examples
+that reach it and not the tree. Experiment `case embedded file control experiment`:
+one embedded byte changes and the gate step runs and is red (the old engine: `0
+ran, 1 skipped`), a file lands in the directory and it is red, everything back is
+`0 ran, 1 skipped`.
+
+```
+x3 gate -only "inline examples"        # template.json edited
+== inline examples (case) RED          # the old engine: skipped, cached
+```
+
 ⛔ **An imported package is weighed by what the importer can reach, not by its
 whole text.** Measured on a pilot (v0.319.0): `return x` → `return (x)` in one
 core function re-ran every importer, the core region 189 s with case 185 s,
@@ -475,4 +493,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.345.0 capabilities=bbd90901c9cfad0ef599d2254d398b3ee7ee70c9e84d21e4ee26f9d7b0f94131 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.346.0 capabilities=ebff88b993f54d41ae92403bdf8a7a221356a8922c267d463ff950ebc20db649 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
