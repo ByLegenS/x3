@@ -114,9 +114,12 @@ it; the gate's record of the step had not heard of them, because no read of the
 run names them. Measured on a pilot where a design arrives as a declaration file
 in an embedded directory: one line removed from it, and `x3 case` behind a gate
 step said `cached: nothing this step reads has changed`, exit 0, while `--force`
-was red. The step now holds every embedded file by its whole bytes; the case
-record still decides which examples run, so a template edit re-runs the examples
-that reach it and not the tree. Experiment `case embedded file control experiment`:
+was red. The step now holds, by their whole bytes, the files embedded by the
+packages that carry an example and by what those import; the case record still
+decides which examples run, so a template edit re-runs the examples that reach it
+and not the tree. Only what is reached: an old working copy kept inside the tree
+walked into the record as 11,700 files and 31,000 directories on the first try, and
+a step that ran nothing took 7 s instead of 0.3 s to check itself. Experiment `case embedded file control experiment`:
 one embedded byte changes and the gate step runs and is red (the old engine: `0
 ran, 1 skipped`), a file lands in the directory and it is red, everything back is
 `0 ran, 1 skipped`.
@@ -493,4 +496,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.346.0 capabilities=ebff88b993f54d41ae92403bdf8a7a221356a8922c267d463ff950ebc20db649 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.346.1 capabilities=3901312d87d4b1c6fc7cd6c17f89db72562ebbb6789fb4b40f714f165d9c3519 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

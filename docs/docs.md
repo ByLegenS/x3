@@ -128,4 +128,4 @@ Measured here — with a shared marker the `docs gate` step's own control
 experiment, a rule that must exit `1`, exited `0`: the exemption had excused the
 experiment.
 
-<!-- x3-dist version=v0.346.0 capabilities=ebff88b993f54d41ae92403bdf8a7a221356a8922c267d463ff950ebc20db649 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.346.1 capabilities=3901312d87d4b1c6fc7cd6c17f89db72562ebbb6789fb4b40f714f165d9c3519 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
