@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.346.2`**
+**Current version: `v0.347.0`**
 
 ## component path patterns
 
@@ -16,7 +16,7 @@
 
 | Field | Required | Meaning |
 |---|---|---|
-| `name`, `kind` | yes | unique in the file; one of the nine kinds |
+| `name`, `kind` | yes | unique in the file; one of the ten kinds |
 | `match` | `deps` only | `import`, `literal` or `symbol` |
 | `from`+`deny` / `to`+`allowFrom` | deps | the outward / inward question |
 | `pattern`+`owner` / `pattern`+`from` | literal | ownership / prohibition |
@@ -32,7 +32,7 @@
 | `surface`+`fields`+`carrier` | exposure | where to watch, which names, written how |
 | `across`+`minLines` | duplication | the component compared with itself |
 | `in`+`terms`+`comments` | vocabulary | the layer, the words, whether prose counts |
-| `keys` | containment | the ownership prefix per component |
+| `keys` / `roots` | containment / modules | the ownership prefix per component / absolute module paths mapped to directories, in order of priority |
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
 | `per` | consistency | compare each instance of a component with **itself** |
 | `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
@@ -59,6 +59,7 @@
 | `duplicate_body` | `duplication` | the same body in two instances |
 | `foreign_term` | `vocabulary` | a layer let through a word it must not know |
 | `part_outside_its_root` | `containment` | a part sits outside its component's root |
+| `missing_export`, `unresolved_module`, `dead_module_root` | `modules` | a name its target does not export; a path that resolves to no file; a root that answered no import |
 | `set_mismatch` | `consistency` | the two sets drifted; each difference is named with where its value comes from on its own `at:` line - `at: screens/a.html:2`, the first three sources then `and N more`; a source the extractor reads by key or path (json, tree, the engine's list) shows its file without a line. The place is outside the message and the identity: a value moving to another line keeps its baseline record |
 | `missing_target` | `consistency` | a value read as a path leads nowhere |
 | `missing_marker` | `required` | a file of the class does not carry the mark |
@@ -81,4 +82,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.346.2 capabilities=763b25734feda5589e3c73f65eab26696d763edddea62d175c94a66d2191f303 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.346.2`**
+**Current version: `v0.347.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.7 MB | `027a7ed2b866244c11f7d0f061d0ff1b073440fe3869f580a83ab1c1fed1e1a8` |
-| `x3-linux-amd64` | linux/amd64 | 26.1 MB | `336fa39849f8e88ce70f51ee91d0ce7e6ae4bbfad5a5e877242c6577cc1bc136` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.8 MB | `7c365773ec6908a6d0e2b9dedcd517ca382e5158e5bf8eed82456672917c5fea` |
+| `x3-linux-amd64` | linux/amd64 | 26.2 MB | `0b647d6950373dcd255ab1bb2f539dd6407032f4029f8d9de68a7e3c7e08e0f3` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -165,7 +165,7 @@ markers that split this document, so a page cannot be missing from it.
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
 | [The field name written inside a string](docs/lang-fields.md) | the keys of a structured log line, read as identifiers even where a project has declared its strings free |
 | [Names in every layer](docs/lang-layers.md) | the names a project declares outside Go - script, style, markup, settings, translations, schema, fixtures - each read where it is declared, never where it is used |
-| [The shape of the project](docs/arch.md) | the import graph and nine further rule kinds, against the components a project declares |
+| [The shape of the project](docs/arch.md) | the import graph and ten further rule kinds, against the components a project declares |
 | [Does anybody touch this file](docs/arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
 | [Which files the rule is about](docs/arch-pairing-subjects.md) | the property that says what a pairing rule measures, why it is neither an exemption nor an exclusion, and the elimination that is counted |
 | [The example that stands in for a counterpart](docs/arch-pairing-example.md) | the inline example a migrated test leaves behind, what makes it count, and the price of declaring it |
@@ -281,7 +281,7 @@ proves it can go **red** — a green nobody has seen fail is not evidence.
 | **Dictionary** (`internal/scan`) | six directive types; an unknown type or a malformed shape is red |
 | **Inline examples** (`internal/cases`) | `x3 case` **calls** the declaration a `//x3:case` sits on; nothing is written into the tree |
 | **Language gate** (`internal/lang`) | one language outside comments, against an embedded dictionary plus the project's `language.allow` |
-| **Architecture rules** (`internal/arch`) | the import graph and nine further rule kinds, against the components a project declares |
+| **Architecture rules** (`internal/arch`) | the import graph and ten further rule kinds, against the components a project declares |
 | **Frozen baselines** (`internal/freeze`) | a measured set or number that may only shrink; `-update` records a shrink and refuses growth |
 | **Frozen API surface** (`internal/surface`) | the exported Go API of declared packages, which may only grow; a removal or a changed signature is red, and the finding names who uses it |
 | **Finding baseline** (`internal/baseline`) | today's findings frozen so a new gate can be adopted without a thousand reds |
@@ -314,4 +314,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.346.2 capabilities=763b25734feda5589e3c73f65eab26696d763edddea62d175c94a66d2191f303 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.346.2`**
+**Current version: `v0.347.0`**
 
 | Page | What it covers |
 |---|---|
@@ -27,7 +27,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [The three scopes of a language run](lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
 | [The field name written inside a string](lang-fields.md) | the keys of a structured log line, read as identifiers even where a project has declared its strings free |
 | [Names in every layer](lang-layers.md) | the names a project declares outside Go - script, style, markup, settings, translations, schema, fixtures - each read where it is declared, never where it is used |
-| [The shape of the project](arch.md) | the import graph and nine further rule kinds, against the components a project declares |
+| [The shape of the project](arch.md) | the import graph and ten further rule kinds, against the components a project declares |
 | [Does anybody touch this file](arch-pairing.md) | the counterpart a file must have, the two questions it can be asked, and which files are asked at all |
 | [Which files the rule is about](arch-pairing-subjects.md) | the property that says what a pairing rule measures, why it is neither an exemption nor an exclusion, and the elimination that is counted |
 | [The example that stands in for a counterpart](arch-pairing-example.md) | the inline example a migrated test leaves behind, what makes it count, and the price of declaring it |
@@ -131,4 +131,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.346.2 capabilities=763b25734feda5589e3c73f65eab26696d763edddea62d175c94a66d2191f303 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

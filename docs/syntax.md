@@ -108,4 +108,4 @@ A denied word is often legitimate somewhere else in the same tree — another
 language's own keyword or type. Those lines are excluded rather than denied:
 [The word another language owns](syntax-ignore.md#the-word-another-language-owns).
 
-<!-- x3-dist version=v0.346.2 capabilities=763b25734feda5589e3c73f65eab26696d763edddea62d175c94a66d2191f303 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

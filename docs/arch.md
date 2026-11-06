@@ -9,10 +9,10 @@ know the modules", "only the entry point wires them" — drifting from the shape
 it has. The rules live in `x3.yaml`, the verifier in the engine: the project's
 names never enter a verifier.
 
-**All nine rule kinds are built:** `deps` with three matchers (`import` reads the
+**All ten rule kinds are built:** `deps` with three matchers (`import` reads the
 import graph, `literal` reads names the compiler never sees, `symbol` reads what
 the code uses), `required`, `pairing`, `flow`, `exposure`, `duplication`,
-`vocabulary`, `consistency`, `containment`. A kind with no verifier stops the run
+`vocabulary`, `consistency`, `containment`, `modules`. A kind with no verifier stops the run
 with exit `2` — a planned kind that passed silently would be worse than no rule.
 
 ```
@@ -395,6 +395,67 @@ longer and it is a name, which brings the coincidence back — and two keys may 
 start alike. All are configuration errors. If no file carries any key the rule is
 `empty_scope`: a rule that matched nothing has not passed, it did not run.
 
+### `modules` - every imported name is exported
+
+**Catches:** an ES module importing a name its target no longer exports. Each
+file is fine alone, so a syntax check and the examples stay green; the browser
+refuses the link at run time and the screen opens empty.
+
+```yaml
+arch:
+  rules:
+    - name: every-imported-name-is-exported
+      kind: modules
+      sources: ['web/**/*.js']
+      roots:
+        - { path: /core/, dir: web/core/ }
+        - { path: /apps/*/, dir: apps/*/ui/ }
+        - { path: /, dir: web/ }
+```
+
+```
+web/page.js                 import { kept, gone } from '/core/lib.js?v=3'
+BLOCK web/page.js:1 (every-imported-name-is-exported): missing_export
+	imports "gone" from "/core/lib.js", and web/core/lib.js does not export it
+```
+
+**What is measured**, in every file of `sources` with the extension `.js` or `.mjs`:
+
+- `import a, { b, c as d } from '...'` and `import { default as x } from '...'`:
+  each name in the target. `import * as n` and a bare `import '...'` measure the
+  path alone.
+- `export { x, y as z } from '...'` is an import too: `x` and `y` must be in its
+  target.
+- What a target offers: `export function|async function|function*|const|let|var|class`,
+  destructuring (`export const { a, b: c } = o`), `export { a, b as c }`,
+  `export default`, `export * as n from` and `export * from`. The last is followed
+  through its chain, cycles included; `default` does not pass through it.
+- The path. A query string and a fragment are dropped. `./` and `../` read from
+  the file. Anything else is tried against `roots` in order, and the first root
+  with a file there answers. Spelling counts, in every letter: on a case-insensitive
+  disk `./Named.js` would find `named.js` and the server would still answer 404.
+
+**What is not measured**, on purpose: dynamic `import()` and `import.meta`, whose
+path exists at run time; `import` inside a comment, a string or a nested block,
+since the reader is a character-by-character tokenizer of its own (regular
+expression literals and nested templates included) and reads the top level only;
+TypeScript syntax; a `<script type="module">` inside HTML. A target that is not a
+script (JSON, CSS) has its path measured and not its names. A URL (`https://...`)
+is `unresolved_module`: declare a root mapping it to a local copy, or hold it in
+the baseline.
+
+`missing_export` and `unresolved_module` take the baseline like any finding.
+`empty_scope` (no script in `sources`) and `dead_module_root` do not: they are the
+gate's own fault, not debt. A `star` chain broken outside `sources` is reported at
+that file, and the names behind it are not blamed. `sources` must be written on
+the rule itself: the inherited default is the Go tree.
+
+Control experiment, `arch modules control experiment`: one green arm carrying every
+form above with `import` planted in comments, strings and a template, twelve
+red arms, one per form, and a baseline arm holding a finding that moved to another line. Measured on a production tree: 603 scripts, 0 findings;
+a name no target exports planted in one screen gives 1 `missing_export` with its file
+and line, reverted gives 0. 0.8 s for the whole `x3 arch` run on that tree.
+
 ### Two sets that must agree
 
 **Catches:** two places that must say the same thing and drift apart — a
@@ -518,4 +579,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.346.2 capabilities=763b25734feda5589e3c73f65eab26696d763edddea62d175c94a66d2191f303 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

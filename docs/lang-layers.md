@@ -118,4 +118,45 @@ before and after); with every reader on, a markup `exclude` dropped 93 files
 and 340 findings, and a `yaml` reader `allow` of two non-ASCII letters cleared the
 four step-name findings while one of them stayed red in the script layer.
 
-<!-- x3-dist version=v0.346.2 capabilities=763b25734feda5589e3c73f65eab26696d763edddea62d175c94a66d2191f303 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### The files no reader covers
+
+**What it catches:** a gate blind to a new directory. A reader reads what its
+`sources` name; a new top-level directory nobody added to the list produces no
+finding, because a file nobody reads cannot be wrong, and the run says `0 finding(s)`.
+
+So a declared reader claims its language. Once `script`, `style`, `markup` or `sql`
+is declared, every file with that reader's extensions (`.js .mjs .cjs .jsx .ts .tsx`,
+`.css .scss .less`, `.html .htm .vue`, `.sql`) must be in the `sources` of some
+reader, or in `language.excluded` with a reason:
+
+```
+clients/shop:0:0: no_reader_covers: 4 file(s) no reader covers, none excluded: a.css, b.css, c.css and 1 more (scope)
+```
+
+```yaml
+language:
+  excluded:
+    'apps/*/migrations/*.sql': sealed migrations; a file that ran in production cannot change
+```
+
+One line per directory (the first two path segments), three file names on each,
+forty directories at most, then a count. `no_reader_covers` takes no baseline: it
+is the gate's own blindness, not debt in the code.
+
+`yaml`, `placeholder` and `literal` claim nothing: their `sources` name a role (a
+settings file, a translation dictionary), and every other `.yaml` or `.json` in the
+tree is not their blindness. A reader's own `exclude` is a stated decision and counts
+as covered. The engine's skipped directories (`vendor`, `node_modules`, `testdata`,
+names starting with `.` or `_`) and git-ignored paths are not in the tree to begin
+with. An `excluded` pattern sparing no unread file is `empty_scope`, so an exclusion
+outlives neither its directory nor the day a reader starts to cover it; an entry with
+no reason stops the run.
+
+Control experiment, `lang reader coverage control experiment`: a fully read tree is
+green; a new directory gives one finding with its files; a reader's `exclude` and a
+reasoned `excluded` silence it; an entry with no reason stops the run; a dead pattern
+is red; another language, a skipped directory stay silent; `-update-baseline` does not
+freeze it. Measured on a production tree: eleven directories, among them three
+stylesheets a `style` reader had never seen, in 0.7 s for the whole run.
+
+<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
