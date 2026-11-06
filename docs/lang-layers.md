@@ -38,6 +38,7 @@ language:
 | `placeholder` | the name inside `{name}`, `{{name}}`, `%{name}`, `{count, plural, ...}` | the translated text |
 | `sql` | what `CREATE` names (table, index, type, function, view, ...), table columns and constraints, function parameters, `ALTER TABLE ... ADD`, the new name of a `RENAME` | the names a query uses (`SELECT`, `JOIN`, `ON`) |
 | `literal` | code-shaped strings - lowercase, no space, cut by `-` `_` `.` (`order-status`, `invoice.paid`) - in code and on `x3:case` lines | sentences, capitalised text, paths, numbers |
+| `data` | the words of the values of the fields named in `values`, at any depth, in a JSON or YAML file | every key, every other value |
 | `tags` (Go) | the name part of each declared struct tag key (`json:"total_cents,omitempty"` → `total_cents`) | the options, undeclared keys |
 
 **A binding on a built-in element is not the project's name.** `<input
@@ -118,6 +119,43 @@ before and after); with every reader on, a markup `exclude` dropped 93 files
 and 340 findings, and a `yaml` reader `allow` of two non-ASCII letters cleared the
 four step-name findings while one of them stayed red in the script layer.
 
+### Addresses and codes inside a data file
+
+**What it catches:** a second language in the values a data file declares as
+addresses or codes - a route's `path`, a form's `submit` - when the same file
+rightly holds translated `title` and `label` text. The `yaml` reader cannot do
+this: its `values` are shared by all its sources and it reads every key.
+
+```yaml
+language:
+  layers:
+    data:
+      sources: ['themes/**/theme.json']
+      values: [path, submit]      # required; the only thing this reader reads
+      allow: [impressum]          # optional, as on every reader
+```
+
+```json
+{ "title": "Kontakt", "routes": [{ "path": "kontakt/{slug}/", "title": "Schreiben Sie uns" }] }
+```
+```
+themes/a/theme.json:1:45: not_in_dictionary: kontakt (data)
+```
+
+A field matches at any depth. A string is read, a list's items are read, and in
+an object only the named fields are read (`links: {book: [...]}` with `book`
+named). A value is cut at `/` `-` `_` `.` and space, and `{slug}` is not read.
+Non-strings are not read. The reader names no language, so `no_reader_covers`
+never counts on it. A source that does not parse is `unparsable`, one finding
+per file that no baseline can hold. A `sources` pattern with no file and a
+field no parsed file carries are `empty_scope`.
+
+Control experiment (`lang data reader`, ten arms): English paths beside foreign
+titles, a placeholder and an unread file → green; a foreign path, a non-ASCII
+letter, a list item, a YAML source → one finding each; the reader's `allow` →
+green; a broken file, a dead pattern, a dead field → one finding each; no
+`values` → exit 2.
+
 ### The files no reader covers
 
 **What it catches:** a gate blind to a new directory. A reader reads what its
@@ -159,4 +197,4 @@ is red; another language, a skipped directory stay silent; `-update-baseline` do
 freeze it. Measured on a production tree: eleven directories, among them three
 stylesheets a `style` reader had never seen, in 0.7 s for the whole run.
 
-<!-- x3-dist version=v0.347.0 capabilities=1655b479af0de05f7354ce8e1dadb6c8ebb5996a157acf7034a90c2d25d5c51b template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.348.0 capabilities=3bfeaae6d5bff6885cacb90e0b4f5b6f4dba87120045133beee6c3ab9349265a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
