@@ -108,6 +108,39 @@ moves only that file and the package runs again and is red (the old engine:
 `cache 1 hit(s)`, green), the file back is one hit again, and the gate step on
 the changed limb runs and is red (the old engine: `0 ran, 1 skipped`).
 
+⛔ **A cached region run stays under 30 seconds.** Measured on a pilot (v0.348.0 →
+this release, same tree, no `-force`): nothing changed — a region 19 s → 8 s; one
+line added to a box file — the core region 54 s → 26 s; a commit touching only a
+box body — the messaging region 70 s → 30 s. Five causes, each removed without
+changing what is measured:
+
+- the walk that enters hidden directories (`hidden: true`, architecture rules)
+  never enters the version-control directory (`.git`, `.hg`, `.svn`, `.bzr`,
+  `.jj`): every commit wrote new objects there and a 54 s step ran again on a
+  commit that changed one box line;
+- validation weighs a record's files and directories in parallel, with one ignore
+  filter per run (it was rebuilt for every directory: 42 910 of them);
+- the snapshot (`x3 docs`, `x3 snapshot`) decodes only step records — trial
+  recalls were 450 MB of a 671 MB record and decoded to nothing;
+- a trial that only reads a `{tmp}` file another trial wrote (`-from`) runs
+  beside the other readers once the writer is done:
+
+```yaml
+trials:
+  - run: x3 boxes -config x3.yaml -out {tmp}/r.yaml .       # writer: runs alone
+  - run: x3 emit -check -from evolution={tmp}/r.yaml         # readers: side by side
+  - run: x3 emit -check -only experiment -from experiment={tmp}/r.yaml
+```
+
+- when validation leaves only a few steps to run, the processor budget of the idle
+  workers goes to them (workers × cores is never exceeded; the share is not part of
+  any key).
+
+Control experiment on the pilot: an untracked file added under one application
+directory runs the architecture step again and the unused-file step turns red;
+the file removed, the same region is `0 ran, 116 skipped` from the cache in 10 s.
+A commit that only adds `.git/objects` runs the architecture step no more.
+
 ⛔ **A file a package embeds is told to the gate too.** The case record has always
 weighed `//go:embed` files, for the embedding package and for everything importing
 it; the gate's record of the step had not heard of them, because no read of the
@@ -502,4 +535,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.348.0 capabilities=3bfeaae6d5bff6885cacb90e0b4f5b6f4dba87120045133beee6c3ab9349265a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.349.0 capabilities=4f1292355f4d2bbceeb0b31d9b2da1d6ce300e9ea7870f84d828d6b487ec3ba9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
