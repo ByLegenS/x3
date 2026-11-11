@@ -80,6 +80,35 @@ the reader's paths is `empty_scope`, and so is a `sources` pattern whose every
 path is excluded - a reader narrowed to nothing reads nothing, silently
 otherwise. Written but empty, either list stops the run.
 
+**A source that is empty between releases is declared `transient`, not
+deleted.** Some files exist only part of the time - a pending migration that
+is frozen and removed at release, a draft that is born again in the next
+cycle. Its pattern is `empty_scope` while the file is away; deleting the
+pattern makes the reader blind the day the file returns. A reader's
+`transient` lists such patterns (each must also stand under its `sources`):
+while it reads nothing it is not `empty_scope`, and a path it reads is
+measured like any other.
+
+```yaml
+language:
+  layers:
+    sql:
+      sources: ['db/migrations/*.sql', 'db/pending/next.sql']
+      transient: ['db/pending/next.sql']   # absent between releases
+```
+
+The dead-pattern guard still holds on the place, not the file: the pattern's
+directory part (everything before its last `/`) must match a directory in the
+tree, or the pattern is `empty_scope` under `layers.<reader>.transient` - the
+directory a file comes and goes in stays, and a missing one is a typo or a
+moved tree. A `transient` entry not in `sources`, one with no directory part,
+or an empty list stops the run. Control experiment (planted tree, markup
+reader): a transient pattern reading nothing → no finding; the same pattern
+not transient → one `empty_scope`; a transient pattern that reads pages →
+the same three markup findings as a plain one; a transient pattern whose
+directory is absent → one `empty_scope`. With the transient list ignored in
+the engine on purpose, the first and last arms turn red.
+
 Each reader is a separate claim. A finding says which reader saw it (`where`
 is the reader's name, `tag` for struct tags), so its baseline identity never
 collides with a Go finding and the identities of existing findings do not
@@ -197,4 +226,4 @@ is red; another language, a skipped directory stay silent; `-update-baseline` do
 freeze it. Measured on a production tree: eleven directories, among them three
 stylesheets a `style` reader had never seen, in 0.7 s for the whole run.
 
-<!-- x3-dist version=v0.351.0 capabilities=21a88ea5aef392e7afd5f044ec88c56b1892a1be5387606caddf925abc6212a2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
