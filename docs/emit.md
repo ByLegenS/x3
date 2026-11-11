@@ -310,4 +310,4 @@ repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.350.0 capabilities=b77dc4c9ded4f365e7699811fdca52c5182a8a7f8436f6ff2e6b845efeb9637d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.351.0 capabilities=21a88ea5aef392e7afd5f044ec88c56b1892a1be5387606caddf925abc6212a2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

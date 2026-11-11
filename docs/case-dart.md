@@ -33,9 +33,14 @@ Future<String> formatMinor(int minor) async { ... }   // an async result is awai
 const int minorStep = 1;                              // a value, measured by then=(...) alone
 ```
 
-- `in=(...)` **calls** the declaration below it. Every name the library
-  exports is in scope, so an example may build a value of an exported class
-  (`FareLine(price: 5, count: 1)`).
+- `in=(...)` **calls** the declaration below it. The example runs in the
+  library's own scope: every name the library declares or exports **and every
+  name it imports** (the generated file repeats the library's `import`
+  directives with the same prefix, `show` and `hide`, relative paths turned into
+  absolute addresses), so an example may build a value of a class the library
+  only imports (`FareLine(price: 5, count: 1)`).
+- A declaration may return a **record** (`(int, int)? bounds(...)`,
+  `({Item? cheapest, Item? fastest}) pick(...)`); `out=(10, 30)` compares it.
 - `out=` compares **deeply and strictly**: lists, maps and sets element by
   element, and `2` is not `2.0` (an `int` is not a `double`). A failing line
   names the value it got: `out[0] = 120036, want 120037`.
@@ -107,4 +112,4 @@ Each arm was broken once and turned red: a runner that compared `2` and `2.0` as
 equal kept `out=2` green for a `double`; a loop that did not drop the rejected
 example failed the whole library instead of one line.
 
-<!-- x3-dist version=v0.350.0 capabilities=b77dc4c9ded4f365e7699811fdca52c5182a8a7f8436f6ff2e6b845efeb9637d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.351.0 capabilities=21a88ea5aef392e7afd5f044ec88c56b1892a1be5387606caddf925abc6212a2 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
