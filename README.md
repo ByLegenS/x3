@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.349.0`**
+**Current version: `v0.350.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.8 MB | `b7dace60351c21b95aea9db835ff04d8b0e63524b0df5f448a001513e1adbe2c` |
-| `x3-linux-amd64` | linux/amd64 | 26.2 MB | `c8878f7b9b036b07bf950152b8f8696a30c6204c166bb20d9e0a7d6923365fa1` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.9 MB | `a521e72e08132c74e0062e891b31e1d8ee28948ef04919e562b632e50e23ba29` |
+| `x3-linux-amd64` | linux/amd64 | 26.3 MB | `77a496be1ad6f1eca5f21d9e6a44b1c94da058afcf91425ea4e274a711725828` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -160,6 +160,7 @@ markers that split this document, so a page cannot be missing from it.
 | [What a run costs, and what it does not pay twice](docs/case-speed.md) | packages measured beside each other, a package not measured again, and the time each example costs |
 | [A run narrowed to one file or one example](docs/case-only.md) | the target that names a file or a line, the block a line belongs to, and the verdict a narrowed run is not allowed to store |
 | [JavaScript examples](docs/case-js.md) | the same example line above an exported function of an ES module, run by node in one process, cached by every file the module imports, and red when the module needs a browser |
+| [Dart examples](docs/case-dart.md) | the same example line above a top-level Dart declaration, compiled into one generated program and run by dart in one process, cached by every file the library imports, red when the library needs Flutter |
 | [One language outside comments](docs/lang.md) | the dictionary run in reverse: the allowed language, and every token outside it |
 | [The words a language reserves](docs/lang-keywords.md) | the keywords of the language being read, which no dictionary carries and which arrive as a finding at every occurrence |
 | [The three scopes of a language run](docs/lang-scope.md) | which files are read, whether their strings are read at all, and the names of files and directories that no file's content ever carries |
@@ -314,4 +315,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.349.0 capabilities=4f1292355f4d2bbceeb0b31d9b2da1d6ce300e9ea7870f84d828d6b487ec3ba9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.350.0 capabilities=b77dc4c9ded4f365e7699811fdca52c5182a8a7f8436f6ff2e6b845efeb9637d template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
