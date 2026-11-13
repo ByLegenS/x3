@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.352.0`**
+**Current version: `v0.353.0`**
 
 | Page | What it covers |
 |---|---|
@@ -42,6 +42,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [Is this call inside that condition](sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
 | [Where the container ends](sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
 | [The names a template calls](sets-template.md) | the root names a markup expression reads, the names the script beside it offers, and the mixin chain that is followed rather than listed |
+| [One name, one source in a component](sets-members.md) | the names a component writes onto its instance, read across its mixin chain, each with the file that declares it, so that two mixins naming the same method are red before the screen crashes |
 | [A list that names two names them all](sets-complete.md) | the comparison that reads every line, block or region as its own list, so that a list naming some members of a set and not the rest is red by the members it leaves out |
 | [Lists that may only shrink](freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](surface.md) | a removal or a changed signature is red, and the finding names who breaks |
@@ -132,4 +133,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

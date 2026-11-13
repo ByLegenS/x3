@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.352.0`**
+**Current version: `v0.353.0`**
 
 ## component path patterns
 
@@ -36,7 +36,7 @@
 | `left`+`right`+`compare` | consistency | the two sets and how they must agree |
 | `per` | consistency | compare each instance of a component with **itself** |
 | `parts`+`join`/`each`, `skip`, `comments`, `strings`, `syntax`, `invoke` | consistency | extractor details |
-| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-quoted-in-right`, `left-exists-on-disk`, `left-complete-in-each-group` |
+| `compare` | consistency | `equals` (default), `left-subset-of-right`, `left-disjoint-from-right`, `left-quoted-in-right`, `left-exists-on-disk`, `left-complete-in-each-group`, `left-declared-once` |
 | `quorum`, `only` | `left-complete-in-each-group` | the fewest members a group names to count as a list (default 2); the marker pattern, names then reason |
 | `group`+`forms` | right side of `left-complete-in-each-group` | `line`, `block` or `region`; how a member is spelled, `{m}`/`{M}` |
 | `when` | no | the set and the size that turn this rule on; until then it waits |
@@ -82,4 +82,4 @@
 | `syntax` | the `arch` section | comment syntax per extension; **replaces** the embedded entry, never merges with it |
 | `syntax: { ".go": ... }` | the `arch` section | how a comment is written **inside a Go string**, applied per literal |
 
-<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

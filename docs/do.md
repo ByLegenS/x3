@@ -548,4 +548,4 @@ list, an empty list, an empty `each`, a broken token, and a region verb. With
 the opening capped at two directories the five planted-third arms go red; with
 the empty-match refusal removed the empty-list arm exits 0 and goes red.
 
-<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

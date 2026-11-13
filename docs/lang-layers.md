@@ -226,4 +226,4 @@ is red; another language, a skipped directory stay silent; `-update-baseline` do
 freeze it. Measured on a production tree: eleven directories, among them three
 stylesheets a `style` reader had never seen, in 0.7 s for the whole run.
 
-<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

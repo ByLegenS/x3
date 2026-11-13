@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.352.0`**
+**Current version: `v0.353.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 26.9 MB | `1285e4a44115c805c69a7c725410a20b95ea1fb0c34e1c3da7b248f31fb824b0` |
-| `x3-linux-amd64` | linux/amd64 | 26.3 MB | `1a23f93ae91b2f329b32d1595e15dd399c1c02cee131b571925c87ad936ac8c7` |
+| `x3-windows-amd64.exe` | windows/amd64 | 26.9 MB | `3aa3383ebb8ac56dbf22902d735bb0afb8689b5e8c50ace93a27687fef9bd890` |
+| `x3-linux-amd64` | linux/amd64 | 26.3 MB | `ef5f73b7f640813769ee17ebd5bbba30eec519a8becce42f3c6898063e2eeed7` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -180,6 +180,7 @@ markers that split this document, so a page cannot be missing from it.
 | [Is this call inside that condition](docs/sets-holds.md) | the region turned from a name into a question, so that a value counts only when the container it sits in holds what it should |
 | [Where the container ends](docs/sets-closing.md) | the closing pattern that turns a boundary into a two-ended region, so that the values inside a block are read without the ones written below it |
 | [The names a template calls](docs/sets-template.md) | the root names a markup expression reads, the names the script beside it offers, and the mixin chain that is followed rather than listed |
+| [One name, one source in a component](docs/sets-members.md) | the names a component writes onto its instance, read across its mixin chain, each with the file that declares it, so that two mixins naming the same method are red before the screen crashes |
 | [A list that names two names them all](docs/sets-complete.md) | the comparison that reads every line, block or region as its own list, so that a list naming some members of a set and not the rest is red by the members it leaves out |
 | [Lists that may only shrink](docs/freeze.md) | a measured set or a number frozen to a baseline that growth turns red |
 | [The exported API, which may only grow](docs/surface.md) | a removal or a changed signature is red, and the finding names who breaks |
@@ -315,4 +316,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

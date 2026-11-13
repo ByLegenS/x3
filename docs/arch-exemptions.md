@@ -55,4 +55,4 @@ is `dead_exemption` and red, and an exemption naming no rule silences every
 rule, so every run judges it. A name no rule carries is not an error — a subset
 run is legitimate — so it stays a warning on every run instead of hiding.
 
-<!-- x3-dist version=v0.352.0 capabilities=dc85f9ccef006fbf854b042f02f6f38640eda6780ab6d918154956d49b6d78cb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
