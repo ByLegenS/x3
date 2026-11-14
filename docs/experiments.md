@@ -560,4 +560,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.361.0 capabilities=8f25ee47309c308289d52991abf5d8d9aae99ea0cf44e4eb695f2747b7b306c0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

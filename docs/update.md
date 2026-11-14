@@ -123,4 +123,4 @@ must parse: no file and no section means no requirement, but a value that is not
 a release tag is an error — a misspelled requirement silently ignored leaves its
 author believing a gate is running.
 
-<!-- x3-dist version=v0.361.0 capabilities=8f25ee47309c308289d52991abf5d8d9aae99ea0cf44e4eb695f2747b7b306c0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

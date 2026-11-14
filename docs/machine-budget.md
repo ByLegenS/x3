@@ -127,4 +127,37 @@ measurement) take no slot. They are capped by `GOMAXPROCS`, which is set to the
 budget, and they are short. Slots are not taken in turn: a unit that is ready
 when a slot frees takes it, whichever unit has waited longest.
 
-<!-- x3-dist version=v0.361.0 capabilities=8f25ee47309c308289d52991abf5d8d9aae99ea0cf44e4eb695f2747b7b306c0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### One gate on the machine at a time
+
+The budget shares the processor, and nothing else. Three gates started at once
+from three working copies of one project (2026-11-15) put 9 x3, 15 go and 90
+database processes on one desktop and froze it: the compiler, the test binaries and
+the databases each gate sets up are not slots. So **`x3 gate` takes a machine-wide
+gate lock** before its first step runs. A second gate says who holds it and waits:
+
+```text
+x3 gate: waiting for the gate held by 80724 (<dir>)
+x3 gate: the gate is ours after 27s
+x3 gate -wait 10m            # how long to wait (default 1h; 0: do not wait), then exit 2
+x3 machine                   # ... the gate is held by 80724 (<dir>)
+```
+
+- **A cached run takes nothing.** The lock is asked for after the cache is read, and
+  only when at least one step will run. A region verb whose steps all come from the
+  cache returns while another gate holds the lock; there is no name-based exemption,
+  because what a step costs is not written in its name.
+- **A gate's children do not ask again.** The holder writes `X3_GATE_HELD=<pid>
+  <dir>` into its environment, so the `x3 case`, `x3 testdb run` or nested
+  `x3 gate` a step starts runs under it; asking again would wait for its own parent.
+- **A dead holder frees it.** The lock is `gate.lock` in the machine directory,
+  held with `LockFileEx`/`flock`; the holder's line is in `gate.holder` beside it.
+
+| Arm (two gates, one 5 s step each, `X3_MACHINE_DIR` of their own) | Measured |
+|---|---|
+| before: both started 0.5 s apart | both end at 28.0 s, side by side |
+| after: the same | the first ends at 28.2 s; the second waits 27 s and ends at 54.1 s |
+| after: the holder killed 1.8 s after the second started | the second starts 3 s after it began waiting |
+| after: a step runs `x3 gate` on another tree | ends in 7.1 s, no wait |
+| after: the second gate's step comes from the cache | ends in 1.8 s while the holder runs on to 5.2 s; with `-no-cache` it waits |
+
+<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -28,6 +28,18 @@ release tag, and the same digest is its salt. Two releases with the same
 `case` code share one record; two with different code write two files and never
 empty each other (the reason result files were split per version is kept).
 
+**Comments are not code.** The digest reads a Go file as the compiler does: its
+token stream, without comments and without layout (a line break and an explicit
+semicolon count the same, so does a semicolon before a closing brace). A release
+that only adds inline examples or rewrites a rationale keeps every result.
+Comments the toolchain reads stay in: `//go:` (build, embed, linkname),
+`//line`, `//export`, `//extern`, `// +build`. A cgo file (its comment is C
+source) and a file the scanner rejects are digested byte for byte. Control
+experiment: `Codes` over `internal/release/testdata/codes/comment`, the base
+module with doc, body and end-of-line comments added and a body split over
+lines, gives every entry the base digest; with the token stream turned off
+(bytes digested) the same module moves `runA`.
+
 When in doubt it counts more: a name that matches a declaration is followed even
 if it is a local, reaching a type reaches all its methods (an interface may call
 them), and reaching a variable assigned in `init` reaches that `init`. The price
@@ -44,6 +56,21 @@ observation of such a step.
 
 A binary built without `codes` (a plain `go build`, the gate's own `{bin}`)
 falls back to the release tag: no digest, no sharing, never a stale result.
+
+**Two settings, one file.** Every working copy of a project shares one cache
+directory, and two working copies opened from different commits can carry
+different settings — so different salts for the same command. The salt is part
+of every slot's hash, not a single field of the file: a working copy whose salt
+does not match misses the other's slots but leaves them in place, and an
+unasked slot ages out after `stale` runs like any other. Keys a command's result
+does not depend on stay out of its salt: `x3 case` drops `case.workers` (how
+many packages run side by side) and `case.deferred` (the verdict on examples
+that did not run; a package with a deferred example is never stored).
+
+Measured in the pilot on 2026-11-15, two small projects sharing one cache
+directory and differing only in `case.workers`: with the old binary the first
+project's third run found no record (the second project's run had emptied the
+file) and the second project ran cold; with the new binary both hit.
 
 Measured in the pilot on 2026-11-15: six releases in one night, each followed by
 the first gate rerunning 37 000 examples cold (54 minutes), because the salt was
@@ -63,4 +90,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.361.0 capabilities=8f25ee47309c308289d52991abf5d8d9aae99ea0cf44e4eb695f2747b7b306c0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
