@@ -95,4 +95,4 @@ Measured on the control experiment (three planted directories,
   the marker pattern: a second run over the same tree reads nothing again
   (`x3 arch: cache 4 hit(s), 0 miss(es)`).
 
-<!-- x3-dist version=v0.358.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.359.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

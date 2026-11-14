@@ -105,4 +105,4 @@ again when an imported file changed). Each arm was broken once and turned red:
 a key that ignored imports kept the changed tree green; a runner that did not
 remove `navigator` passed `online()`.
 
-<!-- x3-dist version=v0.358.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.359.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

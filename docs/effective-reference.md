@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.358.0`**
+**Current version: `v0.359.0`**
 
 ## effective check fields
 
@@ -23,4 +23,4 @@
 | `map` | value mapping applied before the comparison; a value the map does not mention is compared as it came |
 | ~~`equals`~~ / ~~`contains`~~ | **rejected here** — a reading has no expectation of its own; its expectation is the other readings |
 
-<!-- x3-dist version=v0.358.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.359.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
