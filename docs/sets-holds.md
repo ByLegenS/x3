@@ -61,4 +61,4 @@ it: a value dropped here is reported as missing by name. And a `holds` that
 nothing in the tree answers empties the side, which is `empty_scope` and red —
 a misspelled pattern shouts rather than agreeing with everything.
 
-<!-- x3-dist version=v0.356.0 capabilities=20ad2681eeb6bc5838c6ddf4ee219604775d74f5ed17fe541e4b352085f0ee08 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.357.0 capabilities=10a12f06f3c2131bad489fce37d22ffd92599995949a173ade9d66ec13c922c7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
