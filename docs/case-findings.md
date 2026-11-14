@@ -101,6 +101,45 @@ x3 case: -timeout 0s is not a positive duration
 exit 2
 ```
 
+**A ceiling reached under load is measured again, alone.** The ceiling is a wall
+clock, and a wall clock counts the time a package spent waiting for the processor
+too. Measured on one package (2026-11-14): alone, all 237 examples passed in
+60.5 s; with four x3 processes sharing the machine budget only 96 were measured in
+the same minute and the other 141 came back `over_ceiling`. A package that waits
+is not slow, it has not had its turn.
+
+So a package whose run reached the ceiling **while something ran beside it** —
+another package of the same run, or another x3 process sharing the machine budget
+(see `x3 machine`) — is not written red. When the pool is empty it runs once more,
+on its own: it takes the machine's one *alone* lock, every other x3 stops taking
+new slots until it is done, and it holds the whole budget. The wait for those
+slots is bounded by one ceiling; after that it runs with whatever is free. The slot
+wait never counts against the ceiling — the clock starts once the slot is held.
+
+What stays red: a package that reaches the ceiling with nothing beside it is red at
+once (there is no load to blame and a second run would burn another ceiling), and
+a package that reaches it again when alone keeps its `over_ceiling` — a hang is
+still a hang without load. The line that says why the run took longer is on
+stderr:
+
+```
+$ x3 case -workers 2 -timeout 3s -only aa,busy,wait   # wait slows down only beside busy
+x3 case: wait reached the 3s ceiling under load (1 other run(s) beside it) - measuring it again alone
+x3 case: 3 example(s) in 3 package(s) - 3 passed, 0 finding(s)
+exit 0
+$ x3 case -workers 2 -timeout 3s -only aa,busy,hang   # hang sleeps five seconds every run
+x3 case: hang reached the 3s ceiling under load (1 other run(s) beside it) - measuring it again alone
+hang/hang.go:7 (Nap): over_ceiling
+exit 1
+$ x3 case -workers 1 -timeout 3s -only hang           # nothing beside it: red at once, no second run
+hang/hang.go:7 (Nap): over_ceiling
+exit 1
+```
+
+Why not processor time: a deadlock spends none, so a processor-time ceiling never
+fires on the very hang it exists for, and on Windows the test binary is a
+grandchild of the toolchain whose time the parent cannot read.
+
 **Known boundary:** the clock covers compiling as well as running, so a ceiling
 set below a package's compile time reports `over_ceiling` for work that never
 got to run. The error is on the side of accusing nobody, which is the side this
@@ -214,4 +253,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.357.0 capabilities=10a12f06f3c2131bad489fce37d22ffd92599995949a173ade9d66ec13c922c7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.358.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
