@@ -362,22 +362,49 @@ example itself executed no body in that directory on its last green run. A body
 that ran while the binary loaded (a package variable's initializer, `init`) is in
 every example's record but was not run by the example: it allows the recall
 unless the directory imports `reflect`, or a non-Go file changed and that body
-names the variable embedding it. Anything else stays on the static rule: a
-changed or removed declaration, a new type, variable, constant or `init`, a new
-method named by an interface, changed imports, an exported embedded file, a
-missing frame record.
+names the variable embedding it. A declaration whose **shape** changed (a struct
+gains a field, a signature or a variable's initializer changes) holds the example
+back only if a body the example ran reaches it **by symbol**: from every body in
+its record (its own package's included, load-time bodies included) the engine
+follows names through type, variable and constant declarations (field types,
+embeddings, aliases, initializers) and never into a function that did not run. A
+field added to a struct the example never reaches cannot change its result; a
+positional literal names the struct, so its example runs and does not build.
+Anything else stays on the static rule: a removed declaration, a new type,
+variable, constant or `init`, a new method named by an interface, changed
+imports, an exported embedded file, a missing frame record, or a shape change
+that comes together with any of those.
 
 ```
 site gains Fresh() and Page.Slug(); site runs kinds() at load,
 only Lift ran a body in site during its example                 -> Lift runs, 4 recalled
-site.Lift's signature changes                                   -> all 5 run, Lift red
-site.Label (read while web loads) changes                       -> all 5 run, Banner red
+site.Lift's signature changes                                   -> Lift runs red, 4 recalled
+site.Label (read while web loads) changes                       -> Banner runs red, Lift runs
+                                                                   (a body there), 3 recalled
 site.Code gains Tag(), the importer asserts its own tagger      -> all 5 run, Tagged red
 site's unexported embedded note.txt changes                     -> Lift runs, 4 recalled
 ```
 
+The symbol-level arms (`internal/cases/testdata/ran/shape`, App-shaped, so the
+package's static walk reaches the struct through `web.Wrap`):
+
+```
+site.Shell gains a field, only Wrap's body names it             -> Wrap runs, 2 recalled
+the same field, web.Wrap builds Shell with a positional literal -> Wrap does not build
+```
+
+```
+RERUN app: 1 example(s) rerun, 2 recalled - 1 shape changed in site, static rule: the shape of a declaration changed and a body the example ran reaches it by symbol
+```
+
+Control: v0.359.0 ran 3 of 3 on the `field` arm (`3 shape changed in site, static
+rule: the shape of a declaration changed`).
+
 Arms: `internal/cases/testdata/ran/deps` (base, added, sig, initvar, iface,
-body, embedfile) beside `Check`; `grown`, `exposes`, `changedDirs` and `loaded` carry their own examples in internal/cases/ran.go. Control: with
+body, embedfile) and `ran/shape` (base, field, posbase, posfield), measured by the
+package examples of `internal/cases/ran` (they moved out of `internal/cases` so
+that package stays under its time ceiling); `grown`, `reshaped`, `exposes`,
+`changedDirs` and `loaded` carry their own examples in internal/cases/ran.go. Control: with
 v0.353.0 the `added` tree ran 5 of 5 (`5 reach a changed declaration outside the
 package`); counting the load-time body as the example's own also ran 5 of 5. Known limit: a method
 called by name through reflection or a template (`{{.Slug}}`) is not seen; a new
@@ -616,4 +643,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.359.0 capabilities=9040dd8888e1ca86dd78055fefed0445027523afa491fe14b98a5129b0c49e72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.360.0 capabilities=fe8dabd969d9e0a07f8418376734a157d044730e7197484a254d80ee74d884ca template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
