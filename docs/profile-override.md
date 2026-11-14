@@ -61,4 +61,4 @@ to called rules only: a project's own rule is still written once per item. And a
 called rule has no file of its own, so `x3 placement` — which asks which settings
 file a rule was declared in — does not weigh it.
 
-<!-- x3-dist version=v0.353.0 capabilities=aa8be531db69cba5993e6f142d79236e32d23e7dcc790e359aa835050c5b1dcf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.354.0 capabilities=2cf382ffb9e39397a545f84b9fd2cd04d1aed6994cba2580e599318e4bf86883 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
