@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.360.0`**
+**Current version: `v0.361.0`**
 
 | Page | What it covers |
 |---|---|
@@ -124,6 +124,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A configuration that cannot call git](gate-forbid.md) | the programs no step may invoke, declared by the project, measured in the command position only |
 | [A snapshot the cache keeps](snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
 | [A change read without git](scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
+| [A cache record lives as long as the code that wrote it](cache-code.md) | the salt and the result file carry the code digest of the command, not the release tag, so a release that does not touch a check keeps its results |
 | [Where a run's wall clock goes](phases.md) | the phase line a gate run can print, the two counts that do not depend on the machine, and the work that is remembered instead of repeated |
 | [Gaps we know about](gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
@@ -133,4 +134,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.360.0 capabilities=fe8dabd969d9e0a07f8418376734a157d044730e7197484a254d80ee74d884ca template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.361.0 capabilities=8f25ee47309c308289d52991abf5d8d9aae99ea0cf44e4eb695f2747b7b306c0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

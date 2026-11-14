@@ -20,14 +20,14 @@ The lookup tables — field names, error codes, exit codes — sit beside the gu
 one reference page per family, listed in [REFERENCE.md](REFERENCE.md) and written
 in the same run; every page links to the table it uses.
 
-**Current version: `v0.360.0`**
+**Current version: `v0.361.0`**
 
 ## Download
 
 | File | Platform | Size | SHA256 |
 |---|---|---|---|
-| `x3-windows-amd64.exe` | windows/amd64 | 27.0 MB | `6c01053994aaba62d2b0075591c946ef9855108d3c15a126a3504479a21b6930` |
-| `x3-linux-amd64` | linux/amd64 | 26.3 MB | `1c32ba0b1d7d97fa61c6b506eae8c64b5a3bd70298a0f7206d5389d9aa50eee2` |
+| `x3-windows-amd64.exe` | windows/amd64 | 27.0 MB | `0a4ce79c2151bfc9f29dfdd3b416b513ca027e25844462d0f1c66c8d2c3a6ffe` |
+| `x3-linux-amd64` | linux/amd64 | 26.4 MB | `6da84dabd43869896f5ac803fe2b40cd0629bf971bd6802ae2863fee3e01b6c0` |
 
 Both binaries are static (`CGO_ENABLED=0`) and carry no runtime dependency.
 
@@ -262,6 +262,7 @@ markers that split this document, so a page cannot be missing from it.
 | [A configuration that cannot call git](docs/gate-forbid.md) | the programs no step may invoke, declared by the project, measured in the command position only |
 | [A snapshot the cache keeps](docs/snapshot.md) | the tree as the last runs saw it, and what has moved since - asked of the cache, not of git |
 | [A change read without git](docs/scope-snapshot.md) | the change a gate measures is what moved since the last run, read from the cache |
+| [A cache record lives as long as the code that wrote it](docs/cache-code.md) | the salt and the result file carry the code digest of the command, not the release tag, so a release that does not touch a check keeps its results |
 | [Where a run's wall clock goes](docs/phases.md) | the phase line a gate run can print, the two counts that do not depend on the machine, and the work that is remembered instead of repeated |
 | [Gaps we know about](docs/gaps.md) | what is not built, said plainly, next to what is |
 | [Gaps in what a work list can say](docs/gaps-work.md) | the bounds of the open-work list, the examples that run beside it, and the one language the gate speaks |
@@ -316,4 +317,4 @@ checks the environment a run is about to happen in, not your code. A green
 
 ---
 
-<!-- x3-dist version=v0.360.0 capabilities=fe8dabd969d9e0a07f8418376734a157d044730e7197484a254d80ee74d884ca template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.361.0 capabilities=8f25ee47309c308289d52991abf5d8d9aae99ea0cf44e4eb695f2747b7b306c0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
