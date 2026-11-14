@@ -387,14 +387,40 @@ method only matters there if text that already named it starts to resolve.
 package it runs, and the summary counts what came from the cache:
 
 ```
-RERUN app: 1 example(s) rerun - 1 ran a changed body in site
+RERUN app: 1 example(s) rerun, 4 recalled - 1 ran a changed body in site
 RERUN app: 5 example(s) rerun - 4 shape changed in site, static rule: the shape of a declaration changed; 1 ran a changed body in site
 x3 case: 5 example(s) in 1 package(s) - 4 passed, 4 example(s) recalled from their record, 1 finding(s)
 ```
 
-The same lines are in the report (`rerun:`). A dependency reached through
+The same lines are in the report (`rerun:`, with `recalled:` per package). A dependency reached through
 another package is named with its first hop: `shape changed in lib/render (via
 lib/web)`. The `body` and `sig` arms assert the two different reasons.
+
+**The gate carries those lines, green steps included.** A step's output is
+dropped when it passes, so a gate step that runs `x3 case` used to hide which
+package ran and why. Now any line that starts with `RERUN ` in the output of a
+trial that ran this time is printed under that trial, at most 8 of them plus
+`... and M more rerun line(s)`; the full list is in the gate report (`rerun:` on
+the step). The gate does not know which tool printed the line: any step whose
+own report says what it ran again can use the same word. A trial or step
+recalled from the cache carries nothing, since its output tells yesterday's run.
+
+```
+== inline examples    (301615 ms)
+  ran                                    exit=0 (want 0)
+    RERUN app/core: 1 example(s) rerun, 301 recalled - 1 runs as the witness that the package still builds
+    RERUN app/boot: 6 example(s) rerun, 2 recalled - 6 ran a changed body in lib/site
+    RERUN cmd/admin: 16 example(s) rerun, 180 recalled - 16 cannot be narrowed (it reaches startProcess, whose body may start a subprocess)
+    ... and 86 more rerun line(s)
+```
+
+Same step, nothing changed since: `== inline examples  (skipped: cached: nothing
+this step reads has changed)` and no `RERUN` line.
+
+Examples: `carry` in internal/gate/finding.go (a carried line, a recalled trial
+carries none, an indented `RERUN` is not the word, ten lines shown as eight plus
+`and 2 more`) and `RerunLine` in internal/cases/cases.go. Control: with `carry`
+returning the trial line untouched, the first and last examples are red.
 
 **A change outside a body runs only the examples it can reach.** Only a package
 variable whose initializer may run code while the binary loads (a call or
@@ -582,4 +608,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.355.0 capabilities=284e6c0734128a74dcd7bf082891a842593695d1fd236d44af31f9f0fa64aaaa template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.356.0 capabilities=20ad2681eeb6bc5838c6ddf4ee219604775d74f5ed17fe541e4b352085f0ee08 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
