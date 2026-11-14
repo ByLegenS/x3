@@ -15,14 +15,26 @@ within its own limit, and the total is still too high. So the budget belongs to 
 ```text
 x3 machine -cpu 50%          # or a core count: -cpu 16; -cpu off removes it
 x3 machine -low              # below normal priority for x3 and what it starts
-x3 machine                   # cpu budget 16 of 32 processor(s) (~/.x3cache/machine.yaml) ...
+x3 machine                   # cpu budget 16 of 32 processor(s) (~/.x3/machine.yaml) ...
 X3_CPU=4 x3 gate -only lint  # the environment overrides the file for one run
 ```
 
-The file is `~/.x3cache/machine.yaml` (`cpu: 50%`, `low: true`); `X3_CPU` and
-`X3_LOW` override it, and `X3_MACHINE_DIR` moves it. **With no budget written,
+The file is `~/.x3/machine.yaml` (`cpu: 50%`, `low: true`); `X3_CPU` and
+`X3_LOW` override it, and `X3_MACHINE_DIR` moves it. It lives **apart from the
+cache**: deleting `~/.x3cache` used to take the share with it (pilot, 2026-11-15 —
+the next gate ran on all 32 processors). A file still in `~/.x3cache` is copied
+to `~/.x3` once and left where it was, so an older x3 on the same machine still
+finds it. Locks and slots stay in `~/.x3cache`: they are a run's live state, and
+two versions must meet at the same lock. Measured by the `settle` examples in
+internal/machine/machine.go. **With no budget written,
 nothing changes:** no slot is taken, nothing is added to a child's environment,
-and a run takes every processor as before.
+and a run takes every processor as before. `low: true` on its own is a valid
+machine file: below-normal priority and no core limit. A child **always inherits
+the whole environment** — measured in the pilot, 2026-11-15: with no share, the
+example runner appended its coverage variable to an empty list and started the
+Go toolchain with that one variable; GOPATH, HOME and PATH were gone and every
+example failed `does_not_build` (`module cache not found`), 30 800+ findings in
+one region. Measured by the `environ` examples in internal/machine/machine.go.
 
 **Slots, not a counter.** Every unit of parallel work — a gate step, a package
 the example runner compiles and runs — takes one slot per core it will use
@@ -151,6 +163,11 @@ x3 machine                   # ... the gate is held by 80724 (<dir>)
   `x3 gate` a step starts runs under it; asking again would wait for its own parent.
 - **A dead holder frees it.** The lock is `gate.lock` in the machine directory,
   held with `LockFileEx`/`flock`; the holder's line is in `gate.holder` beside it.
+  A gate that ends removes its line. A killed gate cannot, and its line stays
+  (pilot, 2026-11-15: pid 92356 read as "the gate is still held"), but the lock
+  itself is free — the next gate takes it at once and overwrites the line, and
+  `x3 machine` reads the line only while the lock is held. Measured by the
+  `holdGate` examples in internal/machine/gate.go (a dead holder's line, no wait).
 
 | Arm (two gates, one 5 s step each, `X3_MACHINE_DIR` of their own) | Measured |
 |---|---|
@@ -160,4 +177,4 @@ x3 machine                   # ... the gate is held by 80724 (<dir>)
 | after: a step runs `x3 gate` on another tree | ends in 7.1 s, no wait |
 | after: the second gate's step comes from the cache | ends in 1.8 s while the holder runs on to 5.2 s; with `-no-cache` it waits |
 
-<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.363.0 capabilities=5af223242f5e9eea4e5eac02f01d16f305004dc2734004f5f313971d7d9edb72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

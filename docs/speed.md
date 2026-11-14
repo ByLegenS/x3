@@ -58,7 +58,7 @@ uncached one.
 
 ### Each engine version keeps its own results
 
-Result files carry the engine version in their name (`gate@<engine version>.yaml`), so two versions run one after the other on one project no longer empty each other's cache. The first run of a new version takes the tree's witness (which path, which digest) from the newest sibling file; readers of the tree (`snapshot`, `boxes suspect.gone`) fall back to that sibling until the version has written. The siblings are ordered by modification time first and only the newest readable one is decoded (pilot: twenty 40-74 MB siblings were all decoded and a new version's first read of the tree took 25 s; `x3 boxes` with `suspect.gone` went from 43 s to 20 s). Whole-file readers (`snapshot`, `boxes suspect.gone`) take each record's body as a parsed tree and do not write it back to bytes first. A sibling not written for 30 days is deleted. The worker-count record (`gate-tune.yaml`) stays unversioned: it is the machine's. Measured by the `Open` / `newest` / `sweep` examples in internal/cache/cache.go.
+Result files carry the engine version in their name (`gate@<engine version>.yaml`), so two versions run one after the other on one project no longer empty each other's cache. The first run of a new version takes the tree's witness (which path, which digest) from the newest sibling file; readers of the tree (`snapshot`, `boxes suspect.gone`) fall back to that sibling until the version has written. The siblings are ordered by modification time first and only the newest readable one is decoded (pilot: twenty 40-74 MB siblings were all decoded and a new version's first read of the tree took 25 s; `x3 boxes` with `suspect.gone` went from 43 s to 20 s). Whole-file readers (`snapshot`, `boxes suspect.gone`) take each record's body as a parsed tree and do not write it back to bytes first. A sibling not written for 30 days is deleted. The worker-count record no longer lives here: it is the machine's, in `~/.x3` (see "The worker count is the machine's, not the project's"). Measured by the `Open` / `newest` / `sweep` examples in internal/cache/cache.go.
 
 ## Files the engine reads back
 
@@ -70,4 +70,4 @@ calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.363.0 capabilities=5af223242f5e9eea4e5eac02f01d16f305004dc2734004f5f313971d7d9edb72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -784,25 +784,45 @@ The peak sits in a different place on every machine: processors, disk, database
 and the mix of steps all move it. A number found by hand once becomes a number
 nobody dares touch, and the day the machine changes it is quietly wrong.
 
-`-tune` runs the gate at four worker counts — the processor count and its three
-quarters, half and quarter — and reports the peak:
+**Measuring is off by default.** With no record, the gate does not measure: the
+worker count comes from the machine share (`x3 machine -cpu`, `X3_CPU`) if one is
+written, otherwise one worker per processor, and the gate says so in one line.
+A record is written only when asked for:
 
 ```
 x3 gate -tune
-x3 gate: measuring this machine's worker count - 4 full run(s)
-x3 gate: 24 worker(s) on 32 processor(s) - 32:118204ms 24:108094ms* 16:121530ms 8:186402ms
+x3 gate: measuring this machine's worker count with a small fixed sample at [12 9 6 3] worker(s), at most 1m0s
+x3 gate: 12 worker(s) on 32 processor(s) - 12:441 ms* 9:621 ms 6:745 ms 3:1229 ms - measured in 3s
+x3 gate                      # with no record and a 12-core share:
+x3 gate: no worker-count record for this machine - 12 worker(s) from the machine share (X3_CPU); x3 gate -tune measures it with a small sample
 ```
 
-The result is written **beside the cache, not into the settings**: a worker count
-is a property of the machine, and a machine's number pushed into a shared file is
-wrong for everyone else who reads it. The record carries the processor count that
-produced it, so a binary copied to another machine — or a virtual machine that
-grew — measures again instead of trusting a number that no longer describes
-anything.
+The points are the share (or the processor count) and its three quarters, half and
+quarter. The sample is **the engine's own unit**, not the gate: the x3 binary
+started as a process that hashes a fixed block in memory and writes and reads back
+a temporary file — process start, processor, disk, what a gate step asks of the
+machine — twice as many units as the top point has workers. The whole measurement
+takes seconds and is cut at one minute without writing a record. `-tune` holds the
+gate lock, and `-only`, `-region` and `-band` with it are refused (exit 2).
 
-**A gate with no declared `workers` tunes itself.** There is no command to
-remember: an absent setting is what triggers the measurement, a stored one is
-read, and `-tune` forces a fresh measurement over both.
+Why not a subset of the gate's own steps (measured in a production application,
+2026-11-15): the measurement used to run the **whole gate** at every point, four
+full runs; with a cold cache it was stopped at minute 15 with the processor at 96 %.
+The cheapest band of the same project, run without the gate cache, took 322 s at 12
+workers (only 1.2x parallel: a few heavy steps carry the wall clock), and in the
+engine's own repository its first point overran a 15 s share. What a step costs is
+not written in its name, and cutting a point at a deadline is no answer: the gate
+does not kill a step's grandchildren, so a cut point leaves processes behind.
+
+The record is written **into the machine's settings directory, not into the
+project's settings and not into the cache**: `~/.x3/gate-tune-<cache dir>-<hash>.yaml`
+(`X3_MACHINE_DIR` moves it). A project that declares no `cache.dir` stores nothing.
+A record in the old place (beside the cache) is copied over once. The record
+carries the processor count that produced it, so a binary copied to another
+machine — or a virtual machine that grew — falls back to the share instead of
+trusting a number that no longer describes anything. Measured by the `Fallback`,
+`tuneFile`, `sample` and `Unit` examples in internal/gate/tune.go and the
+`tune-region control experiment` step.
 
 ⛔ **A stored measurement is worth only as much as the reader that finds it.**
 The record sits under `cache.dir`, so whatever resolves that setting must know
@@ -823,15 +843,7 @@ same tree run without its database declared reported 18 red in 71 s, and with it
 moved** — a count alone sends the reader back to run the gate by hand twice to
 find out which one is unsteady, and that name was already in the report. Two
 points that leave the same number red but not the same steps are just as
-incomparable, and are reported the same way. A tuning run like that says why — and then
-**the gate runs anyway**, one worker per processor. A measurement is a
-convenience, never a precondition: the opposite would leave a project whose gate
-is red unable to run the gate that shows it. `-tune`, asked for on purpose, does
-report the failure and exits 2.
-
-### A narrowed run does not measure the worker count
-
-With no worker-count record, only an unnarrowed `x3 gate` measures it. A region verb, `-region`, `-only` or a `-band` other than `full` runs its own steps with one worker per processor and says so in one line; `-tune` with any of them is refused (exit 2). Measured by the `tune-region control experiment` step (pilot, 2026-10-02: a three-step region verb had started four runs of the whole band).
+incomparable, and are reported the same way. A tuning run like that says why, writes nothing and exits 2.
 
 ### A step that cannot have changed is not run again
 
@@ -1543,4 +1555,4 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.362.0 capabilities=2385d5ae52fcea51fca5197051da7c7323cbd5d56359ec4c76b523d54557cc30 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.363.0 capabilities=5af223242f5e9eea4e5eac02f01d16f305004dc2734004f5f313971d7d9edb72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
