@@ -358,14 +358,18 @@ only gained new functions, or new methods whose name no interface in the
 package's closure declares and which is not a standard-library method checked at
 run time (`String`, `Error`, `MarshalJSON`, `Scan`, `ServeHTTP`, ...), or only
 changed non-Go files that it embeds into unexported variables, **and** the
-example executed no body in that directory on its last green run (package
-variables and `init` included). Anything else stays on the static rule: a
+example itself executed no body in that directory on its last green run. A body
+that ran while the binary loaded (a package variable's initializer, `init`) is in
+every example's record but was not run by the example: it allows the recall
+unless the directory imports `reflect`, or a non-Go file changed and that body
+names the variable embedding it. Anything else stays on the static rule: a
 changed or removed declaration, a new type, variable, constant or `init`, a new
 method named by an interface, changed imports, an exported embedded file, a
 missing frame record.
 
 ```
-site gains Fresh() and Page.Slug(); only Lift ran a body in site -> Lift runs, 4 recalled
+site gains Fresh() and Page.Slug(); site runs kinds() at load,
+only Lift ran a body in site during its example                 -> Lift runs, 4 recalled
 site.Lift's signature changes                                   -> all 5 run, Lift red
 site.Label (read while web loads) changes                       -> all 5 run, Banner red
 site.Code gains Tag(), the importer asserts its own tagger      -> all 5 run, Tagged red
@@ -373,9 +377,9 @@ site's unexported embedded note.txt changes                     -> Lift runs, 4 
 ```
 
 Arms: `internal/cases/testdata/ran/deps` (base, added, sig, initvar, iface,
-body, embedfile) beside `Check`; `grown` and `exposes` carry their own examples
-in internal/cases/ran.go. Control: with v0.353.0 the `added` tree ran 5 of 5
-(`5 reach a changed declaration outside the package`). Known limit: a method
+body, embedfile) beside `Check`; `grown`, `exposes`, `changedDirs` and `loaded` carry their own examples in internal/cases/ran.go. Control: with
+v0.353.0 the `added` tree ran 5 of 5 (`5 reach a changed declaration outside the
+package`); counting the load-time body as the example's own also ran 5 of 5. Known limit: a method
 called by name through reflection or a template (`{{.Slug}}`) is not seen; a new
 method only matters there if text that already named it starts to resolve.
 
@@ -578,4 +582,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.354.0 capabilities=2cf382ffb9e39397a545f84b9fd2cd04d1aed6994cba2580e599318e4bf86883 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.355.0 capabilities=284e6c0734128a74dcd7bf082891a842593695d1fd236d44af31f9f0fa64aaaa template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
