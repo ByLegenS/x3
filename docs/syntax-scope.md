@@ -66,6 +66,16 @@ x3 arch: 154 rule(s) recalled, 3 judged
 Measured on the pilot (2026-11-15, same machine, other gates running): a warm
 `x3 arch .` 3.8-4.3 s → 2.9 s; one comment appended to a core file 5.3 s →
 4.2 s per run (74 of 157 rules read that file's bytes and are judged again).
+With the reading-bound record (v0.377.0) the same comment re-judges 6 of 157
+rules (3 read the settings themselves, 3 read comments), 3.8 s per run against
+3.2 s warm. Control experiments in `internal/arch/recall.go`: `codeSum` (a
+trailing or end-of-line comment keeps the digest, changed code, a shifted line,
+a new directive or a changed raw string move it), `filesSum` (a comment-only
+change keeps the code-read sum and moves the byte-read sum), `readsText` (one
+side that reads comments binds the whole rule to bytes) and `ruleInput` (a
+comment-only change recalls a code rule and re-judges a `comments: checked`
+rule; a consistency rule that names its file is not bound to Go files - with
+`opens` replaced by the rule's own sources that example is red).
 The walk for the root-directory rule had covered 197 156 files, 174 146 of them
 inside worker checkouts. Control experiments: `parsed` (a changed import on the
 same path is parsed again; with the bytes taken out of the record input the
@@ -139,4 +149,4 @@ A denied pattern with one legitimate use is excused **on the line itself**: a `/
 
 Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
 
-<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -31,9 +31,39 @@ A `pattern` or `absent` criterion is a function of its own spelling (`when`,
 still walks and reads those files, but when their paths and bytes are the ones
 the last run saw, the answer comes from the record (`boxes-criterion:` in the
 `boxes` cache) and the pattern is not applied again. A changed byte, an added
-or removed file, or a changed criterion measures it again. `sql` and `command`
-criteria are never recalled: their answer lives outside the tree. `-no-cache`
-measures everything; `-cache <file>` names another record.
+or removed file, or a changed criterion measures it again. `sql` criteria are
+never recalled: their answer lives in a database the tree does not hold. A
+`command` criterion is recalled only when it **declares the files its answer
+depends on** in `sources` (same patterns as a pattern criterion): while their
+paths and bytes stand still the answer comes from the record
+(`boxes-command:`, keyed by command, args, expectation, timeout, directory and
+the patterns) and the command does not run. A command with no `sources` runs on
+every run - the engine cannot know what it reads, and remembering an answer
+whose input is unknown is a false green. A blind result (connection, timeout,
+no expectation) is never written. `-no-cache` measures everything;
+`-cache <file>` names another record.
+
+```yaml
+done:
+  - when: command
+    command: ls
+    args: [clients/site-templates]
+    output: {says: "site.yaml"}
+    sources: [clients/site-templates/**]   # the listing only changes with these
+```
+
+**The run binds each file to what is read from it.** The run's reading is
+code (comments are not the answer of a pattern criterion); a criterion that
+writes `reading: text`, and a command criterion's declared files, bind **their
+own files** to bytes - not the whole run. On the pilot one `reading: text`
+criterion had bound the open-work step to the comments of every Go file, so a
+comment appended to any file ran the step again.
+
+Control experiments (`internal/boxes/recall.go`, `recallCommands`): the same
+bytes give the saved answer and the command does not run; a changed byte, a
+command with no `sources`, or a blind result runs it. With the bytes taken out
+of the record input the changed-byte arm is red; with the blind filter taken
+out the blind arm is.
 
 Measured on the pilot (2026-11-15, 743 boxes, 1 207 criteria, report
 byte-identical): the measuring part of `x3 boxes` went from 3.8 s to 2.3 s, and
@@ -447,4 +477,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

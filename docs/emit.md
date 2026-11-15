@@ -220,6 +220,13 @@ from, `-buildvcs=false` the repository stamp, `-buildid=` the compiler's own id,
 and `CGO_ENABLED=0` the host's C library. The only thing left varying is the
 version string, which is the point of `stamp`.
 
+The tables `codes` and `results` name (variables of package `main`) do not ride
+the command line: they are written into a Go file that `go build -overlay` places
+in the package directory, so the tree stays untouched. With one row per entry
+point the table reached 59 KB, and a Windows command line stops at 32 KB — the
+build never started (`The filename or extension is too long`). A variable of any
+other package still goes with `-X`.
+
 `SHA256SUMS.txt` is written from what was actually built. `LATEST` is written
 **only** for a clean tagged tree: a build from `v1.2.3-2-gabc123` is a test build,
 and a pointer naming a version nobody can check out is worse than no pointer.
@@ -338,4 +345,4 @@ repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

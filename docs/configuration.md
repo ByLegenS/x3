@@ -57,6 +57,30 @@ debt turns every finding red again, or a new baseline is written into the root
 of whatever tree the shell stood in. Both are silent, and a setting that quietly
 changes meaning is worse than a wrong answer, because a wrong answer can be read.
 
+**A split configuration is merged once, not once per process.** A gate step
+starts several x3 processes (the pilot's open-work step: a database wrapper,
+`x3 boxes`, five `x3 emit` runs) and each one parsed and merged every part
+again - 0.9-1.4 s of CPU per process, more than the work itself. The merged
+map and the parsed parts are now kept in a record in the user's cache
+directory (`<UserCacheDir>/x3/config/`), one file per root configuration and
+engine binary, and handed back only when **every file it was built from has
+the same bytes and every `include` pattern of the root matches the same
+files**. A part edited, added or removed, or a new engine binary, rebuilds it;
+a command that writes the configuration is safe for the same reason - its own
+write changes the bytes. Records older than thirty days are swept. The record
+is written only by the command line (`config.Persist`); inline examples and
+library callers do not touch the user's cache directory.
+
+```text
+x3 emit -check (pilot, 30 documents)          4.2-4.7 s -> 2.7 s
+x3 emit -check -only experiment -with ...      0.9 s     -> 0.3 s
+```
+
+Control experiment (`internal/config/settled.go`): a record is written and the
+same bytes take it; a part with one byte changed, a new file under an include
+pattern, or the switch left off - each refuses it. With the byte check taken
+out the second example is red; with the pattern check taken out the third is.
+
 ## A configuration that cannot be read says so
 
 The configuration is resolved **before the verb**, and a file that does not
@@ -121,4 +145,4 @@ itself appears nowhere — not in the config, not on stderr, not in the report.
 Change that guard's policy to `block` and the same situation stops the run
 instead of warning about it; that one word is the whole difference.
 
-<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

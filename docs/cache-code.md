@@ -136,6 +136,35 @@ different digest, different settings, no table: nothing inherited). With the
 `skip` deletion turned off, and with the digest comparison turned off, one
 example each goes red.
 
+**Every command has its own result row, at declaration level.** A command with
+no declared scope inherits too: the release embeds, for every entry point of the
+binary, the digest of **the declarations it reaches across the whole module**
+(`release.Reaches`): a call into another package goes to the named declaration,
+not to the whole package; a reached type brings its exported methods; the init
+functions of every imported package count, `main()` and the main package's own
+init (it only builds the command table) do not; embedded files and
+`go.mod`/`go.sum`/the Go version count. `release.skip` names packages that never
+shape a result (the engine writes `skip: [./internal/cache]`). The rows ride in
+the same table as `fn:<entry>@self` and `fn:<entry>@c<code>`; the command line
+renames them to the command (a declared scope's row wins). A gate step that
+calls a command is now keyed by that command's **result** code (`cache.Code`),
+so a release that leaves a checker's reached code alone keeps both the checker's
+records and the gate steps that call it.
+
+```text
+engine, 168 entry points, last 6 releases:
+  same result code in all 6: 57   two codes: 11   changed every release: 8
+  (package-closure code: changed every release for all 168)
+```
+
+Control experiments (`internal/release/reach.go`): an unreached method body
+changes and the entry's code holds (the package closure moved); a reached body,
+a reached function in another package or the entry's own helper changes it;
+another entry's body does not; a skipped package is not counted - with the
+cross-package calls left out the two cross-package arms are red. `cache.Code`:
+a command with a result row answers `r<code>`, one without answers its code.
+
+
 ### A release that changes only recall code keeps the greens that really ran
 
 The per-example record is written in two parts with one copy per example: the
@@ -208,4 +237,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

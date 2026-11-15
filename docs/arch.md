@@ -585,9 +585,18 @@ and handed back when all of this is unchanged:
   sources look at), the path listings, the module and the reading the run's
   rules ask for - a new or deleted file changes it and every rule is judged
   again;
-- the bytes of every Go file **in the rule's own sources** (after its
-  `exclude`): a comment added to a file the rule does not read leaves its
-  verdict recalled, a change to a file it reads judges it again;
+- every Go file **the rule really opens** (its own sources after `exclude`;
+  for a consistency rule, only the files its sides read - a side that names
+  its `file` binds the rule to that file, not to every Go file), held by the
+  rule's **reading**: a rule that reads comments (`comments: checked`, or an
+  extractor side, `when` set included, that is not `comments: exempt`) is
+  bound to the file's bytes; every other rule is bound to the file's
+  **comment-free code** - each token's line, kind and spelling, directives
+  (`//x3:allow`, `//go:build`) kept. A comment appended to a file, at the end
+  of a line or reworded in place leaves a code rule recalled and re-judges a
+  comment rule; a comment that shifts lines re-judges both (findings carry
+  their line). The same reading holds for the files the rule read while it
+  was judged (below);
 - which exemptions earlier rules of the run have already used up;
 - every file the rule itself read or asked for while it was judged, by its
   bytes (a missing path by its absence, a directory by its entries).
@@ -682,4 +691,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
