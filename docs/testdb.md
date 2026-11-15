@@ -291,7 +291,7 @@ was `go run ./cmd/panel -migrate`, the binary checked an embedded design file at
 start and refused; the file was fixed and committed, and three steps answered
 "cached: nothing this step reads has changed" with the old red.
 
-When `x3 testdb run` ends non-zero (the database could not be built, or the wrapped command went red) it now also tells the gate what the setup program reads, so a red step is never held by settings alone; a red step bound too widely only re-runs sooner. For a
+When `x3 testdb run` ends non-zero because the wrapped command never ran (the database could not be built, or the command could not start) it now also tells the gate what the setup program reads, so a red step is never held by settings alone; a red step bound too widely only re-runs sooner. A command that started and went red **by itself** binds nothing of the setup: the setup succeeded, and its source no more answers that red than a green one. Measured on a pilot: a trial that exits `1` on purpose bound every Go file of the setup program by its bytes, and the step re-ran on every comment. Control experiment: `testdb setup binding control experiment` (needs `X3_PG_ADMIN`) — a comment in the setup program after the wrapped red answers `skipped: cached`; a fallen setup is red and, fixed, is measured again. Built before this, the comment arm is `never said "== the wrapped red  (skipped: cached ...)"`. In the deferred mode the command builds the copy itself and the old binding stays. For a
 Go program (`go run` or `go build` with a package) that is every Go file and
 every `//go:embed` file of the module packages it builds (`go list -deps`); for
 any other program it cannot be known and the whole root is bound (a step bound
@@ -351,4 +351,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.385.0 capabilities=abe9643e4d415960fb50ec226ac7475863c6f1fd74981d0af316ba18bd369d71 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.386.0 capabilities=1a2df7f05dd17a028ddcba7678c713cb31757705698fbe2f1820358bd7408127 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

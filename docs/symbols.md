@@ -409,6 +409,21 @@ gate on the graph page: cold run, unchanged run `skipped: cached`, the moved fil
 measured again and red. With the read report removed from the graph the last arm
 is `exit=0 (want 1)` — the step answered from its record.
 
+**A comment inside a body does not redraw a page.** The doc table reads a Go
+file's code and its doc comments (the group above a package, declaration, spec
+or field) and nothing else; its symbol hashes are token hashes. `emit` now
+reports those files in a reading of their own, `doc`: the record weighs the
+comment-free code plus the doc comment groups, so a note inside a function
+body or at the end of a line leaves a step that renders the table answered
+from its record, while a reworded doc sentence measures it again. The graph
+reads use edges only and reports its files as `code`. Measured on a pilot: a
+single comment in a core file re-ran the step that checks its catalogue for
+50 s, because the table was weighed by every file's bytes. Control experiment:
+the same `emit sources control experiment`, a second inner step on the uses
+page — cold run, a body comment `skipped: cached`, a doc comment measured again
+and red. Built from the text reading, the body-comment arm is `never said
+"== the uses page  (skipped: cached ...)"`.
+
 **The graph is remembered.** `emit` keeps the graph in a record of its own
 (`graph@<version>.yaml` in the declared cache directory), keyed by the build
 environment (Go version, `GOOS`, `GOARCH`, `GOFLAGS`, `CGO_ENABLED`,
@@ -429,4 +444,4 @@ warm, took 0.38 s — decoding the stored result costs more than Go's parser.
 A catalogue that has not changed is not rebuilt anyway: the gate's step cache
 skips the `emit -check` step when its declared tree did not move.
 
-<!-- x3-dist version=v0.385.0 capabilities=abe9643e4d415960fb50ec226ac7475863c6f1fd74981d0af316ba18bd369d71 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.386.0 capabilities=1a2df7f05dd17a028ddcba7678c713cb31757705698fbe2f1820358bd7408127 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
