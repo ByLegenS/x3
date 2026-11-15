@@ -136,10 +136,59 @@ different digest, different settings, no table: nothing inherited). With the
 `skip` deletion turned off, and with the digest comparison turned off, one
 example each goes red.
 
-Limit: the per-example record and the package green are inherited together;
-a release that changes recall code changes the digest and runs cold. Keeping
-the greens of examples that really ran across such a release needs a purity
-mark on the package record (open box).
+### A release that changes only recall code keeps the greens that really ran
+
+The per-example record is written in two parts with one copy per example: the
+**pure** part (`<dir>#examples#pure`, `<dir>#ran#pure`) holds examples whose
+green came from a real run — they ran in this run, or they were recalled with
+exactly the key a pure record already held for them — and the rest holds
+examples recalled by a judgement (body-only change, new function in an imported
+directory). A run reads both and joins them. A second scope row names the
+runner minus that judgement:
+
+```yaml
+    - command: case#pure
+      entry: runCase
+      package: ./internal/cases
+      roots: [Config.Check, Config.runDart, Config.runScripts]
+      except: [Config.recall, Config.judge, Config.untouched]   # never walked into
+      with: [./internal/testdb]
+      skip: [./internal/cache]
+```
+
+`except` stops the walk at those declarations: their text, and whatever only
+they reach, is left out of the digest; a name that is not declared is an error.
+When a run finds no sibling with the same `case` digest but one with the same
+`case#pure` digest, it inherits **only keys ending in `#pure`** from it; every
+other key misses. A recalled green is the work of the old judgement, which this
+release may have changed; a green that really ran depends only on the code that
+ran it. The code that writes the record and builds keys stays in the digest or
+changes the key, and a changed key misses.
+
+Control experiments: the `heirsOf` examples (same `#pure` digest, different
+`case` digest: the `#pure` key is inherited, a plain key is not; different
+`#pure` digest: nothing), the `ResultCode` examples with `Except` (a changed
+excepted body keeps the digest, a changed `with` package still moves it, an
+unknown name is an error) and `pureEntry`, `joinMemo`, `joinBook` in
+internal/cases. With the suffix filter, the `except` stop or the head match
+(below) turned off, one example each goes red.
+
+### Records are picked by the run's head, not by age
+
+A package's records sit under one cache key each, newest first. Working copies
+share the cache directory, and one with other settings (another migration set
+behind the test database template, another timeout) writes records with another
+head; a run that read the newest record then refused every per-example recall
+with `the run's settings or toolchain changed`. A run now reads the newest record
+written with **its own** head and falls back to the newest one only when none
+exists, where a different head still means the static rule.
+
+Measured in the pilot on 2026-11-15: in one cache file the coverage record of
+the same package alternated between three heads within one release, and a
+changed package reran 2194 of its 2590 examples for that reason. Control
+experiment: the `ofHead` examples in internal/cases/memo.go (two slots with two
+heads: today's head is returned where the old read returned the newest; no slot
+with today's head: the newest).
 
 Measured in the pilot on 2026-11-15: six releases in one night, each followed by
 the first gate rerunning 37 000 examples cold (54 minutes), because the salt was
@@ -159,4 +208,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.364.0 capabilities=fe882f63c09729f6bf31ffdedcfbe5477ed81ab586da2d183c714f42bcf8217a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.365.0 capabilities=9dd51a7f0bc8aca73e7366c2045b24de01f962fdd51fd5ec85ce4383baa4d36a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
