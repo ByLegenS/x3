@@ -267,6 +267,22 @@ A gate file whose section does not load (an unknown field, a broken pattern)
 stops the release with exit 2 and nothing written: a gate that cannot be read has
 not passed. Measured: such a file was skipped and a leaking page went out green.
 
+The gates above measure the **generated** text, not the source. A source whose own
+gate is red is stopped by `release.gate`: the gate steps it names (the patterns
+`gate -only` takes) run on the source tree before anything is built, and a red or
+unreadable step ends the run with nothing built, written or tagged. Measured: two
+releases went out with the source's architecture and syntax steps red, because
+nothing in the chain asked the source's gate.
+
+```yaml
+release:
+  gate: [architecture, syntax]   # gate steps that must be green before a build
+```
+
+```
+x3 release: the gate steps the release section names (the red step) are not green (gate exit 1); nothing is built, written or tagged
+```
+
 A release writes nothing behind its own tag. A new page within its family's
 allowance is green either way; a run that publishes a release version **holds**
 it — measured, named, not written — and a test build (`-allow-dirty`) records it:
@@ -310,4 +326,4 @@ repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.366.0 capabilities=64aaa84d2f0891c098232e6f515649ecdb436127b3a329fbbda8565375c101cf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.367.0 capabilities=3f63ced5628371141f6194d05547be824b96722b2350a181962ff89e26c62ebb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

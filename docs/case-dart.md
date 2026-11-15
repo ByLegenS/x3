@@ -112,4 +112,4 @@ Each arm was broken once and turned red: a runner that compared `2` and `2.0` as
 equal kept `out=2` green for a `double`; a loop that did not drop the rejected
 example failed the whole library instead of one line.
 
-<!-- x3-dist version=v0.366.0 capabilities=64aaa84d2f0891c098232e6f515649ecdb436127b3a329fbbda8565375c101cf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.367.0 capabilities=3f63ced5628371141f6194d05547be824b96722b2350a181962ff89e26c62ebb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
