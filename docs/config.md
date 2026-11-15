@@ -709,6 +709,28 @@ again, and the report names the file and says `code … changed`.
 cost of ignorance picks a direction: a step that sees too much runs for nothing,
 a step that sees too little goes green without measuring.
 
+⛔ **A comment takes its line with it.** The `code` digest drops a prose comment
+together with the line it filled: a line holding only a comment goes with its
+line break and the blank lines just above it, and a comment at the end of a code
+line goes with the spaces before it. Measured on the pilot: appending one comment
+line to a core file still woke a code-reading step with `code … changed`, because
+the comment's line break stayed behind. A blank line directly above a comment
+cannot sit inside a string literal (the comment itself is outside one), so no
+code can hide there; a directive keeps its line, and a directive added is still
+`code … changed`:
+
+```
+# one comment line (and a blank line above it) appended to update.go
+x3 gate: "adoption" ran again: code internal/release/update.go changed   # before
+== adoption  (skipped: cached: nothing this step reads has changed)       # now
+# a //x3:allow line appended instead
+x3 gate: "adoption" ran again: code internal/release/update.go changed
+```
+
+`x3 adoption` counts directive lines and nothing else, so it reports the files it
+counts in the `code` reading: a comment edit no longer wakes its step, a new
+`//x3:` line does.
+
 ### A body is not an input to every step either
 
 A rule that asks *"what does this package import"*, *"is there a declaration of
@@ -1595,4 +1617,4 @@ its own words (`declared and not used`). What it does not remove is CPU shared w
 the steps running beside it: the same `go build` takes 5.9 s alone right after the
 warm-up.
 
-<!-- x3-dist version=v0.383.0 capabilities=dc00c0dc6b90a570e617da91c25ab6b8479ae35e4bf4bd1d284e0850e57fe560 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.384.0 capabilities=dc95d117c2c39a9cccc65afb8fbcf60ed2773fe49a845c5249fc246c6204eaf0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

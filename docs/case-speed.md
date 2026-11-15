@@ -769,6 +769,23 @@ A gate trial that could not run at all (its tool cannot be started: exit
 red for this run only: the line says `environment error, not cached` and the
 next run measures the step again. A red the trial itself decided stays cached.
 
+The same holds for a red whose output carries an operating system's
+*out of resources* sentence: Windows' `lacked sufficient buffer space` and
+`only one usage of each socket address`, POSIX's `no buffer space available`,
+`too many open files` and `cannot assign requested address`. None is a verdict
+on the code; it is the machine under load. Measured on the pilot: a cold run
+beside other gates lost one example to `dial tcp 127.0.0.1:5432: bind: ...
+lacked sufficient buffer space`, the red was cached, and the next three runs
+with nothing changed printed it again from the record. An example that falls
+this way is `machine_exhausted` instead of `example_failed`:
+
+```
+$ x3 case -only exhausted
+exhausted/dial.go:11 (Dial): machine_exhausted
+	this run cannot measure: the machine ran out of a resource, so this verdict is the machine's - run it again: ... lacked sufficient buffer space ...
+exit 1
+```
+
 ```yaml
 trials:
   - run: [some-tool-this-machine-lacks]
@@ -833,4 +850,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.383.0 capabilities=dc00c0dc6b90a570e617da91c25ab6b8479ae35e4bf4bd1d284e0850e57fe560 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.384.0 capabilities=dc95d117c2c39a9cccc65afb8fbcf60ed2773fe49a845c5249fc246c6204eaf0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

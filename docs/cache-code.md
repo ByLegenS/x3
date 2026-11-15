@@ -205,7 +205,9 @@ runner minus that judgement:
       entry: runCase
       package: ./internal/cases
       roots: [Config.Check, Config.runDart, Config.runScripts]
-      except: [Config.recall, Config.judge, Config.untouched]   # never walked into
+      except: [Config.recall, Config.judge, Config.untouched,   # never walked into
+               Config.remember, Config.keep, Config.store, Config.clock, Config.plan,
+               Config.postpone, Config.tell, Config.explain, memo, book]
       with: [./internal/testdb]
       skip: [./internal/cache]
 ```
@@ -216,8 +218,20 @@ Keys ending in `#pure` are salted with the `case#pure` digest (`Cache.Pure`),
 every other key with the `case` digest: a release that changes only the recall
 judgement still finds **only the `#pure` keys**; every other key misses. A recalled green is the work of the old judgement, which this
 release may have changed; a green that really ran depends only on the code that
-ran it. The code that writes the record and builds keys stays in the digest or
-changes the key, and a changed key misses.
+ran it.
+
+Both rows also leave out the code that does **not produce** a verdict: the record
+writers (`remember`, `keep`, `store`) and the record types (`memo`, `book`), the
+timing record and scheduling (`clock`, `plan`, `postpone`) and the report
+(`tell`, `explain`). What a record entry *means* is a format, not a code digest:
+the format strings `memoInput` and `ranInput` change when it does, and every old
+record then misses. Code that builds keys stays in: a changed key misses on its
+own. Measured with `x3 release -stamps` on the engine's own tree: v0.382.0 ->
+v0.383.0 changed only how a run picks its record among working copies, and the
+`case#pure` digest moved (`f8a2cf35fb692a36 -> d0a66775c0efc573`), so the pilot
+re-ran all 38 059 examples after the update; with these rows both trees give
+`9fba6e5a043e56d2`. A no-op line added to `explain` keeps the digest; one added
+to `settle`, which turns a run's output into findings, moves both rows.
 
 Control experiments: the `Pure` examples in internal/cache/cache.go (same
 `#pure` salt, different plain salt: the `#pure` key is found, a plain key is
@@ -262,4 +276,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.383.0 capabilities=dc00c0dc6b90a570e617da91c25ab6b8479ae35e4bf4bd1d284e0850e57fe560 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.384.0 capabilities=dc95d117c2c39a9cccc65afb8fbcf60ed2773fe49a845c5249fc246c6204eaf0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

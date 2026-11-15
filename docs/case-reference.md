@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.383.0`**
+**Current version: `v0.384.0`**
 
 ## case finding codes
 
@@ -13,6 +13,7 @@
 | `crashed` | the run started this example and never came back — the process died inside it |
 | `over_ceiling` | the package reached `case.timeout` before this example was measured; **no example is accused** |
 | `under_load` | as `over_ceiling`, but even the alone pass shared the machine; red, **never remembered**, measured again next run |
+| `machine_exhausted` | the example fell because the machine ran out of a resource (no socket buffer space, no free local port, too many open files); red, **never remembered**, measured again next run |
 | `does_not_build` | the example does not compile — charged to its own line when the compiler names one, and to every example in the package when the fault is in the package's own source |
 | `malformed` | the payload has no body, does not parse, or holds a proposition that cannot fail |
 | `not_a_function` | the example sits above something that cannot be called |
@@ -22,4 +23,4 @@
 | `dead_import` | a declared import that no example names — from `case.imports`, asked only of a run whose tree contains the configuration; or from a `//x3:import:` line, asked of the file that carries it |
 | `does_not_parse` | a source file the gate could not read at all — the parser stopped, so nothing in that package was measured |
 
-<!-- x3-dist version=v0.383.0 capabilities=dc00c0dc6b90a570e617da91c25ab6b8479ae35e4bf4bd1d284e0850e57fe560 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.384.0 capabilities=dc95d117c2c39a9cccc65afb8fbcf60ed2773fe49a845c5249fc246c6204eaf0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
