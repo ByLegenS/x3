@@ -2,6 +2,54 @@
 
 [The pages](INDEX.md) - [what x3 is](../README.md)
 
+### Every command's record is weighed by its checker, not by its report
+
+The other commands (`arch`, `lang`, `syntax`, `secrets`, `comments`, `scan`,
+`uses`, `freeze`, `boxes`, `emit`, `test`) had no result row: their records and
+their gate steps were keyed by everything the command function reaches. A
+release that touched only how the command opens its cache or prints its report
+cooled every record of that command. Each now has a row under `release.scopes`
+that leaves that code out:
+
+```yaml
+release:
+  scopes:
+    - command: arch
+      entry: runArch
+      package: ./internal/arch
+      except: [./cmd/x3:openCacheSections, ./cmd/x3:recordCode, ./cmd/x3:saveCache, ./cmd/x3:writeReport, ./cmd/x3:printArch]
+      uncalled: [./internal/source:Comment.Meaningful]
+      skip: [./internal/cache]
+```
+
+- `except` takes `package:name` for a declaration outside the row's package: the
+  command function's cache opening, report and report writer live in the entry
+  package. Opening a cache builds the salt; a changed salt misses on its own.
+- `uncalled` names an exported method that is counted only because its **type**
+  is reached (the walk reaches every exported method of a reached type, since a
+  method can be called through an interface). If any reached declaration names
+  it by selector, the row is an error, so an `uncalled` entry cannot leave out a
+  body a result rests on. A same-named field or an unrelated `.Run` on another
+  type also refuses it: in doubt, the method stays in.
+- `x3 release -reached <command|entry>` prints every declaration a row (or an
+  entry function) reaches, one `package<TAB>name<TAB>digest` line each. Two trees
+  diffed name the declaration that cooled a record.
+
+Measured on the engine's own tree, v0.381.0 -> v0.384.0 (three releases): the
+entry rows of `arch`, `lang`, `syntax`, `secrets`, `comments`, `scan`, `uses` and
+`freeze` moved in one of them, only through the cache opening helpers and
+`Comment.Meaningful`; their new rows move in none. `boxes`, `emit` and `test`
+still move twice: they reach `gate.Load`, whose type carries the gate's whole run
+machinery, and names like `Run` and `Remember` also appear as selectors on other
+types, so they cannot be declared uncalled without type information.
+
+Control experiments: the `ResultCode` and `Reached` examples in
+internal/release/results.go (a changed method kept out by `uncalled` keeps the
+digest and moves it without; a reached selector of that name is an error; a
+`package:name` exception keeps a changed body out). On the engine's tree, a
+no-op line in each command's checker moves its row and the same line in its
+report function does not, for all eleven commands.
+
 ## Where a run's wall clock goes
 
 A total tells you a run was slow. It does not tell you which part was slow, and
@@ -172,4 +220,4 @@ configuration once per question — `Known`, `Spread`, `Reach`, `Shadowed`, and
 once more per step for the declaration check — while the entry gates parsed the
 whole configuration twice before the command even began.
 
-<!-- x3-dist version=v0.384.0 capabilities=dc95d117c2c39a9cccc65afb8fbcf60ed2773fe49a845c5249fc246c6204eaf0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.385.0 capabilities=abe9643e4d415960fb50ec226ac7475863c6f1fd74981d0af316ba18bd369d71 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

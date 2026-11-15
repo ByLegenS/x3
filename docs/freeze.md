@@ -298,4 +298,4 @@ written as `count` and not as `cap` — a cap has no memory. A source that canno
 be found counts zero, so the whole page reads as allowance and the run is red:
 a page whose region was deleted is not a page that may stay.
 
-<!-- x3-dist version=v0.384.0 capabilities=dc95d117c2c39a9cccc65afb8fbcf60ed2773fe49a845c5249fc246c6204eaf0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.385.0 capabilities=abe9643e4d415960fb50ec226ac7475863c6f1fd74981d0af316ba18bd369d71 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
