@@ -72,6 +72,75 @@ directory and differing only in `case.workers`: with the old binary the first
 project's third run found no record (the second project's run had emptied the
 file) and the second project ran cold; with the new binary both hit.
 
+## A release inherits the record when the code that produces results is unchanged
+
+The `codes` digest of a command covers everything it reaches, including how its
+cache is stored. A release that changes only the cache package or the command
+table gets a new `case` digest, a new result file and a cold run, although no
+example could pass or fail differently. `release.results` names the part of the
+code that produces the record; a release whose digest of that part equals a past
+release's inherits that release's record.
+
+```yaml
+release:
+  package: ./cmd/x3
+  codes: main.codes
+  results: main.results     # string variable of the main package
+  inherit: 6                # past release tags whose digest is embedded
+  scopes:
+    - command: case          # the command whose cache inherits
+      entry: runCase         # its function in the main package: a root, and its cache identity
+      package: ./internal/cases
+      roots: [Config.Check, Config.runDart, Config.runScripts]
+      with: [./internal/testdb]   # counted whole
+      skip: [./internal/cache]    # never counted: builds keys and stores
+```
+
+The digest is declaration-level: the text of every declaration the roots reach
+in `package`, the closure of every module package those declarations call, the
+`with` packages, the declarations `entry` reaches in the main package and the
+packages it calls (`main()` is not counted), `go.mod`, `go.sum` and the Go
+version. A `skip` package is left out with its whole closure: code that only
+builds keys and stores records cannot change what a record says, and a key that
+changes simply misses. Reaching a type reaches only its exported methods; the
+receiver type of a root reaches none (the runner's methods are followed only by
+name). A root or entry that is not declared is an error, never a smaller digest.
+
+The roots are the whole runner, not only the run: the code that **finds**
+examples is inside, because a package's key is its bytes, not the rules that
+read them — a release that recognises a new example form would otherwise inherit
+the package's old green and never run the new example. Recalling examples from
+the per-example record is inside too: a recalled example's green is part of the
+package green.
+
+`x3 release` embeds `case@self=<digest>` and, for each of the last `inherit`
+release tags, `case@c<code>=<digest>`, where `c<code>` is that release's cache
+identity (its result file name), recomputed from the tag's tree. When a run opens
+`case@<own>.yaml` and misses, it reads the newest sibling whose identity carries
+the same digest and has results, rebuilds that release's salt from the same
+settings, and answers from its slots; every answer it takes is written back under
+the new salt, so the next run reads its own file. A changed setting rebuilds a
+different salt and nothing is inherited; a tag whose digest differs, or a binary
+without the table, inherits nothing. The run says so on stderr:
+`x3: cache: case@c….yaml inherited N record(s) from case@c….yaml: the code that
+produces them did not change`. `x3 release -stamps` prints the `-X` flags a tree
+would embed, so a test binary can carry the release's table.
+
+Control experiments: the `ResultCode` examples in internal/release/results.go
+(`testdata/results`: a planning-only change keeps the digest; a changed body the
+root reaches, a changed `with` package, a changed body the entry reaches move it;
+a changed `skip` package keeps it, the same change without `skip` moves it; a
+missing root or entry is an error) and the `heirsOf` examples in
+internal/cache/heir.go (same digest: inherited and rewritten under the new salt;
+different digest, different settings, no table: nothing inherited). With the
+`skip` deletion turned off, and with the digest comparison turned off, one
+example each goes red.
+
+Limit: the per-example record and the package green are inherited together;
+a release that changes recall code changes the digest and runs cold. Keeping
+the greens of examples that really ran across such a release needs a purity
+mark on the package record (open box).
+
 Measured in the pilot on 2026-11-15: six releases in one night, each followed by
 the first gate rerunning 37 000 examples cold (54 minutes), because the salt was
 the release tag. The cache directory itself was already shared by every working
@@ -90,4 +159,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.363.0 capabilities=5af223242f5e9eea4e5eac02f01d16f305004dc2734004f5f313971d7d9edb72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.364.0 capabilities=fe882f63c09729f6bf31ffdedcfbe5477ed81ab586da2d183c714f42bcf8217a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

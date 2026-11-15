@@ -224,6 +224,25 @@ engine assumes there is only one. The build lands under a temporary name and is
 renamed only when the setup finished: a half-built template standing under the
 real name would be cloned as if it were ready.
 
+### A failed setup binds the step to the setup program
+
+When the database cannot be built, the wrapped command never runs, and the
+gate's record of the step would hold only the settings: the program that failed
+is not something the engine opened. Measured in the pilot (2026-11-15): the setup
+was `go run ./cmd/panel -migrate`, the binary checked an embedded design file at
+start and refused; the file was fixed and committed, and three steps answered
+"cached: nothing this step reads has changed" with the old red.
+
+When `x3 testdb run` ends non-zero (the database could not be built, or the wrapped command went red) it now also tells the gate what the setup program reads, so a red step is never held by settings alone; a red step bound too widely only re-runs sooner. For a
+Go program (`go run` or `go build` with a package) that is every Go file and
+every `//go:embed` file of the module packages it builds (`go list -deps`); for
+any other program it cannot be known and the whole root is bound (a step bound
+too widely re-runs for nothing; one bound too narrowly repeats a stale answer).
+Control experiment: the `goInputs` examples in internal/inputs/inputs.go
+(`testdata/setupgo`: the embedded file and the imported package's source are
+listed, a file that is not embedded is not, and `go vet` or a non-Go program
+lists nothing); with embedded files left out the first example goes red.
+
 ### One database per item, not one per suite
 
 ```
@@ -274,4 +293,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.363.0 capabilities=5af223242f5e9eea4e5eac02f01d16f305004dc2734004f5f313971d7d9edb72 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.364.0 capabilities=fe882f63c09729f6bf31ffdedcfbe5477ed81ab586da2d183c714f42bcf8217a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
