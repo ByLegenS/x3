@@ -5,7 +5,7 @@ example, the settings it reads - all generated with the binaries, in one run.
 
 [What x3 is](../README.md) - [the lookup tables](../REFERENCE.md)
 
-**Current version: `v0.367.0`**
+**Current version: `v0.368.0`**
 
 | Page | What it covers |
 |---|---|
@@ -134,4 +134,4 @@ example, the settings it reads - all generated with the binaries, in one run.
 | [A scope an agent cannot leave](hook-scope.md) | an agent hook that refuses every read and write outside the paths a scope file allows |
 | [Control experiments, and the documentation gate](experiments.md) | every capability proven able to go red, and the gate that keeps these pages current |
 
-<!-- x3-dist version=v0.367.0 capabilities=3f63ced5628371141f6194d05547be824b96722b2350a181962ff89e26c62ebb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.368.0 capabilities=c0954be63ddb4ae682970144d9e5468a96aeb78dd15a876c59bc8d75d8550152 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -385,4 +385,4 @@ nothing — a run that wraps no command was never in question — so it is refus
 *"live.unwrapped is written but live.command is not"*. That keeps the reason from
 outliving the expectation. A blank reason is refused like a blank `unweighed`.
 
-<!-- x3-dist version=v0.367.0 capabilities=3f63ced5628371141f6194d05547be824b96722b2350a181962ff89e26c62ebb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.368.0 capabilities=c0954be63ddb4ae682970144d9e5468a96aeb78dd15a876c59bc8d75d8550152 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

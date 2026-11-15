@@ -37,4 +37,55 @@ It reaches further than it looks. `x3 testdb run -- x3 case ./internal/...`
 gives the example runner, which has no environment seam of its own, the same
 fresh database — the variables are inherited by every process under the wrapper.
 
-<!-- x3-dist version=v0.367.0 capabilities=3f63ced5628371141f6194d05547be824b96722b2350a181962ff89e26c62ebb template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### A database of its own, cloned inside the run
+
+One fresh copy per run is shared by everything the wrapped command starts. An
+example that needs a database **nobody else touches** — one that takes locks, or
+rewrites the schema — has to clone its own, and it cannot clone the run copy: the
+run copy has sessions, and PostgreSQL refuses to copy a database with another
+session connected (SQLSTATE `55006`). The template has none, but its name comes
+from its content (`<prefix>tpl_<digest>`), so the code under the wrapper could
+not know it. Every project that needed this carried its own create-and-drop
+mechanism.
+
+`templateEnv` names the variable the template's name is handed in:
+
+```json
+{ "testdb": { "adminDsnEnv": "APP_ADMIN_DSN", "prefix": "apptest_",
+    "template": { "name": "apptest_tpl", "from": ["migrations/**"] },
+    "dsnEnv": "APP_TEST_DSN", "templateEnv": "APP_TEST_TEMPLATE" } }
+```
+
+```
+x3 testdb run -- go test ./...
+```
+
+Inside, `CREATE DATABASE <own> TEMPLATE $APP_TEST_TEMPLATE` (over any connection
+whose role may create databases, the run copy's DSN included) gives the example
+a database with the schema already in it. The run **holds the template for as
+long as the command runs**: the template's shared lock is taken before the
+clone and released after the run copy is dropped, so a sweeper cannot drop the
+template while the command is still cloning from it. Clones from the template
+do not wait for one another.
+
+Measured (2026-11-15, PostgreSQL 18, a session left open on the run copy):
+
+| | Result |
+|---|---|
+| four parallel clones from `$templateEnv`, each dropped after | all four created and dropped |
+| a clone from the run copy itself, with another session on it | `55006` |
+| `templateEnv` not written | the variable is empty; the command has no template to clone |
+| `templateEnv` written without `template` | exit `2`, named: there is no template name to hand over |
+
+The door is the step's door: `templateEnv` may not be `dsnEnv`, may not also be
+written in `runEnv` (two writers of one variable let the last one win), and a
+name holding `=` is refused — all exit `2`.
+
+To leave the sweeping to the engine as well, **name the clone the way the engine
+names its own**: `x3 testdb create` clones the same template and prints the new
+name under the prefix on stdout, and `x3 testdb drop -name <name>` drops it,
+retrying through an autovacuum session and answering `42501` with a plain drop.
+A clone left behind under that name is collected by `x3 testdb drop -stale`
+like any other; a clone under a name of your own is swept by nothing.
+
+<!-- x3-dist version=v0.368.0 capabilities=c0954be63ddb4ae682970144d9e5468a96aeb78dd15a876c59bc8d75d8550152 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
