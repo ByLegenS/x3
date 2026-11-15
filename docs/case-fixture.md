@@ -165,4 +165,4 @@ finished while its setup quietly moved house.
 | `package p_test` (external) declares and names the same helper | no finding; that package never sees the fixture |
 | a `//go:build live` test declares its **own** copy of the helper | `fixture_redeclared_by_a_test` |
 
-<!-- x3-dist version=v0.368.0 capabilities=c0954be63ddb4ae682970144d9e5468a96aeb78dd15a876c59bc8d75d8550152 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.369.0 capabilities=a932d666fbf089d541a15cd436588419bf1fd375e664a73356f6fbb31fd295c7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
