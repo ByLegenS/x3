@@ -24,6 +24,26 @@ The list lives in its own file (`{ "boxes": { "file": "docs/OPEN-WORK.json" } }`
 because it changes weekly while the configuration changes yearly. That is this
 repository's own list, and its own gate runs this command against it.
 
+### A pattern criterion is recalled while its files stand still
+
+A `pattern` or `absent` criterion is a function of its own spelling (`when`,
+`match`, `sources`, `reading`, `directives`) and of the files it reads. The run
+still walks and reads those files, but when their paths and bytes are the ones
+the last run saw, the answer comes from the record (`boxes-criterion:` in the
+`boxes` cache) and the pattern is not applied again. A changed byte, an added
+or removed file, or a changed criterion measures it again. `sql` and `command`
+criteria are never recalled: their answer lives outside the tree. `-no-cache`
+measures everything; `-cache <file>` names another record.
+
+Measured on the pilot (2026-11-15, 743 boxes, 1 207 criteria, report
+byte-identical): the measuring part of `x3 boxes` went from 3.8 s to 2.3 s, and
+the same files are opened once per run instead of once per criterion.
+
+```
+x3 case -only internal/boxes     # recalled: a forged "unmet" record comes back for
+                                 # the same bytes and is refused when one byte changes
+```
+
 ### What a title cannot hold
 
 A title names the work in one line. Everything else it needed — why it is owed,
@@ -427,4 +447,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.372.0 capabilities=f64ce6971fa9d1fadf27d474428fefa63778eefc78c0c1c591c8b1dfe85c3911 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

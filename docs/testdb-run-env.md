@@ -88,4 +88,4 @@ retrying through an autovacuum session and answering `42501` with a plain drop.
 A clone left behind under that name is collected by `x3 testdb drop -stale`
 like any other; a clone under a name of your own is swept by nothing.
 
-<!-- x3-dist version=v0.372.0 capabilities=f64ce6971fa9d1fadf27d474428fefa63778eefc78c0c1c591c8b1dfe85c3911 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

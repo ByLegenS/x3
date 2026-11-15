@@ -558,6 +558,34 @@ x3 arch: 5 file(s) - 3 rule(s) - 1 block, 0 warn, 0 exempted
 The same tree with `policy: "warn"` prints `WARN` and exits `0`; with the
 exemption in place it prints `ALLOW …` and exits `0`.
 
+### What an arch run remembers, and what it re-derives
+
+The verdict over the whole tree is recomputed on every run: every rule reads
+every file it reads, so nothing that spans files ever comes from an older tree.
+What a run keeps is what one file contributes on its own, keyed by that file's
+bytes:
+
+| Record | Keyed by | Re-derived when |
+|---|---|---|
+| a consistency side's values (`extract:`) | the side's whole spelling + path | the file's bytes change |
+| a text file's comment spans (`arch-notes:`) | the declared comment syntax + path | the bytes or the syntax change |
+
+Inside one run the tree is walked once (`source.Memoize`) and a file of up to
+1 MiB is opened once and handed to each reader as its own copy
+(`source.MemoizeContent`). A file whose first 8 000 bytes hold a NUL is a binary:
+its body is not read and it carries no text line (`source.ReadText`); the read
+is still recorded, so a binary that turns into text re-runs the step.
+
+Measured on the pilot (2026-11-15, 4 803 files, report byte-identical before and
+after): one run took 22 s cold and 14.6 s warm; it takes 6-7 s. The text rules
+had been reading 1 456 files, 2 GB, most of them build outputs under a wide
+source pattern.
+
+```
+x3 case -only internal/arch      # notesOf: a forged record is recalled for the
+                                 # same bytes, refused for changed bytes or syntax
+```
+
 ### The arch report
 
 No timestamp, and violations sorted by rule, then file, then line.
@@ -579,4 +607,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.372.0 capabilities=f64ce6971fa9d1fadf27d474428fefa63778eefc78c0c1c591c8b1dfe85c3911 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
