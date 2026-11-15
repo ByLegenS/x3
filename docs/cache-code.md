@@ -48,14 +48,42 @@ the old result of changed code.
 
 A gate step that runs the engine (`x3 case ...`) carries the digest of **that**
 command in its key, so a step is re-run when `case` changes even if the gate's
-own code did not. A command the table does not name (an alias, a region verb),
-and a non-engine command whose line names `x3` (`bash -c "x3 boxes"`), take the
-digest of the whole engine. Limit: a program that starts the engine without
+own code did not. A command that wraps another (`x3 testdb run -- x3 case`)
+carries the digest of **every** engine command on its line: the wrapper's code
+does not answer for the wrapped one. Measured on 2026-11-15 in a two-file
+project whose step is `x3 testdb run -- x3 case -only p`: a release changing
+only a function `case` reaches left the step cached (`skipped: cached`) when
+only `testdb` was keyed, and re-ran it (2,0 s) with both keyed. Control
+experiment: the `engineOf` example on a wrapped line goes red with only the
+first command keyed; `subcommands` and `engineWord` carry their own examples
+(`x3.yaml` is a settings file, not the engine). A non-engine command whose line names `x3` (`bash -c "x3 boxes"`) takes
+the digest of the command it names. A command the table does not name (an
+alias, a region verb, a flag where the command should be) makes the step
+**unrememberable**: it runs every time. It used to take the digest of the whole
+engine, or the release tag, and both change on every release (the user,
+2026-11-15: *"a cache is not renewed because the version number changed"*). Limit: a program that starts the engine without
 naming it on its command line is not seen — the same blindness as the gate's
 observation of such a step.
 
-A binary built without `codes` (a plain `go build`, the gate's own `{bin}`)
-falls back to the release tag: no digest, no sharing, never a stale result.
+⛔ **No release tag reaches a cache identity.** A binary built without `codes`
+(a plain `go build`, the gate's own `{bin}`, a measurement binary stamped only
+with a version) names its files after **its own digest** (`gate@b<16 hex>.yaml`):
+every rebuild with changed code is another binary, so an old answer never comes
+back, and nothing it writes carries the tag. It used to name its files after
+the release tag: measured in the pilot on 2026-11-15, a measurement binary stamped `v0.379.0`
+left `arch@v0.379.0` (42 MB), `arch-files@v0.379.0` (81 MB) and
+`graph@v0.379.0` (73 MB) beside the release's `@c…` files - 46 of 211 files
+in a 9,9 GB directory that no installed binary read. A binary that carries a
+table but no digest for a cache name is **red** (`the code table this binary
+carries names no digest for "graph"`), never a silent fallback; a result file
+not named after a command (`graph`) takes the digest of the function that
+produces it (`producers` in cmd/x3). The syntax rule
+`no-release-version-reaches-a-cache-identity` keeps the tag out of the cache
+API in `cmd/x3`, `internal/cache` and `internal/gate`. Control experiments: the
+`Tag`, `Code`, `sweep`, `coded` and `engineOf` examples (an unmarked command
+has no identity in a binary with a table and its own digest in one without; a
+`@v` sibling is swept at once, a fresh `@c` or `@b` one is kept); the syntax rule goes red on
+`func Stamp(` written back into internal/cache.
 
 **Two settings, one file.** Every working copy of a project shares one cache
 directory, and two working copies opened from different commits can carry
@@ -237,4 +265,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

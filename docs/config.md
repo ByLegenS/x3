@@ -1555,4 +1555,44 @@ after another (20476 ms of work)` — and the five slowest steps with their shar
 Both numbers are there for the same reason: a gate nobody can see inside of is a
 gate nobody makes faster, and a single total hides the one step eating the run.
 
-<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### The Go build the steps share is done once, before them
+
+Go's build cache does not share a package that several processes compile **at the
+same moment**: each of them compiles it again. A gate runs its steps in parallel,
+so one changed function body sent `go build`, `go vet`, a `go run` tool and the
+compiled inline examples all compiling the same packages at once — measured in a
+pilot (2026-11-15): `go build` 8.9 s on its own, 40 s inside the gate; a `go run`
+step 4.7 s on its own, 32.9 s inside it.
+
+So when **two or more** of the steps about to run call the Go toolchain, the gate
+first compiles the packages those steps name, once, and the steps then read them
+from the warm cache:
+
+```text
+go list -e -export -f {{.ImportPath}} <every package the running go steps name>
+```
+
+- **Compiles, does not link.** `-export` writes each package's export data to the
+  cache; no binary is linked. (`go build` of a single main package writes the
+  binary into the working directory, and `-o <dir>` links every main package.)
+- **Decides nothing.** Its exit and output are not read. A package that does not
+  compile does not compile in the warm-up either, and the steps turn red in their
+  own words; the warm-up changes only how long they take.
+- **Only plain commands are read.** The packages come from `go build|vet|test|run|
+  install` lines whose arguments carry no flag and no placeholder (`go run` gives
+  its first word): `-tags`, `-race`, `-gcflags` or a `GO*`/`CGO_*` variable in the
+  step's `env` change the compile key, and warming another key is wasted work. A
+  trial in a fixture tree is skipped. `x3 case` counts as a Go step (it compiles its
+  test binaries) but names no package of its own.
+- **Costs nothing when nothing runs.** It starts after the cache is read and only
+  for steps that will run; a run whose steps all come from the cache, or whose only
+  Go step is one, does not warm. The phase clock shows it as `warm`.
+
+Measured on the pilot (2026-11-15, one region, one function body changed): the
+warm-up took 5.7 s; `go build` 103 → 42 s, `go vet` 61 → 24 s, the `go run` step
+40 → 29 s, the whole run 167 → 135 s. A broken line still turns `go build` red in
+its own words (`declared and not used`). What it does not remove is CPU shared with
+the steps running beside it: the same `go build` takes 5.9 s alone right after the
+warm-up.
+
+<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

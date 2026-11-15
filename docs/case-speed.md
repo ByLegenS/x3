@@ -417,7 +417,24 @@ an example leaves a goroutine running                  -> its record = its marks
 Kick wakes the goroutine Spawn left, late() changes    -> Kick runs (its record names late) and the crash is red
 start() changes, run while the package loads           -> every example runs
 an example with no record                              -> static rule
+pad() gains a line, Lift sits below it                  -> Two runs (pad changed), Lift recalled
+here() calls runtime.Caller, its line moved             -> Where runs and is red (out[0] = 17, want 16)
 ```
+
+Declarations are weighed **without their line numbers** (the body's tokens,
+directives included): a line added to one body shifts every declaration below
+it, and a line-bearing weight reran every example that executed one of them
+(pilot v0.379: 1 481 of 3 651 examples in one package after three added lines).
+The line-bearing weight is kept for an example whose executed set holds a body
+that reads source lines at run time (`runtime.Caller`, `Callers`,
+`CallersFrames`, `FuncForPC`, `runtime.Stack`, `debug.Stack`, `debug.PrintStack`,
+`log.Lshortfile`, `log.Llongfile`, any `.FileLine`, `AddSource`; aliased imports
+resolve) and for every example of a package whose examples or test files name
+one: `runtime.Caller(1)` reports its caller's line, so the whole set is weighed
+by line, not only the reading body. Example records are named by file, owner and
+the example's text, not by `file:line`, so an example below the edit keeps its
+record. Experiment: `testdata/ran/lines` (with the line-bearing weights restored
+the shift arm turns red: `len(out0.Recalled) == 1 does not hold`).
 
 The record is added to static reach, never instead of it: an example whose key
 is unchanged still runs when a body it executed changed (a goroutine another
@@ -729,4 +746,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -45,7 +45,31 @@ literals, terms, comments, body digests) is remembered too, in a record of its
 own beside the rule record (`arch-files@<version>.yaml`): keyed by the file's
 path, its bytes and the run's reading request, salted by the command's code
 identity only. So the overlay run (`-with`) parses nothing the plain run
-already parsed, and a one-file edit re-parses one file. Duplicate bodies are
+already parsed, and a one-file edit re-parses one file. The record is the
+command's **side record**: a release whose `arch` result code is unchanged
+inherits it like the rule record (before, every release re-parsed the whole
+tree, because the file name `arch-files` found no row in the result table),
+and a file keeps only its current and previous bytes (two slots, not the ten
+of the rule record; on a pilot the record had reached 81 MB). A Go file whose
+**size and modification time** are those of the last run is not opened at all:
+the record maps them to the digest of its bytes, and the parse comes from the
+digest. Measured on a pilot: a run that recalled every rule still opened and
+read all 4 741 Go files just to digest them, a third of its CPU time in file
+system calls. The map is written only for a file modified more than two seconds
+earlier (a file rewritten within the same clock tick can keep its time — git's
+"racy" file), and size and time are taken *before* the read, so a file that
+changes while it is read carries a new time next run. The same digests answer
+the recall check of every rule (`filesSum`), so a recalled rule does not reopen
+the files it read either. Control (`recalledByStat`): a file whose size or time
+changed is read again; with the lock removed the old imports come back and two
+examples are red. The text pass (literal `deps` and `vocabulary` rules over
+non-Go files) keeps the same kind of record per text file: its verdict — each
+rule's counters and the file's findings in the order they were written — keyed
+by the file's size, time and owner and by the pass's rules (their full
+spelling, term sets and owner sets, comment syntax). Before, every run reopened
+every text file the rules read and ran every pattern again. Control
+(`recalledText`): a changed rule set or a rewritten file is judged again.
+Duplicate bodies are
 compared by their SHA-256 digest and line count, not their text, so the record
 stays small. `X3_CACHE_WHY=1` names every rule judged again and why (it reads
 the settings, it reads a tree or a command, or no record holds for its
@@ -149,4 +173,4 @@ A denied pattern with one legitimate use is excused **on the line itself**: a `/
 
 Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
 
-<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

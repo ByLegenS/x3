@@ -95,8 +95,8 @@ not run again; a red that is real stays red. The run says so:
 -- this cache remembered no run, so 2 red step(s) were measured again once the gate had written its own record: open work + generated documents, document follows code
 ```
 
-Note that the record is named per version: a step that calls an `x3` of a
-*different* version than the gate reads a different record. Run the gate and
+Note that the record is named per code: a step that calls an `x3` whose
+command code differs from the gate's reads a different record. Run the gate and
 its steps with the same binary.
 
 ### A path that was here once
@@ -285,4 +285,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

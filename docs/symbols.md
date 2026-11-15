@@ -102,6 +102,16 @@ is an error rather than a quiet fall back to the root.
 `2`. A partial graph would report "nothing is affected" for every edge it failed
 to see — which is the one answer this capability must never give by accident.
 
+**The remembered graph weighs code, not prose.** A document that reads `graph
+[dir]` (`x3 emit -from`) gets the graph from the cache while the Go files' names
+and their state stay the same. A Go file's state is its comment-free token stream:
+a comment cannot build an edge, so a comment edit keeps the record. Directives
+(`//go:linkname`, `//go:build`, `//line`) stay in the state, a cgo file (its
+comment is C source) and a file that does not scan are weighed by their bytes, and
+`go.mod` / `go.sum` always by bytes. Measured on a pilot: one comment appended to
+one file made `emit -check` rebuild the graph, **6.4 s instead of 2.6 s**; the
+control arm (comments counted) turns the first example of `graphState` red.
+
 ### What moved since the recorded table
 
 ```
@@ -167,6 +177,17 @@ built the step keeps its declared trees and the run says so by name:
 Measured by making one file un-parseable: every affected step reported the reason
 and ran. The same refusal covers a target that names no package, a trial running
 in a fixture tree, and a package in the closure whose edges cannot be seen.
+
+⛔ **A run whose graph could not be built writes no record.** The declared trees
+need not carry the file the compile error came from, so a record written from
+them would remember the old red after the line is fixed (or, the other way, a
+green that never weighed the broken package). Such a run drops the step's record
+instead; the next run measures it again. Measured on 2026-11-15 in a two-package
+project, step `go run ./cmd/t` touching `cmd/**`: a non-compiling line in `p` gave
+red, the line replaced by a compiling one gave `skipped: cached` and the same red
+before, and ran green (0,6 s) after. Control experiment: the `Scopes.Broken`
+examples (a failed graph for an asked step is broken; another step, a per-step
+reason such as an unseen edge, and no scopes at all are not).
 
 **The record holds two digests, not the symbols.** A step's memory carries the
 digest of the whole table and the digest of its own scope. That ordering is the
@@ -375,4 +396,4 @@ warm, took 0.38 s — decoding the stored result costs more than Go's parser.
 A catalogue that has not changed is not rebuilt anyway: the gate's step cache
 skips the `emit -check` step when its declared tree did not move.
 
-<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
