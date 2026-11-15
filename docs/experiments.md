@@ -531,12 +531,12 @@ case:
   database: isolated   # needs a testdb section; leave it out to keep today's run
 ```
 
-With `case.database: isolated`, `x3 case` reruns itself inside the `testdb`
-wrapper: a fresh copy is cloned, `testdb.dsnEnv`, every `testdb.runEnv` name and
+With `case.database: isolated`, `x3 case` clones a fresh copy once it knows a
+package will run: `testdb.dsnEnv`, every `testdb.runEnv` name and
 the `testdb.adminDsnEnv` name point at the copy, and the copy is dropped after
 the run. A run that is already inside a copy (its `dsnEnv` names a database
 carrying the `testdb.prefix` and a creation stamp, as `x3 testdb run -- x3 case`
-does) is not wrapped twice. If the copy cannot be built no example runs and the
+does) uses that copy and makes none of its own. If the copy cannot be built no example runs and the
 run is red; nothing is written anywhere. The first stderr line says it:
 
     x3 case: case.database is "isolated"; the examples run inside a fresh copy, and APP_TEST_DSN, APP_DSN, PG_ADMIN point at it
@@ -544,7 +544,24 @@ run is red; nothing is written anywhere. The first stderr line says it:
 If the copy cannot be built (here the admin variable is empty) the run stops
 before any example, with exit 2:
 
-    x3 testdb: environment variable PG_ADMIN is empty
+    x3 case: environment variable PG_ADMIN is empty
+
+**The copy is made after the plan, not before it.** A run whose every package is
+recalled from the cache (or has nothing to run at all) never touches the
+database server, and says so:
+
+    x3 case: case.database is "isolated", but no package runs, so no fresh copy is made
+
+Measured on a pilot (3 651 examples in one package, `x3 case -only <dir>`,
+unchanged since the last run): wrapped in `x3 testdb run` the run took 5.1-6.6 s,
+2.6 s of it making and dropping a copy that nothing used; with the mode on and
+no wrapper the copy is not made. The same change reads the tree directory by
+directory in parallel (one goroutine per directory keeps every key byte for byte
+the same; the pilot's cache record still hits): 3.3 s before, 1.7 s after on an
+idle machine (`x3 case: why .: read the tree in 0.7 s, ...` under
+`X3_CACHE_WHY=1`). Experiment: the `isolated-idle` arms of the same gate step -
+the tree's only example is opt-in; not asked for, the run says the line above and
+not `point at it`; asked for (`-tags idle`), it makes the copy and runs in it.
 
 Why: a narrow `x3 case -only` run without the wrapper handed the shell's
 development DSN to the examples, and a test helper that fell back to it wrote
@@ -560,4 +577,4 @@ could be built (red, nothing ran). The step carries `needs: X3_PG_ADMIN`: on a
 machine without that admin connection it is skipped by name
 (`skipped: needs X3_PG_ADMIN`) and touches no database.
 
-<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.378.0 capabilities=79acb0d824a4310b7c265d685381b9a9941e924aa994d300dcc6b00cd5bbbe15 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

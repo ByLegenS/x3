@@ -35,6 +35,71 @@ that owns it and the report is built afterwards, in tree order, so one worker
 and eight produce the same findings in the same places. The control experiment
 asks exactly that.
 
+### One package's examples split across processes
+
+`workers` spreads *packages*; inside one package the examples used to run one
+after another in a single test binary. A body change that reruns 1 512 examples
+of one package therefore took as long as the slowest serial chain — 23-66 s on
+the pilot, the binary alone 60 s. Now the run compiles that binary **once** and
+`go test -exec` hands it back to x3, which opens it in as many processes as the
+package's machine slots allow (`machine.yaml`, shared across x3 processes), at
+least 24 examples a part. Each process runs only its own examples; their output
+is written part by part, the exit code is the worst one, so a red example or a
+panic in any part stays red.
+
+```json
+{ "case": { "shards": 4 } }
+```
+
+`0` (the default) splits as wide as the slots — but parts that each need a
+database copy stop at **four**; `1` never splits; `-shards <n>` moves one run
+(and may open more copies). The number is not part of the cache key: splitting
+changes the time, never the verdict. Why four, measured on the pilot (480
+database examples, 32 slots, one body change):
+
+| parts | binary | whole run |
+|---:|---:|---:|
+| 1 | 11.6 s | 20.2 s |
+| 4 | 5.0 s | 14.1 s |
+| 8 | 4.6 s | 17.2 s |
+| 20 | 11.5 s (19 copies took 9 s, examples 3× slower) | 22.0 s |
+
+Past four the server, not the processors, is the bottleneck.
+
+**A database is never shared.** Two parts writing the same database see each
+other's rows. A package is split only when every part can take its own copy
+(`testdb` with `case.database: isolated`, or a run inside `x3 testdb run`: the
+first part keeps the run's copy, the others get fresh ones, made while the
+binary compiles), or when the tree declares no `testdb` at all. A tree that
+declares one but runs on the shell's database is not split. A part whose copy
+cannot be made is folded back into the others.
+
+**Copies leave with the outer run.** On Windows every `DROP DATABASE` waits for
+a checkpoint: dropping 31 copies one after another took 77 s, three side by
+side 4.1 s, and the outer `testdb run` then spent another two dropping its own.
+`testdb run` now hands the command a file (`X3_TESTDB_ADOPT`); a copy made
+inside is written there instead of dropped, and the outer run drops all of
+them side by side with its own, in the same wait. Outside a `testdb run` the
+copies are dropped side by side before `x3 case` returns — never left behind
+(a run that exited without waiting was measured leaving 4 of 8 copies on the
+server).
+
+```
+$ x3 case -only internal/cases -no-cache -shards 1     # x3's own tree, 243 examples
+x3 case: 243 of 2213 example(s) selected - 243 passed ... 0 finding(s)   13.6 s
+$ x3 case -only internal/cases -no-cache               # split
+x3 case: 243 of 2213 example(s) selected - 243 passed ... 0 finding(s)    6.8 s
+```
+
+The generated test reads its part's slots from a file named by `X3_CASE_SLOTS`
+and **unsets it** before any example runs: an example that starts an x3 run of
+its own (x3's own tree does) would otherwise filter the inner run by the outer
+part's list — measured, 11 false reds. Go's test log and the coverage record get
+one name per part and are merged before the binary returns, so what the
+examples opened and reached is recorded as before. An example that only passes
+after a neighbour wrote a package variable may pass alone and fail split; that
+was already a hidden order dependency, and the split makes it visible.
+
 ### A package the run does not run again
 
 ```json
@@ -643,4 +708,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.378.0 capabilities=79acb0d824a4310b7c265d685381b9a9941e924aa994d300dcc6b00cd5bbbe15 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

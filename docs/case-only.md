@@ -113,6 +113,38 @@ $ x3 case -cache c.yaml ./only                   # and only a full run stores on
 x3 case: cache 1 hit(s), 0 miss(es)
 ```
 
+**A narrowing that selects a package whole is a full run of that package.**
+`-only <directory>` (or file targets that together select every example of a
+package) leaves no unmeasured sibling behind, so that package asks and writes
+the cache exactly as an unnarrowed run would: the package key, then the
+per-example record and the run-time reach. A package with even one example left
+unselected still neither reads nor writes. The same holds for a JavaScript or
+Dart module whose every example is selected. Measured on a pilot's 3 651-example
+package (`x3 case -only <dir>`, inside `x3 testdb run`): unchanged, 63 s before,
+a cache hit after; one body changed, the 486 examples that executed it run and
+3 165 are recalled.
+
+```
+$ x3 case -only ./big                            # whole package: recorded
+$ x3 case -only ./big                            # unchanged
+x3 case: ... 1 package(s) unchanged since the last run
+$ x3 case -only ./big/color.go                   # part of it: runs, records nothing
+x3 case: 21 of ... example(s) selected - 21 passed
+```
+
+Experiment: the arms on `pack.entire` in `internal/cases/cases.go`; with the
+loop skipped (every package counted whole) the two partial-selection arms turn
+red (`2 finding(s)`).
+
+**The counter counts records, not slots.** A cold run of one package says
+`cache 0 hit(s), 3 miss(es)`: the package verdict, the per-example record and
+the run-time reach. The last two each carry a pure twin (the part of the record
+no other working copy rewrites); the twin is read with its record and is not a
+question of its own, so it never moves the counter. Experiment: gate step `a run
+narrowed to one example` (the cold full run after a narrowed one) and the
+examples on `twinOf` in `internal/cases/memo.go`; counting the twins turns both
+red (`5 miss(es)`).
+
 **Narrowing narrows the run, not the reading.** Every file is still parsed and
 every declaration law — a dead import, a dead type, a dead build tag, a
 declaration in a fixture nobody names — is still asked of the whole tree. A
@@ -150,4 +182,4 @@ $ (ToLower -> ToUpper in one call)
 x3 case: cache 15 hit(s), 23 miss(es) # every importer again: 5 finding(s)
 ```
 
-<!-- x3-dist version=v0.377.0 capabilities=9d4fdcdc0d6b53a85c62360c633d77f91f6acc4dc6695a2718cf3f1f65b5c440 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.378.0 capabilities=79acb0d824a4310b7c265d685381b9a9941e924aa994d300dcc6b00cd5bbbe15 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
