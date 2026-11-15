@@ -2,7 +2,7 @@
 
 [The reference index](../REFERENCE.md) - [the pages](INDEX.md) - [what x3 is](../README.md)
 
-**Current version: `v0.374.0`**
+**Current version: `v0.375.0`**
 
 ## language settings
 
@@ -19,4 +19,4 @@
 | `tags` | struct tag keys whose **name** is read (`json:"name"`); accepted only with `strings: "any"` |
 | `excluded` | path pattern → reason: files of a reader's language that no reader is meant to read. An entry with no reason stops the run; a pattern that spares no unread file is `empty_scope` |
 
-<!-- x3-dist version=v0.374.0 capabilities=18e9f326277689220fddd2cffd55f28262da6d16e1463fdd297c12147f0cdc13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.375.0 capabilities=668ee945fccc18dca2e9c501a6d66762bf582c357f09c62d0cbce2b4a14133e6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

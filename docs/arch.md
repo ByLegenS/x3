@@ -560,15 +560,61 @@ exemption in place it prints `ALLOW …` and exits `0`.
 
 ### What an arch run remembers, and what it re-derives
 
-The verdict over the whole tree is recomputed on every run: every rule reads
-every file it reads, so nothing that spans files ever comes from an older tree.
-What a run keeps is what one file contributes on its own, keyed by that file's
-bytes:
+A verdict that spans files never comes from an older tree. What a run keeps is
+what one file contributes on its own, keyed by that file's bytes, and each
+rule's verdict over the *same* tree:
 
 | Record | Keyed by | Re-derived when |
 |---|---|---|
 | a consistency side's values (`extract:`) | the side's whole spelling + path | the file's bytes change |
 | a text file's comment spans (`arch-notes:`) | the declared comment syntax + path | the bytes or the syntax change |
+| a rule's verdict (`arch-rule:`) | the rule's whole spelling + the patterns of the components it names | see below |
+
+**A rule asked again on the same tree is not judged again.** An overlay run
+(`-with`) beside the plain run of the same step changes one setting, usually one
+component pattern, and used to judge every rule of the tree once more. A rule's
+verdict (its counts, its findings, the exemptions it used up) is now recorded
+and handed back when all of this is unchanged:
+
+- the rule's whole spelling, and the patterns of every component whose name
+  appears in it (a file cannot sit in two components, so whether a file is in a
+  named component is decided by that component's patterns alone) - an overlay
+  that changes a component re-judges exactly the rules that name it;
+- the tree: every Go file's path and *surface* (component, imports, exemption
+  lines, declared names - what the rule loops that do not filter by the rule's
+  sources look at), the path listings, the module and the reading the run's
+  rules ask for - a new or deleted file changes it and every rule is judged
+  again;
+- the bytes of every Go file **in the rule's own sources** (after its
+  `exclude`): a comment added to a file the rule does not read leaves its
+  verdict recalled, a change to a file it reads judges it again;
+- which exemptions earlier rules of the run have already used up;
+- every file the rule itself read or asked for while it was judged, by its
+  bytes (a missing path by its absence, a directory by its entries).
+
+A rule that reads a whole tree it does not enter, runs an outside command, reads
+a settings section, or reads the settings themselves (`from: x3`) is never
+recalled: its answer is not written in file bytes. Report and stderr are
+byte-identical to a run that judges everything. Measured on the pilot
+(2026-11-15, 4 741 files, 160 rules, no other load): the `-with` run of the
+architecture step 4.5 → 3.0 s when the plain run beside it has judged the tree;
+a second run on an unchanged tree recalls all 154 rules it may.
+
+Control experiment: `ruleKey`'s first example changes the pattern of a component
+the rule names - the key must change (with the patterns left out of the key, the
+example is red: `then[0] out0 != ruleKey(b, u) does not hold`, the stale pattern
+would inherit the plain run's green); its second example changes a component the
+rule does not name - the key stays. `ruleInput`'s three examples: a byte change
+in a file outside the rule's sources keeps the input (red while the tree summary
+carried every file's bytes), a byte change in a file it reads changes it (red,
+a false green, with the rule's own bytes left out), and a new file in its scope
+changes it.
+
+```
+x3 case -only internal/arch,internal/reads   # ruleKey, ruleInput, surface, filesSum;
+                                             # reads.Tap: what one slice of a
+                                             # run read, opaque for a tree
+```
 
 Inside one run the tree is walked once (`source.Memoize`) and a file of up to
 1 MiB is opened once and handed to each reader as its own copy
@@ -636,4 +682,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.374.0 capabilities=18e9f326277689220fddd2cffd55f28262da6d16e1463fdd297c12147f0cdc13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.375.0 capabilities=668ee945fccc18dca2e9c501a6d66762bf582c357f09c62d0cbce2b4a14133e6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
