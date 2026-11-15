@@ -39,6 +39,38 @@ the pilot: `x3 arch .` 5.9 s cold, 2.2 s with nothing changed. The engine's own
 again and caught; a changed label file alone is read again and the comparison
 is red; a changed pattern reads that side's files again while the other side
 is recalled. `-cache <file>` and `-no-cache` work as in `syntax`.
+
+The parse of each Go file (imports, exemption lines, declared names, examples,
+literals, terms, comments, body digests) is remembered too, in a record of its
+own beside the rule record (`arch-files@<version>.yaml`): keyed by the file's
+path, its bytes and the run's reading request, salted by the command's code
+identity only. So the overlay run (`-with`) parses nothing the plain run
+already parsed, and a one-file edit re-parses one file. Duplicate bodies are
+compared by their SHA-256 digest and line count, not their text, so the record
+stays small. `X3_CACHE_WHY=1` names every rule judged again and why (it reads
+the settings, it reads a tree or a command, or no record holds for its
+sources); the summary line says `N rule(s) recalled, M judged`.
+
+A side that enters skipped directories (`hidden: true`) walks only as deep as
+its `select` pattern can reach: `dirs:*` lists the root's entries and stands
+each directory by its first file, instead of walking every file under it. A
+pattern with `**`, a non-tree side or a rule with `exclude` still walks the
+whole tree.
+
+```text
+$ X3_CACHE_WHY=1 x3 arch -config x3.yaml .
+x3 arch: why every-x3-capability-runs-in-a-step: judged again - it reads the settings themselves (from: x3)
+x3 arch: 154 rule(s) recalled, 3 judged
+```
+
+Measured on the pilot (2026-11-15, same machine, other gates running): a warm
+`x3 arch .` 3.8-4.3 s → 2.9 s; one comment appended to a core file 5.3 s →
+4.2 s per run (74 of 157 rules read that file's bytes and are judged again).
+The walk for the root-directory rule had covered 197 156 files, 174 146 of them
+inside worker checkouts. Control experiments: `parsed` (a changed import on the
+same path is parsed again; with the bytes taken out of the record input the
+old import comes back and the example is red) and `PathsEverywhereWithin`
+(fixture `internal/source/testdata/everywhere`).
 The measuring commands (`syntax`, `arch`, `lang`, `comments`, `secrets`, `scan`,
 `case`) also keep one configuration reading for the whole command; on the pilot
 re-reading it per question was 4.2 s of a 5.4 s `x3 syntax`.
@@ -107,4 +139,4 @@ A denied pattern with one legitimate use is excused **on the line itself**: a `/
 
 Green: `//x3:allow:syntax: schema is gone` above `panic("missing")`. Red: the same `panic(...)` two lines later with no directive above it.
 
-<!-- x3-dist version=v0.375.0 capabilities=668ee945fccc18dca2e9c501a6d66762bf582c357f09c62d0cbce2b4a14133e6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

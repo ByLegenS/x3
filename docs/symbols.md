@@ -355,10 +355,24 @@ gate on the graph page: cold run, unchanged run `skipped: cached`, the moved fil
 measured again and red. With the read report removed from the graph the last arm
 is `exit=0 (want 1)` — the step answered from its record.
 
+**The graph is remembered.** `emit` keeps the graph in a record of its own
+(`graph@<version>.yaml` in the declared cache directory), keyed by the build
+environment (Go version, `GOOS`, `GOARCH`, `GOFLAGS`, `CGO_ENABLED`,
+`GOEXPERIMENT`, `GOTOOLCHAIN`, `GOWORK`) and the **names** of the tree's Go,
+`go.mod`, `go.sum` and `go.work` files; the record holds only while every file
+the graph rests on (each package's Go files, the module and checksum files) has
+the bytes it had. A new or removed file changes the names, a changed file
+changes the bytes; either way `go list` runs again. A module with a `vendor`
+directory is never remembered. Measured on the pilot (2026-11-15): `emit
+-check` over 30 documents 5.1-5.8 s → 3.1-3.2 s with nothing changed. Control
+experiment: `GraphRemembered`'s examples — an exported name renamed in one file
+gives the new edge; with the byte check taken out the old graph comes back and
+the example is red.
+
 **No per-file cache, on purpose.** Measured on this engine's 260 files: the
 documented table takes 0.21 s; a per-file cache of the parse result, read back
 warm, took 0.38 s — decoding the stored result costs more than Go's parser.
 A catalogue that has not changed is not rebuilt anyway: the gate's step cache
 skips the `emit -check` step when its declared tree did not move.
 
-<!-- x3-dist version=v0.375.0 capabilities=668ee945fccc18dca2e9c501a6d66762bf582c357f09c62d0cbce2b4a14133e6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.376.0 capabilities=7ade5cf49e539376c8972f53de43614348ad344eb44b2cd15930361252b8b07a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
