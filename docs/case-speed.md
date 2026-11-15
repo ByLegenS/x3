@@ -66,6 +66,32 @@ database examples, 32 slots, one body change):
 
 Past four the server, not the processors, is the bottleneck.
 
+**The plan weighs time, not count.** A count said nothing about weight: on the
+pilot a region run after one body change reran 92 packages in 95 s, and the
+step ended when the heaviest package (762 examples, about 80 s of work) did —
+it started late, in tree order, after small packages had taken the three
+shared copy seats, so it ran in two parts. A nine-example package carried 35 s
+(one example alone 18.7 s), a 140-example one 74 s. The run now keeps each
+package's example durations in its cache (`<dir>#took`) and plans from them:
+
+- the queue runs **heaviest first** (the widest package still leads, alone);
+- the copy budget — a quarter of the machine share, at least three, or
+  `case.shards - 1` — goes part by part to whichever package then has the
+  **longest work per part**, never below 2 s of work a part, never more than
+  eight copy parts a package (8 parts 4.6 s against 20 parts 11.5 s above);
+- slots are dealt to parts **by duration**, longest first into the lightest
+  part, so an 18 s example does not share a part with the rest.
+
+An example with no recorded duration weighs its package's known average, or —
+with none — what the old rule implied (24 examples a part). Durations shape
+only the plan: which example runs, its verdict and its records are unchanged.
+The control experiment (`case split control experiment`): sixty examples with
+no record are dealt into two parts and the one wrong example is red with its
+own sentence, the other 59 pass once each; the second run, durations recorded
+and the package lighter than one part, runs the same red unsplit — the engine
+before this change split it again. Measured on the pilot only up to the
+breakdown above; the region run after this change is not measured yet.
+
 **A database is never shared.** Two parts writing the same database see each
 other's rows. A package is split only when every part can take its own copy
 (`testdb` with `case.database: isolated`, or a run inside `x3 testdb run`: the
@@ -746,4 +772,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

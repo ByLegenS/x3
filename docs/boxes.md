@@ -28,11 +28,21 @@ repository's own list, and its own gate runs this command against it.
 
 A `pattern` or `absent` criterion is a function of its own spelling (`when`,
 `match`, `sources`, `reading`, `directives`) and of the files it reads. The run
-still walks and reads those files, but when their paths and bytes are the ones
-the last run saw, the answer comes from the record (`boxes-criterion:` in the
-`boxes` cache) and the pattern is not applied again. A changed byte, an added
-or removed file, or a changed criterion measures it again. `sql` criteria are
-never recalled: their answer lives in a database the tree does not hold. A
+walks those files **without opening them**: each file's digest is taken once
+per run from one shared store, and a file whose size and modification time
+match the record (`boxes-stat:`) is not opened at all - its digest comes from
+the record. When the paths and digests are the ones the last run saw, the
+answer comes from the record (`boxes-criterion:` in the `boxes` cache) and the
+pattern is not applied again; only then are the bytes read. A changed byte, an
+added or removed file, or a changed criterion measures it again. A file written
+less than two seconds ago gets no `boxes-stat:` record (two writes inside one
+clock tick could keep the size). `sql` criteria are recalled **only inside a
+deferred test database** (see `x3 testdb`): the copy is a clone of the declared
+template, so the answer is a function of the query and of the template's
+`from` files (`boxes-sql:`, keyed by driver, `dsnEnv`, query and `equals`; the
+input is the digest of the `from` files). Against any other database - the
+development one, production - the content lives where no file shows it, and
+the query runs every time. A
 `command` criterion is recalled only when it **declares the files its answer
 depends on** in `sources` (same patterns as a pattern criterion): while their
 paths and bytes stand still the answer comes from the record
@@ -67,7 +77,18 @@ out the blind arm is.
 
 Measured on the pilot (2026-11-15, 743 boxes, 1 207 criteria, report
 byte-identical): the measuring part of `x3 boxes` went from 3.8 s to 2.3 s, and
-the same files are opened once per run instead of once per criterion.
+the same files are opened once per run instead of once per criterion. The
+digest store came next: the 992 pattern sources open onto 4 885 files and
+53 856 reads, and a CPU profile of the step after a one-line edit spent 72 % of
+its time opening files.
+
+Control experiments for the store (`internal/boxes/recall.go`, `sums.of`): a
+forged digest written for the file's size and time comes back without the file
+being opened; the same file rewritten with a new size does not take it (with
+the size/time lock taken out of the record input that arm is red). For `sql`
+(`asked`): outside a deferred copy a forged record is never read; inside one the
+same template sources return the saved answer and no copy is made; one changed
+byte in a template source refuses the record and goes to make the copy.
 
 ```
 x3 case -only internal/boxes     # recalled: a forged "unmet" record comes back for
@@ -477,4 +498,4 @@ closing it per query threw that pool away on every question.
 Measured end to end in the same repository: **39 s to 27 s**, with the finding
 set identical, byte for byte.
 
-<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

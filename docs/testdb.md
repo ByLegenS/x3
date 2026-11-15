@@ -106,6 +106,25 @@ too: base36 accepts letters, so a hand-written `apptest_backup_v2` would read as
 born in 1970 and look infinitely stale. A stamp outside **2025-01-01 … now +
 24 h** is not a stamp, and the name is not ours.
 
+**`x3 boxes` makes its copy only when it asks.** When the wrapped command is
+`x3 boxes` (and `-keep` is not given), `run` makes no copy: the command gets
+the copy's variables **empty** (`dsnEnv` and every `runEnv` name), the settings
+file in `X3_TESTDB_DEFER`, and the hand-off file of `X3_TESTDB_ADOPT`. The
+first `sql` criterion that is not recalled clones the copy, hands its name back
+and points its own variables at it; `run` drops every copy handed back. A run
+whose `sql` answers all come from the record clones nothing (`x3 testdb: the
+copy was deferred; the command made 0`). Any other wrapped command finds the
+copy ready, as before. The variables are emptied rather than left alone on
+purpose: a path that does not know the protocol goes blind ("environment
+variable ... is empty") instead of quietly asking the development database.
+Measured on the pilot (2026-11-15): cloning and dropping the copy cost about 1.5 s on a
+quiet machine and more than 10 s while other suites used the same server.
+
+```
+x3 case -only internal/testdb    # Deferrable: only x3 boxes defers; the deferred
+                                 # environment empties the copy's variables
+```
+
 **Concurrent runs share one template safely.** The template lock is a Postgres
 advisory lock held on one session (`*sql.Conn`), never on the pool. A run that
 clones holds it *shared* until its clone exists; a run that builds holds it
@@ -315,4 +334,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -23,10 +23,12 @@ of every declaration it reaches in the main package, the transitive closure of
 every module package it calls (all their source and embedded files, files of the
 other operating systems included), the `main` function's own text and the
 packages it calls (it runs before every entry), `go.mod`, `go.sum` and the Go
-version. A command's result file is then named after that digest instead of the
-release tag, and the same digest is its salt. Two releases with the same
-`case` code share one record; two with different code write two files and never
-empty each other (the reason result files were split per version is kept).
+version. A command's slots are salted with its **result** digest (below), never
+the release tag; the file name carries no identity. Two releases with the same
+`case` code share one record; two with different code write their slots side by
+side in one file and never empty each other. The gate keeps its own code out of
+its salt: every step carries the code of the engine command it calls in its key,
+and a step that calls no engine command (`go vet`) depends on no engine code.
 
 **Comments are not code.** The digest reads a Go file as the compiler does: its
 token stream, without comments and without layout (a line break and an explicit
@@ -67,22 +69,15 @@ observation of such a step.
 
 ⛔ **No release tag reaches a cache identity.** A binary built without `codes`
 (a plain `go build`, the gate's own `{bin}`, a measurement binary stamped only
-with a version) names its files after **its own digest** (`gate@b<16 hex>.yaml`):
-every rebuild with changed code is another binary, so an old answer never comes
-back, and nothing it writes carries the tag. It used to name its files after
-the release tag: measured in the pilot on 2026-11-15, a measurement binary stamped `v0.379.0`
-left `arch@v0.379.0` (42 MB), `arch-files@v0.379.0` (81 MB) and
-`graph@v0.379.0` (73 MB) beside the release's `@c…` files - 46 of 211 files
-in a 9,9 GB directory that no installed binary read. A binary that carries a
-table but no digest for a cache name is **red** (`the code table this binary
-carries names no digest for "graph"`), never a silent fallback; a result file
-not named after a command (`graph`) takes the digest of the function that
-produces it (`producers` in cmd/x3). The syntax rule
+with a version) salts its slots with **its own digest** (`b<16 hex>`): every
+rebuild with changed code is another binary, so an old answer never comes back.
+A binary that carries a table but no digest for a cache name is **red** (`the
+code table this binary carries names no digest for "graph"`), never a silent
+fallback; a result file not named after a command (`graph`) takes the digest of
+the function that produces it (`producers` in cmd/x3). The syntax rule
 `no-release-version-reaches-a-cache-identity` keeps the tag out of the cache
 API in `cmd/x3`, `internal/cache` and `internal/gate`. Control experiments: the
-`Tag`, `Code`, `sweep`, `coded` and `engineOf` examples (an unmarked command
-has no identity in a binary with a table and its own digest in one without; a
-`@v` sibling is swept at once, a fresh `@c` or `@b` one is kept); the syntax rule goes red on
+`Tag`, `Code` and `engineOf` examples; the syntax rule goes red on
 `func Stamp(` written back into internal/cache.
 
 **Two settings, one file.** Every working copy of a project shares one cache
@@ -100,21 +95,20 @@ directory and differing only in `case.workers`: with the old binary the first
 project's third run found no record (the second project's run had emptied the
 file) and the second project ran cold; with the new binary both hit.
 
-## A release inherits the record when the code that produces results is unchanged
+## A record is weighed by the code that produces results
 
 The `codes` digest of a command covers everything it reaches, including how its
 cache is stored. A release that changes only the cache package or the command
-table gets a new `case` digest, a new result file and a cold run, although no
-example could pass or fail differently. `release.results` names the part of the
-code that produces the record; a release whose digest of that part equals a past
-release's inherits that release's record.
+table would get a new `case` digest and a cold run, although no example could
+pass or fail differently. `release.results` names the part of the code that
+produces the record; that digest salts the record's slots, so a release whose
+digest of that part is unchanged reads the same slots.
 
 ```yaml
 release:
   package: ./cmd/x3
   codes: main.codes
   results: main.results     # string variable of the main package
-  inherit: 6                # past release tags whose digest is embedded
   scopes:
     - command: case          # the command whose cache inherits
       entry: runCase         # its function in the main package: a root, and its cache identity
@@ -124,15 +118,24 @@ release:
       skip: [./internal/cache]    # never counted: builds keys and stores
 ```
 
-The digest is declaration-level: the text of every declaration the roots reach
-in `package`, the closure of every module package those declarations call, the
-`with` packages, the declarations `entry` reaches in the main package and the
-packages it calls (`main()` is not counted), `go.mod`, `go.sum` and the Go
-version. A `skip` package is left out with its whole closure: code that only
-builds keys and stores records cannot change what a record says, and a key that
-changes simply misses. Reaching a type reaches only its exported methods; the
-receiver type of a root reaches none (the runner's methods are followed only by
-name). A root or entry that is not declared is an error, never a smaller digest.
+The digest is declaration-level **across the module** (the same walk as
+`release.Reaches`): the text of every declaration the roots reach, in `package`
+and in every module package they call, the own text of each `with` package (its
+declarations are roots, so what it calls counts at declaration level too), the
+declarations `entry` reaches in the main package (`main()` and the main
+package's init are not counted), `go.mod`, `go.sum` and the Go version. A `skip`
+package is left out: code that only builds keys and stores records cannot change
+what a record says, and a key that changes simply misses. A root or entry that is
+not declared is an error, never a smaller digest. It used to count the whole
+package closure of every package the runner touched and of the `with` package:
+measured on 2026-11-15, a changed body in the settings package that the runner
+never calls (`config.Reads`, used by the gate's timing line) moved `case@self`
+and dropped every example record; it now keeps it (build `d` in the table under
+"One result file per command"). Control experiments: the `ResultCode` examples
+on `testdata/results/dbidle` (an unreached declaration added to a called
+package) and `withidle` / `withname` (an unreached and a reached body in a
+package the `with` package calls); with the old closure, `dbidle` and `withidle`
+go red.
 
 The roots are the whole runner, not only the run: the code that **finds**
 examples is inside, because a package's key is its bytes, not the rules that
@@ -141,28 +144,22 @@ the package's old green and never run the new example. Recalling examples from
 the per-example record is inside too: a recalled example's green is part of the
 package green.
 
-`x3 release` embeds `case@self=<digest>` and, for each of the last `inherit`
-release tags, `case@c<code>=<digest>`, where `c<code>` is that release's cache
-identity (its result file name), recomputed from the tag's tree. When a run opens
-`case@<own>.yaml` and misses, it reads the newest sibling whose identity carries
-the same digest and has results, rebuilds that release's salt from the same
-settings, and answers from its slots; every answer it takes is written back under
-the new salt, so the next run reads its own file. A changed setting rebuilds a
-different salt and nothing is inherited; a tag whose digest differs, or a binary
-without the table, inherits nothing. The run says so on stderr:
-`x3: cache: case@c….yaml inherited N record(s) from case@c….yaml: the code that
-produces them did not change`. `x3 release -stamps` prints the `-X` flags a tree
-would embed, so a test binary can carry the release's table.
+`x3 release` embeds `case@self=<digest>`; the run salts its slots with it
+(`cache.Code`). A changed setting builds a different salt and misses; a binary
+without the table salts with its own digest. `x3 release -stamps` prints the
+`-X` flags a tree would embed, so a test binary can carry the release's table.
+The table carries only this tree's rows (`case@self`); past releases' rows are
+not embedded, because records live in one file and are keyed by the code that
+produced them.
 
 Control experiments: the `ResultCode` examples in internal/release/results.go
 (`testdata/results`: a planning-only change keeps the digest; a changed body the
 root reaches, a changed `with` package, a changed body the entry reaches move it;
 a changed `skip` package keeps it, the same change without `skip` moves it; a
-missing root or entry is an error) and the `heirsOf` examples in
-internal/cache/heir.go (same digest: inherited and rewritten under the new salt;
-different digest, different settings, no table: nothing inherited). With the
-`skip` deletion turned off, and with the digest comparison turned off, one
-example each goes red.
+missing root or entry is an error) and the `Open` examples in
+internal/cache/cache.go (same salt in one file: found; different salt: missed,
+the other's slot kept). With the `skip` deletion turned off one example goes
+red.
 
 **Every command has its own result row, at declaration level.** A command with
 no declared scope inherits too: the release embeds, for every entry point of the
@@ -173,7 +170,7 @@ functions of every imported package count, `main()` and the main package's own
 init (it only builds the command table) do not; embedded files and
 `go.mod`/`go.sum`/the Go version count. `release.skip` names packages that never
 shape a result (the engine writes `skip: [./internal/cache]`). The rows ride in
-the same table as `fn:<entry>@self` and `fn:<entry>@c<code>`; the command line
+the same table as `fn:<entry>@self`; the command line
 renames them to the command (a declared scope's row wins). A gate step that
 calls a command is now keyed by that command's **result** code (`cache.Code`),
 so a release that leaves a checker's reached code alone keeps both the checker's
@@ -215,16 +212,16 @@ runner minus that judgement:
 
 `except` stops the walk at those declarations: their text, and whatever only
 they reach, is left out of the digest; a name that is not declared is an error.
-When a run finds no sibling with the same `case` digest but one with the same
-`case#pure` digest, it inherits **only keys ending in `#pure`** from it; every
-other key misses. A recalled green is the work of the old judgement, which this
+Keys ending in `#pure` are salted with the `case#pure` digest (`Cache.Pure`),
+every other key with the `case` digest: a release that changes only the recall
+judgement still finds **only the `#pure` keys**; every other key misses. A recalled green is the work of the old judgement, which this
 release may have changed; a green that really ran depends only on the code that
 ran it. The code that writes the record and builds keys stays in the digest or
 changes the key, and a changed key misses.
 
-Control experiments: the `heirsOf` examples (same `#pure` digest, different
-`case` digest: the `#pure` key is inherited, a plain key is not; different
-`#pure` digest: nothing), the `ResultCode` examples with `Except` (a changed
+Control experiments: the `Pure` examples in internal/cache/cache.go (same
+`#pure` salt, different plain salt: the `#pure` key is found, a plain key is
+not; different `#pure` salt: nothing), the `ResultCode` examples with `Except` (a changed
 excepted body keeps the digest, a changed `with` package still moves it, an
 unknown name is an error) and `pureEntry`, `joinMemo`, `joinBook` in
 internal/cases. With the suffix filter, the `except` stop or the head match
@@ -265,4 +262,4 @@ sharing one cache directory: the same codes under a new tag hit (`x3 case`: 1 hi
 in both, although the gate's own digest did not move; a binary without codes
 misses (the old behaviour); the project copied to a second path hits.
 
-<!-- x3-dist version=v0.380.0 capabilities=451c7c6ab59714f7ae80efc82ab6029b3a61b21aa0e436344a7fb54d479d80af template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
