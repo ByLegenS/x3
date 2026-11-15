@@ -210,6 +210,17 @@ is not. Same control experiment: a wrapper reads the page it declares in
 `touches` while its inner run reports only `x3.yaml`; the old engine answers
 `0 ran, 1 skipped` on the wide page, this one runs it and is red.
 
+⛔ **A derived scope does not replace the `touches` the step writes itself.** It
+replaces only the scope a step **inherits** from the gate. A step whose trials are
+all `go run` commands leaves no observation, so its record was the derived scope
+alone — and the files it opens from disk (a page it regenerates, the JSON and CSS
+it lists) never entered it, even though the step declared them. Measured in a
+real production repository: a generated page went stale, the step came back
+**green from the cache**, and `--force` made it red. Control experiment, same
+step as above (`cache-declared` tree): the declared page moves and no
+declaration does — the old engine answers `0 ran, 1 skipped`, this one runs the
+step and catches the wide page; going back to the first page is still a hit.
+
 **What it does not do.** It does not narrow non-Go steps, steps whose trials are
 not all `go` commands, or steps whose trials are all `x3` itself (those observe
 what they read and are cheap and honest already). A file a command opens because
@@ -350,4 +361,4 @@ warm, took 0.38 s — decoding the stored result costs more than Go's parser.
 A catalogue that has not changed is not rebuilt anyway: the gate's step cache
 skips the `emit -check` step when its declared tree did not move.
 
-<!-- x3-dist version=v0.369.0 capabilities=a932d666fbf089d541a15cd436588419bf1fd375e664a73356f6fbb31fd295c7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.370.0 capabilities=2f63031885d541f4334d8a0053f60c6e6076f0738e64fdabf08fa1f32aefb6ff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

@@ -101,4 +101,4 @@ settings, so a project whose tree does not contain the engine can still ask it:
 A capability the engine ships and no step runs is now a `set_mismatch` with a
 name, and the only way past it is to run it or write down why not.
 
-<!-- x3-dist version=v0.369.0 capabilities=a932d666fbf089d541a15cd436588419bf1fd375e664a73356f6fbb31fd295c7 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.370.0 capabilities=2f63031885d541f4334d8a0053f60c6e6076f0738e64fdabf08fa1f32aefb6ff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
