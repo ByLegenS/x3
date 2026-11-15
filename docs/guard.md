@@ -222,6 +222,28 @@ path, so sweeping the leftovers is the first act of every trial — the same
 answer `testdb` reached. The sweep goes by **age**, leaving the working area a
 second x3 is using; it reaches no other name and cannot be switched off.
 
+**The gate's own working directories prove their owner.** `x3 gate` makes one
+directory per step (`x3-gate-*`) and `x3 shot` a browser profile
+(`x3-shot-profile-*`), each in the system temporary directory and each removed
+when the step ends — but a killed run removes nothing, and on one machine 453
+step directories, 280 coverage directories (`x3-cover-*`) and 159 test logs
+(`x3-opened-*.log`) had piled up over eight weeks. A step directory is now born
+with a lock file beside it (`<dir>.x3lock`, not inside it). The lock is held by
+the process and released by the operating system when the process dies, so the
+next `x3 gate` sweeps every directory whose lock it can take, and leaves the ones
+another live x3 holds:
+
+```text
+x3: swept 749 temporary leftover(s) of runs that are gone
+```
+
+A leftover with no lock file is swept only past 24 hours, since its owner cannot
+be asked: one left by an engine older than this, and the case runner's coverage
+directories and test logs, which stay lock-free on purpose — the example runner
+does not import the sweeper, so a change to it does not change the result code a
+release embeds and does not cool a project's case record. The release workspace
+(`x3-dist-*`) is not touched.
+
 `write` is what makes the control experiment possible from the configuration
 alone: the same trial with one file written into the copy has to go red, and a
 trial whose red has never been seen is not a trial.
@@ -363,4 +385,4 @@ nothing — a run that wraps no command was never in question — so it is refus
 *"live.unwrapped is written but live.command is not"*. That keeps the reason from
 outliving the expectation. A blank reason is refused like a blank `unweighed`.
 
-<!-- x3-dist version=v0.365.0 capabilities=9dd51a7f0bc8aca73e7366c2045b24de01f962fdd51fd5ec85ce4383baa4d36a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.366.0 capabilities=64aaa84d2f0891c098232e6f515649ecdb436127b3a329fbbda8565375c101cf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

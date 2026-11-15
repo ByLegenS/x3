@@ -282,4 +282,4 @@ measurement to whoever sits in between.
 | `-self-signed` with a page on another host | exit 2 before the browser starts |
 | a `__Host-sid` session on a plain-http `127.0.0.1` page | exit 0, the signed-in page, its value in no output and no file |
 
-<!-- x3-dist version=v0.365.0 capabilities=9dd51a7f0bc8aca73e7366c2045b24de01f962fdd51fd5ec85ce4383baa4d36a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.366.0 capabilities=64aaa84d2f0891c098232e6f515649ecdb436127b3a329fbbda8565375c101cf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

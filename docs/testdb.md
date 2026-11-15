@@ -48,6 +48,28 @@ how many. There is no switch: a sweep that can be turned off goes back to piling
 up on the day it is. It costs one `pg_database` query, about 50 ms against the
 ~3 s a create takes.
 
+**A database a session holds is retried, named, and stepped past.** `DROP
+DATABASE ... WITH (FORCE)` ends every session on the database — but a role that
+is not a superuser (nor a member of `pg_signal_backend`) cannot end a
+superuser's session, and the server's own autovacuum worker runs as one. A
+freshly cloned database being vacuumed for a moment was enough to answer
+`permission denied to terminate process (SQLSTATE 42501)`. On 42501 the drop is
+tried again **without** `FORCE`, which lets the server cancel its autovacuum
+itself, and both are repeated with a growing pause (0.5 s, doubling, five tries).
+A database still held after that is reported with **who holds it**, and the
+sweep goes on to the rest instead of stopping at the first one:
+
+```text
+x3 testdb: dropped apptest_toijq5_cccc0003 (age 3h1m34s)
+x3 testdb: cannot drop apptest_toijq5_bbbb0002 after 5 tries, a session held it (SQLSTATE 42501 or 55006): ... (SQLSTATE 55006); connected now: pid 179240 postgres (-, psql)
+```
+
+The exit code stays 2 when anything could not be dropped; the role and kind of
+each connected session come from `pg_stat_activity` (a kind the admin role may not
+read prints `-`). Whether the role should be allowed to end other roles' sessions
+is the project's decision, not the engine's: `GRANT pg_signal_backend` makes the
+first `FORCE` succeed.
+
 **The cleanup belongs to the run, not to one exit path.** Once the database is
 up, every way out carries it: the command passed, the command failed, the
 command never started at all. Written per path, the obligation is forgotten by
@@ -293,4 +315,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.365.0 capabilities=9dd51a7f0bc8aca73e7366c2045b24de01f962fdd51fd5ec85ce4383baa4d36a template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.366.0 capabilities=64aaa84d2f0891c098232e6f515649ecdb436127b3a329fbbda8565375c101cf template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
