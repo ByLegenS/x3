@@ -312,14 +312,35 @@ Experiment `case example-level reach control experiment`: the six trees under
 beside `Check` assert each row, and with the witness switched off the type-error
 arm turns red.
 
-**The witness is never spared.** When every example of a package is recalled,
-one still runs as the witness that the package builds, with vet, whatever
-changed. W809 skipped it when the package's own lines and its importer's-eye
-view of every dependency were unchanged; two independent reviews found false
-greens in that skip (W810 four, W815 one more: with `GOFLAGS=-vet=all`, a
-dependency's `func Die() { panic("x") }` becoming `{}` breaks the importer's
-lostcancel vet and the spared witness never saw it). W816 removed the skip: a
-few seconds per edit do not pay for a new class of false green each review.
+**The witness is spared only when nothing the build reads can have moved.**
+When every example of a package is recalled, one still runs as the witness that
+the package builds, with vet - unless the package's own lines and every
+dependency as the importer's build sees it are unchanged since its last green.
+A dependency that runs examples in this run is weighed by its declarations'
+shapes (its own run, or its cached green, proves its bodies compile); an open
+function (a `...` parameter: vet printf derives wrapper facts from the body; or
+a type parameter: the body is instantiated in the importer) is weighed with its
+body; a dependency with no examples, a whole plan (linkname, assembly, cgo, dot
+import) or an interface method with `...` (loose) is weighed with all its lines;
+`GOFLAGS` (as the child `go test` sees it) carrying any `-vet` turns sparing off,
+because `-vet=all` opens body-derived facts (W815: `func Die() { panic("x") }`
+becoming `{}` breaks the importer's lostcancel vet). A tagged or narrowed run
+does not spare. A spared package is neither compiled nor run; its records are
+written. Measured (pilot, one line added to a body in a core package): 92
+packages ran, 66 of them only for the witness.
+
+```
+lib.Double body changes (lib runs its example)    -> use spared, not compiled, green
+bare.Word body breaks, bare has no examples       -> use's witness runs, build red is seen
+lib.Note(format, args ...any) starts fmt.Sprintf  -> use's witness runs, vet red is seen
+logx.Reg body assigns a wrapper (loose package)   -> use's witness runs, vet red is seen
+-vet=all, lib.Die stops panicking                 -> use's witness runs, lostcancel red is seen
+```
+
+Experiment (control): the arms in internal/cases/witness/witness.go; with the
+`-vet` guard, the open-node weighing and the loose/proven guards switched off,
+the printf, variadic, iface, ifaceonly and vet arms turn red (5 findings); with
+only the "no examples" guard off the `quiet` arm turns red.
 
 What else the build reads is weighed in every key (W811, W816; each was a false
 green measured by an independent review, W810 / W815):
@@ -350,7 +371,7 @@ green measured by an independent review, W810 / W815):
   the package key.
 
 ```
-lib.Double body changes (lib runs its example)        -> use's witness runs, green
+lib.Double body changes (lib runs its example)        -> use spared (not compiled), green
 lib.Note(format, args ...any) starts fmt.Sprintf      -> use's witness runs, vet red is seen
 lib.Name() string becomes int                         -> use's witness runs, build red is seen
 type error in plain (no examples)                     -> use's witness runs, build red is seen
@@ -708,4 +729,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.378.0 capabilities=79acb0d824a4310b7c265d685381b9a9941e924aa994d300dcc6b00cd5bbbe15 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.379.0 capabilities=8e76f4cd9d32eef7b90f8c742f220ef113f3d57ecb0e0ed0ac8aaf47c6767ea1 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
