@@ -66,6 +66,15 @@ refused). Measured against the engine before: the same entry exits 2 with
 a copy: second run `cache 1 hit`; a migration added → miss, `stale_document`;
 `x3 emit` → miss, green; next run a hit.
 
+**`-check` walks the tree once and recalls the box criteria.** A check writes
+nothing, so the walk is kept for the whole run and the box list a document prints
+is measured with the record `x3 boxes` keeps (see `x3 boxes`, a criterion recalled
+by its spelling and its files' bytes). A run that writes does not keep the walk:
+the page it writes is a new name a later criterion would have to see. Measured on
+the pilot (2026-11-15, output byte-identical): 16.9 s and 276 s of processor
+time → 8.1 s and 27 s; the parallel criteria had each walked the whole tree at the
+same moment. No Go package loading was on the path: the profile held none.
+
 ### The three things a hand-written generator is missing
 
 **It cannot go stale.** `-check` writes nothing and asks whether the file on
@@ -329,4 +338,4 @@ repository: a hand-kept list read 109 of 130 published pages and was green while
 one of the other 21 carried a consumer's variable name; with the pattern the same
 tree is red at 7 lines.
 
-<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.374.0 capabilities=18e9f326277689220fddd2cffd55f28262da6d16e1463fdd297c12147f0cdc13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

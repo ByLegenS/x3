@@ -576,6 +576,35 @@ Inside one run the tree is walked once (`source.Memoize`) and a file of up to
 its body is not read and it carries no text line (`source.ReadText`); the read
 is still recorded, so a binary that turns into text re-runs the step.
 
+**One walk, not four.** A run that needs the *everywhere* listing (a rule that
+asks which directories exist) walks it first, and the filtered listings of the same
+run (the default one, the one opened by a declared hidden directory) are cut out of
+it with the walk's own rules instead of walking again; the names observed and the
+skipped fixture trees recorded are the same as a fresh walk's, in the same order. A
+pattern checked for whether it still leads to a file is asked of that listing too
+(it used to walk from its literal prefix on its own). A run that never needs the
+everywhere listing is unchanged: walking everything to answer a narrow question
+costs more than the narrow walk. Two readers that ask for the same walk at the same
+moment no longer both walk: the second waits for the first and takes its listing.
+Measured on the pilot (2026-11-15, report and stderr byte-identical): four walks
+became one; `x3 arch` 7.0 → 6.0 s, the `-with` overlay run beside it 7.4 → 4.6 s.
+
+```
+x3 case -only internal/source   # narrowed: a skipped directory and a declared
+                                # file give a fresh walk's answer; claim: the
+                                # second reader of a walk in flight waits
+```
+
+**The record survives two writers.** Two trials of one step write the same record
+file at the same moment. The merge under the lock was already there, but the lock
+was waited for two seconds only: under load one writer's read-merge-write of a
+10 MB record took longer, the other wrote without the lock, and the last writer
+dropped the other's entries. The lock is now waited for as long as its holder is
+alive (a lock older than 30 s is taken as dead and removed, so a crashed run still
+does not stop the gate). Control experiment: `Save`'s last example holds the lock
+for 2.5 s while writing one entry and a second `Save` writes another - both survive;
+with the old two-second wait the example is red (`then[1] ... does not hold`).
+
 Measured on the pilot (2026-11-15, 4 803 files, report byte-identical before and
 after): one run took 22 s cold and 14.6 s warm; it takes 6-7 s. The text rules
 had been reading 1 456 files, 2 GB, most of them build outputs under a wide
@@ -607,4 +636,4 @@ No timestamp, and violations sorted by rule, then file, then line.
 
 See **arch error codes** in the [arch reference](arch-reference.md#arch-error-codes).
 
-<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.374.0 capabilities=18e9f326277689220fddd2cffd55f28262da6d16e1463fdd297c12147f0cdc13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

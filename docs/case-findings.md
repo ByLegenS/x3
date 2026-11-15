@@ -136,6 +136,26 @@ hang/hang.go:7 (Nap): over_ceiling
 exit 1
 ```
 
+**An alone pass that still had company is not a verdict.** With `gates: many` the
+alone lock stops only other x3 *case* runs from taking new slots; another working
+copy's gate keeps the processors busy. Measured on the pilot (2026-11-15): a package
+whose 3 604 examples all pass when nothing else runs came back with 249
+`over_ceiling` findings beside two other gates, and the red was remembered, so the
+next run printed it again as `cached`. So when the alone pass reaches the ceiling
+while other x3 processes are still alive, its examples are `under_load` instead:
+still red (an unmeasured example is never green), but the message starts with the
+engine's *this run cannot measure* mark, and the gate neither remembers the trial
+nor the step - the next run measures again. With nothing beside it the alone pass
+keeps `over_ceiling` exactly as before, so a real hang is still remembered red:
+
+```
+$ x3 case -workers 1 -timeout 3s -only hang           # another gate holds a slot all along
+x3 case: hang reached the 3s ceiling under load (1 other run(s) beside it) - measuring it again alone
+hang/hang.go:7 (Nap): under_load
+	this run cannot measure: the package reached the 3s ceiling before this example was measured; not one example finished before the ceiling, so none can be named slow - raise case.timeout (or -timeout for one run) or make the package faster; even its alone pass shared the machine with 1 other run(s), so this verdict may be the machine's - run it again
+exit 1
+```
+
 Why not processor time: a deadlock spends none, so a processor-time ceiling never
 fires on the very hang it exists for, and on Windows the test binary is a
 grandchild of the toolchain whose time the parent cannot read.
@@ -253,4 +273,4 @@ cache that skips a package entirely is written down too.
 examples" are not the same sentence. `cached` names the packages this run did
 **not** measure, and `slowest` the examples it did — both are below.
 
-<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.374.0 capabilities=18e9f326277689220fddd2cffd55f28262da6d16e1463fdd297c12147f0cdc13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

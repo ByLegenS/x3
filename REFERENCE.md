@@ -7,7 +7,7 @@ versions. Nothing here is new; every guide links to the table it uses.
 
 [What x3 is](README.md) - [the pages](docs/INDEX.md)
 
-**Current version: `v0.373.0`**
+**Current version: `v0.374.0`**
 
 | Reference | Tables |
 |---|---|
@@ -22,4 +22,4 @@ versions. Nothing here is new; every guide links to the table it uses.
 | [retire](docs/retire-reference.md) | the retire report fields |
 | [testdb](docs/testdb-reference.md) | testdb settings |
 
-<!-- x3-dist version=v0.373.0 capabilities=bdd427dcc56fe266cc7e8a792352e5f7c25c078e308e85e682f828ebed257ef9 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.374.0 capabilities=18e9f326277689220fddd2cffd55f28262da6d16e1463fdd297c12147f0cdc13 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
