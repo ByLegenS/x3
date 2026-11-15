@@ -34,4 +34,4 @@ counts `conditions` and `held`, and a run that wrote conditions and held none of
 them adds `condition_never_held`. All of it is a warning: waiting is legitimate,
 hiding is not. A condition that could not be **measured** postpones nothing.
 
-<!-- x3-dist version=v0.371.0 capabilities=087cc422fc858f86a70d691b4a8c389f56517a7add581113a9de13c198c2db37 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.372.0 capabilities=f64ce6971fa9d1fadf27d474428fefa63778eefc78c0c1c591c8b1dfe85c3911 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

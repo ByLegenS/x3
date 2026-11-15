@@ -177,4 +177,45 @@ x3 machine                   # ... the gate is held by 80724 (<dir>)
 | after: a step runs `x3 gate` on another tree | ends in 7.1 s, no wait |
 | after: the second gate's step comes from the cache | ends in 1.8 s while the holder runs on to 5.2 s; with `-no-cache` it waits |
 
-<!-- x3-dist version=v0.371.0 capabilities=087cc422fc858f86a70d691b4a8c389f56517a7add581113a9de13c198c2db37 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+**The wait is not the run.** A gate that waited for the lock reports the two apart;
+the time on the line is its own work, the wait is named after it (pilot,
+2026-11-15: the line said 160 406 ms, 134 s of it was another copy's gate):
+
+```text
+x3 gate: fast band - 132 step(s): 11 ran, 121 skipped, 0 red - 26112 ms on 32 worker(s) - 2m14s waited for another gate on this machine
+```
+
+The report carries it as `summary.waited_ms`; `took_ms` excludes it.
+
+**One gate is a machine setting, and the default.** The machine owner can turn
+the lock off; gates then start at once and share only the cpu budget (the slots):
+
+```text
+x3 machine -gates many       # writes gates: many into machine.yaml beside cpu and low
+x3 machine                   # ... gates many - gates run side by side and share only the cpu budget
+x3 machine -gates one        # back to one gate at a time (the line is removed)
+```
+
+Any other word is refused (`gates "two": write one or many`, exit 2); the
+`decide` examples in internal/machine/machine.go hold the three spellings.
+
+**A step's share follows how long it took last time.** When only some steps run,
+the gate splits its whole share (workers × cores) among them in proportion to the
+duration each one took at its last measured run — a record whose inputs changed is
+not today's answer, but it still says how long the step takes. A step with no
+record weighs the mean of the others; with no record at all the share is even.
+The long step also asks for its slots first. Why (pilot, 2026-11-15, 32 cores):
+eleven steps ran on 32 / 11 = 2 cores each, ten cores idle from the start, and the
+share stayed fixed while the short steps finished in seconds — the long `go vet`
+then ran beside thirty idle cores. The same `go vet` measured alone:
+
+| `go vet` over five trees (pilot) | 2 cores | 32 cores |
+|---|---|---|
+| all packages in the Go build cache | 16.8 s | 4.9 s |
+| one file changed (a line added at its top) | 38.4 s | 18.6 s |
+| `go build` over the same change | 55.0 s | 21.8 s |
+
+The split is the `apportion` examples in internal/gate/gate.go. The share changes
+only speed, never an answer, and is not part of a step's cache key.
+
+<!-- x3-dist version=v0.372.0 capabilities=f64ce6971fa9d1fadf27d474428fefa63778eefc78c0c1c591c8b1dfe85c3911 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

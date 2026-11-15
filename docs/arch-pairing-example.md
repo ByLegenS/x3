@@ -64,4 +64,4 @@ or an unknown name is exit `2`.
 Each rescue is counted: `rules[].satisfied` in the report, and a line of its
 own on stderr. A rescue nobody can see is a hole nobody can find.
 
-<!-- x3-dist version=v0.371.0 capabilities=087cc422fc858f86a70d691b4a8c389f56517a7add581113a9de13c198c2db37 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.372.0 capabilities=f64ce6971fa9d1fadf27d474428fefa63778eefc78c0c1c591c8b1dfe85c3911 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
