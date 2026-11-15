@@ -48,9 +48,29 @@ file no step will ever open still shows up the moment it lands.
 
 `x3 scope` narrows that one answer before it weighs a lane: a path git ignores
 cannot enter a commit, so it cannot cross a lane. The record is not tied to a
-repository, and in a second working copy sharing the cache a `.env` read in the
-first one reads as `gone`. A tree that is no repository keeps the list as it is,
+repository, but a record names the working copy that wrote it (below), so a
+`.env` read in one copy no longer reads as `gone` in another. A tree that is no repository keeps the list as it is,
 and the snapshot itself still asks nothing. Example on `changed.WithoutIgnored`.
+
+**A copy is judged against its own past.** Every working copy of a project
+shares one cache (`cache.dir: ~/.x3cache/<name>`), and step results are rightly
+taken across copies — the same bytes give the same answer, wherever they sit.
+Absence is not like that. Measured in the pilot: a worker opened two files in
+its own worktree and ran the gate there; on the main copy, clean tree and a
+commit touching one unrelated file, `x3 docs` read both files as `gone` and went
+red with `missing_counterpart_change` for files that had never been on that
+copy. Each step record now carries the root of the copy that wrote it, and a
+path remembered **only** by another copy's records is not `gone` here — it was
+never here. A remembered digest still matches whichever copy wrote it, so
+`unchanged` keeps its cross-copy memory. A record written before roots were
+recorded counts as this copy's: who wrote it is unknown, and counting too few
+is passing without measuring. Examples on `Snapshot`, `own` and `copyOf` in
+internal/gate/snapshot.go (two copies; with the root check disabled, the other
+copy's path is back in the list and the `Snapshot` example fails).
+
+```text
+x3 docs: snapshot scope - 3 file(s) changed - 119 rule(s) - 1 block   # before: two paths from a worker's copy
+```
 
 **`new` means "the listing moved", not "nobody read it".** The digest is
 *asked*, and a directory whose name list still matches the record has had
@@ -115,4 +135,4 @@ counterpart rule (`inside/**` needs `papers/**`) over seven planted records:
 | a moved `.git/HEAD` and a new `.git/objects/ab/cdef` | `0 file(s) changed` |
 | **red:** the same two paths under a plain `git/` directory | `2 file(s) changed` |
 
-<!-- x3-dist version=v0.370.0 capabilities=2f63031885d541f4334d8a0053f60c6e6076f0738e64fdabf08fa1f32aefb6ff template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.371.0 capabilities=087cc422fc858f86a70d691b4a8c389f56517a7add581113a9de13c198c2db37 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
