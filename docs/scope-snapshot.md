@@ -66,10 +66,20 @@ absence out loud instead:
 
 ```
 BLOCK : no_repository
-	cannot read what changed: cache/gate.yaml remembers no path of this
-	tree, so there is no "since the last run" yet: run the gate once, or
-	ask git with -scope head or -scope working
+	cannot read what changed: this run cannot measure: cache/gate.yaml
+	remembers no path of this tree, so there is no "since the last run"
+	yet: run the gate once, or ask git with -scope head or -scope working
 ```
+
+The sentence carries the engine's "this run cannot measure" mark, so a gate
+step that hits it is an environment error and is not cached: the record is the
+cache's state, not the tree's, and a remembered red would repeat after the
+record exists (pilot, v0.381.0: `lane boundary` and `document ↔ code` replayed
+it as `cached: nothing this step reads has changed`). The record went missing
+because a command saving its own single cache file swept every old
+`command@<id>.yaml` in the directory, the gate's included, before the gate took
+its tree witness from it; an old file of another command is now swept only once
+that command's single file exists (`sweep` carries both arms).
 
 The control experiment (`gitless default scope control experiment`) has four
 arms: the default names the file with `env: {PATH: ''}`; the *same command*
@@ -285,4 +295,4 @@ main cache sat correctly in the home directory. One declaration, two
 destinations. A `.gitignore` pattern hid the litter from git, so nothing but a
 file browser could see it.
 
-<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.382.0 capabilities=61adc1f94060c322e08970daff7cbc68aeea6dd9543a0b354b5a35120c880b12 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

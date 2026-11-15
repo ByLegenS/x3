@@ -120,9 +120,26 @@ variable ... is empty") instead of quietly asking the development database.
 Measured on the pilot (2026-11-15): cloning and dropping the copy cost about 1.5 s on a
 quiet machine and more than 10 s while other suites used the same server.
 
+"The engine's own `boxes`" means the name `x3` **or this very binary** under any
+name: the gate measures a binary called `x3-gate.exe`, and until v0.382.0 a
+wrapped `x3-gate.exe boxes` was not recognised and made its copy up front.
+
+**The environment contract does not count the copy's variables missing.** The
+deferred run lists the names it emptied in `X3_TESTDB_PROMISED`; a project whose
+`"x3".environment.require` names the copy's DSN for `boxes` would otherwise
+refuse every deferred run before the first question (measured on the pilot,
+2026-11-15: `APP_DB_DSN is not written in this shell` on every run, and since an
+environment error is never recorded the step re-ran on every gate). The names
+are exempt only inside a deferred run; a bare `x3 boxes` with the variable empty
+is still refused, and a copy that cannot be made leaves its `sql` criterion
+blind with its own cause.
+
 ```
-x3 case -only internal/testdb    # Deferrable: only x3 boxes defers; the deferred
-                                 # environment empties the copy's variables
+x3 case -only internal/testdb    # Deferrable: only x3 boxes defers (by name or
+                                 # by being this binary); Promised: the exempt names
+x3 gate -only "testdb deferred copy environment"   # needs X3_PG_ADMIN
+# made 1 · made 0 (recalled) · unproven red · no server red with its cause ·
+# bare boxes refused by the contract · template pruned
 ```
 
 **Concurrent runs share one template safely.** The template lock is a Postgres
@@ -334,4 +351,4 @@ stripped out of every error message before it is printed. The DSN of the
 subcommand — but under `run` it is never printed, only passed through the
 environment.
 
-<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.382.0 capabilities=61adc1f94060c322e08970daff7cbc68aeea6dd9543a0b354b5a35120c880b12 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

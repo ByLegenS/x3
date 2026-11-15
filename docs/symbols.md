@@ -242,6 +242,39 @@ step as above (`cache-declared` tree): the declared page moves and no
 declaration does — the old engine answers `0 ran, 1 skipped`, this one runs the
 step and catches the wide page; going back to the first page is still a hit.
 
+**A comment moves only the steps that read comments.** A Go file a step reaches
+through `touches` (inherited or declared) was weighed byte for byte, so one
+trailing `// note` re-ran every step that reached the file — measured on the
+pilot (2026-11-15): one comment line at the end of one file, **22 steps** of one
+region verb again, 36 s. Now a step whose trials are all `go build` or `go vet`
+weighs its Go files by their **token stream**: code tokens and the comments the
+toolchain reads (`//go:`, `//line`, `//export`, `// +build`), without prose,
+the engine's own `//x3:` lines, whitespace or line numbers (neither command runs
+the program, so no panic trace can see a shifted line). A file that names `"C"`
+or does not scan is still weighed by its bytes. `go test` is not narrowed (an
+`// Output:` comment is the example's expected output, and a test may open a
+source file as data), nor `go run`, nor `-vettool`. A step whose command is
+known not to read prose says so itself:
+
+```yaml
+- name: generated manifest
+  comments: unread      # its Go files are weighed by tokens, not bytes
+  touches: [apps/**]
+  trials:
+    - run: go run ./cmd/manifest -check
+```
+
+`comments: read` keeps bytes even for a build. The derived scope learned the same
+lesson from the other side: a file's build constraint (`//go:build`, written
+before `package`) now enters the package's import entry, so a step whose scope
+is derived re-runs when a constraint moves - until v0.382.0 it did not.
+
+```
+x3 gate -only "comment weighing control"
+# base: 5 ran · a comment: 2 ran, 3 skipped (format, and the tool that promised
+# nothing) · a build constraint: 5 ran · code: 5 ran
+```
+
 **What it does not do.** It does not narrow non-Go steps, steps whose trials are
 not all `go` commands, or steps whose trials are all `x3` itself (those observe
 what they read and are cheap and honest already). A file a command opens because
@@ -396,4 +429,4 @@ warm, took 0.38 s — decoding the stored result costs more than Go's parser.
 A catalogue that has not changed is not rebuilt anyway: the gate's step cache
 skips the `emit -check` step when its declared tree did not move.
 
-<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.382.0 capabilities=61adc1f94060c322e08970daff7cbc68aeea6dd9543a0b354b5a35120c880b12 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

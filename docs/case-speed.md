@@ -481,17 +481,22 @@ turn red (`len(out0.Recalled) == 5 does not hold`).
 **A dependency that only grew does not rerun the examples that never entered
 it.** When an example's bodyless key moved but its own package's part did not,
 the record also names each imported directory's *frame* (`<dir>#frame` in the
-case cache: every declaration's bodyless digest, the imports, the non-Go
+case cache: every declaration's bodyless digest, the package head, the non-Go
 sources). The example is still recalled when every directory whose frame changed
-only gained new functions, or new methods whose name no interface in the
-package's closure declares and which is not a standard-library method checked at
-run time (`String`, `Error`, `MarshalJSON`, `Scan`, `ServeHTTP`, ...), or only
-changed non-Go files that it embeds into unexported variables, **and** the
-example itself executed no body in that directory on its last green run. A body
-that ran while the binary loaded (a package variable's initializer, `init`) is in
-every example's record but was not run by the example: it allows the recall
-unless the directory imports `reflect`, or a non-Go file changed and that body
-names the variable embedding it. A declaration whose **shape** changed (a struct
+only gained new functions, variables without a load-time initializer, types, or
+new methods whose name no interface in the package's closure declares, which is
+not a standard-library method checked at run time (`String`, `Error`,
+`MarshalJSON`, `Scan`, `ServeHTTP`, ...) and which no other method or unexported
+selector in that directory already spells, or only changed non-Go files that it
+embeds into unexported variables. A new declaration named like a predeclared
+identifier (`max`, `len`, `error`) is never one of those: unchanged bodies that
+spelled the builtin now mean the new one. Bodies the example ran in that
+directory, load-time ones included, allow the recall unchanged: an unchanged body
+sees a new declaration only through a changed body it calls, a shape it reaches,
+a shadowed builtin, an interface or a changed embedded file. They hold it back
+only if a non-Go file changed and one of them names the variable embedding it,
+or a declaration there changed shape and the directory imports `reflect` (a
+reflecting body reads a type without naming it). A declaration whose **shape** changed (a struct
 gains a field, a signature or a variable's initializer changes) holds the example
 back only if a body the example ran reaches it **by symbol**: from every body in
 its record (its own package's included, load-time bodies included) the engine
@@ -499,19 +504,49 @@ follows names through type, variable and constant declarations (field types,
 embeddings, aliases, initializers) and never into a function that did not run. A
 field added to a struct the example never reaches cannot change its result; a
 positional literal names the struct, so its example runs and does not build.
-Anything else stays on the static rule: a removed declaration, a new type,
-variable, constant or `init`, a new method named by an interface, changed
-imports, an exported embedded file, a missing frame record, or a shape change
-that comes together with any of those.
+Anything else stays on the static rule: a removed declaration, a new constant,
+`init` or variable whose initializer runs code while the binary loads, a new
+method named by an interface, a changed package head, an exported embedded file,
+a missing frame record, or a shape change that comes together with any of those.
+
+**A file's imports bind only that file; the package head is the closure.** An
+import is file-scoped, so a file's import lines enter no other declaration: each
+declaration's digests fold in the bindings it spells (`strings=strings` for a
+body that says `strings.Cut`; a function's bodyless digest only those its
+signature spells). Adding an import, or a whole new file, changes no existing
+digest; moving an import a body spells to another path changes that body's
+digest even though its text is the same. Dot imports, imports named like a
+builtin and unnamed imports of a dotted module path enter every declaration of
+their file. The package head is the package name, the transitive closure of the
+package's import paths (module directories from their plans, the standard
+library from the toolchain's `GOROOT`) and the file-level directives: an import
+already in the closure links nothing new and moves no `init`, one outside it
+does both. The package's own examples weigh the same head instead of every
+file's import lines, plus the method names of every type they reach.
+
+```
+site gains clone.go (reflect, sync: already in the closure), a new
+type, unexported function and variables, and site.go gains "sync"   -> 3 recalled, 1 witness
+app (the examples' own package) gains extra.go the same way          -> 3 recalled, 1 witness
+site gains func max(a, b int) int; Lift's unchanged body says max    -> Lift runs red
+site.go's alt "m/one" becomes alt "m/two"; Who's body is unchanged   -> Who runs red
+site gains import _ "crypto/sha3" (outside the closure)              -> all run, Routes red
+```
+
+Control: v0.381.0 (pilot) reran every importer of a package that gained one
+file: `3458 shape changed inside the package, static rule` in the package and
+`shape changed in lib/site (via lib/platform), static rule: its imports
+changed` in each importer. On the `newfile` and `own` arms the same engine ran
+4 of 4 (`4 shape changed in site, static rule: its imports changed`, `4 shape
+changed inside the package, static rule`). Arms: `internal/cases/testdata/ran/heads`.
 
 ```
 site gains Fresh() and Page.Slug(); site runs kinds() at load,
-only Lift ran a body in site during its example                 -> Lift runs, 4 recalled
+only Lift ran a body in site during its example                 -> 4 recalled, 1 witness
 site.Lift's signature changes                                   -> Lift runs red, 4 recalled
-site.Label (read while web loads) changes                       -> Banner runs red, Lift runs
-                                                                   (a body there), 3 recalled
+site.Label (read while web loads) changes                       -> Banner runs red, 4 recalled
 site.Code gains Tag(), the importer asserts its own tagger      -> all 5 run, Tagged red
-site's unexported embedded note.txt changes                     -> Lift runs, 4 recalled
+site's unexported embedded note.txt changes, no body read it    -> 4 recalled, 1 witness
 ```
 
 The symbol-level arms (`internal/cases/testdata/ran/shape`, App-shaped, so the
@@ -535,7 +570,10 @@ package examples of `internal/cases/ran` (they moved out of `internal/cases` so
 that package stays under its time ceiling); `grown`, `reshaped`, `exposes`,
 `changedDirs` and `loaded` carry their own examples in internal/cases/ran.go. Control: with
 v0.353.0 the `added` tree ran 5 of 5 (`5 reach a changed declaration outside the
-package`); counting the load-time body as the example's own also ran 5 of 5. Known limit: a method
+package`); counting the load-time body as the example's own also ran 5 of 5; until
+v0.381.0 Lift ran on `added` and `embedfile` (`shape changed in site and the
+example ran a body there`). The old `reflect` clause never fired: it asked the
+module-internal import set, which never holds a standard-library path. Known limit: a method
 called by name through reflection or a template (`{{.Slug}}`) is not seen; a new
 method only matters there if text that already named it starts to resolve.
 
@@ -772,4 +810,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.381.0 capabilities=42513f17c93b7525df86793bdef2fc944b07314309d99833a3c163e26a6e21c6 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.382.0 capabilities=61adc1f94060c322e08970daff7cbc68aeea6dd9543a0b354b5a35120c880b12 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
