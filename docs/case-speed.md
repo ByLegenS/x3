@@ -577,6 +577,29 @@ module-internal import set, which never holds a standard-library path. Known lim
 called by name through reflection or a template (`{{.Slug}}`) is not seen; a new
 method only matters there if text that already named it starts to resolve.
 
+**Working copies that share one cache keep their own records.** The cache
+directory is often shared by several checkouts of the same repository (a main
+tree and its worktrees). The coverage record and the example keys are stored
+under the same name in every copy, so the newest slot used to win, even when
+another copy with different code wrote it. Each record now carries a seal of
+the package's own files, and the coverage record also the frame of every
+directory it reached; a run picks the slot that matches its own tree best and
+the newest only on a tie. Measured on the pilot: after a worktree run, a body
+change in one dependency reran 1016 of 1016 examples in the importing package
+(`977 shape changed inside the package`); with the fix only the examples that
+ran the changed body rerun. Fixture: `internal/cases/testdata/ran/trees`
+(base, other, apart, body), measured by two examples in `internal/cases/ran`
+that run `other` (different embedded file) or `apart` (different package code)
+over the warm `base` cache before `body`:
+
+```
+RERUN app: 2 example(s) rerun - 1 ran a changed body in site; 1 shape changed in site, static rule: a body the example ran there names note, which embeds a changed file
+RERUN app: 1 example(s) rerun, 1 recalled - 1 ran a changed body in site
+```
+
+Control: the first line is v0.382.0 on `body` after `other`; the second is this
+release. With the choice reverted both examples fail (`len(out0.Recalled) == 1`).
+
 **Every rerun package says why.** `x3 case` prints one line on stderr for each
 package it runs, and the summary counts what came from the cache:
 
@@ -810,4 +833,4 @@ is already green and nothing else. Measured on this engine's own tree, where 9 o
 12 packages carry `testdata`: 11.1 s one at a time, **3.0 s** beside each other,
 and the cache changes nothing it is allowed to change.
 
-<!-- x3-dist version=v0.382.0 capabilities=61adc1f94060c322e08970daff7cbc68aeea6dd9543a0b354b5a35120c880b12 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.383.0 capabilities=dc00c0dc6b90a570e617da91c25ab6b8479ae35e4bf4bd1d284e0850e57fe560 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
