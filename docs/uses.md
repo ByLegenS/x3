@@ -93,4 +93,4 @@ files the run takes 0.65 s unchanged, 0.67 s with one file changed, 0.75 s with
 Findings carry a baseline like every other audit: the finding's name is its
 path, and `-update-baseline` only shrinks.
 
-<!-- x3-dist version=v0.387.0 capabilities=df240557b3e948d32ebf5e86ff63d73f4da329483ee5484a413972a5891331d5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.388.0 capabilities=0e20b5613ce4c8c3986b7359f0f251003201957dffdee335ca335b095d8538e0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

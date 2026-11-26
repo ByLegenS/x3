@@ -34,9 +34,14 @@ A finding is a line of the red trial's output that opens with a verdict word
 (`BLOCK`, `FAIL`, `ERROR`, `panic:`, `--- FAIL`) or carries a file position
 (`path.ext:line`), or opens with the position of a path that has no extension
 (`cmd/tool:0:0: `, a finding keyed on a directory, such as a package name),
-together with the indented lines under it — the rule's reason,
-the text it found. `WARN`, `NOTE`, `HELD` and `SELECTED` lines are not findings:
-a warning born is not a red. The record is keyed by the step's name, the trial
+or `path:line: ` / `path:line (target): ` (`apps/books/core:0 (orders): full_scan`,
+the per-package finding of `x3 case`), together with the indented lines under it — the rule's reason,
+the text it found. `WARN`, `NOTE`, `HELD`, `SELECTED` and `ALLOW` lines are not
+findings, nor are the information lines of `x3 case` (`OPT-IN`, `DEFERRED`,
+`UNMEASURED`, `OBSERVED`): a warning born is not a red, and an opt-in example
+not asked for is not the finding of a red step. Measured on the pilot: the step
+said `1 finding(s)`, showed the declared `OPT-IN` line as that finding, and the
+real one (a directory-keyed `full_scan`) was named on no line. The record is keyed by the step's name, the trial
 and that text with **every run of digits folded**, so line numbers, times, counts
 and temporary directory names do not move it; two findings that fold to the same
 text are told apart by how many times it occurs, so a third one is still born. A
@@ -459,4 +464,4 @@ exit `2`; see [A baseline two branches write](baseline-parallel.md#a-baseline-tw
 - **Dead markers** — `dead_exemption`, `dead_exclusion`, an uninstalled parser.
   They belong to the gate's own health, not to the source.
 
-<!-- x3-dist version=v0.387.0 capabilities=df240557b3e948d32ebf5e86ff63d73f4da329483ee5484a413972a5891331d5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.388.0 capabilities=0e20b5613ce4c8c3986b7359f0f251003201957dffdee335ca335b095d8538e0 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
