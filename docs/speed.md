@@ -117,4 +117,4 @@ calls it an invalid character, so having the settings file forgive it and a
 baseline refuse it meant two files written by the same editor behaved
 differently, and the error named a character nobody typed.
 
-<!-- x3-dist version=v0.386.0 capabilities=1a2df7f05dd17a028ddcba7678c713cb31757705698fbe2f1820358bd7408127 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.387.0 capabilities=df240557b3e948d32ebf5e86ff63d73f4da329483ee5484a413972a5891331d5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

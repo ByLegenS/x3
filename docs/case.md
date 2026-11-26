@@ -234,6 +234,55 @@ time, so nothing races — but an example that assumes an *empty* table is
 assuming something the run does not promise. Seed what you assert on and assert
 on the identity you seeded.
 
+### A query no index serves, on a table that will be large
+
+A project names the tables that are large in production - or will be - and
+`x3 case` turns red when an example reads one of them by a full scan:
+
+```yaml
+testdb:
+  fullScan:
+    tables: [orders, ledger_entries]
+    exempt:
+      - table: ledger_entries
+        why: the monthly statement reads every row by design; it runs once a month
+```
+
+```
+x3 case: table orders was read by a full scan 1 time(s) with sequential scans
+switched off, so no index serves that query (testdb.fullScan); it came from a
+package that ran and spells it: store - add the index, or exempt the table with a why
+```
+
+**Why the planner is asked and no data is seeded.** Test data is small, and on a
+small table the planner picks a full scan even when the index exists: the counter
+says "scanned" and means nothing. Seeding production volume into the template
+would need a generator per table and rebuild the template for minutes on every
+migration. Instead the copy is told `enable_seqscan = off` (`ALTER DATABASE` on
+the copy, never on anything outside `testdb.prefix`): the planner then picks a
+full scan only when it has **no other way** - so every full scan the counter
+(`pg_stat_user_tables.seq_scan`) shows means "no index serves this query",
+whatever the table's size. The cost is two small queries per copy.
+
+**Control arms** (`internal/cases/testdata/fullscan`): the same query on a
+declared table without the column's index is red, with the index green; the
+exempt table is green; both arms in a copy `x3 case` makes itself
+(`case.database: isolated`) and in the copy of an outer `x3 testdb run`.
+
+**The finding names the table and the package, not the example.** The counter is
+per table, not per query, and packages run side by side on one copy. The finding
+lists the packages that ran and spell the table's name; a narrow run, the usual
+one after a change, leaves one. A red run remembers none of the packages it ran,
+so the red does not vanish into the cache on the next run; the declared list
+enters the examples' cache key, so changing it measures every example once.
+
+**Bounds.** An index build reads the table and counts as a full scan - build the
+schema in the template (`testdb.setup`), not in an example. A scan of a whole
+*index* (`count(*)` with no condition, an index picked only for its order) is an
+index scan and is not seen: the gate catches the query that has no index, not the
+one whose index is a poor choice. Only a copy is measured; a run with no copy
+measures nothing here.
+
 ### Red
 
 ```
@@ -285,4 +334,4 @@ where it is.
 A package that declares no function at all still makes a claim, and where that
 claim is written is on the next page.
 
-<!-- x3-dist version=v0.386.0 capabilities=1a2df7f05dd17a028ddcba7678c713cb31757705698fbe2f1820358bd7408127 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+<!-- x3-dist version=v0.387.0 capabilities=df240557b3e948d32ebf5e86ff63d73f4da329483ee5484a413972a5891331d5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->

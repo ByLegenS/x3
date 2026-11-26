@@ -67,4 +67,52 @@ and `$` mean *line* end to a reading that splits lines and *text* end to one tha
 does not; running the pattern in both modes would silently change what its own
 anchors say. The one that gets widened is the one that went narrow in silence.
 
-<!-- x3-dist version=v0.386.0 capabilities=1a2df7f05dd17a028ddcba7678c713cb31757705698fbe2f1820358bd7408127 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
+### Inside a loop body, and counted per file
+
+Two questions a forbidden pattern cannot answer alone: *is this call inside a
+loop?* and *how many of these does the file make?* Both ride on `deny`.
+
+```yaml
+syntax:
+  checks:
+    - name: no-query-inside-a-loop
+      sources: ['**/*.go']
+      deny: '\.(Query|QueryRow|Exec)\('
+      within: go-loop
+      reason: a query inside a loop is one round trip per row; ask once for the whole set
+    - name: a-screen-asks-each-address-once
+      sources: ['ui/**/*.js']
+      deny: 'api[(]''GET'', ''([^'']+)'''
+      count: { max: 12, distinct: true }
+      reason: every request on opening is a round trip; merge them and ask each address once
+```
+
+```
+BLOCK store.go:9 (no-query-inside-a-loop): forbidden_pattern
+BLOCK screen.js:5 (a-screen-asks-each-address-once): repeated_value
+	"/api/orders" is asked again; the first is on line 3 - ask once and share the answer
+BLOCK screen.js:6 (a-screen-asks-each-address-once): over_ceiling
+	the file makes 4 of these, the ceiling is 3 - merge them into fewer
+```
+
+**`within: go-loop`** looks for the pattern only inside the body of a Go `for`
+or `range`, nested ones included; the body is drawn by Go's own parser, not by
+the text. The same call outside a loop is right, so a pattern alone would be red
+on every query in the tree. A file that does not parse as Go is red: with no
+body drawn, "nothing found" would be a lie. Bound: a query inside a function the
+loop *calls* is not seen; what is measured is the call written in the body.
+
+**`count`** turns the matches from findings into a tally of the file: `max` is
+the ceiling (red on the match that crosses it), `distinct` reds the second time
+the pattern's first capture group - the address - is written. One line is not
+wrong on its own; the sum and the repeat are. Bound: the count is per file, so a
+screen's imported component counts in its own file.
+
+Both keep what `deny` has: an exempting line (`x3:allow:syntax:<check>` with its
+why) one line above, the finding baseline (`-update-baseline`, shrinks only), and
+the per-file cache. Neither enters the cache key of a check that does not write
+it. **Control arms** (`internal/syntax/testdata/loopcall`, `.../requests`): the
+same work as a loop of queries and as one query, the same screen asking a list
+twice and once.
+
+<!-- x3-dist version=v0.387.0 capabilities=df240557b3e948d32ebf5e86ff63d73f4da329483ee5484a413972a5891331d5 template=43e4718d5f123011abedb1d713cc25a94efd0cee223243fab09b278510dd84c7 -->
